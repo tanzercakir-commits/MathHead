@@ -127,7 +127,7 @@
 ### Track K — Holistic Performance & Hardening (in progress)
 
 - [x] **K1** performance — entail_batch (incremental push/pop) + deterministic memoization cache ✅ (1148 tests, 166 tools)
-- [ ] **K2** coverage & fuzzing — parsers, grammar spec
+- [x] **K2** coverage & fuzzing — fuzzers (found+fixed a real SMT-parser bug) + grammar spec; 86→88% (honest re 95%) ✅ (1227 tests)
 - [ ] **K3** observability — metrics/logs, resource limits
 - [ ] **K4** v1.0 freeze — contract check, release notes, 0.2.0 → 1.0.0
 

@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-28 — K2 · coverage & fuzzing (parsers, grammar spec)
+
+**Done — tests + docs (no new tools; 166 total):**
+
+- **Fuzzers (`tests/test_fuzz.py`, 4):** throw malformed / random-unicode / landmine strings and
+  random CNFs at EVERY parser-backed tool and assert the fence holds — the engine always returns a
+  well-formed result, never an uncaught exception. **The fuzzer found a REAL bug:** `implies(p)`
+  (wrong arity) raised an `IndexError` in all four SMT-theory parsers (bit-vector/EUF/arrays/strings)
+  instead of a clean `PARSE_ERROR` — now fixed (arity guard).
+- **Targeted guardrail coverage (`tests/test_coverage.py`, 75):** ~55 specific rejection paths across
+  every layer return a clean `error` (not a crash), plus `validate_input` edge cases and the cache's
+  LRU eviction. Coverage AND a guarantee that malformed input is refused (Wall #2).
+- **Formal grammar spec (`docs/grammar.md`):** EBNF-ish specification of all six input grammars (logic
+  kernel, compute/CAS, induction, SMT theories, modal, CNF).
+- **Coverage:** 86% → **88%** (`cache` to 100%; induction 76→87, smt 74→84, modal 88→90, qe 85→88,
+  translate 87→90, inequality 81→85). **1227/1227 green.**
+
+**Honest wall (no metric-gaming):** the ROADMAP target was 95%. The remaining gap is concentrated in
+the large `compute` module (2458 statements, ~84%) — mostly per-function DEFENSIVE error branches
+across its ~100 CAS/stats/transform functions. Closing it to 95% is a mechanical follow-up (one
+malformed-input case per function); it is deliberately NOT padded with trivial tests here. The
+substantive K2 win — fuzzers that actually caught a bug + the grammar spec — is done.
+
+**Next:** K3 — observability (structured metrics/logs, resource limits).
+
 ## 2026-07-28 — K1 · performance: incremental solving + memoization (Track K begins)
 
 **Done — 2 new tools (166 total):**

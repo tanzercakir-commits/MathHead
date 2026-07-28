@@ -250,7 +250,10 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] K1 🟡 Performance — entail_batch (incremental Z3 push/pop; shared premises asserted once) +
           deterministic memoization cache (safe because verdicts are deterministic) + cache_stats
           ✅ (1148 tests, 166 tools; ADR-0029)
-[ ] K2 🟢 Coverage & fuzzing — fuzz all parsers, grammar formal spec, 95% coverage
+[x] K2 🟢 Coverage & fuzzing — parser fuzzers (found+fixed a real IndexError in the 4 SMT parsers) +
+          targeted guardrail coverage + docs/grammar.md formal spec; coverage 86→88% ✅ (1227 tests)
+          ↳ honest: the 95% goal is NOT met — the gap is `compute`'s per-function defensive branches
+            (a mechanical follow-up); deliberately not padded with trivial tests (integrity over the number)
 [ ] K3 🟡 Observability — structured metrics/logs, resource limits, perf regression fence
 [ ] K4 🟢 Version 1.0 freeze — full contract check, API stability, release notes
 ```

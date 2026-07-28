@@ -184,6 +184,8 @@ def _bv_translate(assumptions: list[str], goal: str | None, width: int, signed: 
                 return a * b
             raise SmtParseError(f"unsupported bit-vector operator: {type(op).__name__}")
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("implies", "iff"):
+            if len(node.args) != 2:
+                raise SmtParseError(f"{node.func.id} requires exactly 2 arguments")
             a, b = build(node.args[0]), build(node.args[1])
             return z3.Implies(a, b) if node.func.id == "implies" else (a == b)
         if isinstance(node, ast.Name):
@@ -291,6 +293,8 @@ def _euf_translate(assumptions: list[str], goal: str | None):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             name = node.func.id
             if name in ("implies", "iff"):
+                if len(node.args) != 2:
+                    raise SmtParseError(f"{name} requires exactly 2 arguments")
                 a, b = formula(node.args[0]), formula(node.args[1])
                 return z3.Implies(a, b) if name == "implies" else (a == b)
             _claim(name, "pred")
@@ -402,6 +406,8 @@ def _arr_translate(assumptions: list[str], goal: str | None, index_sort: str, va
                 left = right
             return clauses[0] if len(clauses) == 1 else z3.And(*clauses)
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("implies", "iff"):
+            if len(node.args) != 2:
+                raise SmtParseError(f"{node.func.id} requires exactly 2 arguments")
             a, b = formula(node.args[0]), formula(node.args[1])
             return z3.Implies(a, b) if node.func.id == "implies" else (a == b)
         raise SmtParseError("array formulas: ==/!=/<.., and/or/not, implies/iff over select/store terms")
@@ -504,6 +510,8 @@ def _str_translate(assumptions: list[str], goal: str | None):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             fid = node.func.id
             if fid in ("implies", "iff"):
+                if len(node.args) != 2:
+                    raise SmtParseError(f"{fid} requires exactly 2 arguments")
                 a, b = formula(node.args[0]), formula(node.args[1])
                 return z3.Implies(a, b) if fid == "implies" else (a == b)
             args = [term(a) for a in node.args]

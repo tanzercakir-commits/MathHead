@@ -4,8 +4,20 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+### Fixed
+
+- **SMT-theory parsers raised `IndexError` on wrong-arity `implies`/`iff`:** `implies(p)` (one
+  argument) crashed all four `core/smt.py` parsers (bit-vector/EUF/arrays/strings) instead of
+  returning a clean `PARSE_ERROR`. Found by the new K2 fuzzer; fixed with an arity guard.
+
 ### Added
 
+- **Parser fuzzing + grammar spec (K2):** ROADMAP K2. New `tests/test_fuzz.py` throws malformed /
+  random / adversarial input at every parser-backed tool and asserts no uncaught exception — it
+  FOUND (and this release fixes) the SMT-parser arity bug above. New `tests/test_coverage.py` (75)
+  covers ~55 rejection paths + `validate_input` edges + cache LRU eviction. New `docs/grammar.md`
+  formally specifies all six input grammars. Coverage 86% → 88% (honest — the 95% goal is not met;
+  the gap is `compute`'s defensive branches, not padded here). **1227 tests green.**
 - **Performance — incremental solving + memoization (`entail_batch`, `cache_stats`):** ROADMAP K1
   — Track K begins. `entail_batch` checks many conclusions against shared premises via Z3 push/pop
   (premises asserted once; verdicts identical to `check_entailment`). Deterministic memoization

@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-07-28 — Aşama 6 · çok değişkenli analiz (grad/Jacobian/Hessian/∫/Σ/Π/ODE)
+
+**Yapıldı**
+
+- 7 yeni işlem: `gradient`, `jacobian`, `hessian`, `definite_integral`,
+  `summation`, `product`, `solve_ode` (ODE, `dsolve`).
+- `solve_ode` için güvenli mini-ayrıştırıcı: `y'`/`y''` (üs işareti) → `D(y,k)` →
+  `Derivative`; `=`→`==`; whitelist dışı ad/çağrı reddedilir.
+- Uçtan uca: router (7) + MCP (**49 araç**) + CLI (`gradient/jacobian/hessian/
+  defint/sum/product/ode`) + `tests/test_multivariable.py` (16) → **258/258 yeşil**.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `∇(x²y+sin y)=[2xy, x²+cos y]`; Hessian simetrik; `∫₀³x²=9`, `∫₀^∞e^{-x}=1`;
+  `Σ_{1}^{n} i = n²/2+n/2` (kapalı form); `Π_{1}^{5} i = 120`.
+- ODE: `y'=y → C1·e^x`; `y''+y=0 → C1 sin+C2 cos`; `y'=xy → C1·e^{x²/2}`.
+- Dürüstlük: çözülemeyen ODE (`y''=y²x`) → COMPUTE_FAILED; kötücül/tanımsız →
+  reddedilir.
+
+**Sıradaki:** Aşama 7 — olasılık & istatistik (dağılımlar, beklenen değer/varyans).
+
 ## 2026-07-28 — Aşama 5 [S] · sağlamlaştırma-2 (taksonomi + golden + benchmark)
 
 **Yapıldı**

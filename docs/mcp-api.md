@@ -273,6 +273,23 @@ reddedilir). **Dürüstlük:** doğrusal olmayan / kapalı formu olmayan bağın
 uydurmaz, `COMPUTE_FAILED` döner. `permutations`/`combinations` `k>n` için `0`
 (kombinatorik olarak doğru); negatif girdi reddedilir.
 
+### Çok değişkenli analiz (multivariable calculus)
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `gradient` | `gradient(expression, variables)` | `x**2*y+sin(y)`, `["x","y"]` → `["2*x*y","x**2 + cos(y)"]` |
+| `jacobian` | `jacobian(expressions, variables)` | `["x*y","x+y"]`, `["x","y"]` → `[["y","x"],["1","1"]]` |
+| `hessian` | `hessian(expression, variables)` | → simetrik 2. türev matrisi |
+| `definite_integral` | `definite_integral(expression, symbol, lower, upper)` | `x**2`, `x`, `0`, `3` → `9`; sınır `oo` olabilir |
+| `summation` | `summation(expression, index, lower, upper)` | `i`, `i`, `1`, `n` → `n**2/2 + n/2` (kapalı form) |
+| `product` | `product(expression, index, lower, upper)` | `i`, `i`, `1`, `5` → `120` |
+| `solve_ode` | `solve_ode(equation, func="y", var="x")` | `"y'' + y = 0"` → `Eq(y(x), C1*sin(x) + C2*cos(x))` |
+
+`solve_ode` türevi `y'`, `y''` (üs işareti) ya da `D(y, k)` biçiminde okur; ayrı
+bir güvenli ayrıştırıcı kullanır (`=`/`==`, whitelist dışı ad reddedilir).
+**Dürüstlük:** çözülemeyen ODE'de uydurmaz, `COMPUTE_FAILED`. `definite_integral`/
+`summation` sınırları sonsuz (`oo`) ve `summation` üst sınırı sembolik (`n`) olabilir.
+
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
 `COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).

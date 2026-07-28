@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Çok değişkenli analiz (`gradient`, `jacobian`, `hessian`, `definite_integral`,
+  `summation`, `product`, `solve_ode`):** Aşama 6. Gradyan/Jacobian/Hessian,
+  belirli integral (sonsuz sınır dahil), toplam/çarpım (Σ/Π, kapalı form:
+  `Σi = n²/2+n/2`) ve **ODE çözümü** (`dsolve`; `y'`/`y''` ya da `D(y,k)`
+  notasyonu, güvenli ayrıştırıcı). Çözülemeyen ODE'de dürüst hata. MCP
+  (**49 araç**) + CLI (`gradient/jacobian/hessian/defint/sum/product/ode`). +16 test.
 - **Kombinatorik & ayrık (`permutations`, `combinations`, `factorial`,
   `partition_count`, `solve_recurrence`):** Aşama 4. Permütasyon/kombinasyon,
   faktöriyel, tam sayı bölüntü sayısı ve **doğrusal özyineleme kapalı-form

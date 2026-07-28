@@ -11,8 +11,9 @@ AI'ın (ör. Claude) **MCP** üzerinden çağırabileceği, first-order logic te
 
 ## Durum
 
-**v0 — iskelet & tasarım.** Yapı, sözleşmeler ve tasarım dosyaları hazır; çekirdek
-gövdeleri v1'de doldurulacak. Yol için `Todo.md`, hedef için `Plan.md`.
+**Çalışır motor.** Mantık çekirdeği (Z3) + hesap/kalkülüs/lineer cebir/sayı
+teorisi/kombinatorik (SymPy) + Track B (SAT indirgeme): **49 MCP aracı**, CLI ve
+242+ otomatik test. Aşamalı yol haritası `ROADMAP.md`'de; sıradaki iş `Todo.md`'de.
 
 ## Hızlı başlangıç
 
@@ -24,7 +25,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
 mathhead-server        # MCP sunucusunu stdio ile başlat
-pytest -q              # testler → 17/17 yeşil
+pytest -q              # tüm testler yeşil
 ```
 
 ## Kullanım (v1)
@@ -74,6 +75,11 @@ combinations(49, 6)                               # -> 13983816  (loto)
 factorial(10)                                     # -> 3628800
 solve_recurrence("y(n) = y(n-1) + y(n-2)",        # -> Fibonacci kapalı formu (Binet)
                  "y", "n", {"0": "0", "1": "1"})
+
+from mathhead.compute import gradient, summation, solve_ode  # v2+ (çok değişkenli analiz)
+gradient("x**2*y + sin(y)", ["x", "y"])           # -> ["2*x*y", "x**2 + cos(y)"]
+summation("i", "i", "1", "n")                     # -> "n**2/2 + n/2"  (kapalı form)
+solve_ode("y'' + y = 0")                          # -> Eq(y(x), C1*sin(x) + C2*cos(x))
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -123,7 +129,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 42 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 49 araç)
 ├── scripts/             · benchmark.py (performans taban çizgisi)
 └── tests/               · 242 test + fixtures/golden.json (regresyon çiti)
 ```

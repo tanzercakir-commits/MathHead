@@ -56,10 +56,10 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     └─ hata taksonomisi (docs/error-taxonomy.md + test_taxonomy) +
        golden senaryolar (fixtures/golden.json, 32) + benchmark iskeleti ✅
 
-[ ] Aşama 6 · Çok değişkenli analiz (multivariable)
+[x] Aşama 6 · Çok değişkenli analiz (multivariable)  (bitti — 258 test, 49 araç)
     └─ gradyan, Jacobian, Hessian, belirli integral, seri toplam/çarpım,
-       temel ODE (diferansiyel denklem) çözümü
-       ↳ dürüst duvar: her ODE kapalı-form çözülemez → değerlendirilmemiş döner
+       temel ODE (diferansiyel denklem) çözümü ✅
+       ↳ dürüst: çözülemeyen ODE → COMPUTE_FAILED (uydurma yok)
 
 [ ] Aşama 7 · Olasılık & istatistik
     └─ dağılımlar (sembolik), beklenen değer/varyans, temel çıkarım

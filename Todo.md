@@ -38,7 +38,8 @@
 - [x] **T17** ROADMAP Aşama 3: sayı teorisi ✅ (187 test, 37 araç)
 - [x] **T18** ROADMAP Aşama 4: kombinatorik & ayrık ✅ (205 test, 42 araç, Fibonacci→Binet)
 - [x] **T19** ROADMAP Aşama 5 [S]: taksonomi + golden fixtures + benchmark ✅ (242 test)
-- [ ] **T20** ROADMAP Aşama 6: çok değişkenli analiz (gradyan/Jacobian/Hessian/belirli integral/ODE)
+- [x] **T20** ROADMAP Aşama 6: çok değişkenli analiz ✅ (258 test, 49 araç, ODE dahil)
+- [ ] **T21** ROADMAP Aşama 7: olasılık & istatistik (dağılımlar, beklenen değer/varyans, çıkarım)
 
 ---
 

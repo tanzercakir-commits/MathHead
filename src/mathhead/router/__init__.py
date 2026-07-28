@@ -140,6 +140,26 @@ def route(task: str, payload: dict[str, Any]) -> (
             payload.get("var", "n"), payload.get("initial"),
         )
 
+    # --- Çok değişkenli analiz (multivariable) ---
+    if task == "gradient":
+        return compute.gradient(payload["expression"], payload["variables"])
+    if task == "jacobian":
+        return compute.jacobian(payload["expressions"], payload["variables"])
+    if task == "hessian":
+        return compute.hessian(payload["expression"], payload["variables"])
+    if task == "definite_integral":
+        return compute.definite_integral(payload["expression"], payload["symbol"],
+                                         payload["lower"], payload["upper"])
+    if task == "summation":
+        return compute.summation(payload["expression"], payload["index"],
+                                 payload["lower"], payload["upper"])
+    if task == "product":
+        return compute.product(payload["expression"], payload["index"],
+                               payload["lower"], payload["upper"])
+    if task == "solve_ode":
+        return compute.solve_ode(payload["equation"], payload.get("func", "y"),
+                                 payload.get("var", "x"))
+
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))

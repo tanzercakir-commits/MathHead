@@ -233,6 +233,34 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--init", action="append", default=[], metavar="K=V",
                    help="başlangıç koşulu, tekrarlanabilir (ör. --init 0=0 --init 1=1)")
 
+    p = sub.add_parser("gradient", help="gradyan ∇f (--vars virgüllü)")
+    p.add_argument("expression", metavar="İFADE")
+    p.add_argument("--vars", required=True, metavar="X,Y", help="değişkenler, ',' ile")
+
+    p = sub.add_parser("jacobian", help="Jacobian matrisi (çoklu --f, --vars)")
+    p.add_argument("--f", action="append", default=[], required=True, metavar="İFADE")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+
+    p = sub.add_parser("hessian", help="Hessian matrisi (--vars virgüllü)")
+    p.add_argument("expression", metavar="İFADE")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+
+    p = sub.add_parser("defint", help="belirli integral ∫[a,b] f dx")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("lower", metavar="ALT"); p.add_argument("upper", metavar="ÜST")
+
+    p = sub.add_parser("sum", help="toplam Σ (index alt üst)")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("index", metavar="İNDİS")
+    p.add_argument("lower", metavar="ALT"); p.add_argument("upper", metavar="ÜST")
+
+    p = sub.add_parser("product", help="çarpım Π (index alt üst)")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("index", metavar="İNDİS")
+    p.add_argument("lower", metavar="ALT"); p.add_argument("upper", metavar="ÜST")
+
+    p = sub.add_parser("ode", help="diferansiyel denklem (türev y', y'')")
+    p.add_argument("equation", metavar="DENKLEM", help="ör. \"y'' + y = 0\"")
+    p.add_argument("--func", default="y"); p.add_argument("--var", default="x")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -298,6 +326,19 @@ _DISPATCH = {
         "recurrence": a.recurrence, "func": a.func, "var": a.var,
         "initial": dict(kv.split("=", 1) for kv in a.init),
     }),
+    "gradient": lambda a: ("gradient", {"expression": a.expression,
+                                        "variables": [v.strip() for v in a.vars.split(",")]}),
+    "jacobian": lambda a: ("jacobian", {"expressions": a.f,
+                                        "variables": [v.strip() for v in a.vars.split(",")]}),
+    "hessian": lambda a: ("hessian", {"expression": a.expression,
+                                      "variables": [v.strip() for v in a.vars.split(",")]}),
+    "defint": lambda a: ("definite_integral", {"expression": a.expression, "symbol": a.symbol,
+                                               "lower": a.lower, "upper": a.upper}),
+    "sum": lambda a: ("summation", {"expression": a.expression, "index": a.index,
+                                    "lower": a.lower, "upper": a.upper}),
+    "product": lambda a: ("product", {"expression": a.expression, "index": a.index,
+                                      "lower": a.lower, "upper": a.upper}),
+    "ode": lambda a: ("solve_ode", {"equation": a.equation, "func": a.func, "var": a.var}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

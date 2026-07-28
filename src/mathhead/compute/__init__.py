@@ -807,3 +807,202 @@ def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
     result = str(sympy.simplify(sol))
     return ComputeResult("ok", "solve_recurrence", result,
                          f"{func}({var}) = {result}.", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# Çok değişkenli analiz (multivariable calculus) — gradyan/Jacobian/Hessian,
+# belirli integral, toplam/çarpım (Σ/Π), sıradan diferansiyel denklem (ODE).
+# --------------------------------------------------------------------------- #
+def gradient(expression: str, variables: list[str]) -> ComputeResult:
+    """∇f — `expression`'ın her değişkene göre kısmi türevleri (liste)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("değişken listesi boş olamaz")
+        expr = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("gradient", str(exc), t0)
+    try:
+        result = [str(sympy.diff(expr, v)) for v in vs]
+    except Exception as exc:  # noqa: BLE001
+        return _error("gradient", f"gradyan hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "gradient", result,
+                         f"∇f (değişkenler: {', '.join(variables)}).", "OK", _meta(t0))
+
+
+def jacobian(expressions: list[str], variables: list[str]) -> ComputeResult:
+    """Jacobian matrisi — vektör-değerli fonksiyonun kısmi türev matrisi."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(expressions, list) or not expressions:
+            raise ComputeError("ifade listesi boş olamaz")
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("değişken listesi boş olamaz")
+        fs = [_parse(e, syms) for e in expressions]
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("jacobian", str(exc), t0)
+    try:
+        result = _mat_out(sympy.Matrix(fs).jacobian(vs))
+    except Exception as exc:  # noqa: BLE001
+        return _error("jacobian", f"Jacobian hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "jacobian", result,
+                         f"J = {len(fs)}×{len(vs)} matris.", "OK", _meta(t0))
+
+
+def hessian(expression: str, variables: list[str]) -> ComputeResult:
+    """Hessian matrisi — skaler fonksiyonun ikinci kısmi türev matrisi (simetrik)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or len(variables) < 1:
+            raise ComputeError("en az bir değişken gerekir")
+        expr = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("hessian", str(exc), t0)
+    try:
+        result = _mat_out(sympy.hessian(expr, vs))
+    except Exception as exc:  # noqa: BLE001
+        return _error("hessian", f"Hessian hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "hessian", result,
+                         f"H = {len(vs)}×{len(vs)} matris.", "OK", _meta(t0))
+
+
+def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> ComputeResult:
+    """Belirli integral ∫ₐᵇ f dx. Sınırlar sonsuz olabilir ("oo"/"-oo")."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        a = _parse_point(str(lower), syms)
+        b = _parse_point(str(upper), syms)
+    except ComputeError as exc:
+        return _error("definite_integral", str(exc), t0)
+    try:
+        result = str(sympy.integrate(expr, (var, a, b)))
+    except Exception as exc:  # noqa: BLE001
+        return _error("definite_integral", f"integral hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "definite_integral", result,
+                         f"∫[{lower},{upper}] {expression} d{symbol} = {result}.", "OK", _meta(t0))
+
+
+def summation(expression: str, index: str, lower: str, upper: str) -> ComputeResult:
+    """Toplam Σ — `index` = lower..upper için `expression` toplamı (kapalı form olabilir)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        idx = _symbol(index, syms)
+        a = _parse_point(str(lower), syms)
+        b = _parse_point(str(upper), syms)
+    except ComputeError as exc:
+        return _error("summation", str(exc), t0)
+    try:
+        result = str(sympy.summation(expr, (idx, a, b)))
+    except Exception as exc:  # noqa: BLE001
+        return _error("summation", f"toplam hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "summation", result,
+                         f"Σ({index}={lower}..{upper}) {expression} = {result}.", "OK", _meta(t0))
+
+
+def product(expression: str, index: str, lower: str, upper: str) -> ComputeResult:
+    """Çarpım Π — `index` = lower..upper için `expression` çarpımı."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        idx = _symbol(index, syms)
+        a = _parse_point(str(lower), syms)
+        b = _parse_point(str(upper), syms)
+    except ComputeError as exc:
+        return _error("product", str(exc), t0)
+    try:
+        result = str(sympy.product(expr, (idx, a, b)))
+    except Exception as exc:  # noqa: BLE001
+        return _error("product", f"çarpım hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "product", result,
+                         f"Π({index}={lower}..{upper}) {expression} = {result}.", "OK", _meta(t0))
+
+
+def solve_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
+    """Sıradan diferansiyel denklemi (ODE) çözer. Türev: `y'`, `y''` (üs işareti).
+
+    Ör: `"y' = y"` → `Eq(y(x), C1*exp(x))`; `"y'' + y = 0"` → C1·sin + C2·cos.
+    Çözülemezse (kapalı form yok) DÜRÜSTÇE hata.
+    """
+    import re
+    t0 = time.perf_counter()
+    F = sympy.Function(func)
+    varsym = sympy.Symbol(var)
+
+    def _tr(node: ast.AST) -> Any:
+        if isinstance(node, ast.BinOp):
+            lft, rgt = _tr(node.left), _tr(node.right)
+            for typ, fn in (
+                (ast.Add, lambda: lft + rgt), (ast.Sub, lambda: lft - rgt),
+                (ast.Mult, lambda: lft * rgt), (ast.Div, lambda: lft / rgt),
+                (ast.Pow, lambda: lft ** rgt),
+            ):
+                if isinstance(node.op, typ):
+                    return fn()
+            raise ComputeError("izin verilmeyen işleç")
+        if isinstance(node, ast.UnaryOp):
+            if isinstance(node.op, ast.USub):
+                return -_tr(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return _tr(node.operand)
+            raise ComputeError("izin verilmeyen tekli işleç")
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id == "D":     # türev işareti: D(func, mertebe)
+                if len(node.args) != 2 or not (
+                    isinstance(node.args[0], ast.Name) and node.args[0].id == func
+                ) or not (isinstance(node.args[1], ast.Constant)
+                          and isinstance(node.args[1].value, int)):
+                    raise ComputeError("türev D(func, mertebe) biçiminde olmalı")
+                return sympy.Derivative(F(varsym), varsym, node.args[1].value)
+            if node.func.id == func:    # y(x) açık yazımı
+                return F(varsym)
+            if node.func.id in _FUNCS:
+                return _FUNCS[node.func.id](*[_tr(a) for a in node.args])
+            raise ComputeError(f"izin verilmeyen çağrı: {node.func.id}")
+        if isinstance(node, ast.Name):
+            if node.id == var:
+                return varsym
+            if node.id == func:
+                return F(varsym)
+            raise ComputeError(f"izin verilmeyen ad: {node.id}")
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) \
+                and not isinstance(node.value, bool):
+            return sympy.Integer(node.value) if isinstance(node.value, int) else sympy.Float(node.value)
+        raise ComputeError("ifade ayrıştırılamadı")
+
+    try:
+        src = str(equation).strip()
+        # y', y'' ... -> D(y,1), D(y,2) ... (üs işaretini ast-uyumlu çağrıya çevir)
+        src = re.sub(rf"{re.escape(func)}('+)",
+                     lambda m: f"D({func},{len(m.group(1))})", src)
+        if "=" in src and "==" not in src:
+            src = src.replace("=", "==", 1)
+        body = ast.parse(src, mode="eval").body
+        if isinstance(body, ast.Compare):
+            if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):
+                raise ComputeError("yalnızca '==' karşılaştırması desteklenir")
+            expr = _tr(body.left) - _tr(body.comparators[0])
+        else:
+            expr = _tr(body)
+    except ComputeError as exc:
+        return _error("solve_ode", str(exc), t0)
+    except (SyntaxError, ValueError) as exc:
+        return _error("solve_ode", f"ayrıştırılamadı: {exc}", t0)
+    try:
+        sol = sympy.dsolve(expr, F(varsym))
+        result = [str(s) for s in sol] if isinstance(sol, list) else str(sol)
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_ode", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "solve_ode", result,
+                         f"ODE çözümü ({func}({var})).", "OK", _meta(t0))

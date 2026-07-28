@@ -336,6 +336,58 @@ def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
                                              "var": var, "initial": initial}))
 
 
+# --------------------- Çok değişkenli analiz ------------------------------ #
+@mcp.tool()
+def gradient(expression: str, variables: list[str]) -> dict[str, Any]:
+    """∇f — `expression`'ın her değişkene göre kısmi türevleri (liste)."""
+    return asdict(route("gradient", {"expression": expression, "variables": variables}))
+
+
+@mcp.tool()
+def jacobian(expressions: list[str], variables: list[str]) -> dict[str, Any]:
+    """Jacobian matrisi — vektör-değerli fonksiyonun kısmi türev matrisi."""
+    return asdict(route("jacobian", {"expressions": expressions, "variables": variables}))
+
+
+@mcp.tool()
+def hessian(expression: str, variables: list[str]) -> dict[str, Any]:
+    """Hessian matrisi — skaler fonksiyonun ikinci kısmi türev matrisi (simetrik)."""
+    return asdict(route("hessian", {"expression": expression, "variables": variables}))
+
+
+@mcp.tool()
+def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> dict[str, Any]:
+    """Belirli integral ∫ₐᵇ f dx. Sınırlar sonsuz olabilir ("oo"/"-oo")."""
+    return asdict(route("definite_integral", {"expression": expression, "symbol": symbol,
+                                              "lower": lower, "upper": upper}))
+
+
+@mcp.tool()
+def summation(expression: str, index: str, lower: str, upper: str) -> dict[str, Any]:
+    """Toplam Σ — `index`=lower..upper için `expression` toplamı (kapalı form olabilir).
+
+    Ör: `"i", "i", "1", "n"` → `n**2/2 + n/2`.
+    """
+    return asdict(route("summation", {"expression": expression, "index": index,
+                                      "lower": lower, "upper": upper}))
+
+
+@mcp.tool()
+def product(expression: str, index: str, lower: str, upper: str) -> dict[str, Any]:
+    """Çarpım Π — `index`=lower..upper için `expression` çarpımı."""
+    return asdict(route("product", {"expression": expression, "index": index,
+                                    "lower": lower, "upper": upper}))
+
+
+@mcp.tool()
+def solve_ode(equation: str, func: str = "y", var: str = "x") -> dict[str, Any]:
+    """Sıradan diferansiyel denklemi (ODE) çözer. Türev: `y'`, `y''` (üs işareti).
+
+    Ör: `"y' = y"` → `Eq(y(x), C1*exp(x))`. Çözülemezse dürüst hata.
+    """
+    return asdict(route("solve_ode", {"equation": equation, "func": func, "var": var}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

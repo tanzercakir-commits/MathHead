@@ -36,6 +36,7 @@ from mathhead.core.logic import (
 )
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.core.induction import InductionResult, prove_by_induction
+from mathhead.core.modal import ModalResult, check_modal
 from mathhead.core.qe import QEResult, eliminate_quantifiers
 from mathhead.core.smt import (
     check_arrays,
@@ -72,7 +73,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
-    | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult
+    | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -123,6 +124,9 @@ def route(task: str, payload: dict[str, Any]) -> (
         return check_strings(payload["assumptions"], payload.get("goal"), **_opts(payload))
     if task == "eliminate_quantifiers":
         return eliminate_quantifiers(payload["formula"], **_opts(payload))
+    if task == "check_modal":
+        return check_modal(payload["formula"], payload.get("system", "K"),
+                           payload.get("max_worlds", 6), **_opts(payload))
 
     # --- Verification layer (AI reasoning auditor) ---
     if task == "verify_equality":

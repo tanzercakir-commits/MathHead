@@ -461,6 +461,25 @@ claim may still be true) or Z3 could not decide the nonlinear step (`SOLVER_UNKN
 
 ---
 
+## Modal logic (H — proof depth, bounded)
+
+**Propositional modal-logic validity** in a normal system, by bounded Kripke model
+checking. `box(φ)` = □ (necessity), `dia(φ)` = ◇ (possibility).
+
+| Tool | Signature | Example |
+|---|---|---|
+| `check_modal` | `check_modal(formula, system="K", max_worlds=6)` | `implies(box(p), p)` → `invalid` in K, `valid` in T |
+
+Systems: `K` (any frame), `T` (reflexive), `D` (serial), `B` (refl.+sym.), `S4`
+(refl.+trans.), `S5` (equivalence). Grammar: atoms, `box`/`dia`, `and`/`or`/`not`,
+`implies`/`iff`. Returns a `ModalResult`: `invalid` → a concrete Kripke countermodel
+(`witness`: worlds, accessibility, valuation, refuting world) — **definitive**;
+`valid`/`VALID_BOUNDED` → no countermodel in any `system`-frame with up to `max_worlds`
+worlds — **bounded model checking**, honest about the bound (raise `max_worlds` for more
+confidence). Temporal (LTL) operators are a future extension.
+
+---
+
 ## Quantifier elimination (H — proof depth)
 
 **Eliminates quantifiers** from a linear-arithmetic (Presburger) formula, returning an

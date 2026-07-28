@@ -110,7 +110,7 @@
 - [x] **H1** induction proofs — prove_by_induction (base+step via Z3, sound meta-rule) ✅ (990 tests, 149 tools)
 - [x] **H2** SMT theories — check_bitvector/uninterpreted/arrays/strings (BV/EUF/arrays/strings) ✅ (1023 tests, 153 tools)
 - [x] **H3** proof generation II — eliminate_quantifiers (Z3 qe, Presburger LIA/LRA) ✅ (1034 tests, 154 tools)
-- [ ] **H4** modal/temporal logic — K/S4 basics (careful scope)
+- [x] **H4** modal logic — check_modal (K/T/D/B/S4/S5, bounded Kripke MC; LTL deferred) ✅ (1048 tests, 155 tools)
 - [ ] **H5** [S] Track H hardening
 
 - [ ] then: J → K (full list in ROADMAP)

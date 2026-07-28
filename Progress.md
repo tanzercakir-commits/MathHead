@@ -6,6 +6,34 @@
 
 ---
 
+## 2026-07-28 — H4 · modal logic (K/T/D/B/S4/S5)
+
+**Done — 1 new logic tool (155 total):**
+
+- `check_modal` (new `core/modal.py`): propositional modal-logic validity by BOUNDED Kripke
+  model checking. `box(φ)`=□, `dia(φ)`=◇, plus and/or/not, implies/iff, across the normal
+  systems K, T, D, B, S4, S5 (frame conditions on accessibility:
+  reflexive/transitive/symmetric/serial). Searches for a countermodel over W worlds as a
+  pure-Boolean Z3 problem.
+- Wired router + MCP (155 tools) + CLI (`modal`) + `tests/test_modal.py` (12) → **1048/1048 green**.
+
+**Verified — the correspondence theorems come out exactly right:** the K axiom
+□(p→q)→(□p→□q) is valid in every system; T (□p→p) becomes valid exactly with reflexivity
+(invalid in K); 4 (□p→□□p) needs transitivity (valid from S4); 5 (◇p→□◇p) only in S5;
+D (□p→◇p) holds on serial frames (valid in T). A countermodel carries the worlds, the
+accessibility relation, the valuation, and the refuting world.
+
+**Honest scope (🔴 frontier):** a countermodel is a DEFINITIVE refutation; a positive result
+is `VALID_BOUNDED` — "no countermodel with up to W worlds" (bounded model checking), not an
+unconditional proof. All six systems have the finite-model property, so a small W settles
+the standard axioms; the bound is always surfaced in the explanation and meta. Temporal
+(LTL) operators are deliberately left as a future extension (careful scope).
+
+**Decision:** ADR-0025 (bounded Kripke model checking; definitive refutation vs. bounded
+validity, stated honestly).
+
+**Next:** H5 — [S] Track H hardening.
+
 ## 2026-07-28 — H3 · proof generation II (quantifier elimination)
 
 **Done — 1 new logic tool (154 total):**

@@ -348,6 +348,32 @@
 
 ---
 
+## ADR-0025 — Modal logic by bounded Kripke model checking (definitive refutation, bounded validity)
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP H4 (optional/frontier, "careful scope") wants basic modal/temporal
+  logic. Modal validity over a frame class is a ∀-over-frames statement; a complete
+  decision procedure (tableaux, or the exponential finite-model bound) is a large effort and
+  easy to get subtly wrong.
+- **Decision:** `core/modal.py` reduces "is φ valid in system X?" to a search for a
+  COUNTERMODEL over W worlds — a pure-Boolean Z3 encoding with one propositional variable
+  per (world, atom) and per (world, world) accessibility edge, the system's frame conditions
+  (reflexive/transitive/symmetric/serial) as constraints, and the standard Kripke semantics
+  for □/◇ expanded into finite conjunctions/disjunctions. A satisfying assignment is a
+  countermodel (φ fails at some world); UNSAT over ≤W worlds means no such small countermodel
+  exists.
+- **Consequences:** A countermodel is a DEFINITIVE, checkable refutation (status `invalid`).
+  A negative search yields `valid`/`VALID_BOUNDED`, which is HONESTLY bounded — "valid over
+  all frames of the class with up to W worlds", not an unconditional proof; the bound is in
+  the explanation and `meta.bounded`. All of K/T/D/B/S4/S5 have the finite-model property, so
+  a small W settles the standard axioms — verified by the correspondence theorems
+  (T↔reflexive, 4↔transitive, 5↔S5). Determinism follows ADR-0019 (stable verdict; the
+  countermodel witness is one example). Temporal logics (LTL/CTL) need ω-semantics
+  (loops/fairness) and are deliberately out of scope; they can be added as a separate tool
+  without disturbing this one.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **154 tools**.
+Total **155 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -77,6 +77,10 @@ Reason about STRINGS/sequences (concat, length, contains, prefix/suffix).
 ### `eliminate_quantifiers(formula)`
 
 QUANTIFIER ELIMINATION: turn a quantified linear-arithmetic formula into an equivalent quantifier-free one.
+
+### `check_modal(formula, system='K', max_worlds=6)`
+
+Is a propositional MODAL formula valid in a normal system (K/T/D/B/S4/S5)?
 
 ### `verify_equality(left, right)`
 

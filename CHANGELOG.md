@@ -6,6 +6,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Modal logic (`check_modal`):** ROADMAP H4. Propositional modal-logic validity in the
+  normal systems K/T/D/B/S4/S5 by bounded Kripke model checking (`box`=□, `dia`=◇). New
+  `core/modal.py`. A countermodel is a definitive refutation (`invalid`, with the frame +
+  valuation as witness); a positive result is `VALID_BOUNDED` (no countermodel up to W
+  worlds — honest about the bound). The classic correspondence theorems come out exactly
+  right (T↔reflexive, 4↔transitive, 5↔S5). MCP (**155 tools**) + CLI (`modal`) + 12 tests.
+  ADR-0025. **1048 tests green.** (Temporal/LTL deferred — careful scope.)
 - **Quantifier elimination (`eliminate_quantifiers`):** ROADMAP H3 (proof depth II). Z3
   `qe` over Presburger arithmetic turns a quantified linear formula into an equivalent
   quantifier-free one, doubling as a decision procedure for quantified LIA/LRA

@@ -208,6 +208,8 @@ ARGS = {
     "check_strings": {"assumptions": [], "goal": "length(x + y) == length(x) + length(y)"},
     # Quantifier elimination (H3)
     "eliminate_quantifiers": {"formula": "exists(y, x == 2*y)"},
+    # Modal logic (H4)
+    "check_modal": {"formula": "implies(box(p), p)", "system": "T", "max_worlds": 6},
 }
 
 

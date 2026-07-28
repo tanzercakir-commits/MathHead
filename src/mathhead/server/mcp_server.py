@@ -236,6 +236,20 @@ def eliminate_quantifiers(formula: str) -> dict[str, Any]:
     return asdict(route("eliminate_quantifiers", {"formula": formula}))
 
 
+@mcp.tool()
+def check_modal(formula: str, system: str = "K", max_worlds: int = 6) -> dict[str, Any]:
+    """Is a propositional MODAL formula valid in a normal system (K/T/D/B/S4/S5)?
+
+    `box(φ)` = □ (necessity), `dia(φ)` = ◇ (possibility); plus `and`/`or`/`not`,
+    `implies`/`iff`. Bounded Kripke model checking: `invalid` → a concrete countermodel
+    (definitive); `valid`/`VALID_BOUNDED` → no countermodel in any `system`-frame with up
+    to `max_worlds` worlds (honest about the bound). E.g. `implies(box(p), p)` is invalid
+    in K but valid in T; `implies(box(p), box(box(p)))` is valid only from S4 on.
+    """
+    return asdict(route("check_modal",
+                        {"formula": formula, "system": system, "max_worlds": max_worlds}))
+
+
 # --------------- Verification layer (AI reasoning auditor) ---------------- #
 @mcp.tool()
 def verify_equality(left: str, right: str) -> dict[str, Any]:

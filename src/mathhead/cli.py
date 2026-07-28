@@ -180,6 +180,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("qe", help="quantifier elimination (Presburger: forall/exists over linear arith)")
     p.add_argument("formula", metavar="FORMULA", help="e.g. 'exists(y, x == 2*y)'")
 
+    p = sub.add_parser("modal", help="modal-logic validity (K/T/D/B/S4/S5), box()/dia()")
+    p.add_argument("formula", metavar="FORMULA", help="e.g. 'implies(box(p), p)'")
+    p.add_argument("--system", default="K", help="K|T|D|B|S4|S5 (default K)")
+    p.add_argument("--worlds", type=int, default=6, help="max worlds for bounded checking (default 6)")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -761,6 +766,7 @@ _DISPATCH = {
                                           "index_sort": a.index_sort, "value_sort": a.value_sort}),
     "strings": lambda a: ("check_strings", {"assumptions": a.assume, "goal": a.goal}),
     "qe": lambda a: ("eliminate_quantifiers", {"formula": a.formula}),
+    "modal": lambda a: ("check_modal", {"formula": a.formula, "system": a.system, "max_worlds": a.worlds}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

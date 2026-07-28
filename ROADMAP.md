@@ -200,7 +200,10 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] H3 🟡 Proof generation II — eliminate_quantifiers (Z3 qe over Presburger LIA/LRA; a True/False
           collapse doubles as a decision procedure; honest QE_INCOMPLETE on a residual quantifier)
           ✅ (1034 tests, 154 tools; ADR-0024)
-[ ] H4 🔴 Modal/temporal logic — K/S4/LTL basics (optional/frontier, careful scope)
+[x] H4 🔴 Modal logic — check_modal: K/T/D/B/S4/S5 validity via BOUNDED Kripke model checking
+          (box/dia); correspondence theorems verified (T=refl, 4=trans, 5=S5) ✅ (1048 tests, 155 tools; ADR-0025)
+          ↳ honest wall: a countermodel is definitive; a positive result is VALID_BOUNDED (≤ W worlds),
+            not an unconditional proof. Temporal (LTL/CTL) deliberately deferred (careful scope).
 [ ] H5 [S] Hardening
 ```
 

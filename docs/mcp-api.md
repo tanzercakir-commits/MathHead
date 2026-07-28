@@ -37,7 +37,7 @@
 
 ---
 
-## Girdi grameri (v1.1)
+## Girdi grameri (v1.2)
 
 Girdi **Python ifade sözdizimi** ile yazılır; motorun ayrıştırıcısı (`ast`
 tabanlı, beyaz-listeli — ADR-0009/0010) yalnızca aşağıdakine izin verir, gerisini
@@ -49,6 +49,7 @@ beklendiği gibi çalışır.
 | Boolean bağlaç | `and`, `or`, `not` | Python anahtar sözcükleri |
 | Boolean fonksiyon | `implies(a, b)`, `iff(a, b)`, `xor(a, b)` | her biri tam 2 argüman |
 | Nicelik belirteci | `forall(x, gövde)`, `exists(x, gövde)` | `x` bağlı değişken |
+| Yüklem / ilişki | `Man(x)`, `Loves(a, b)` | yorumsuz; argümanlar **birey** |
 | Karşılaştırma | `<`, `<=`, `==`, `!=`, `>=`, `>` | zincir destekli: `1 < x < 5` |
 | Aritmetik | `+`, `-`, `*` | **doğrusal**: `değişken*değişken` yasak |
 | Değişken | `Bool` veya sayısal | sort **bağlamdan** çıkarılır (aşağıda) |
@@ -65,8 +66,9 @@ kullanılırsa motor `error` (`PARSE_ERROR`) döner — sessiz varsayım yok
 aynı problemde karışım yok). Anlamı değiştirir: `exists(x, 1 < x and x < 2)`
 Int'te **unsat**; `1.0 < x and x < 2.0` ile Real'de **sat**.
 
-**Hâlâ YOK:** doğrusal olmayan çarpım, fonksiyon/yüklem sembolleri (`P(x)`),
-küme/dizi teorileri. **Dürüst uyarı:** nicelik belirteçleri FOL'u yarı-karar
+**Hâlâ YOK:** yorumsuz fonksiyon terimleri (`f(x)` — birey döndüren), yüklem-içi
+aritmetik, doğrusal olmayan çarpım, küme/dizi teorileri. (Yüklemler `P(x)` ve
+birey sabitleri v1.2'de **eklendi** — klasik silogizm çalışır.) **Dürüst uyarı:** nicelik belirteçleri FOL'u yarı-karar
 verilebilir yapar; Z3 bazı formüllerde (ör. iç içe `∀∃`) `unknown` dönebilir —
 gizlenmez, birinci sınıf raporlanır (soundness: motor asla yanlış cevap üretmez).
 

@@ -151,6 +151,19 @@
   DÜRÜSTLÜK: küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
   (n=7825 sınırı ~200 TB; biz küçük n). Guardrail: büyük n → unknown/error.
 
+## ADR-0013 — Yorumsuz yüklemler + bireyler (3. sort: U)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Gerçek ilişkisel FOL (silogizm: "tüm insanlar ölümlü…") için yüklem
+  (`P(x)`) ve birey (`socrates`) gerekiyordu; önceki dil yalnızca Bool + sayısaldı.
+- **Karar:** Üçüncü sort `U` (birey/individual, `z3.DeclareSort`). Yorumsuz
+  yüklemler `z3.Function(..., BoolSort())`. v1.2'de yüklem argümanları yalnızca
+  birey adı (yorumsuz fonksiyon terimleri `f(x)` ve yüklem-içi aritmetik henüz
+  yok). Sort çıkarımı 3 yönlü; ad çakışmaları (yüklem↔değişken) reddedilir.
+- **Sonuçlar:** Klasik silogizm ve kural uygulama çalışır. Bedeli: karar-
+  verilebilirlik daha da zayıflar; `unknown` mümkün, **soundness** korunur.
+  Fonksiyon terimleri sonraki sürüme.
+
 ---
 
 <!-- Yeni karar şablonu:

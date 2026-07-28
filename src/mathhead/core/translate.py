@@ -4,29 +4,22 @@ mathhead.core.translate
 
 Girdi ifadesi -> Z3 nesnesi çevirimi (parsing + translation).
 
-Tasarım (ADR-0009 + ADR-0010): Python `ast` ile ayrıştır, düğümleri **beyaz
-liste** ile süz, ve **iki geçişte** çevir:
-    1) infer  — sort çıkarımı (Bool / sayısal), kapsam (scope) yönetimi, çelişki
-                denetimi. Serbest değişkenler + nicelik belirteci (quantifier)
-                bağlı değişkenleri.
-    2) build  — çözülmüş sortlarla Z3 nesnelerini inşa.
+Tasarım (ADR-0009/0010/0013): Python `ast` ile ayrıştır, düğümleri **beyaz
+liste** ile süz, **iki geçişte** çevir (infer: sort çıkarımı + scope; build: Z3).
 
-Neden iki geçiş? Nicelik belirteçleri (∀/∃) bağlı bir değişken tanıtır; onun
-sortu ancak gövdedeki kullanımından belli olur (build'den önce bilinmeli).
-
-v1.1 dili (fragment):
+v1.2 dili (fragment):
   * Boolean: `and`, `or`, `not`, `implies(a,b)`, `iff(a,b)`, `xor(a,b)`
-  * Nicelik belirteçleri: `forall(x, gövde)`, `exists(x, gövde)`   (x bağlı değişken)
-  * Aritmetik: `+`, `-`, `*`  (DOĞRUSAL: değişken*değişken YASAK)
-  * Karşılaştırma: `<`, `<=`, `==`, `!=`, `>=`, `>` (zincir: 1 < x < 5)
-  * Sayısal alan (domain): problemde herhangi bir ONDALIK sabit (ör. 2.5) varsa
-    tüm sayısal değişkenler **Real**, yoksa **Int**. (v1.1 sadeleştirmesi;
-    aynı problemde Int+Real karışımı yok.)
-  * Değişken sortu bağlamdan çıkarılır; çelişki -> ParseError (sessiz varsayım yok).
+  * Nicelik belirteçleri: `forall(x, gövde)`, `exists(x, gövde)`
+  * **Yüklemler / ilişkiler (yorumsuz):** `Man(x)`, `Loves(a, b)` — birey (sort U)
+    üzerinden Bool döndürür. **Bireyler:** ad olan sabit/değişkenler (`socrates`).
+    (Klasik silogizmi mümkün kılar.)
+  * Aritmetik: `+`, `-`, `*` (DOĞRUSAL); Karşılaştırma: `< <= == != >= >` (zincir)
+  * Üç sort: `bool`, sayısal (`Int`/`Real`; ondalık varsa Real), `ind` (birey/U).
+    Sort bağlamdan çıkarılır; çelişki -> ParseError (sessiz varsayım yok).
 
-Not (dürüstlük): nicelik belirteçleri FOL'u yarı-karar verilebilir yapar; Z3
-bazı formüllerde `unknown` dönebilir — bu gizlenmez, `logic` katmanında
-birinci sınıf raporlanır.
+Sınır (v1.2): yüklem argümanları **birey adı** olmalı (yorumsuz fonksiyon terimleri
+`f(x)` ve yüklem-içi aritmetik henüz yok). Nicelik belirteçleri + yüklemler FOL'u
+yarı-karar verilebilir yapar; Z3 `unknown` dönebilir (dürüstçe raporlanır).
 """
 from __future__ import annotations
 
@@ -38,6 +31,9 @@ import z3
 
 _BOOL_FUNCS = {"implies", "iff", "xor"}
 _QUANTIFIERS = {"forall", "exists"}
+
+# Bireyler (individuals) için yorumsuz sort. Aynı adla yeniden çağrı aynı sortu verir.
+_U = z3.DeclareSort("U")
 
 _CMP = {
     ast.Lt: lambda a, b: a < b,
@@ -54,7 +50,6 @@ class ParseError(ValueError):
 
 
 def parse(expression: str) -> ast.Expression:
-    """Tek bir ifadeyi güvenli kipte ayrıştırır (`ast`), hata -> ParseError."""
     try:
         return ast.parse(expression, mode="eval")
     except SyntaxError as exc:
@@ -80,20 +75,23 @@ def _need(produced: str, expected: str, node: ast.AST) -> None:
 
 
 class _Translator:
-    """İki geçişli çevirmen: infer (sort) + build (Z3). Bir problem (ifade
-    kümesi) için tek örnek kullanılır; serbest semboller paylaşılır."""
+    """İki geçişli çevirmen: infer (sort) + build (Z3). Serbest semboller ve
+    yüklemler bir problem (ifade kümesi) boyunca paylaşılır."""
 
     def __init__(self, has_real: bool):
         self.has_real = has_real
-        self.sorts: dict[str, str] = {}     # serbest değişken -> "bool" | "num"
-        self.symbols: dict[str, Any] = {}   # serbest değişken -> z3 sabiti
-        self.bound: dict[int, str] = {}     # id(quantifier düğümü) -> çözülmüş sort
-        self._counter = itertools.count()   # bağlı sabitler için benzersiz ek
+        self.sorts: dict[str, str] = {}      # serbest değişken -> "bool"|"num"|"ind"
+        self.symbols: dict[str, Any] = {}    # serbest değişken -> z3 sabiti
+        self.preds: dict[str, int] = {}      # yüklem adı -> arite
+        self._pred_funcs: dict[str, Any] = {}  # yüklem adı -> z3.Function
+        self.bound: dict[int, str] = {}      # id(quantifier düğümü) -> çözülmüş sort
+        self._counter = itertools.count()
 
-    # -------- ortak --------
     def _make_const(self, name: str, sort: str) -> Any:
         if sort == "bool":
             return z3.Bool(name)
+        if sort == "ind":
+            return z3.Const(name, _U)
         return z3.Real(name) if self.has_real else z3.Int(name)
 
     @staticmethod
@@ -148,6 +146,8 @@ class _Translator:
             raise ParseError(f"izin verilmeyen ifade düğümü: {type(node).__name__}")
 
     def _assign(self, name: str, sort: str, env: list[dict]) -> None:
+        if name in self.preds:
+            raise ParseError(f"'{name}' bir yüklem; aynı zamanda değişken olamaz")
         scope = self._scope_of(name, env)
         table = scope if scope is not None else self.sorts
         current = table.get(name)
@@ -178,9 +178,20 @@ class _Translator:
             env.append(scope)
             self.infer(node.args[1], "bool", env)
             env.pop()
-            self.bound[id(node)] = scope[var] or "num"  # kullanılmadıysa sayısal say
+            self.bound[id(node)] = scope[var] or "ind"  # kullanılmadıysa birey say
         else:
-            raise ParseError(f"bilinmeyen fonksiyon: {fname}")
+            # Yorumsuz yüklem: P(bireyler...) -> Bool
+            _need("bool", expected, node)
+            if fname in self.sorts or self._scope_of(fname, env) is not None:
+                raise ParseError(f"'{fname}' bir değişken; aynı zamanda yüklem olamaz")
+            arity = len(node.args)
+            if self.preds.get(fname, arity) != arity:
+                raise ParseError(f"'{fname}' yüklemi farklı arite ile kullanıldı")
+            self.preds[fname] = arity
+            for arg in node.args:
+                if not isinstance(arg, ast.Name):
+                    raise ParseError(f"v1.2: '{fname}' argümanları birey adı (değişken/sabit) olmalı")
+                self.infer(arg, "ind", env)
 
     # ==================== PASS 2: İNŞA ========================
     def build(self, node: ast.AST, env: list[dict]) -> Any:
@@ -216,7 +227,7 @@ class _Translator:
                 return z3.BoolVal(node.value)
             if isinstance(node.value, int):
                 return z3.RealVal(node.value) if self.has_real else z3.IntVal(node.value)
-            return z3.RealVal(node.value)  # float
+            return z3.RealVal(node.value)
         raise ParseError(f"izin verilmeyen ifade düğümü: {type(node).__name__}")
 
     def _build_compare(self, node: ast.Compare, env: list[dict]) -> Any:
@@ -238,38 +249,35 @@ class _Translator:
             if fname == "iff":
                 return a == b
             return z3.Xor(a, b)
-        # nicelik belirteci: değişken yakalamayı önlemek için bağlı sabite
-        # benzersiz iç ad ver (mangling); serbest değişkenle çakışmasın.
-        var = node.args[0].id
-        sort = self.bound[id(node)]
-        const = self._make_const(f"__b{next(self._counter)}_{var}", sort)
-        env.append({var: const})
-        body = self.build(node.args[1], env)
-        env.pop()
-        return z3.ForAll([const], body) if fname == "forall" else z3.Exists([const], body)
+        if fname in _QUANTIFIERS:
+            var = node.args[0].id
+            sort = self.bound[id(node)]
+            const = self._make_const(f"__b{next(self._counter)}_{var}", sort)
+            env.append({var: const})
+            body = self.build(node.args[1], env)
+            env.pop()
+            return z3.ForAll([const], body) if fname == "forall" else z3.Exists([const], body)
+        # Yorumsuz yüklem
+        arity = self.preds[fname]
+        if fname not in self._pred_funcs:
+            self._pred_funcs[fname] = z3.Function(fname, *([_U] * arity), z3.BoolSort())
+        return self._pred_funcs[fname](*[self.build(a, env) for a in node.args])
 
 
 def translate_all(expressions: list[str]) -> tuple[list[Any], dict[str, Any]]:
-    """Bir ifade listesini ortak bağlamda çevirir (paylaşımlı serbest semboller).
-
-    Returns:
-        (z3_ifadeleri, serbest_semboller). Semboller model/karşıörnek çıkarımında
-        kullanılır (nicelik belirteci bağlı değişkenleri buraya girmez).
-    """
+    """Bir ifade listesini ortak bağlamda çevirir (paylaşımlı serbest semboller,
+    yüklemler ve bireyler). Returns: (z3_ifadeleri, serbest_semboller)."""
     trees = [parse(e) for e in expressions]
     has_real = any(_has_float(t) for t in trees)
     tr = _Translator(has_real)
-    for tree in trees:            # önce tüm sortları çıkar (tutarlılık için)
+    for tree in trees:
         tr.infer(tree.body, "bool", [])
     z3_exprs = [tr.build(tree.body, []) for tree in trees]
     return z3_exprs, tr.symbols
 
 
 def to_z3(expression: str, symbols: dict[str, Any] | None = None, sorts: dict | None = None) -> Any:
-    """Tek bir ifadeyi Z3'e çevirir (geri uyumluluk sarmalayıcısı).
-
-    Paylaşımlı bağlam (birden çok ifade) gerekiyorsa `translate_all` kullanın.
-    """
+    """Tek bir ifadeyi Z3'e çevirir (geri uyumluluk sarmalayıcısı)."""
     exprs, syms = translate_all([expression])
     if symbols is not None:
         symbols.update(syms)

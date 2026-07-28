@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — v1.2 · yüklemler + bireyler (aynı oturum)
+
+**Yapıldı**
+
+- `translate`: üçüncü sort `U` (birey) + yorumsuz yüklemler (`Man(x)`, `Loves(a,b)`).
+- Klasik silogizm çalışır: `∀x.(Man(x)→Mortal(x))`, `Man(socrates)` ⊨ `Mortal(socrates)`.
+- Ad çakışması / arite / argüman-sort denetimleri (net reddeder). Yeni MCP aracı
+  YOK (dil zenginleşti; mevcut 3 mantık aracı kapsıyor).
+- Testler: silogizm + ilişkisel + çelişki + guardrail → **51/51 yeşil**.
+- Yeni karar: ADR-0013.
+
+**Karar:** v1.2'de yüklem argümanları yalnızca birey; fonksiyon terimleri (`f(x)`)
+sonraki sürüme. Yüklem+quantifier undecidability'i artırır; `unknown` mümkün,
+soundness korunur.
+
+**Sıradaki (gelecek oturumlar — acele yok):** yorumsuz fonksiyon terimleri;
+v3 ispat üretimi; Track B derinleştirme (graph coloring/Schur); ürünleştirme
+(PyPI paketi, CLI, README rozetleri, kullanım kılavuzu).
+
 ## 2026-07-28 — v2.1 · Track B tohumu (aynı oturum)
 
 **Yapıldı**

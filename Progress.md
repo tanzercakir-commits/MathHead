@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-28 — Aşama 4 · kombinatorik & ayrık (perm/comb/factorial/partition/recurrence)
+
+**Yapıldı**
+
+- 5 yeni işlem: `permutations`, `combinations`, `factorial`, `partition_count`,
+  `solve_recurrence` (doğrusal özyineleme kapalı-form, `rsolve`).
+- `solve_recurrence` için güvenli mini-ayrıştırıcı: `func(...)` çağrıları + `var`
+  + aritmetik; `=`→`==` normalizasyonu; whitelist dışı ad/çağrı reddedilir.
+- Uçtan uca: router (5) + MCP (**42 araç**) + CLI (`perm/comb/factorial/
+  partitions/recurrence`) + `tests/test_combinatorics.py` (18) → **205/205 yeşil**.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `P(10,3)=720`, `C(10,3)=120`, `10!`, `p(10)=42`, `p(100)=190569292`.
+- **Fibonacci** `y(n)=y(n-1)+y(n-2)` → Binet kapalı formu; `Fib(10)=55` ikame ile
+  doğrulandı. `y(n)=2y(n-1)` → `2**n`.
+- Dürüstlük: doğrusal olmayan `y(n)=y(n-1)**2` → kapalı form yok (COMPUTE_FAILED);
+  `k>n` → 0; kötücül/tanımsız ad → reddedilir.
+
+**Not (bug→fix):** `ast.parse(mode="eval")` `=` kabul etmiyordu (atama). Tek `=`,
+`==`'e normalize edildi → Compare işleyicisi devraldı. Ampirik yakalandı.
+
+**Sıradaki:** Aşama 5 [S] — hata taksonomisi + golden fixtures + benchmark iskeleti.
+
 ## 2026-07-28 — Aşama 3 · sayı teorisi (gcd/lcm/asal/factorize/modinv/CRT/Diophantine)
 
 **Yapıldı**

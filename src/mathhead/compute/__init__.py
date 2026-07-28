@@ -676,3 +676,134 @@ def linear_diophantine(a: Any, b: Any, c: Any) -> ComputeResult:
                              f"tam sayı çözüm yok (gcd({A},{B}) ∤ {C}).", "OK", _meta(t0))
     return ComputeResult("ok", "linear_diophantine", result,
                          f"{A}x + {B}y = {C} parametrik çözüm.", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# Kombinatorik & ayrık (combinatorics) — permütasyon/kombinasyon, faktöriyel,
+# tam sayı bölüntüleri, doğrusal özyineleme (recurrence) kapalı-form çözümü.
+# --------------------------------------------------------------------------- #
+def permutations(n: Any, k: Any) -> ComputeResult:
+    """P(n, k) = n·(n-1)···(n-k+1) — `n` nesneden `k`'lı sıralı seçim."""
+    t0 = time.perf_counter()
+    try:
+        N, K = _parse_int(n, "n"), _parse_int(k, "k")
+        if N < 0 or K < 0:
+            raise ComputeError("n ve k negatif olamaz")
+    except ComputeError as exc:
+        return _error("permutations", str(exc), t0)
+    result = int(sympy.ff(N, K))
+    return ComputeResult("ok", "permutations", result, f"P({N}, {K}) = {result}.", "OK", _meta(t0))
+
+
+def combinations(n: Any, k: Any) -> ComputeResult:
+    """C(n, k) = binom(n, k) — `n` nesneden `k`'lı sırasız seçim. k>n ise 0."""
+    t0 = time.perf_counter()
+    try:
+        N, K = _parse_int(n, "n"), _parse_int(k, "k")
+        if N < 0 or K < 0:
+            raise ComputeError("n ve k negatif olamaz")
+    except ComputeError as exc:
+        return _error("combinations", str(exc), t0)
+    result = int(sympy.binomial(N, K))
+    return ComputeResult("ok", "combinations", result, f"C({N}, {K}) = {result}.", "OK", _meta(t0))
+
+
+def factorial(n: Any) -> ComputeResult:
+    """n! — ilk `n` pozitif tam sayının çarpımı (0! = 1)."""
+    t0 = time.perf_counter()
+    try:
+        N = _parse_int(n, "n")
+        if N < 0:
+            raise ComputeError("n negatif olamaz (faktöriyel tanımsız)")
+    except ComputeError as exc:
+        return _error("factorial", str(exc), t0)
+    result = int(sympy.factorial(N))
+    return ComputeResult("ok", "factorial", result, f"{N}! = {result}.", "OK", _meta(t0))
+
+
+def partition_count(n: Any) -> ComputeResult:
+    """p(n) — `n`'i pozitif tam sayı toplamı olarak yazma yollarının sayısı."""
+    t0 = time.perf_counter()
+    try:
+        N = _parse_int(n, "n")
+        if N < 0:
+            raise ComputeError("n negatif olamaz")
+    except ComputeError as exc:
+        return _error("partition_count", str(exc), t0)
+    from sympy.functions.combinatorial.numbers import partition as _partition
+    result = int(_partition(N))
+    return ComputeResult("ok", "partition_count", result,
+                         f"p({N}) = {result} (bölüntü sayısı).", "OK", _meta(t0))
+
+
+def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
+                     initial: dict[str, Any] | None = None) -> ComputeResult:
+    """Doğrusal özyineleme bağıntısını KAPALI FORMA çözer (`rsolve`).
+
+    Ör: `recurrence="y(n) = y(n-1) + y(n-2)"`, `initial={"0":"0","1":"1"}` →
+    Fibonacci'nin kapalı formu (Binet). Kapalı form yoksa DÜRÜSTÇE hata.
+    """
+    t0 = time.perf_counter()
+    initial = initial or {}
+    F = sympy.Function(func)
+    varsym = sympy.Symbol(var, integer=True)
+
+    def _tr(node: ast.AST) -> Any:
+        if isinstance(node, ast.BinOp):
+            lft, rgt = _tr(node.left), _tr(node.right)
+            for typ, fn in (
+                (ast.Add, lambda: lft + rgt), (ast.Sub, lambda: lft - rgt),
+                (ast.Mult, lambda: lft * rgt), (ast.Div, lambda: lft / rgt),
+                (ast.Pow, lambda: lft ** rgt),
+            ):
+                if isinstance(node.op, typ):
+                    return fn()
+            raise ComputeError("izin verilmeyen işleç")
+        if isinstance(node, ast.UnaryOp):
+            if isinstance(node.op, ast.USub):
+                return -_tr(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return _tr(node.operand)
+            raise ComputeError("izin verilmeyen tekli işleç")
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id == func:
+                if len(node.args) != 1:
+                    raise ComputeError("özyineleme fonksiyonu tek argüman alır")
+                return F(_tr(node.args[0]))
+            if node.func.id in _FUNCS:
+                return _FUNCS[node.func.id](*[_tr(a) for a in node.args])
+            raise ComputeError(f"izin verilmeyen çağrı: {node.func.id}")
+        if isinstance(node, ast.Name):
+            if node.id == var:
+                return varsym
+            raise ComputeError(f"izin verilmeyen ad: {node.id}")
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) \
+                and not isinstance(node.value, bool):
+            return sympy.Integer(node.value) if isinstance(node.value, int) else sympy.Float(node.value)
+        raise ComputeError("ifade ayrıştırılamadı")
+
+    try:
+        src = str(recurrence).strip()
+        if "=" in src and "==" not in src:      # atama-tarzı '=' -> '==' (eval modu için)
+            src = src.replace("=", "==", 1)
+        body = ast.parse(src, mode="eval").body
+        if isinstance(body, ast.Compare):
+            if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):
+                raise ComputeError("yalnızca '==' karşılaştırması desteklenir")
+            expr = _tr(body.left) - _tr(body.comparators[0])
+        else:
+            expr = _tr(body)
+        inits = {F(int(str(kk))): _parse(str(vv), {}) for kk, vv in initial.items()}
+    except ComputeError as exc:
+        return _error("solve_recurrence", str(exc), t0)
+    except (SyntaxError, ValueError) as exc:
+        return _error("solve_recurrence", f"ayrıştırılamadı: {exc}", t0)
+    try:
+        sol = sympy.rsolve(expr, F(varsym), inits)
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_recurrence", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
+    if sol is None:
+        return _error("solve_recurrence", "kapalı form bulunamadı", t0, "COMPUTE_FAILED")
+    result = str(sympy.simplify(sol))
+    return ComputeResult("ok", "solve_recurrence", result,
+                         f"{func}({var}) = {result}.", "OK", _meta(t0))

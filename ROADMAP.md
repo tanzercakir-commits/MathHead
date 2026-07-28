@@ -48,9 +48,9 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        modüler ters + CRT (Çin kalan teoremi), doğrusal Diophantine ✅
        ↳ dürüst: ters yok / CRT bağdaşmaz → hata; Diophantine çözümsüz → boş
 
-[ ] Aşama 4 · Kombinatorik & ayrık
+[x] Aşama 4 · Kombinatorik & ayrık  (bitti — 205 test, 42 araç)
     └─ permütasyon/kombinasyon, binom, bölüntü (partition),
-       yineleme bağıntısı (recurrence) kapalı-form çözümü
+       yineleme bağıntısı (recurrence) kapalı-form çözümü ✅ (Fibonacci→Binet)
 
 [ ] Aşama 5 · [S] Sağlamlaştırma-2
     └─ hata taksonomisi birleştirme (reason_code tutarlılığı) +

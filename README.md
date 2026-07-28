@@ -68,6 +68,12 @@ factorize(360)                                    # -> 2^3 · 3^2 · 5
 modular_inverse(3, 11)                            # -> 4  (3·4 ≡ 1 mod 11)
 modular_inverse(4, 8)                             # -> error: ters yok (gcd≠1, dürüst)
 chinese_remainder([3,5,7], [2,3,2])               # -> {"x": 23, "modulus": 105}
+
+from mathhead.compute import combinations, factorial, solve_recurrence  # v2+ (kombinatorik)
+combinations(49, 6)                               # -> 13983816  (loto)
+factorial(10)                                     # -> 3628800
+solve_recurrence("y(n) = y(n-1) + y(n-2)",        # -> Fibonacci kapalı formu (Binet)
+                 "y", "n", {"0": "0", "1": "1"})
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -116,7 +122,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 37 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 42 araç)
 └── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
 ```
 

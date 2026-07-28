@@ -215,6 +215,24 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("diophantine", help="a·x + b·y = c (tam sayı çözüm)")
     p.add_argument("a"); p.add_argument("b"); p.add_argument("c")
 
+    p = sub.add_parser("perm", help="permütasyon P(n,k)")
+    p.add_argument("n"); p.add_argument("k")
+
+    p = sub.add_parser("comb", help="kombinasyon C(n,k)")
+    p.add_argument("n"); p.add_argument("k")
+
+    p = sub.add_parser("factorial", help="faktöriyel n!")
+    p.add_argument("n")
+
+    p = sub.add_parser("partitions", help="tam sayı bölüntü sayısı p(n)")
+    p.add_argument("n")
+
+    p = sub.add_parser("recurrence", help="özyineleme kapalı-form çözümü")
+    p.add_argument("recurrence", metavar="BAĞINTI", help="ör. 'y(n) = y(n-1) + y(n-2)'")
+    p.add_argument("--func", default="y"); p.add_argument("--var", default="n")
+    p.add_argument("--init", action="append", default=[], metavar="K=V",
+                   help="başlangıç koşulu, tekrarlanabilir (ör. --init 0=0 --init 1=1)")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -272,6 +290,14 @@ _DISPATCH = {
     "crt": lambda a: ("chinese_remainder", {"moduli": [c.strip() for c in a.moduli.split(",")],
                                             "residues": [c.strip() for c in a.residues.split(",")]}),
     "diophantine": lambda a: ("linear_diophantine", {"a": a.a, "b": a.b, "c": a.c}),
+    "perm": lambda a: ("permutations", {"n": a.n, "k": a.k}),
+    "comb": lambda a: ("combinations", {"n": a.n, "k": a.k}),
+    "factorial": lambda a: ("factorial", {"n": a.n}),
+    "partitions": lambda a: ("partition_count", {"n": a.n}),
+    "recurrence": lambda a: ("solve_recurrence", {
+        "recurrence": a.recurrence, "func": a.func, "var": a.var,
+        "initial": dict(kv.split("=", 1) for kv in a.init),
+    }),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

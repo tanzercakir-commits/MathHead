@@ -299,6 +299,43 @@ def linear_diophantine(a: str, b: str, c: str) -> dict[str, Any]:
     return asdict(route("linear_diophantine", {"a": a, "b": b, "c": c}))
 
 
+# ------------------------ Kombinatorik & ayrık ---------------------------- #
+@mcp.tool()
+def permutations(n: str, k: str) -> dict[str, Any]:
+    """P(n,k) — `n` nesneden `k`'lı sıralı seçim sayısı (k>n ise 0)."""
+    return asdict(route("permutations", {"n": n, "k": k}))
+
+
+@mcp.tool()
+def combinations(n: str, k: str) -> dict[str, Any]:
+    """C(n,k) — `n` nesneden `k`'lı sırasız seçim sayısı (binom katsayısı)."""
+    return asdict(route("combinations", {"n": n, "k": k}))
+
+
+@mcp.tool()
+def factorial(n: str) -> dict[str, Any]:
+    """n! — ilk `n` pozitif tam sayının çarpımı (0! = 1)."""
+    return asdict(route("factorial", {"n": n}))
+
+
+@mcp.tool()
+def partition_count(n: str) -> dict[str, Any]:
+    """p(n) — `n`'i pozitif tam sayı toplamı olarak yazma yollarının sayısı."""
+    return asdict(route("partition_count", {"n": n}))
+
+
+@mcp.tool()
+def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
+                     initial: dict[str, str] | None = None) -> dict[str, Any]:
+    """Doğrusal özyineleme bağıntısını KAPALI FORMA çözer.
+
+    Ör: `recurrence="y(n) = y(n-1) + y(n-2)"`, `initial={"0":"0","1":"1"}` →
+    Fibonacci kapalı formu. Kapalı form yoksa (ör. doğrusal olmayan) dürüst hata.
+    """
+    return asdict(route("solve_recurrence", {"recurrence": recurrence, "func": func,
+                                             "var": var, "initial": initial}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

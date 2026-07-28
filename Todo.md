@@ -36,7 +36,8 @@
       (ROADMAP Aşama 1 · 161 test · 30 araç)
 - [x] **T16** ROADMAP Aşama 2 [S]: determinizm + property (det/Ax=b/simplify) + fuzz ✅ (169 test)
 - [x] **T17** ROADMAP Aşama 3: sayı teorisi ✅ (187 test, 37 araç)
-- [ ] **T18** ROADMAP Aşama 4: kombinatorik & ayrık (permütasyon/kombinasyon, binom, partition, recurrence)
+- [x] **T18** ROADMAP Aşama 4: kombinatorik & ayrık ✅ (205 test, 42 araç, Fibonacci→Binet)
+- [ ] **T19** ROADMAP Aşama 5 [S]: hata taksonomisi + golden fixtures + benchmark iskeleti
 
 ---
 

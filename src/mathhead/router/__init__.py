@@ -125,6 +125,21 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "linear_diophantine":
         return compute.linear_diophantine(payload["a"], payload["b"], payload["c"])
 
+    # --- Kombinatorik & ayrık ---
+    if task == "permutations":
+        return compute.permutations(payload["n"], payload["k"])
+    if task == "combinations":
+        return compute.combinations(payload["n"], payload["k"])
+    if task == "factorial":
+        return compute.factorial(payload["n"])
+    if task == "partition_count":
+        return compute.partition_count(payload["n"])
+    if task == "solve_recurrence":
+        return compute.solve_recurrence(
+            payload["recurrence"], payload.get("func", "y"),
+            payload.get("var", "n"), payload.get("initial"),
+        )
+
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))

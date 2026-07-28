@@ -6,6 +6,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Kombinatorik & ayrık (`permutations`, `combinations`, `factorial`,
+  `partition_count`, `solve_recurrence`):** Aşama 4. Permütasyon/kombinasyon,
+  faktöriyel, tam sayı bölüntü sayısı ve **doğrusal özyineleme kapalı-form
+  çözümü** (`rsolve` — Fibonacci → Binet). `solve_recurrence` özyinelemeyi güvenli
+  bir mini-ayrıştırıcıyla okur (`=`/`==`, whitelist dışı ad reddedilir); doğrusal
+  olmayan bağıntıda dürüst hata. MCP (**42 araç**) + CLI (`perm/comb/factorial/
+  partitions/recurrence`). +18 test.
 - **Sayı teorisi (`gcd`, `lcm`, `is_prime`, `factorize`, `modular_inverse`,
   `chinese_remainder`, `linear_diophantine`):** Aşama 3. Tam sayılarda GCD/LCM,
   deterministik asallık, asal çarpanlara ayırma, modüler ters, Çin Kalan Teoremi

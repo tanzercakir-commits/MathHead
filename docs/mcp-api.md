@@ -257,6 +257,22 @@ tam sayı değilse `PARSE_ERROR`.
 yoksa (gcd(a,b) ∤ c) **boş liste** döner; `factorize(1)` = `[]` (asal çarpan yok).
 Diophantine çözümü parametriktir (parametre `t_0`).
 
+### Kombinatorik & ayrık (combinatorics)
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `permutations` | `permutations(n, k)` | `10, 3` → `720` (k>n → `0`) |
+| `combinations` | `combinations(n, k)` | `10, 3` → `120` |
+| `factorial` | `factorial(n)` | `6` → `720` |
+| `partition_count` | `partition_count(n)` | `10` → `42` |
+| `solve_recurrence` | `solve_recurrence(recurrence, func="y", var="n", initial={})` | `"y(n)=y(n-1)+y(n-2)"`, `{"0":"0","1":"1"}` → Fibonacci kapalı formu |
+
+`solve_recurrence` özyinelemeyi ayrı bir güvenli ayrıştırıcıyla okur (`func`
+çağrıları + `var` + aritmetik; `=` ya da `==` kabul edilir; whitelist dışı ad/çağrı
+reddedilir). **Dürüstlük:** doğrusal olmayan / kapalı formu olmayan bağıntıda
+uydurmaz, `COMPUTE_FAILED` döner. `permutations`/`combinations` `k>n` için `0`
+(kombinatorik olarak doğru); negatif girdi reddedilir.
+
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
 `COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).

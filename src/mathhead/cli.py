@@ -14,6 +14,10 @@ gider — CLI ince bir kabuktur.
     mathhead solve "x**2 == 4" x
     mathhead diff "x**3 + 2*x" x --order 2
     mathhead integrate "2*x" x
+    mathhead limit "sin(x)/x" x --point 0
+    mathhead limit "1/x" x --point oo
+    mathhead series "exp(x)" x --order 5
+    mathhead solve-system --eq "x + y == 10" --eq "x - y == 2" --sym x --sym y
     mathhead pigeonhole 4
     mathhead pythagorean 30
 
@@ -129,6 +133,23 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("expression", metavar="İFADE")
     p.add_argument("symbol", metavar="DEĞİŞKEN")
 
+    p = sub.add_parser("limit", help="limit al (nokta 'oo'/'-oo' olabilir)")
+    p.add_argument("expression", metavar="İFADE")
+    p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("--point", default="0", help="yaklaşılan nokta (varsayılan 0; 'oo'/'-oo' geçerli)")
+    p.add_argument("--dir", dest="direction", default="both", choices=["both", "+", "-"],
+                   help="tek yön için '+' veya '-' (varsayılan both). '-' için: --dir=-")
+
+    p = sub.add_parser("series", help="Taylor/seri açılımı")
+    p.add_argument("expression", metavar="İFADE")
+    p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("--point", default="0", help="açılım noktası (varsayılan 0)")
+    p.add_argument("--order", type=int, default=6, help="mertebe (varsayılan 6)")
+
+    p = sub.add_parser("solve-system", help="denklem sistemini çöz (çoklu --eq/--sym)")
+    p.add_argument("--eq", action="append", default=[], metavar="DENKLEM", help="bir denklem (tekrarlanabilir)")
+    p.add_argument("--sym", action="append", default=[], metavar="DEĞİŞKEN", help="bir değişken (tekrarlanabilir)")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -162,6 +183,11 @@ _DISPATCH = {
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),
     "integrate": lambda a: ("integrate", {"expression": a.expression, "symbol": a.symbol}),
+    "limit": lambda a: ("limit", {"expression": a.expression, "symbol": a.symbol,
+                                  "point": a.point, "direction": a.direction}),
+    "series": lambda a: ("series", {"expression": a.expression, "symbol": a.symbol,
+                                    "point": a.point, "order": a.order}),
+    "solve-system": lambda a: ("solve_system", {"equations": a.eq, "symbols": a.sym}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

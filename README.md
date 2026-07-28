@@ -43,6 +43,12 @@ from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
 differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
 integrate("2*x", "x")                             # -> "x**2"
+
+from mathhead.compute import limit, series, solve_system       # v2+ (kalkülüs)
+limit("sin(x)/x", "x", "0")                       # -> "1"
+limit("1/x", "x", "oo")                           # -> "0"
+series("exp(x)", "x", "0", 5)                     # -> "x**4/24 + x**3/6 + x**2/2 + x + 1"
+solve_system(["x + y == 10", "x - y == 2"], ["x", "y"])   # -> [{"x": "6", "y": "4"}]
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -62,6 +68,9 @@ mathhead entail -p "forall(x, implies(Man(x), Mortal(x)))" \
 mathhead prove -p "forall(x, implies(Man(x), Mortal(x)))" \
                -p "Man(socrates)" -c "Mortal(socrates)"   # + adım adım ispat
 mathhead solve "x**2 == 4" x                              # -> ['-2', '2']
+mathhead limit "sin(x)/x" x --point 0                     # -> 1
+mathhead solve-system --eq "x + y == 10" --eq "x - y == 2" \
+                      --sym x --sym y                     # -> [{'x':'6','y':'4'}]
 mathhead pigeonhole 4                                     # -> unsat (ispat)
 mathhead --json consistent "x > 2" "x < 5"                # ham JSON
 ```
@@ -86,7 +95,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 3 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 20 araç)
 └── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
 ```
 

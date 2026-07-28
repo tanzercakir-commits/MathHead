@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — kalkülüs & sistemler (limit / series / solve_system)
+
+**Yapıldı**
+
+- Hesap katmanı (SymPy) genişledi: `limit` (sonlu/sonsuz nokta + tek yön `+`/`-`),
+  `series` (bir nokta etrafında `order`. mertebe Taylor açılımı, `removeO`),
+  `solve_system` (çok değişkenli sistem; doğrusal + doğrusal olmayan).
+- Uçtan uca bağlandı: `router` (3 yeni görev) + MCP (**20 araç — üç yeni**) +
+  CLI (`limit`, `series`, `solve-system`) + `tests/test_calculus.py` (18 test)
+  → **128/128 yeşil**. Docs: `mcp-api.md`, `README.md`, `CHANGELOG.md` güncel.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `lim x→0 sin(x)/x = 1`, `lim x→∞ 1/x = 0`, `lim n→∞ (1+1/n)^n = e` (bilinen
+  sabit yeniden üretildi); `exp(x)` 5. mertebe Taylor doğru.
+- `solve_system` **dürüst**: çelişen sistem → boş liste (uydurma yok); doğrusal
+  olmayan (çember ∩ doğru) → iki çözüm; serbest değişken → parametrik.
+- Güvenlik değişmezi korundu: beyaz-liste dışı çağrı (`__import__`) reddedilir.
+
+**Sıradaki (gelecek oturum):** lineer cebir (matris) — determinant, özdeğer,
+tersini alma. (Ürün/PyPI akşam kullanıcıda.)
+
 ## 2026-07-28 — mantıksal denklik & sınıflandırma
 
 **Yapıldı**

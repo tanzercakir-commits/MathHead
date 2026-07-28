@@ -80,6 +80,14 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.differentiate(payload["expression"], payload["symbol"], payload.get("order", 1))
     if task == "integrate":
         return compute.integrate(payload["expression"], payload["symbol"])
+    if task == "limit":
+        return compute.limit(payload["expression"], payload["symbol"],
+                             payload.get("point", "0"), payload.get("direction", "both"))
+    if task == "series":
+        return compute.series(payload["expression"], payload["symbol"],
+                              payload.get("point", "0"), payload.get("order", 6))
+    if task == "solve_system":
+        return compute.solve_system(payload["equations"], payload["symbols"])
 
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":

@@ -145,6 +145,36 @@ def integrate(expression: str, symbol: str) -> dict[str, Any]:
     return asdict(route("integrate", {"expression": expression, "symbol": symbol}))
 
 
+@mcp.tool()
+def limit(expression: str, symbol: str, point: str = "0", direction: str = "both") -> dict[str, Any]:
+    """`symbol` → `point` iken ifadenin limiti. direction: both | + | - (tek yön).
+
+    `point` sonsuz olabilir ("oo" / "-oo"). Ör: 'sin(x)/x', x→0 = 1; '1/x', x→oo = 0.
+    """
+    return asdict(route("limit", {"expression": expression, "symbol": symbol,
+                                  "point": point, "direction": direction}))
+
+
+@mcp.tool()
+def series(expression: str, symbol: str, point: str = "0", order: int = 6) -> dict[str, Any]:
+    """İfadenin `symbol`=`point` etrafında `order`. mertebeden Taylor/seri açılımı.
+
+    Ör: 'exp(x)', x=0, order=5 → 'x**4/24 + x**3/6 + x**2/2 + x + 1'.
+    """
+    return asdict(route("series", {"expression": expression, "symbol": symbol,
+                                   "point": point, "order": order}))
+
+
+@mcp.tool()
+def solve_system(equations: list[str], symbols: list[str]) -> dict[str, Any]:
+    """Bir denklem SİSTEMİNİ birden çok değişken için çözer.
+
+    Dönüş: `result` = çözüm sözlükleri listesi. Boş liste = çözüm yok; birden çok
+    sözlük = birden çok çözüm; serbest değişken parametrik olarak görünür (dürüst).
+    """
+    return asdict(route("solve_system", {"equations": equations, "symbols": symbols}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

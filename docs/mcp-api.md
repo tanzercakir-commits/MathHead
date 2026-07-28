@@ -194,10 +194,19 @@ doğrusal olmayan ifadeler **serbesttir**.
 | `solve` | `solve(equation, symbol)` | `x**2 == 4`, `x` → `["-2","2"]` |
 | `differentiate` | `differentiate(expression, symbol, order=1)` | `x**3+2*x`, `x` → `3*x**2 + 2` |
 | `integrate` | `integrate(expression, symbol)` | `2*x`, `x` → `x**2` (+C) |
+| `limit` | `limit(expression, symbol, point="0", direction="both")` | `sin(x)/x`, `x`, `0` → `1` |
+| `series` | `series(expression, symbol, point="0", order=6)` | `exp(x)`, `x`, `0`, `5` → `x**4/24 + x**3/6 + x**2/2 + x + 1` |
+| `solve_system` | `solve_system(equations: list[str], symbols: list[str])` | `["x+y==10","x-y==2"]`, `["x","y"]` → `[{"x":"6","y":"4"}]` |
 
 **İzinli:** `+ - * / **`, tekli `-`, semboller, sayı (tam/ondalık), fonksiyonlar
 `sin cos tan asin acos atan sinh cosh tanh exp log sqrt Abs`. `solve` girdisi
 `a == b` (Eq) veya `=0` varsayımıyla düz ifade olabilir.
+
+**Kalkülüs & sistemler:** `limit` noktası sonsuz olabilir (`point="oo"` / `"-oo"`)
+ve `direction` tek yön için `"+"`/`"-"` alır. `series` `point` etrafında `order`.
+mertebeden Taylor açılımı döndürür (`removeO`). `solve_system` **çözüm sözlükleri
+listesi** döner: boş liste = çözüm yok (dürüst), birden çok sözlük = birden çok
+çözüm (doğrusal olmayan sistemler dahil), serbest değişken parametrik görünür.
 
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|

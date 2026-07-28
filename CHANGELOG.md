@@ -6,6 +6,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Kalkülüs & sistemler (`limit`, `series`, `solve_system`):** hesap katmanı
+  (SymPy) genişledi. `limit` — sonlu/sonsuz nokta + tek yön (`+`/`-`);
+  `series` — bir nokta etrafında Taylor açılımı (`order`. mertebe); `solve_system`
+  — çok değişkenli denklem sistemi (doğrusal + doğrusal olmayan). **Dürüstlük:**
+  `solve_system` boş liste döndürerek "çözüm yok"u gizlemez, serbest değişkeni
+  parametrik gösterir. MCP araçları (**20 araç**) + `mathhead limit/series/
+  solve-system` CLI. +18 test (`tests/test_calculus.py`).
 - **İspat üretimi (`prove`):** entailment için *neden* — minimal öncül çekirdeği
   (unsat core) + adım adım **doğal tümdengelim**: modus ponens/tollens, ayrık
   tasım, ∧-ayıklama, iff, çift olumsuzlama, De Morgan, evrensel örnekleme,

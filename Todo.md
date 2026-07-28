@@ -30,6 +30,9 @@
 - [ ] **T10** golden senaryolar (`tests/fixtures/*.json`)
 - [x] **T11** v1.1: Real sayılar + `∀`/`∃` nicelik belirteçleri ✅
 - [x] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral ✅
+- [x] **T13** v2+: kalkülüs & sistemler — limit / series / solve_system ✅
+- [ ] **T14** v2+: **lineer cebir (matris)** — determinant / özdeğer (eigenvalue) /
+  matris tersi (inverse) / çözüm (Ax=b). *Sıradaki tur.*
 
 ---
 
@@ -49,6 +52,8 @@
 - [x] **MaxSAT** (yumuşak/ağırlıklı kısıtlar): en çok soft kısıtı sağla → 96/96
 - [x] **sağlamlaştırma**: property-based test (hypothesis) + determinizm kesinleştirildi → 103/103
 - [x] **denklik & sınıflandırma** (equivalent / classify): totoloji/çelişki/olumsal → 110/110
+- [x] **kalkülüs & sistemler** (limit / series / solve_system): tek yön + sonsuz nokta,
+  Taylor, çok değişkenli sistem (doğrusal+değil, dürüst boş çözüm) → **128/128**, MCP **20 araç**
 - [x] **Track B / van der Waerden**: W(2,3..5) bilinen değerleri yeniden üretildi (dürüst) → 61/61
 - [x] **Track B / Schur**: S(2)=4, S(3)=13 yeniden üretildi; S(4)≥44 (dürüst duvar) → 65/65
 - [x] **v3 / ispat üretimi**: minimal çekirdek + doğal tümdengelim (silogizm adım adım) → 72/72

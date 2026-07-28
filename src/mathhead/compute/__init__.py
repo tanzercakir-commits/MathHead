@@ -210,3 +210,82 @@ def integrate(expression: str, symbol: str) -> ComputeResult:
         "ok", "integrate", str(result),
         f"∫ '{expression}' d{symbol} hesaplandı (+C).", "OK", _meta(t0),
     )
+
+
+def _parse_point(point: str, syms: dict[str, Any]) -> Any:
+    """Limit/seri noktası: sonsuzları (oo/inf) tanır, gerisini gramerle ayrıştırır."""
+    p = point.strip().lower()
+    if p in ("oo", "inf", "infinity", "+oo", "+inf"):
+        return sympy.oo
+    if p in ("-oo", "-inf", "-infinity"):
+        return -sympy.oo
+    return _parse(point, syms)
+
+
+def limit(expression: str, symbol: str, point: str = "0", direction: str = "both") -> ComputeResult:
+    """`symbol` -> `point` iken ifadenin limiti. direction: both / + / - (tek yön).
+
+    `point` sonsuz olabilir: "oo" veya "-oo".
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    dir_map = {"both": "+-", "+": "+", "-": "-", "+-": "+-"}
+    try:
+        if direction not in dir_map:
+            raise ComputeError("direction 'both', '+' veya '-' olmalı")
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse_point(str(point), syms)
+    except ComputeError as exc:
+        return _error("limit", str(exc), t0)
+    try:
+        result = sympy.limit(expr, var, pt, dir_map[direction])
+    except Exception as exc:  # noqa: BLE001
+        return _error("limit", f"limit hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "limit", str(result),
+                         f"lim {symbol}→{point} '{expression}' = {result}.", "OK", _meta(t0))
+
+
+def series(expression: str, symbol: str, point: str = "0", order: int = 6) -> ComputeResult:
+    """İfadenin `symbol` = `point` etrafında `order`. mertebeden Taylor/seri açılımı."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(order, int) or order < 1:
+            raise ComputeError("order 1 veya daha büyük tam sayı olmalı")
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse_point(str(point), syms)
+    except ComputeError as exc:
+        return _error("series", str(exc), t0)
+    try:
+        result = expr.series(var, pt, order).removeO()
+    except Exception as exc:  # noqa: BLE001
+        return _error("series", f"seri açılamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "series", str(result),
+                         f"'{expression}' serisi ({symbol}={point}, {order}. mertebe).", "OK", _meta(t0))
+
+
+def solve_system(equations: list[str], symbols: list[str]) -> ComputeResult:
+    """Bir denklem SİSTEMİNİ birden çok değişken için çözer.
+
+    Denklemler `a == b` (Eq) veya `=0` varsayımıyla düz ifade olabilir.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(equations, list) or not equations:
+            raise ComputeError("denklem listesi boş olamaz")
+        if not isinstance(symbols, list) or not symbols:
+            raise ComputeError("değişken listesi boş olamaz")
+        eqs = [_parse(e, syms) for e in equations]
+        variables = [_symbol(s, syms) for s in symbols]
+    except ComputeError as exc:
+        return _error("solve_system", str(exc), t0)
+    try:
+        sols = sympy.solve(eqs, variables, dict=True)
+        result = [{str(k): str(v) for k, v in sol.items()} for sol in sols]
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_system", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "solve_system", result,
+                         f"{len(result)} çözüm bulundu.", "OK", _meta(t0))

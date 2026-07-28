@@ -46,6 +46,7 @@ from mathhead.core.smt import (
 )
 from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.drat import DratResult, check_unsat_proof, prove_unsat
+from mathhead.hpsolver import SolveResult, solve_cnf
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.nl import NLResult, interpret
 from mathhead.core.verify import (
@@ -75,7 +76,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
-    | DratResult
+    | DratResult | SolveResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -498,5 +499,8 @@ def route(task: str, payload: dict[str, Any]) -> (
         return prove_unsat(payload["clauses"])
     if task == "check_unsat_proof":
         return check_unsat_proof(payload["clauses"], payload["proof"])
+    if task == "solve_cnf":
+        return solve_cnf(payload["clauses"], payload.get("solver", "cadical"),
+                         payload.get("max_conflicts", 100_000), payload.get("backend", "auto"))
 
     raise ValueError(f"unknown task: {task!r}")

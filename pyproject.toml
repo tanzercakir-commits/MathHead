@@ -36,6 +36,13 @@ dev = [
     "pytest-cov>=5.0",       # coverage report
     "ruff>=0.6",             # lint (static guardrail)
     "hypothesis>=6.0",       # property-based tests
+    "python-sat>=0.1.8",     # J3: high-performance CDCL backend (CaDiCaL) — exercised by tests
+]
+# Optional high-performance SAT backend (CaDiCaL/Glucose/MiniSat, bundled — no system
+# package). The engine works without it: `hpsolver.solve_cnf` falls back to the stdlib
+# DPLL for small instances and reports an honest wall for larger ones.
+solvers = [
+    "python-sat>=0.1.8",
 ]
 
 [project.scripts]

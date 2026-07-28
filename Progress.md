@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-07-28 — J3 · high-performance solver (CaDiCaL via python-sat)
+
+**Done — 1 new tool (164 total), new `mathhead/hpsolver.py`:**
+
+- `solve_cnf(clauses, solver="cadical", max_conflicts=100000, backend="auto")`: a dedicated
+  CDCL SAT backend (CaDiCaL/Glucose/MiniSat via the OPTIONAL `python-sat`) for large CNF at a
+  scale where a general SMT solver is slow. On `sat` the model is INDEPENDENTLY re-verified in
+  pure Python (`meta.verified`); the search is CONFLICT-BOUNDED → honest `unknown`
+  (`BUDGET_EXCEEDED`) on a hard instance, never a hang (PRINCIPLES 4).
+- **Graceful degradation (honest wall):** without `pip install "mathhead[solvers]"` the tool
+  falls back to the built-in stdlib DPLL for ≤20 variables (a verified DRUP proof on unsat) and
+  reports `BACKEND_UNAVAILABLE` for larger instances. `backend` = auto/pysat/builtin.
+- Wired router + MCP (164 tools) + CLI (`solve-cnf`) + `tests/test_hpsolver.py` (13; HP-backend
+  tests skip if python-sat is absent) → **1125/1125 green**. Added `python-sat` to dev + a new
+  optional `[solvers]` extra.
+
+**Verified:** a 2500-variable / 63k-clause SAT instance solved in ~0.1 s with the model
+independently verified; pigeonhole under a tiny conflict budget returns `unknown` (bounded, no
+hang); the built-in fallback proves small UNSAT with a verified DRUP proof; an over-ceiling
+instance without the backend is an honest wall.
+
+**Honest scope:** `Kissat` has no pip/apt package in this environment, and portfolio/parallel
+solving is not wrapped — documented scope limits, not stubs.
+
+**Decision:** ADR-0028 (optional HP backend behind a feature flag; deterministic verdict +
+independently-verified model; conflict-bounded; honest fallback/wall).
+
+**Next:** J4 — [S] Track J hardening.
+
 ## 2026-07-28 — J2 · verifiable UNSAT certificate (DRUP/RUP) — Phase-10 wall CLOSED
 
 **Done — 2 new tools (163 total), new `mathhead/drat.py` (stdlib-only):**

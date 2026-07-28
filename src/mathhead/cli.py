@@ -216,6 +216,12 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("clauses", metavar="CNF_JSON", help="CNF as JSON")
     p.add_argument("proof", metavar="PROOF_JSON", help="DRUP proof as JSON list of clauses")
 
+    p = sub.add_parser("solve-cnf", help="high-performance CNF solving (CaDiCaL); model verified")
+    p.add_argument("clauses", metavar="JSON", help="CNF as JSON")
+    p.add_argument("--solver", default="cadical", help="cadical|glucose|minisat (default cadical)")
+    p.add_argument("--max-conflicts", type=int, default=100_000)
+    p.add_argument("--backend", default="auto", help="auto|pysat|builtin")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -809,6 +815,8 @@ _DISPATCH = {
     "prove-unsat": lambda a: ("prove_unsat", {"clauses": json.loads(a.clauses)}),
     "check-unsat-proof": lambda a: ("check_unsat_proof",
                                     {"clauses": json.loads(a.clauses), "proof": json.loads(a.proof)}),
+    "solve-cnf": lambda a: ("solve_cnf", {"clauses": json.loads(a.clauses), "solver": a.solver,
+                                          "max_conflicts": a.max_conflicts, "backend": a.backend}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

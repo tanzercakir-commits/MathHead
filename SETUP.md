@@ -11,9 +11,11 @@ so continuity never depends on any one session's context.
 # 1. Clone (add https://<TOKEN>@github.com/... if the repo is private)
 git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
 
-# 2. Install the package + dev tools (z3, sympy, mcp, pytest, hypothesis, ...).
+# 2. Install the package + dev tools (z3, sympy, mcp, pytest, hypothesis, python-sat, ...).
 #    mpmath ships with sympy — no extra numeric dependency. No networkx (graph
-#    algorithms are pure stdlib by design).
+#    algorithms are pure stdlib by design). `[dev]` includes python-sat so the J3
+#    high-performance-solver tests run; the runtime backend is the optional `[solvers]`
+#    extra (the engine works without it — solve_cnf falls back / walls honestly).
 pip install -e ".[dev]" --break-system-packages
 
 # 3. Verify everything is green

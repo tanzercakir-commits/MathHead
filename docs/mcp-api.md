@@ -643,3 +643,23 @@ produces a proof AND re-checks it with the independent checker (`verified: true`
 bounded to a small number of variables (honest `unknown` beyond the node budget).
 `check_unsat_proof` verifies a DRUP proof from ANY solver — an incomplete/bogus proof is
 `refuted` (an empty proof only verifies when the empty clause is directly RUP-implied).
+
+---
+
+## High-performance CNF solver (J3 — scale)
+
+A dedicated CDCL backend (CaDiCaL via the **optional** `python-sat`) for large CNF, with the
+`sat` model INDEPENDENTLY verified and the search conflict-bounded.
+
+| Tool | Signature | Result |
+|---|---|---|
+| `solve_cnf` | `solve_cnf(clauses, solver="cadical", max_conflicts=100000, backend="auto")` | `sat` (model, verified) / `unsat` / `unknown` |
+
+`backend`: `"auto"` (HP backend if installed, else the stdlib fallback), `"pysat"` (require it),
+`"builtin"` (force the stdlib DPLL). On `sat` the model is re-checked in pure Python
+(`meta.verified`); the search is bounded by `max_conflicts` → honest `unknown`
+(`BUDGET_EXCEEDED`) on a hard instance. Enable the backend with `pip install
+"mathhead[solvers]"`; absent, small instances still solve via the fallback (a verified DRUP
+proof on unsat) and larger ones return an honest `BACKEND_UNAVAILABLE`. For a checkable UNSAT
+certificate use `prove_unsat`/`check_unsat_proof`. (Kissat / portfolio-parallel are out of
+scope — no package here.)

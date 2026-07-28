@@ -6,6 +6,14 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **High-performance CNF solver (`solve_cnf`):** ROADMAP J3. A dedicated CDCL backend
+  (CaDiCaL/Glucose/MiniSat via the OPTIONAL `python-sat`) for large CNF at scale. New
+  `mathhead/hpsolver.py`. The `sat` model is INDEPENDENTLY verified in pure Python
+  (`meta.verified`); the search is conflict-bounded → honest `unknown` on a hard instance, never
+  a hang. Graceful degradation: without `pip install "mathhead[solvers]"` it falls back to the
+  stdlib DPLL for ≤20 variables (verified DRUP proof on unsat) and reports `BACKEND_UNAVAILABLE`
+  for larger inputs. MCP (**164 tools**) + CLI (`solve-cnf`) + 13 tests. ADR-0028. **1125 tests
+  green.** (Kissat/portfolio out of scope — no package here.)
 - **Verifiable UNSAT certificate (`prove_unsat`, `check_unsat_proof`):** ROADMAP J2 — the
   Phase-10 wall CLOSED with NO external SAT binary. New stdlib-only `mathhead/drat.py` (imports
   neither z3 nor sympy): `check_unsat_proof` is an INDEPENDENT reverse-unit-propagation checker

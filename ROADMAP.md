@@ -235,7 +235,10 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           mathhead/drat.py: prove_unsat (DPLL→resolution DRUP producer) + check_unsat_proof
           (INDEPENDENT reverse-unit-propagation checker; imports no z3/sympy, no external binary)
           ✅ (1110 tests, 163 tools; ADR-0027)
-[ ] J3 🟡 High-performance solver — CaDiCaL/Kissat integration (scale), parallel solving
+[x] J3 🟡 High-performance solver — solve_cnf: CaDiCaL/Glucose/MiniSat via OPTIONAL python-sat
+          (scale); sat model independently verified; conflict-bounded → honest unknown; stdlib
+          fallback + BACKEND_UNAVAILABLE wall ✅ (1125 tests, 164 tools; ADR-0028)
+          ↳ honest walls: Kissat has no pip/apt package here; portfolio/parallel not wrapped (scope)
 [ ] J4 [S] Hardening
 ```
 

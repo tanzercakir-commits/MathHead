@@ -421,6 +421,31 @@
 
 ---
 
+## ADR-0028 — High-performance SAT as an OPTIONAL backend (verified model, conflict-bounded)
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP J3 wants CaDiCaL/Kissat-class performance for large CNF. SETUP.md requires
+  checking real installability and preferring an honest wall over a stub. `python-sat` is
+  pip-installable with bundled CaDiCaL/Glucose/MiniSat (no system package); `drat-trim`/`Kissat`
+  are not available here.
+- **Decision:** `mathhead/hpsolver.py` wraps python-sat as an OPTIONAL dependency (`[solvers]`
+  extra; also in `[dev]` so tests exercise it). `solve_cnf(clauses, solver, max_conflicts,
+  backend)` runs the CDCL backend under a CONFLICT BUDGET (`solve_limited`), so a hard instance
+  returns `unknown`/`BUDGET_EXCEEDED` rather than hanging (PRINCIPLES 4). Every `sat` model is
+  re-verified against the clauses in pure Python before it is returned (`meta.verified`) — a
+  backend bug cannot ship a bogus model. When python-sat is absent, `backend="auto"` degrades to
+  the built-in stdlib DPLL (`drat.refute`) for ≤20 variables (returning a verified DRUP proof on
+  unsat) and reports `BACKEND_UNAVAILABLE` for larger inputs; `backend="pysat"` forces the HP
+  backend (honest error if missing), `backend="builtin"` forces the fallback.
+- **Consequences:** Large CNF SAT is fast (a 2500-var/63k-clause instance in ~0.1 s) with an
+  engine-independent model check; the core engine keeps its minimal dependency set (z3/sympy/mcp)
+  because the backend is optional. Determinism follows ADR-0019 (stable verdict; the model is one
+  example). `Kissat` and portfolio/parallel solving are out of scope here (no package / larger
+  effort) — stated honestly rather than stubbed. An UNSAT verdict from the HP backend is not a
+  certificate; `prove_unsat`/`check_unsat_proof` (J2) remain the checkable-certificate path.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

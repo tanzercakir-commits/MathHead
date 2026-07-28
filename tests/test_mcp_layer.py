@@ -224,6 +224,9 @@ ARGS = {
     # Verifiable UNSAT certificate (J2)
     "prove_unsat": {"clauses": [[1, 2], [-1, -2], [1, -2], [-1, 2]]},
     "check_unsat_proof": {"clauses": [[1], [-1]], "proof": []},
+    # High-performance solver (J3)
+    "solve_cnf": {"clauses": [[1, 2], [-1, 3], [-3]], "solver": "cadical",
+                  "max_conflicts": 100_000, "backend": "auto"},
 }
 
 

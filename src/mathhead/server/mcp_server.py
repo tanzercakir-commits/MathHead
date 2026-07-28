@@ -1413,6 +1413,22 @@ def check_unsat_proof(clauses: list[list[int]], proof: list[list[int]]) -> dict[
     return asdict(route("check_unsat_proof", {"clauses": clauses, "proof": proof}))
 
 
+@mcp.tool()
+def solve_cnf(clauses: list[list[int]], solver: str = "cadical",
+              max_conflicts: int = 100_000, backend: str = "auto") -> dict[str, Any]:
+    """Solve a CNF at SCALE with a high-performance CDCL backend (CaDiCaL via python-sat) (J3).
+
+    `backend`: "auto" (HP backend if installed, else the stdlib fallback), "pysat" (require
+    it), "builtin" (force the stdlib DPLL). On `sat` the model is INDEPENDENTLY verified in
+    pure Python (`meta.verified`); the search is bounded by `max_conflicts` → honest `unknown`
+    on a hard instance. For an independently-checkable UNSAT certificate use `prove_unsat`.
+    Optional backend: `pip install "mathhead[solvers]"` — absent, small instances still solve
+    via the fallback and larger ones return an honest `BACKEND_UNAVAILABLE`.
+    """
+    return asdict(route("solve_cnf", {"clauses": clauses, "solver": solver,
+                                      "max_conflicts": max_conflicts, "backend": backend}))
+
+
 def main() -> None:
     """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")

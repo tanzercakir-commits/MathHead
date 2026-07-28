@@ -119,7 +119,7 @@
 
 - [x] **J1** new reductions — n_queens/latin_square/sudoku/hamiltonian_path/ramsey/tsp_decision ✅ (1093 tests, 161 tools)
 - [x] **J2** verifiable UNSAT certificate — drat.py: DRUP producer + INDEPENDENT RUP checker (stdlib) ✅ (1110 tests, 163 tools)
-- [ ] **J3** high-performance solver (PySAT/CaDiCaL) or honest wall
+- [x] **J3** high-performance solver — solve_cnf (CaDiCaL via optional python-sat; verified model; honest fallback) ✅ (1125 tests, 164 tools)
 - [ ] **J4** [S] Track J hardening
 
 - [ ] then: K (full list in ROADMAP)

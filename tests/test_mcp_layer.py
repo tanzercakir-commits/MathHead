@@ -168,6 +168,10 @@ ARGS = {
     "anova_oneway": {"groups": [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]]},
     "confidence_interval": {"data": ["2", "4", "6", "8", "10"], "confidence": 0.95},
     "linear_regression": {"x": ["1", "2", "3", "4", "5"], "y": ["2.1", "4.0", "6.1", "7.9", "10.1"]},
+    # optimization II (symbolic)
+    "critical_points": {"expression": "x**2 - y**2", "variables": ["x", "y"]},
+    "lagrange_multipliers": {"objective": "x*y", "constraints": ["x+y-10"], "variables": ["x", "y"]},
+    "check_convexity": {"expression": "x**2 + y**2", "variables": ["x", "y"]},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

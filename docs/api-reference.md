@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **134 tools**.
+Total **137 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -497,6 +497,18 @@ t-based confidence interval for the mean → `{mean, lower, upper, margin, confi
 ### `linear_regression(x, y)`
 
 OLS regression y = slope·x + intercept → `{slope, intercept, r, r_squared, p_value}` (slope=0 test).
+
+### `critical_points(expression, variables)`
+
+Unconstrained critical points (∇f = 0), each classified via the Hessian.
+
+### `lagrange_multipliers(objective, constraints, variables)`
+
+Equality-constrained optimization via Lagrange multipliers (∇f = Σλᵢ∇gᵢ, gᵢ = 0).
+
+### `check_convexity(expression, variables)`
+
+Global convexity via the Hessian: `convex` / `concave` / `neither` / `undetermined` (honest).
 
 ### `mean(data)`
 

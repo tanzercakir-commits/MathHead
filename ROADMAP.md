@@ -167,8 +167,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           joint_marginal ✅ (128 tools; exact rationals)
 [x] F2 🟡 Inferential statistics — t_test/z_test/chi_square_test/anova_oneway,
           confidence_interval, linear_regression ✅ (134 tools; p-values via mpmath, deterministic)
-[ ] F3 🟡 Optimization II — linear programming (simplex), integer programming,
-          Lagrange multipliers, KKT/convex
+[x] F3 🟡 Optimization II — critical_points (Hessian-classified), lagrange_multipliers,
+          check_convexity ✅ (137 tools). Linear/integer LP already covered by Z3 `optimize`.
 [ ] F4 [S] Hardening
 ```
 

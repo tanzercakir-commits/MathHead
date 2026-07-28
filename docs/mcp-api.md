@@ -275,6 +275,13 @@ two-sample), `z_test(sample, mu, sigma)`, `chi_square_test(observed, expected)`,
 p-values are NUMERICAL — computed deterministically via mpmath's incomplete gamma/beta (SymPy's
 own dependency; no new package), then rounded. Same input → same output.
 
+**Optimization II — symbolic (F3):** `critical_points(expression, variables)` (∇f=0, each
+classified `local_min`/`local_max`/`saddle`/`inconclusive` by the Hessian),
+`lagrange_multipliers(objective, constraints, variables)` (equality-constrained; returns points +
+multipliers + objective value), `check_convexity(expression, variables)` (Hessian test →
+`convex`/`concave`/`neither`/`undetermined`). Variables are treated as real. (Linear/integer LP over
+reals/ints is the existing `optimize` tool via Z3.)
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

@@ -594,6 +594,19 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--x", nargs="+", required=True, metavar="NUMBER")
     p.add_argument("--y", nargs="+", required=True, metavar="NUMBER")
 
+    p = sub.add_parser("critical-points", help="unconstrained critical points (--vars)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+
+    p = sub.add_parser("lagrange", help="Lagrange multipliers (--constraint repeatable, --vars)")
+    p.add_argument("objective", metavar="OBJECTIVE")
+    p.add_argument("--constraint", action="append", default=[], required=True, metavar="G")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+
+    p = sub.add_parser("convexity", help="check convexity of a function (--vars)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -831,6 +844,15 @@ _DISPATCH = {
     "conf-interval": lambda a: ("confidence_interval",
                                 {"data": a.data, "confidence": a.confidence}),
     "regression": lambda a: ("linear_regression", {"x": a.x, "y": a.y}),
+    "critical-points": lambda a: ("critical_points",
+                                  {"expression": a.expression,
+                                   "variables": [v.strip() for v in a.vars.split(",")]}),
+    "lagrange": lambda a: ("lagrange_multipliers",
+                           {"objective": a.objective, "constraints": a.constraint,
+                            "variables": [v.strip() for v in a.vars.split(",")]}),
+    "convexity": lambda a: ("check_convexity",
+                            {"expression": a.expression,
+                             "variables": [v.strip() for v in a.vars.split(",")]}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

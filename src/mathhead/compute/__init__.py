@@ -2782,6 +2782,154 @@ def linear_regression(x: list, y: list) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# F3 — optimization II (SYMBOLIC): unconstrained critical points (classified by the
+# Hessian), equality-constrained optimization via Lagrange multipliers, and a global
+# convexity test. Complements the Z3 `optimize` (linear/integer LP over reals/ints).
+# --------------------------------------------------------------------------- #
+def _definiteness(H: Any) -> str:
+    """Classifies a symmetric matrix by its eigenvalue signs (honest 'undetermined')."""
+    try:
+        eigs = [sympy.simplify(e) for e in H.eigenvals()]
+    except Exception:              # noqa: BLE001
+        return "undetermined"
+    pos = neg = zero = False
+    for e in eigs:
+        if e.is_positive:
+            pos = True
+        elif e.is_negative:
+            neg = True
+        elif e.is_zero:
+            zero = True
+        else:
+            return "undetermined"
+    if pos and neg:
+        return "indefinite"
+    if pos:
+        return "positive_semidefinite" if zero else "positive_definite"
+    if neg:
+        return "negative_semidefinite" if zero else "negative_definite"
+    return "indefinite"
+
+
+def _as_zero_expr(c: str, syms: dict[str, Any]) -> Any:
+    p = _parse(c, syms)
+    return (p.lhs - p.rhs) if isinstance(p, sympy.Equality) else p
+
+
+def _real_symbol_map(variables: list[str]) -> dict[str, Any]:
+    """Validates variable names and maps them to REAL symbols (so exp/log convexity resolves)."""
+    for v in variables:
+        if not isinstance(v, str) or not v.isidentifier():
+            raise ComputeError(f"invalid variable name: {v!r}")
+    return {v: sympy.Symbol(v, real=True) for v in variables}
+
+
+def critical_points(expression: str, variables: list[str]) -> ComputeResult:
+    """Unconstrained critical points (∇f = 0), each classified by the Hessian.
+
+    Classification: local min (Hessian positive-definite), local max (negative-definite),
+    saddle (indefinite), or inconclusive (semidefinite/undetermined).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("the variable list cannot be empty")
+        syms.update(_real_symbol_map(variables))
+        f = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("critical_points", str(exc), t0)
+    try:
+        grad = [sympy.diff(f, v) for v in vs]
+        sols = sympy.solve(grad, vs, dict=True)
+        H = sympy.hessian(f, vs)
+        points = []
+        for s in sols:
+            pt = {str(v): str(s.get(v, v)) for v in vs}
+            kind = {"positive_definite": "local_min", "negative_definite": "local_max",
+                    "indefinite": "saddle"}.get(_definiteness(H.subs(s)), "inconclusive")
+            points.append({"point": pt, "classification": kind,
+                           "value": str(sympy.simplify(f.subs(s)))})
+    except Exception as exc:  # noqa: BLE001
+        return _error("critical_points", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "critical_points", points,
+                         f"{len(points)} critical point(s).", "OK", _meta(t0))
+
+
+def lagrange_multipliers(objective: str, constraints: list[str],
+                         variables: list[str]) -> ComputeResult:
+    """Equality-constrained critical points via Lagrange multipliers.
+
+    Each constraint is an expression `= 0` (or an equation `a == b`). Solves
+    ∇f = Σ λᵢ ∇gᵢ together with gᵢ = 0. Returns each solution's point, multipliers,
+    and objective value.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("the variable list cannot be empty")
+        if not isinstance(constraints, list) or not constraints:
+            raise ComputeError("provide at least one equality constraint")
+        syms.update(_real_symbol_map(variables))
+        f = _parse(objective, syms)
+        vs = [_symbol(v, syms) for v in variables]
+        gs = [_as_zero_expr(c, syms) for c in constraints]
+    except ComputeError as exc:
+        return _error("lagrange_multipliers", str(exc), t0)
+    try:
+        lams = [sympy.Symbol(f"_lam{i}") for i in range(len(gs))]
+        stationarity = [sympy.diff(f, v) - sum(lams[i] * sympy.diff(gs[i], v)
+                                               for i in range(len(gs))) for v in vs]
+        system = stationarity + gs
+        sols = sympy.solve(system, vs + lams, dict=True)
+        out = []
+        for s in sols:
+            out.append({
+                "point": {str(v): str(s.get(v, v)) for v in vs},
+                "multipliers": [str(s.get(lams[i], lams[i])) for i in range(len(gs))],
+                "objective_value": str(sympy.simplify(f.subs(s))),
+            })
+    except Exception as exc:  # noqa: BLE001
+        return _error("lagrange_multipliers", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    if not out:
+        return _error("lagrange_multipliers", "no stationary point found (honest).",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "lagrange_multipliers", out,
+                         f"{len(out)} constrained stationary point(s).", "OK", _meta(t0))
+
+
+def check_convexity(expression: str, variables: list[str]) -> ComputeResult:
+    """Global convexity of a function via its Hessian: `convex` / `concave` / `neither`.
+
+    A function is convex iff its Hessian is positive-semidefinite everywhere. Reports
+    `undetermined` honestly when the Hessian's definiteness cannot be decided symbolically.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("the variable list cannot be empty")
+        syms.update(_real_symbol_map(variables))
+        f = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("check_convexity", str(exc), t0)
+    try:
+        H = sympy.hessian(f, vs)
+        d = _definiteness(H)
+    except Exception as exc:  # noqa: BLE001
+        return _error("check_convexity", f"could not analyze: {exc}", t0, "COMPUTE_FAILED")
+    verdict = {"positive_definite": "convex", "positive_semidefinite": "convex",
+               "negative_definite": "concave", "negative_semidefinite": "concave",
+               "indefinite": "neither"}.get(d, "undetermined")
+    result = {"verdict": verdict, "hessian_definiteness": d}
+    return ComputeResult("ok", "check_convexity", result,
+                         f"the function is {verdict} (Hessian: {d}).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

@@ -1015,6 +1015,35 @@ def linear_regression(x: list, y: list) -> dict[str, Any]:
     return asdict(route("linear_regression", {"x": x, "y": y}))
 
 
+# -------------------------- Optimization II (symbolic) -------------------- #
+@mcp.tool()
+def critical_points(expression: str, variables: list[str]) -> dict[str, Any]:
+    """Unconstrained critical points (∇f = 0), each classified via the Hessian.
+
+    Classification: `local_min` (positive-definite), `local_max` (negative-definite),
+    `saddle` (indefinite), or `inconclusive`. E.g. `x**2 - y**2` → saddle at (0,0).
+    """
+    return asdict(route("critical_points", {"expression": expression, "variables": variables}))
+
+
+@mcp.tool()
+def lagrange_multipliers(objective: str, constraints: list[str],
+                         variables: list[str]) -> dict[str, Any]:
+    """Equality-constrained optimization via Lagrange multipliers (∇f = Σλᵢ∇gᵢ, gᵢ = 0).
+
+    Constraints are expressions `= 0` (or `a == b`). Returns each stationary point, the
+    multipliers, and the objective value. E.g. max x·y s.t. x+y=10 → (5,5), λ=5, f=25.
+    """
+    return asdict(route("lagrange_multipliers",
+                        {"objective": objective, "constraints": constraints, "variables": variables}))
+
+
+@mcp.tool()
+def check_convexity(expression: str, variables: list[str]) -> dict[str, Any]:
+    """Global convexity via the Hessian: `convex` / `concave` / `neither` / `undetermined` (honest)."""
+    return asdict(route("check_convexity", {"expression": expression, "variables": variables}))
+
+
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""

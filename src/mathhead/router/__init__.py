@@ -373,6 +373,15 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "linear_regression":
         return compute.linear_regression(payload["x"], payload["y"])
 
+    # --- Optimization II (symbolic) ---
+    if task == "critical_points":
+        return compute.critical_points(payload["expression"], payload["variables"])
+    if task == "lagrange_multipliers":
+        return compute.lagrange_multipliers(payload["objective"], payload["constraints"],
+                                            payload["variables"])
+    if task == "check_convexity":
+        return compute.check_convexity(payload["expression"], payload["variables"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

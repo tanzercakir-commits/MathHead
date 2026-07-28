@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — F3 · optimization II (symbolic)
+
+**Done — 3 new compute tools (137 total):**
+
+- `critical_points` (unconstrained ∇f=0, each classified local_min/local_max/saddle/
+  inconclusive by the Hessian's definiteness), `lagrange_multipliers` (equality-constrained;
+  solves ∇f=Σλᵢ∇gᵢ, gᵢ=0 → points + multipliers + objective value), `check_convexity`
+  (Hessian test → convex/concave/neither/undetermined). Pure SymPy; variables treated as REAL
+  (so e.g. exp(x) resolves as convex).
+- **Scope note:** linear/integer programming over reals/ints is already covered by the Z3
+  `optimize` tool (sort inference gives Int without decimals, Real with) — F3 adds the SYMBOLIC
+  layer that Z3 doesn't do (explicit multipliers, Hessian classification, global convexity).
+- Wired router + MCP (137 tools) + CLI (`critical-points`/`lagrange`/`convexity`) +
+  `tests/test_optimization2.py` (13) → **896/896 green**.
+
+**Verified:** x²+y² → local min at (0,0), convex; x²−y² → saddle, neither; x³−3x → max at −1,
+min at 1; max x·y s.t. x+y=10 → (5,5), λ=5, f=25; exp(x) convex (real-variable assumption).
+
+**Next:** F4 [S] — probability/stats hardening → closes Track F.
+
 ## 2026-07-28 — F2 · inferential statistics
 
 **Done — 6 new compute tools (134 total):**

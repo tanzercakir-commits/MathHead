@@ -77,3 +77,20 @@ def test_de_morgan():
     r = prove_entailment(["not(p or q)"], "not(p)")
     assert r.status == "valid"
     assert any(s["rule"] == "De Morgan" for s in r.proof_steps)
+
+
+# ------------------ varoluşsal (∃) akıl yürütme (v3.2) -------------------- #
+def test_existential_elimination_and_introduction():
+    # ∃x P(x), ∀x (P(x)->Q(x))  ⊨  ∃x Q(x)
+    r = prove_entailment(
+        ["exists(x, P(x))", "forall(x, implies(P(x), Q(x)))"], "exists(x, Q(x))"
+    )
+    assert r.status == "valid"
+    assert any("varoluşsal eleme" in s["rule"] for s in r.proof_steps)
+    assert r.proof_steps[-1]["rule"].startswith("varoluşsal içe alma")
+
+
+def test_existential_introduction_simple():
+    r = prove_entailment(["P(a)"], "exists(x, P(x))")
+    assert r.status == "valid"
+    assert r.proof_steps[-1]["rule"].startswith("varoluşsal içe alma")

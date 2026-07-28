@@ -43,7 +43,8 @@ doğal tümdengelim; kurulamazsa Z3 kararı korunur, adımsız). `invalid` ise
 `witness` = karşıörnek. İki strateji: DOĞRUDAN ileri zincirleme; olmazsa
 ÇELİŞKİDEN (RAA). Adım biçimi: `{step, formula, rule, refs}` — kurallar:
 `modus ponens`, `modus tollens`, `ayrık tasım`, `∧-ayıklama`, `iff-ayıklama`,
-`çift olumsuzlama`, `De Morgan`, `evrensel örnekleme`, `çelişkiden ispat (RAA)`.
+`çift olumsuzlama`, `De Morgan`, `evrensel örnekleme`, `varoluşsal eleme`,
+`varoluşsal içe alma`, `çelişkiden ispat (RAA)`.
 
 ---
 

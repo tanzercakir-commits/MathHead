@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-07-28 — v3.2 · ispat üreticisine ∃ (varoluşsal) akıl yürütme
+
+**Yapıldı**
+
+- `core/proof.py`: **∃-eleme** (taze tanık sabiti; `∀`-eleme onu da kullanır) +
+  **∃-giriş** (hedef `∃x.ψ`, `ψ[t]` türetildiyse). Bağlam/witness yönetimi.
+- `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` gibi çıkarımlar adım adım. Testler + regresyon
+  → **78/78 yeşil**.
+- Yeni karar: ADR-0016. Klasik FOL doğal tümdengelim parçası büyük ölçüde tamam.
+
+**Dürüstlük:** Aritmetik türetim ve bazı karışık nicelik desenleri hâlâ yok →
+Z3 kararı korunur (adımsız).
+
+**Sıradaki (gelecek oturumlar):** ispatı LaTeX/metin dışa verme; performans;
+(yayın akşam, sende).
+
 ## 2026-07-28 — v3.1 · ispat üreticisi genişletildi (RAA + MT/DS)
 
 **Yapıldı**

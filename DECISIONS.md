@@ -190,6 +190,20 @@
 - **Sonuçlar:** Kapsam belirgin genişledi. Hâlâ yok: varoluşsal (∃) eleme,
   aritmetik türetim → bunlarda Z3 kararı korunur (adımsız). Türetici sağlam kalır.
 
+## ADR-0016 — İspat üreticisine varoluşsal (∃) akıl yürütme
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Klasik FOL doğal tümdengelim için `∃` şarttı; türetici yalnızca
+  önerme + evrensel yapabiliyordu.
+- **Karar:** **∃-eleme** (taze/fresh tanık sabiti; her `∃` bir kez elenir, tanık
+  bireyler kümesine eklenir → `∀`-eleme onu da kullanır) + **∃-giriş** (hedef
+  `∃x.ψ` ise, bir birey `t` için `ψ[t]` türetildiyse ispatlanır). Taze sabitler
+  çakışmayacak biçimde üretilir; türetici sağlam kalır (her sonuç ayrıca Z3 ile
+  doğrulanır).
+- **Sonuçlar:** `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` gibi çıkarımlar adım adım çıkar.
+  Hâlâ yok: aritmetik türetim, bazı içiçe/karışık nicelik desenleri → Z3 kararı
+  korunur.
+
 ---
 
 <!-- Yeni karar şablonu:

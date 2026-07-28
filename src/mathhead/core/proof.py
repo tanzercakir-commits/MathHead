@@ -1,20 +1,22 @@
 """
-mathhead.core.proof — İspat üretimi (v3, genişletilmiş).
+mathhead.core.proof — İspat üretimi (v3.2).
 
-`entailment` "geçerli" der ama *neden* söylemez. Bu modül iki şey ekler:
+`entailment` "geçerli" der ama *neden* söylemez. Bu modül ekler:
 
-  1) **Minimal çekirdek (used_premises):** sonucun gerçekten dayandığı öncül alt
-     kümesi (Z3 unsat core). %100 sağlam.
+  1) **Minimal çekirdek (used_premises):** sonucun dayandığı öncül alt kümesi
+     (Z3 unsat core). %100 sağlam.
   2) **Doğal tümdengelim türetimi (natural deduction):** iki strateji —
-     * DOĞRUDAN ileri zincirleme: ∧-ayıklama, modus ponens, **modus tollens**,
-       **ayrık tasım** (disjunctive syllogism), iff-ayıklama, **çift olumsuzlama**,
-       **De Morgan** (¬(A∨B)), evrensel örnekleme.
-     * ÇELİŞKİDEN İSPAT (RAA): doğrudan bulunamazsa ¬sonuç varsayılır, aynı
-       kurallarla çelişki (X ve ¬X) aranır → "durum ayrımı" gibi dolaylı ispatlar.
+     * DOĞRUDAN ileri zincirleme. Kurallar: ∧-ayıklama, modus ponens/tollens,
+       ayrık tasım, iff-ayıklama, çift olumsuzlama, De Morgan, **evrensel
+       örnekleme (∀-eleme)**, **varoluşsal eleme (∃-eleme, tanık sabiti)**,
+       **varoluşsal içe alma (∃-giriş)**.
+     * ÇELİŞKİDEN İSPAT (RAA): doğrudan bulunamazsa ¬sonuç varsayılıp çelişki
+       aranır → "durum ayrımı" gibi dolaylı ispatlar.
 
-DÜRÜSTLÜK: Türetici önerme + yüklem + evrensel parçasıyla sınırlı (varoluşsal ∃
-eleme ve aritmetik henüz yok). Kuramazsa `unknown` DEĞİL — Z3'ün sağlam kararı
-korunur ("türetim yok" denir). Türetici SAĞLAMdır: yalnızca geçerli kurallar.
+DÜRÜSTLÜK: Türetici klasik FOL'un önemli bir parçasını kapsar ama tümünü değil
+(aritmetik türetim ve bazı içiçe nicelik desenleri yok). Kuramazsa `unknown`
+DEĞİL — Z3'ün sağlam kararı korunur. Türetici SAĞLAMdır (yalnızca geçerli
+kurallar); ayrıca her sonuç önce Z3 ile doğrulanır.
 """
 from __future__ import annotations
 
@@ -64,7 +66,6 @@ def _mk_not(node: ast.AST) -> ast.AST:
 
 
 def _neg_key(node: ast.AST) -> str:
-    """Bir düğümün olumsuzunun anahtarı (çift olumsuzu sadeleştirir)."""
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
         return _key(node.operand)
     return _key(_mk_not(node))
@@ -104,7 +105,7 @@ def _bound_vars(nodes: list[ast.AST]) -> set[str]:
     return bv
 
 
-def _individuals(nodes: list[ast.AST]) -> list[str]:
+def _individuals(nodes: list[ast.AST]) -> set[str]:
     bound = _bound_vars(nodes)
     inds: set[str] = set()
     for node in nodes:
@@ -114,11 +115,42 @@ def _individuals(nodes: list[ast.AST]) -> list[str]:
                 for arg in n.args:
                     if isinstance(arg, ast.Name) and arg.id not in bound:
                         inds.add(arg.id)
-    return sorted(inds)
+    return inds
+
+
+def _all_names(nodes: list[ast.AST]) -> set[str]:
+    s: set[str] = set()
+    for node in nodes:
+        for n in ast.walk(node):
+            if isinstance(n, ast.Name):
+                s.add(n.id)
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
+                s.add(n.func.id)
+    return s
+
+
+class _Ctx:
+    """Türetim bağlamı: bireyler (∀-eleme için, ∃-eleme ile büyür) + taze tanık
+    üreticisi + bir kez elenmiş ∃'ler."""
+
+    def __init__(self, individuals: set[str], taken: set[str]):
+        self.individuals = set(individuals)
+        self.taken = set(taken) | set(individuals)
+        self.eliminated: set[str] = set()
+        self._wcount = 0
+
+    def fresh(self) -> str:
+        while True:
+            self._wcount += 1
+            w = f"_w{self._wcount}"
+            if w not in self.taken:
+                self.taken.add(w)
+                self.individuals.add(w)
+                return w
 
 
 # ------------------------- ileri zincirleme çekirdek ---------------------- #
-def _apply_rules(node: ast.AST, known: dict, individuals: list[str], add: Callable) -> bool:
+def _apply_rules(node: ast.AST, known: dict, ctx: _Ctx, add: Callable) -> bool:
     changed = False
     if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):
         for v in node.values:
@@ -150,8 +182,15 @@ def _apply_rules(node: ast.AST, known: dict, individuals: list[str], add: Callab
                 changed |= add(args[0], "iff-ayıklama", [_key(node), _key(args[1])])
         elif fid == "forall" and len(args) == 2 and isinstance(args[0], ast.Name):
             var, bod = args[0].id, args[1]
-            for t in individuals:
+            for t in sorted(ctx.individuals):
                 changed |= add(_substitute(bod, var, t), f"evrensel örnekleme (x:={t})", [_key(node)])
+        elif fid == "exists" and len(args) == 2 and isinstance(args[0], ast.Name):
+            ek = _key(node)
+            if ek not in ctx.eliminated:
+                ctx.eliminated.add(ek)
+                witness = ctx.fresh()
+                changed |= add(_substitute(args[1], args[0].id, witness),
+                               f"varoluşsal eleme (tanık {witness})", [ek])
     return changed
 
 
@@ -163,7 +202,7 @@ def _find_contradiction(known: dict) -> tuple[str, str] | None:
     return None
 
 
-def _saturate(initial: list[tuple], individuals: list[str], stop: Callable):
+def _saturate(initial: list[tuple], ctx: _Ctx, stop: Callable):
     known: dict[str, dict] = {}
     order = [0]
 
@@ -185,7 +224,7 @@ def _saturate(initial: list[tuple], individuals: list[str], stop: Callable):
         changed = False
         rounds += 1
         for k in list(known.keys()):
-            changed |= _apply_rules(known[k]["node"], known, individuals, add)
+            changed |= _apply_rules(known[k]["node"], known, ctx, add)
         result = stop(known)
     return known, result
 
@@ -214,23 +253,50 @@ def _order_steps(known: dict, needed: set[str]) -> tuple[list[dict], dict[str, i
     return steps, num
 
 
+def _new_ctx(premise_nodes: list[ast.AST], goal: ast.AST) -> _Ctx:
+    nodes = premise_nodes + [goal]
+    return _Ctx(_individuals(nodes), _all_names(nodes))
+
+
 def _direct_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | None:
-    goal_key = _key(goal)
-    individuals = _individuals(premise_nodes + [goal])
+    ctx = _new_ctx(premise_nodes, goal)
     initial = [(p, "öncül", []) for p in premise_nodes]
-    known, result = _saturate(initial, individuals,
-                              lambda kn: goal_key if goal_key in kn else None)
+    goal_key = _key(goal)
+
+    def stop(known):
+        if goal_key in known:
+            return ("direct", goal_key, None)
+        if (isinstance(goal, ast.Call) and isinstance(goal.func, ast.Name)
+                and goal.func.id == "exists" and len(goal.args) == 2
+                and isinstance(goal.args[0], ast.Name)):
+            var, psi = goal.args[0].id, goal.args[1]
+            for t in sorted(ctx.individuals):
+                inst = _key(_substitute(psi, var, t))
+                if inst in known:
+                    return ("exists_intro", inst, t)
+        return None
+
+    known, result = _saturate(initial, ctx, stop)
     if result is None:
         return None
-    steps, _ = _order_steps(known, _closure(known, [goal_key]))
+    kind, hit, witness = result
+    if kind == "direct":
+        return _order_steps(known, _closure(known, [goal_key]))[0]
+    steps, num = _order_steps(known, _closure(known, [hit]))
+    steps.append({
+        "step": len(steps) + 1,
+        "formula": goal_key,
+        "rule": f"varoluşsal içe alma (tanık {witness})",
+        "refs": [num[hit]],
+    })
     return steps
 
 
 def _raa_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | None:
-    individuals = _individuals(premise_nodes + [goal])
+    ctx = _new_ctx(premise_nodes, goal)
     initial = [(p, "öncül", []) for p in premise_nodes]
     initial.append((_mk_not(goal), "varsayım (çelişki için)", []))
-    known, result = _saturate(initial, individuals, _find_contradiction)
+    known, result = _saturate(initial, ctx, _find_contradiction)
     if result is None:
         return None
     kpos, kneg = result
@@ -284,8 +350,7 @@ def prove_entailment(
     except (ParseError, GuardrailError):
         core = None
 
-    steps = None
-    method = ""
+    steps, method = None, ""
     try:
         prem_nodes = [parse(p).body for p in premises]
         goal_node = parse(conclusion).body
@@ -294,8 +359,7 @@ def prove_entailment(
             method = "doğrudan"
         else:
             steps = _raa_proof(prem_nodes, goal_node)
-            if steps is not None:
-                method = "çelişkiden (RAA)"
+            method = "çelişkiden (RAA)" if steps is not None else ""
     except Exception:  # noqa: BLE001 - türetim best-effort; verdict yine sağlam
         steps = None
 

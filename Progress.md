@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-28 — L0 · honesty fixes (status, doc de-contradiction, API boundary) — Track L begins
+
+Track L = external-review response: **release hardening + product focus, NO new math** (the
+reviewer's own "Track L", which I 100% agree with). User-confirmed decisions: run all of Track L
+L0→L5; adopt **stable core + experimental extended**; reposition as the **AI-math verification /
+counterexample engine**.
+
+**Done (L0):**
+- **Status honesty:** classifier `Production/Stable` → `Beta` (I set that over-claim in K4 — corrected).
+  Framing = a stable verification core + an experimental extended surface.
+- **Doc de-contradiction:** removed "v2+" / "compute empty in v1" (compute is fully implemented);
+  added ONE **version vocabulary** (package 1.0.x · MCP contract 1 · grammar 1.2 · packs experimental)
+  in README + mcp-api; `architecture.md` now states MCP = supported contract, the Python API = internal.
+- **Fence:** a docs-consistency test guards the drift from regressing. **1241/1241 green.**
+- **Decision:** ADR-0031.
+
+**Next:** L1 — release credibility (multi-OS/Python CI, wheel build, trusted publishing).
+
 ## 2026-07-28 — v1.0.1 · CI fix (pin mcp < 2)
 
 **Fixed:** CI was red on a CLEAN install — the `mcp[cli]>=1.10` dependency was UNPINNED, and the

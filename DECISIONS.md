@@ -486,6 +486,35 @@
 
 ---
 
+## ADR-0031 — Version vocabulary, stable-core/experimental-extended, MCP-as-contract (Track L)
+
+- **Status:** Accepted · 2026-07-28 (Track L — external-review response)
+- **Context:** An external review flagged that the repo over-claimed maturity (the
+  `Production/Stable` classifier) and carried self-contradictory version language: compute
+  documented as "v2+ / empty in v1" though fully implemented; grammar "v1.2" vs package 1.0.0;
+  the README exposing internal Python imports while claiming MCP is the only contract. These are
+  honesty/clarity defects, not code bugs.
+- **Decision:**
+  1. **Maturity is Beta, not Production/Stable.** The MCP *contract* is frozen (SemVer 1.0.x) but
+     release maturity (no PyPI, single-OS/Python CI) and the extended surface are not yet proven →
+     classifier `4 - Beta`.
+  2. **Stable core + experimental extended.** The verification surface (`verify_*`, `cross_check`,
+     `check_certificate`, entailment/consistency/model, `prove_unsat`/`check_unsat_proof`) is the
+     stable core; the broad CAS catalog, frontier reductions, and observability are experimental
+     until per-tool stability metadata makes it explicit (L2).
+  3. **A single version vocabulary:** package `1.0.x` · MCP contract `1` · input grammar `1.2` ·
+     extended packs `experimental` — intentionally independent.
+  4. **MCP is the supported contract; the Python API is internal.** `from mathhead.…` imports are
+     convenience and NOT covered by the SemVer promise.
+  5. **Positioning:** MathHead is a *deterministic verification + counterexample engine for
+     AI-generated mathematics* (its own Track-C thesis); the compute catalog is supporting
+     infrastructure.
+- **Consequences:** The stale "v2+/empty-in-v1" language is removed and fenced by a docs test; the
+  README states the boundary + vocabulary; the classifier is honest. No code/API change. Per-tool
+  stability (L2), core-profile/capability-packs (L3), and release-credibility CI (L1) build on this.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

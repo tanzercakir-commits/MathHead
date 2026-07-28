@@ -4,7 +4,19 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed (Track L — external-review response, honesty/product-focus; no new math)
+
+- **Maturity label corrected `Production/Stable` → `Beta` (L0).** The MCP contract is frozen
+  (SemVer 1.0.x), but release maturity (no PyPI, single-OS/Python CI) and the extended surface are
+  not yet proven — so the classifier is honestly `4 - Beta`. Framing is now **stable core**
+  (the verification surface) **+ experimental extended** (the broad CAS/frontier catalog).
+- **Documentation de-contradicted (L0).** Removed the stale "v2+" / "compute empty in v1" language
+  (compute is fully implemented); added a single **version vocabulary** (package `1.0.x` · MCP
+  contract `1` · grammar `1.2` · extended packs experimental) to README and mcp-api; clarified in
+  `docs/architecture.md` that **the MCP layer is the supported contract** and the `mathhead.*`
+  Python imports are internal/convenience (not SemVer-guaranteed). Fenced by a docs-consistency
+  test. Repositioned as a *deterministic verification + counterexample engine for AI-generated
+  mathematics*. ADR-0031.
 
 ## [1.0.1] - 2026-07-28
 

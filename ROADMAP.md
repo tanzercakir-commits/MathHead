@@ -271,6 +271,27 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
 
 ---
 
+## L. Release Hardening & Product Focus (post-v1.0 — external-review response, NO new math)
+
+> Triggered by an external evaluation. Goal: **earn** the v1.0 claim and sharpen the product to its
+> thesis (**AI-math verification**), not add features. Per-phase commit+push like A–K.
+
+```
+[x] L0 🟢 Honesty — Production/Stable→Beta, doc de-contradiction (v2+/empty-in-v1 removed), single
+          version vocabulary, MCP-as-contract / Python-internal boundary, repositioning ✅ (1241 tests; ADR-0031)
+[ ] L1 🟡 Release credibility — CI matrix (3.10–3.12 × Ubuntu/macOS/Windows), wheel/sdist + twine check,
+          install-from-built-wheel, CLI + mcp-server stdio smoke, optional-solver with/without, dependency
+          upper bounds + constraints/lock (backend versions in meta), coverage gate, trusted publishing (PyPI OIDC)
+[ ] L2 🟡 Contract upgrade — `certainty` (epistemic strength) field on results, per-tool stability metadata
+          (stable/provisional/experimental/internal), machine-readable JSON Schema contract artifact
+[ ] L3 🟡 Surface focus — default core profile (15–25 verification tools) + capability packs +
+          list_capabilities/describe_tool/recommend_tool; README rewrite (problem-first, 3 scenarios, limits)
+[ ] L4 🟢 Security/policy — SECURITY.md + CONTRIBUTING.md + threat model; strengthen MCP e2e tests
+          (per-tool schema, malformed payload, no-stdout-leak, shutdown); document the timeout model honestly
+[ ] L5 🟢 External validation — 20-real-LLM-error catch-rate benchmark + tool-selection accuracy harness
+          (in-repo); 3 independent users / 3 MCP clients (on the user)
+```
+
 ## Where did we leave off?
 
 The most current status is always at the top of `Progress.md`. A new session reads

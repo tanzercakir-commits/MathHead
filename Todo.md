@@ -133,6 +133,15 @@
 
 ### 🎉🎉 ROADMAP COMPLETE — Tracks A–K done. Engine: **168 MCP tools, 1240 tests, v1.0.0** (API frozen).
 
+### Track L — Release Hardening & Product Focus (external-review response, NO new math)
+
+- [x] **L0** honesty — Production/Stable→Beta, doc de-contradiction, version vocabulary, MCP-as-contract ✅ (1241 tests; ADR-0031)
+- [ ] **L1** release credibility — CI matrix + wheel build + install-from-wheel + smoke + trusted publishing
+- [ ] **L2** contract upgrade — certainty field + per-tool stability + JSON Schema artifact
+- [ ] **L3** surface focus — core profile + capability packs + README rewrite
+- [ ] **L4** security/policy — SECURITY/CONTRIBUTING + threat model + stronger MCP tests
+- [ ] **L5** external validation — LLM-error catch-rate + tool-selection accuracy harness
+
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 
 ---

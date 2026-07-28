@@ -11,14 +11,33 @@ AI (e.g. Claude) can invoke over **MCP**.
 
 ## Status
 
-**v1.0 — API frozen and stable.** The logic core (Z3) + compute/calculus/linear
-algebra/number theory/combinatorics/probability (SymPy) + the **verification layer**
-(audits AI reasoning) + **logic & proof depth** (induction, SMT theories — bit-vectors/
-arrays/strings/EUF, quantifier elimination, modal logic) + the **frontier** (SAT
-reductions, a verifiable **UNSAT certificate**, a high-performance CaDiCaL backend) +
-holistic performance/observability: **168 MCP tools**, a CLI, and **1236 tests green**.
-Every result is deterministic in verdict and honest about its walls. The full history is
-in `CHANGELOG.md`, the phased plan in `ROADMAP.md` (Tracks A–K complete).
+**v1.0.x — the MCP contract is frozen; maturity is Beta.** MathHead is a **deterministic
+verification engine for AI-generated mathematics**: given a claim an AI produced, it checks
+it deterministically and returns a *counterexample* or an *independently-checkable
+certificate* when it can — and an honest `unknown` when it can't.
+
+- **Stable core** — the verification surface: `verify_*`, `cross_check`, `check_certificate`,
+  entailment / consistency / model, and `prove_unsat` / `check_unsat_proof`.
+- **Experimental extended** — the broad compute/CAS catalog, the frontier reductions, and
+  observability. Useful and tested, but the surface may still change (per-tool stability is
+  being made explicit).
+
+**168 MCP tools**, a CLI, **1240 tests green** — deterministic verdicts, honest walls. Not yet
+published to PyPI; install from source (below). Full history in `CHANGELOG.md`, plan in
+`ROADMAP.md`.
+
+### Version vocabulary (separate on purpose)
+
+| What | Version |
+|---|---|
+| Package (SemVer) | `1.0.x` |
+| MCP contract (the supported surface) | `1` |
+| Input grammar (logic kernel) | `1.2` |
+| Extended tool packs | experimental |
+
+The **MCP layer is the supported contract**. The `from mathhead.…` Python imports shown below
+are convenience/internal — not covered by the package's SemVer promise (see
+`docs/architecture.md`).
 
 ## Quick start
 
@@ -33,7 +52,9 @@ mathhead-server        # start the MCP server over stdio
 pytest -q              # all tests green
 ```
 
-## Usage (v1)
+## Usage (Python — convenience API)
+
+> The MCP tools are the supported contract; these direct imports are internal convenience.
 
 From Python:
 
@@ -45,7 +66,7 @@ check_entailment(["x > 0"], "x > 5")             # -> "invalid", witness={"x": 1
 check_consistency(["p", "not(p)"])               # -> "unsat" + unsat core
 find_model(["x > 2", "x < 5"])                    # -> "sat", witness={"x": 3}
 
-from mathhead.core.inequality import prove_inequality   # v2+ (Z3 NRA, nonlinear)
+from mathhead.core.inequality import prove_inequality   # (Z3 NRA, nonlinear)
 prove_inequality("x**2 + y**2 >= 2*x*y")          # -> "valid"  (AM-GM, proof)
 prove_inequality("x**2 >= x")                     # -> "invalid", witness={"x": 0.5}
 
@@ -71,48 +92,48 @@ from mathhead.certificate import check_certificate  # INDEPENDENT checker (NO z3
 check_certificate({"kind":"subset_sum","numbers":[3,4,2],"target":9,"indices":[0,1,2]})  # verified
 check_certificate({"kind":"solution","expression":"x**2 - 4","symbol":"x","value":"3"})  # refuted
 
-from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
+from mathhead.compute import solve, differentiate, integrate   # (SymPy CAS)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
 differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
 integrate("2*x", "x")                             # -> "x**2"
 
-from mathhead.compute import limit, series, solve_system       # v2+ (calculus)
+from mathhead.compute import limit, series, solve_system       # (calculus)
 limit("sin(x)/x", "x", "0")                       # -> "1"
 limit("1/x", "x", "oo")                           # -> "0"
 series("exp(x)", "x", "0", 5)                     # -> "x**4/24 + x**3/6 + x**2/2 + x + 1"
 solve_system(["x + y == 10", "x - y == 2"], ["x", "y"])   # -> [{"x": "6", "y": "4"}]
 
-from mathhead.compute import determinant, matrix_inverse, eigenvalues   # v2+ (linear algebra)
+from mathhead.compute import determinant, matrix_inverse, eigenvalues   # (linear algebra)
 determinant([["a", "b"], ["c", "d"]])             # -> "a*d - b*c" (symbolic)
 matrix_inverse([["1", "2"], ["3", "4"]])          # -> [["-2","1"],["3/2","-1/2"]]
 matrix_inverse([["1", "2"], ["2", "4"]])          # -> error: not invertible (honest)
 eigenvalues([["2", "0"], ["0", "3"]])             # -> [{"value":"2",...},{"value":"3",...}]
 
-from mathhead.compute import matrix_multiply, matrix_solve, nullspace   # v2+ (linear algebra II)
+from mathhead.compute import matrix_multiply, matrix_solve, nullspace   # (linear algebra II)
 matrix_multiply([["1","2"],["3","4"]], [["5","6"],["7","8"]])  # -> [["19","22"],["43","50"]]
 matrix_solve([["1","1"],["1","-1"]], ["10","2"]) # -> [{"x0":"6","x1":"4"}]  (Ax=b)
 matrix_solve([["1","1"],["1","1"]], ["1","2"])   # -> []  (inconsistent → no solution, honest)
 nullspace([["1","2"],["2","4"]])                  # -> [["-2","1"]]  (null space basis)
 
-from mathhead.compute import gcd, factorize, modular_inverse, chinese_remainder  # v2+ (number theory)
+from mathhead.compute import gcd, factorize, modular_inverse, chinese_remainder  # (number theory)
 gcd(48, 36)                                       # -> 12
 factorize(360)                                    # -> 2^3 · 3^2 · 5
 modular_inverse(3, 11)                            # -> 4  (3·4 ≡ 1 mod 11)
 modular_inverse(4, 8)                             # -> error: no inverse (gcd≠1, honest)
 chinese_remainder([3,5,7], [2,3,2])               # -> {"x": 23, "modulus": 105}
 
-from mathhead.compute import combinations, factorial, solve_recurrence  # v2+ (combinatorics)
+from mathhead.compute import combinations, factorial, solve_recurrence  # (combinatorics)
 combinations(49, 6)                               # -> 13983816  (lottery)
 factorial(10)                                     # -> 3628800
 solve_recurrence("y(n) = y(n-1) + y(n-2)",        # -> Fibonacci closed form (Binet)
                  "y", "n", {"0": "0", "1": "1"})
 
-from mathhead.compute import gradient, summation, solve_ode  # v2+ (multivariable analysis)
+from mathhead.compute import gradient, summation, solve_ode  # (multivariable analysis)
 gradient("x**2*y + sin(y)", ["x", "y"])           # -> ["2*x*y", "x**2 + cos(y)"]
 summation("i", "i", "1", "n")                     # -> "n**2/2 + n/2"  (closed form)
 solve_ode("y'' + y = 0")                          # -> Eq(y(x), C1*sin(x) + C2*cos(x))
 
-from mathhead.compute import mean, distribution   # v2+ (probability & statistics)
+from mathhead.compute import mean, distribution   # (probability & statistics)
 mean(["2", "4", "4", "5", "5"])                   # -> "4"
 distribution("binomial", ["10", "1/2"], at="3")   # -> {mean:5, variance:5/2, cdf_at:11/64, ...}
 distribution("normal", ["mu", "sigma"])           # -> {mean:"mu", variance:"sigma**2", ...}
@@ -166,7 +187,7 @@ mathhead/
 ├── src/mathhead/
 │   ├── core/            · logic (Z3) + verification (verify/crosscheck/inequality)
 │   ├── certificate.py  · INDEPENDENT certificate checker (stdlib only, NO z3/sympy)
-│   ├── compute/         · symbolic compute (SymPy)                       [v2+]
+│   ├── compute/         · symbolic compute (SymPy)                
 │   ├── router/          · routing
 │   ├── guardrails/      · fence: validation, timeout, determinism
 │   └── server/          · MCP server (FastMCP, 168 tools)

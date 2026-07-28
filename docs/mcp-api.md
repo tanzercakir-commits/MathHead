@@ -88,7 +88,11 @@ Classifies a formula: `status` ∈ {`tautology` (always true), `contradiction`
 
 ---
 
-## Input grammar (v1.2)
+## Input grammar (grammar version 1.2)
+
+> **Version note:** `1.2` here is the **input-grammar** version — deliberately separate from
+> the **package** version (`1.0.x`) and the **MCP contract** version (`1`). See the version
+> vocabulary in `README.md`. The formal grammar spec is in `docs/grammar.md`.
 
 Input is written in **Python expression syntax**; the engine's parser (`ast`-based,
 whitelisted — ADR-0009/0010) allows only the following and cleanly rejects the

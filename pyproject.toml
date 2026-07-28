@@ -9,7 +9,7 @@ authors = [{ name = "tanzercakir" }]
 keywords = ["logic", "first-order-logic", "theorem-proving", "smt", "z3", "sympy",
             "mcp", "reasoning", "sat", "van-der-waerden", "schur"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",

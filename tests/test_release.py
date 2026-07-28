@@ -35,6 +35,17 @@ def test_changelog_records_the_release():
     assert f"## [{__version__}]" in text
 
 
+def test_docs_have_no_stale_version_markers():
+    # guard against the doc drift the external review flagged (ROADMAP L0):
+    # compute is fully implemented, so the old "v2+"/"empty in v1" language must be gone.
+    readme = (_ROOT / "README.md").read_text(encoding="utf-8")
+    arch = (_ROOT / "docs" / "architecture.md").read_text(encoding="utf-8")
+    assert "v2+" not in readme, "README still carries stale 'v2+' markers"
+    assert "Empty in v1" not in arch, "architecture.md still says compute is 'Empty in v1'"
+    # the version vocabulary must be present (package vs MCP contract vs grammar)
+    assert "MCP contract" in readme and "SemVer" in readme
+
+
 def test_frozen_tool_surface_conforms():
     tools = asyncio.run(mcp_server.mcp.list_tools())
     assert len(tools) >= _FROZEN_TOOL_COUNT, f"tool surface shrank below v1.0 ({len(tools)})"

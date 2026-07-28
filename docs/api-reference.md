@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **128 tools**.
+Total **134 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -473,6 +473,30 @@ Distribution after `steps` steps: initial·Pᵏ. E.g. [1,0] on [[1/2,1/2],[1/4,3
 ### `joint_marginal(joint, axis='row')`
 
 Marginal distribution from a joint probability table. `axis`: `row` → P(X), `col` → P(Y).
+
+### `t_test(sample1, sample2=None, mu=0)`
+
+Student's t-test. One-sample vs `mu` if `sample2` is None, else two-sample (Welch).
+
+### `z_test(sample, mu, sigma)`
+
+One-sample z-test with KNOWN population σ → `{z_statistic, p_value}` (two-tailed).
+
+### `chi_square_test(observed, expected)`
+
+χ² goodness-of-fit test → `{chi_square, df, p_value}`. E.g. [10,20,30,40] vs uniform → p≈0.0002.
+
+### `anova_oneway(groups)`
+
+One-way ANOVA across ≥2 groups → `{f_statistic, df_between, df_within, p_value}`.
+
+### `confidence_interval(data, confidence=0.95)`
+
+t-based confidence interval for the mean → `{mean, lower, upper, margin, confidence}`.
+
+### `linear_regression(x, y)`
+
+OLS regression y = slope·x + intercept → `{slope, intercept, r, r_squared, p_value}` (slope=0 test).
 
 ### `mean(data)`
 

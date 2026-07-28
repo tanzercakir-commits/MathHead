@@ -269,6 +269,12 @@ colors)` (distinct necklaces under rotation — Burnside/Pólya).
 `joint_marginal(joint, axis="row")`. All exact (rationals); zero evidence / zero variance /
 non-stochastic matrix are honest errors.
 
+**Inferential statistics (F2):** `t_test(sample1, sample2=None, mu=0)` (one-sample or Welch
+two-sample), `z_test(sample, mu, sigma)`, `chi_square_test(observed, expected)`,
+`anova_oneway(groups)`, `confidence_interval(data, confidence=0.95)`, `linear_regression(x, y)`.
+p-values are NUMERICAL — computed deterministically via mpmath's incomplete gamma/beta (SymPy's
+own dependency; no new package), then rounded. Same input → same output.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

@@ -90,7 +90,8 @@
 ### Track F — Probability, Statistics & Optimization (in progress)
 
 - [x] **F1** probability II — bayes/covariance/correlation/markov-stationary/markov-step/marginal ✅ (850 tests, 128 tools)
-- [ ] **F2** inferential statistics · **F3** optimization II · **F4** [S]
+- [x] **F2** inferential statistics — t/z/chi²/ANOVA, confidence-interval, regression ✅ (877 tests, 134 tools)
+- [ ] **F3** optimization II · **F4** [S]
 - [ ] then: G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

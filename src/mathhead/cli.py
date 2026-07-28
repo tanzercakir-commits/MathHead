@@ -569,6 +569,31 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("joint", metavar="MATRIX")
     p.add_argument("--axis", default="row", choices=["row", "col"])
 
+    p = sub.add_parser("t-test", help="t-test (one-sample vs --mu, or two-sample via --sample2)")
+    p.add_argument("--sample1", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--sample2", nargs="+", metavar="NUMBER")
+    p.add_argument("--mu", type=float, default=0)
+
+    p = sub.add_parser("z-test", help="one-sample z-test (known sigma)")
+    p.add_argument("--sample", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--mu", type=float, required=True)
+    p.add_argument("--sigma", type=float, required=True)
+
+    p = sub.add_parser("chi2-test", help="chi-square goodness-of-fit")
+    p.add_argument("--observed", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--expected", nargs="+", required=True, metavar="NUMBER")
+
+    p = sub.add_parser("anova", help="one-way ANOVA (--group 'a,b,c' repeatable)")
+    p.add_argument("--group", action="append", default=[], required=True, metavar="GROUP")
+
+    p = sub.add_parser("conf-interval", help="confidence interval for the mean")
+    p.add_argument("data", nargs="+", metavar="NUMBER")
+    p.add_argument("--confidence", type=float, default=0.95)
+
+    p = sub.add_parser("regression", help="linear regression (--x, --y)")
+    p.add_argument("--x", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--y", nargs="+", required=True, metavar="NUMBER")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -799,6 +824,13 @@ _DISPATCH = {
     "markov-step": lambda a: ("markov_step",
                               {"matrix": _matrix(a.matrix), "initial": a.init, "steps": a.steps}),
     "marginal": lambda a: ("joint_marginal", {"joint": _matrix(a.joint), "axis": a.axis}),
+    "t-test": lambda a: ("t_test", {"sample1": a.sample1, "sample2": a.sample2, "mu": a.mu}),
+    "z-test": lambda a: ("z_test", {"sample": a.sample, "mu": a.mu, "sigma": a.sigma}),
+    "chi2-test": lambda a: ("chi_square_test", {"observed": a.observed, "expected": a.expected}),
+    "anova": lambda a: ("anova_oneway", {"groups": [g.split(",") for g in a.group]}),
+    "conf-interval": lambda a: ("confidence_interval",
+                                {"data": a.data, "confidence": a.confidence}),
+    "regression": lambda a: ("linear_regression", {"x": a.x, "y": a.y}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

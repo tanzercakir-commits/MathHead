@@ -359,6 +359,20 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "joint_marginal":
         return compute.joint_marginal(payload["joint"], payload.get("axis", "row"))
 
+    # --- Inferential statistics ---
+    if task == "t_test":
+        return compute.t_test(payload["sample1"], payload.get("sample2"), payload.get("mu", 0))
+    if task == "z_test":
+        return compute.z_test(payload["sample"], payload["mu"], payload["sigma"])
+    if task == "chi_square_test":
+        return compute.chi_square_test(payload["observed"], payload["expected"])
+    if task == "anova_oneway":
+        return compute.anova_oneway(payload["groups"])
+    if task == "confidence_interval":
+        return compute.confidence_interval(payload["data"], payload.get("confidence", 0.95))
+    if task == "linear_regression":
+        return compute.linear_regression(payload["x"], payload["y"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

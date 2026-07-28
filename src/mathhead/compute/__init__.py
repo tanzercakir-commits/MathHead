@@ -2543,6 +2543,245 @@ def joint_marginal(joint: list[list[str]], axis: str = "row") -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# F2 — inferential statistics: t / z / χ² / ANOVA tests, confidence intervals,
+# linear regression. p-values are inherently NUMERICAL — computed deterministically
+# via mpmath's incomplete gamma/beta (already a SymPy dependency; no new package)
+# at high precision, then rounded. Same input → same output.
+# --------------------------------------------------------------------------- #
+def _floats(data: Any, name: str = "data") -> list[float]:
+    if not isinstance(data, list) or not data:
+        raise ComputeError(f"{name} cannot be empty")
+    out = []
+    for x in data:
+        try:
+            out.append(float(x))
+        except (ValueError, TypeError) as exc:
+            raise ComputeError(f"{name} must be numeric: {x!r}") from exc
+    return out
+
+
+def _rnd(x: Any, digits: int = 6) -> float:
+    return round(float(x), digits)
+
+
+def _ncdf(x: Any) -> Any:
+    import mpmath as mp
+    return 0.5 * (1 + mp.erf(mp.mpf(x) / mp.sqrt(2)))
+
+
+def _chi2_cdf(x: Any, k: Any) -> Any:
+    import mpmath as mp
+    return mp.gammainc(mp.mpf(k) / 2, 0, mp.mpf(x) / 2, regularized=True)
+
+
+def _t_cdf(t: Any, df: Any) -> Any:
+    import mpmath as mp
+    df, t = mp.mpf(df), mp.mpf(t)
+    xb = df / (df + t * t)
+    ib = mp.betainc(df / 2, mp.mpf("0.5"), 0, xb, regularized=True) / 2
+    return (1 - ib) if t > 0 else ib
+
+
+def _f_cdf(f: Any, d1: Any, d2: Any) -> Any:
+    import mpmath as mp
+    f = mp.mpf(f)
+    xb = (mp.mpf(d1) * f) / (mp.mpf(d1) * f + mp.mpf(d2))
+    return mp.betainc(mp.mpf(d1) / 2, mp.mpf(d2) / 2, 0, xb, regularized=True)
+
+
+def _mean_var(vals: list[float]) -> tuple[float, float]:
+    """(mean, sample variance with n−1)."""
+    n = len(vals)
+    m = sum(vals) / n
+    v = sum((x - m) ** 2 for x in vals) / (n - 1) if n > 1 else 0.0
+    return m, v
+
+
+def t_test(sample1: list, sample2: list | None = None, mu: float = 0) -> ComputeResult:
+    """t-test: one-sample (vs `mu`) if `sample2` is None, else two-sample (Welch, unequal variance).
+
+    Returns `{t_statistic, df, p_value}` (two-tailed).
+    """
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        s1 = _floats(sample1, "sample1")
+        if len(s1) < 2:
+            raise ComputeError("sample1 needs at least 2 values")
+        if sample2 is not None:
+            s2 = _floats(sample2, "sample2")
+            if len(s2) < 2:
+                raise ComputeError("sample2 needs at least 2 values")
+    except ComputeError as exc:
+        return _error("t_test", str(exc), t0)
+    if sample2 is None:
+        m, v = _mean_var(s1)
+        n = len(s1)
+        if v == 0:
+            return _error("t_test", "sample variance is 0 (t undefined)", t0, "COMPUTE_FAILED")
+        t = (m - float(mu)) / (mp.sqrt(v) / mp.sqrt(n))
+        df = n - 1
+    else:
+        m1, v1 = _mean_var(s1)
+        m2, v2 = _mean_var(s2)
+        n1, n2 = len(s1), len(s2)
+        se = mp.sqrt(v1 / n1 + v2 / n2)
+        if se == 0:
+            return _error("t_test", "combined variance is 0 (t undefined)", t0, "COMPUTE_FAILED")
+        t = (m1 - m2) / se
+        df = (v1 / n1 + v2 / n2) ** 2 / ((v1 / n1) ** 2 / (n1 - 1) + (v2 / n2) ** 2 / (n2 - 1))
+    p = 2 * (1 - _t_cdf(abs(t), df))
+    result = {"t_statistic": _rnd(t), "df": _rnd(df), "p_value": _rnd(p)}
+    return ComputeResult("ok", "t_test", result,
+                         f"t = {result['t_statistic']}, df = {result['df']}, p = {result['p_value']}.",
+                         "OK", _meta(t0))
+
+
+def z_test(sample: list, mu: float, sigma: float) -> ComputeResult:
+    """One-sample z-test with KNOWN population σ. Returns `{z_statistic, p_value}` (two-tailed)."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        s = _floats(sample, "sample")
+        sig = float(sigma)
+        if sig <= 0:
+            raise ComputeError("sigma must be positive")
+    except (ComputeError, ValueError, TypeError) as exc:
+        return _error("z_test", str(exc), t0)
+    m = sum(s) / len(s)
+    z = (m - float(mu)) / (sig / mp.sqrt(len(s)))
+    p = 2 * (1 - _ncdf(abs(z)))
+    result = {"z_statistic": _rnd(z), "p_value": _rnd(p)}
+    return ComputeResult("ok", "z_test", result,
+                         f"z = {result['z_statistic']}, p = {result['p_value']}.", "OK", _meta(t0))
+
+
+def chi_square_test(observed: list, expected: list) -> ComputeResult:
+    """χ² goodness-of-fit test: Σ (O−E)²/E, df = k−1. Returns `{chi_square, df, p_value}`."""
+    t0 = time.perf_counter()
+    try:
+        obs = _floats(observed, "observed")
+        exp = _floats(expected, "expected")
+        if len(obs) != len(exp):
+            raise ComputeError("observed and expected must have the same length")
+        if any(e <= 0 for e in exp):
+            raise ComputeError("all expected counts must be positive")
+        if len(obs) < 2:
+            raise ComputeError("need at least 2 categories")
+    except ComputeError as exc:
+        return _error("chi_square_test", str(exc), t0)
+    chi2 = sum((o - e) ** 2 / e for o, e in zip(obs, exp))
+    df = len(obs) - 1
+    p = 1 - _chi2_cdf(chi2, df)
+    result = {"chi_square": _rnd(chi2), "df": df, "p_value": _rnd(p)}
+    return ComputeResult("ok", "chi_square_test", result,
+                         f"χ² = {result['chi_square']}, df = {df}, p = {result['p_value']}.",
+                         "OK", _meta(t0))
+
+
+def anova_oneway(groups: list) -> ComputeResult:
+    """One-way ANOVA across ≥2 groups. Returns `{f_statistic, df_between, df_within, p_value}`."""
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(groups, list) or len(groups) < 2:
+            raise ComputeError("provide at least 2 groups")
+        gs = [_floats(g, f"group {i}") for i, g in enumerate(groups)]
+        if any(len(g) < 1 for g in gs):
+            raise ComputeError("each group must be non-empty")
+        n_total = sum(len(g) for g in gs)
+        if n_total <= len(gs):
+            raise ComputeError("need more observations than groups (df_within >= 1)")
+    except ComputeError as exc:
+        return _error("anova_oneway", str(exc), t0)
+    grand = sum(sum(g) for g in gs) / n_total
+    means = [sum(g) / len(g) for g in gs]
+    ssb = sum(len(g) * (mi - grand) ** 2 for g, mi in zip(gs, means))
+    ssw = sum((x - mi) ** 2 for g, mi in zip(gs, means) for x in g)
+    dfb = len(gs) - 1
+    dfw = n_total - len(gs)
+    if ssw == 0:
+        return _error("anova_oneway", "within-group variance is 0 (F undefined)", t0, "COMPUTE_FAILED")
+    f = (ssb / dfb) / (ssw / dfw)
+    p = 1 - _f_cdf(f, dfb, dfw)
+    result = {"f_statistic": _rnd(f), "df_between": dfb, "df_within": dfw, "p_value": _rnd(p)}
+    return ComputeResult("ok", "anova_oneway", result,
+                         f"F = {result['f_statistic']}, df = ({dfb},{dfw}), p = {result['p_value']}.",
+                         "OK", _meta(t0))
+
+
+def confidence_interval(data: list, confidence: float = 0.95) -> ComputeResult:
+    """t-based confidence interval for the mean. Returns `{mean, lower, upper, margin, confidence}`."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        vals = _floats(data, "data")
+        if len(vals) < 2:
+            raise ComputeError("need at least 2 data points")
+        conf = float(confidence)
+        if not (0 < conf < 1):
+            raise ComputeError("confidence must be in (0, 1)")
+    except (ComputeError, ValueError, TypeError) as exc:
+        return _error("confidence_interval", str(exc), t0)
+    m, v = _mean_var(vals)
+    n = len(vals)
+    df = n - 1
+    target = (1 + conf) / 2
+    try:
+        tcrit = mp.findroot(lambda tt: _t_cdf(tt, df) - target, 2.0)
+    except Exception as exc:  # noqa: BLE001
+        return _error("confidence_interval", f"could not find the critical value: {exc}",
+                      t0, "COMPUTE_FAILED")
+    margin = float(tcrit) * (v ** 0.5) / (n ** 0.5)
+    result = {"mean": _rnd(m), "lower": _rnd(m - margin), "upper": _rnd(m + margin),
+              "margin": _rnd(margin), "confidence": conf}
+    return ComputeResult("ok", "confidence_interval", result,
+                         f"{int(conf * 100)}% CI for the mean: [{result['lower']}, {result['upper']}].",
+                         "OK", _meta(t0))
+
+
+def linear_regression(x: list, y: list) -> ComputeResult:
+    """Ordinary least-squares regression y = slope·x + intercept.
+
+    Returns `{slope, intercept, r, r_squared, p_value}` (p is the two-tailed test that slope = 0).
+    """
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        xs = _floats(x, "x")
+        ys = _floats(y, "y")
+        if len(xs) != len(ys):
+            raise ComputeError("x and y must have the same length")
+        if len(xs) < 3:
+            raise ComputeError("need at least 3 points for the slope test")
+    except ComputeError as exc:
+        return _error("linear_regression", str(exc), t0)
+    n = len(xs)
+    mx = sum(xs) / n
+    my = sum(ys) / n
+    sxx = sum((xi - mx) ** 2 for xi in xs)
+    syy = sum((yi - my) ** 2 for yi in ys)
+    sxy = sum((xi - mx) * (yi - my) for xi, yi in zip(xs, ys))
+    if sxx == 0:
+        return _error("linear_regression", "x has zero variance (slope undefined)", t0, "COMPUTE_FAILED")
+    slope = sxy / sxx
+    intercept = my - slope * mx
+    r = sxy / (sxx * syy) ** 0.5 if syy > 0 else 0.0
+    ss_res = sum((yi - (slope * xi + intercept)) ** 2 for xi, yi in zip(xs, ys))
+    df = n - 2
+    if ss_res <= 0 or df <= 0:
+        p = 0.0
+    else:
+        se_slope = (ss_res / df / sxx) ** 0.5
+        t = slope / se_slope if se_slope > 0 else mp.inf
+        p = float(2 * (1 - _t_cdf(abs(t), df)))
+    result = {"slope": _rnd(slope), "intercept": _rnd(intercept), "r": _rnd(r),
+              "r_squared": _rnd(r * r), "p_value": _rnd(p)}
+    return ComputeResult("ok", "linear_regression", result,
+                         f"y = {result['slope']}·x + {result['intercept']} (r² = {result['r_squared']}).",
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

@@ -161,6 +161,13 @@ ARGS = {
     "markov_stationary": {"matrix": [["1/2", "1/2"], ["1/4", "3/4"]]},
     "markov_step": {"matrix": [["1/2", "1/2"], ["1/4", "3/4"]], "initial": ["1", "0"], "steps": 2},
     "joint_marginal": {"joint": [["1/8", "1/8"], ["1/4", "1/2"]], "axis": "row"},
+    # inferential statistics
+    "t_test": {"sample1": ["1", "2", "3", "4", "5"], "sample2": ["2", "3", "4", "5", "6"], "mu": 0},
+    "z_test": {"sample": ["100", "102", "98", "101", "99"], "mu": 100, "sigma": 2},
+    "chi_square_test": {"observed": ["10", "20", "30", "40"], "expected": ["25", "25", "25", "25"]},
+    "anova_oneway": {"groups": [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]]},
+    "confidence_interval": {"data": ["2", "4", "6", "8", "10"], "confidence": 0.95},
+    "linear_regression": {"x": ["1", "2", "3", "4", "5"], "y": ["2.1", "4.0", "6.1", "7.9", "10.1"]},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

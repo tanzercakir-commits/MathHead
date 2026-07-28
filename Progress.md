@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — F2 · inferential statistics
+
+**Done — 6 new compute tools (134 total):**
+
+- `t_test` (one-sample vs μ / Welch two-sample), `z_test` (known σ), `chi_square_test`
+  (goodness-of-fit), `anova_oneway`, `confidence_interval` (t-based), `linear_regression`
+  (OLS + slope test). Each returns the statistic, df, and p-value.
+- **p-values via mpmath** — the incomplete gamma/beta functions (χ²/t/F CDFs) are computed
+  at high precision with mpmath (already a SymPy dependency; NO new package) and rounded.
+  Deterministic: same input → same output (ADR-0019 preserved even for numerical stats).
+- Wired router + MCP (134 tools) + CLI (`t-test`/`z-test`/`chi2-test`/`anova`/`conf-interval`/
+  `regression`) + `tests/test_statistics2.py` (15) → **877/877 green**.
+
+**Verified against textbook values:** χ²([10,20,30,40] vs uniform) = 20, df=3, p≈0.0002;
+one-way ANOVA of [1,2,3],[4,5,6],[7,8,9] → F=27, df=(2,6); 95% CI of [2,4,6,8,10] =
+[2.07, 9.93]; regression of y≈2x → slope 2.0, r²=1.0; identical-mean samples → p=1.
+
+**Next:** F3 — optimization II (linear/integer programming, Lagrange multipliers, KKT/convex).
+
 ## 2026-07-28 — F1 · probability II (Track F begins)
 
 **Done — 6 new compute tools (128 total):**

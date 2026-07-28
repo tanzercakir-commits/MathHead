@@ -977,6 +977,45 @@ def joint_marginal(joint: list[list[str]], axis: str = "row") -> dict[str, Any]:
 
 
 @mcp.tool()
+def t_test(sample1: list, sample2: list | None = None, mu: float = 0) -> dict[str, Any]:
+    """Student's t-test. One-sample vs `mu` if `sample2` is None, else two-sample (Welch).
+
+    Returns `{t_statistic, df, p_value}` (two-tailed). p-values via mpmath (deterministic).
+    """
+    return asdict(route("t_test", {"sample1": sample1, "sample2": sample2, "mu": mu}))
+
+
+@mcp.tool()
+def z_test(sample: list, mu: float, sigma: float) -> dict[str, Any]:
+    """One-sample z-test with KNOWN population σ → `{z_statistic, p_value}` (two-tailed)."""
+    return asdict(route("z_test", {"sample": sample, "mu": mu, "sigma": sigma}))
+
+
+@mcp.tool()
+def chi_square_test(observed: list, expected: list) -> dict[str, Any]:
+    """χ² goodness-of-fit test → `{chi_square, df, p_value}`. E.g. [10,20,30,40] vs uniform → p≈0.0002."""
+    return asdict(route("chi_square_test", {"observed": observed, "expected": expected}))
+
+
+@mcp.tool()
+def anova_oneway(groups: list) -> dict[str, Any]:
+    """One-way ANOVA across ≥2 groups → `{f_statistic, df_between, df_within, p_value}`."""
+    return asdict(route("anova_oneway", {"groups": groups}))
+
+
+@mcp.tool()
+def confidence_interval(data: list, confidence: float = 0.95) -> dict[str, Any]:
+    """t-based confidence interval for the mean → `{mean, lower, upper, margin, confidence}`."""
+    return asdict(route("confidence_interval", {"data": data, "confidence": confidence}))
+
+
+@mcp.tool()
+def linear_regression(x: list, y: list) -> dict[str, Any]:
+    """OLS regression y = slope·x + intercept → `{slope, intercept, r, r_squared, p_value}` (slope=0 test)."""
+    return asdict(route("linear_regression", {"x": x, "y": y}))
+
+
+@mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""
     return asdict(route("mean", {"data": data}))

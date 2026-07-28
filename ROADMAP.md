@@ -165,7 +165,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 ```
 [x] F1 🟡 Probability II — bayes_theorem, covariance, correlation, markov_stationary + markov_step,
           joint_marginal ✅ (128 tools; exact rationals)
-[ ] F2 🟡 Inferential statistics — hypothesis test (z/t/χ²/ANOVA), confidence interval, p-value, regression
+[x] F2 🟡 Inferential statistics — t_test/z_test/chi_square_test/anova_oneway,
+          confidence_interval, linear_regression ✅ (134 tools; p-values via mpmath, deterministic)
 [ ] F3 🟡 Optimization II — linear programming (simplex), integer programming,
           Lagrange multipliers, KKT/convex
 [ ] F4 [S] Hardening

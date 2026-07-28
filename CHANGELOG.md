@@ -6,6 +6,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **LLM-tuzak benchmark (Track C4):** `benchmarks/llm_traps.json` (14 klasik LLM
+  hata deseni: eksik/yanlış çözüm, yanlış özdeşlik, domain tuzağı, yanlış
+  eşitsizlik, kök dalı, hatalı adım, asallık, aritmetik, modüler, Diophantine) +
+  `benchmarks/run.py` harness + `tests/test_benchmark_traps.py` regresyon çiti +
+  `docs/benchmark-results.md`. **Yakalama oranı %100** (doğru-pozitif kontrolü
+  dahil — doğruyu yanlış işaretlemez). Dürüst çerçeve: yeniden-üretilebilir
+  gösterim, canlı LLM A/B değil.
 - **Bağımsız sertifika denetleyicisi (`check_certificate`):** ROADMAP Track C2.
   Bir sonucu, onu ÜRETEN motordan (Z3/SymPy) **BAĞIMSIZ**, yalnız Python stdlib
   (`ast`+`fractions`, mümkünse tam aritmetik) ile yeniden doğrular →

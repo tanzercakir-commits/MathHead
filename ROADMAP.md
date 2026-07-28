@@ -110,8 +110,12 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     ↳ bağımsızlık alt-süreçle KANITLI; tam aritmetik (Fraction); verified/refuted
 [x] C3 · Çapraz denetim — Z3 ⋈ SymPy mutabakatı (iki bağımsız tanık)  (bitti — 447 test, 63 araç)
     ↳ domain tuzağı → ENGINES_DISAGREE; + determinizm düzeltmesi (ADR-0020)
-[ ] C4 · Benchmark — LLM-tuzak problem seti + ölçülü üstünlük + regresyon çiti
+[x] C4 · Benchmark — LLM-tuzak seti (14) + %100 yakalama + regresyon çiti  ✅
+    ↳ benchmarks/ + docs/benchmark-results.md; dürüst: gösterim, canlı A/B değil
 ```
+
+**🎉 TRACK C TAMAM.** Doğrulama katmanı: doğrulayıcı + bağımsız sertifika +
+çapraz denetim + benchmark. MathHead = AI muhakemesinin bağımsız yargıcı.
 
 ---
 

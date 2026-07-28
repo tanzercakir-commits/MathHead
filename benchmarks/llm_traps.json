@@ -1,0 +1,88 @@
+{
+  "_comment": "LLM-tuzak seti — LLM'lerin sık DÜŞTÜĞÜ klasik hata desenleri. Her giriş: LLM'in verebileceği YANLIŞ cevap + MathHead'in bunu yakalayan doğru verdict'i. Harness route(task,payload) çalıştırıp 'expect' alanlarını doğrular; eşleşme = TUZAK YAKALANDI. DÜRÜST çerçeve: bu, MathHead'in bilinen hata desenlerini doğru adjuke ettiğinin yeniden-üretilebilir gösterimidir — canlı LLM A/B DEĞİL (o kullanıcıda).",
+  "traps": [
+    {"id": "incomplete-quadratic", "category": "eksik_çözüm",
+     "llm_error": "x²=4 için yalnız x=2 verir, x=-2 kaçar",
+     "task": "verify_solution",
+     "payload": {"equation": "x**2 == 4", "symbol": "x", "claimed": ["2"]},
+     "expect": {"status": "invalid", "reason_code": "SOLUTION_INCOMPLETE"}},
+
+    {"id": "incomplete-quartic", "category": "eksik_çözüm",
+     "llm_error": "x⁴=16 için {2} verir; -2 (ve karmaşık kökler) kaçar",
+     "task": "verify_solution",
+     "payload": {"equation": "x**4 == 16", "symbol": "x", "claimed": ["2"]},
+     "expect": {"status": "invalid", "reason_code": "SOLUTION_INCOMPLETE"}},
+
+    {"id": "wrong-root", "category": "yanlış_çözüm",
+     "llm_error": "x²=4 çözümüne yanlışlıkla 3'ü ekler",
+     "task": "verify_solution",
+     "payload": {"equation": "x**2 == 4", "symbol": "x", "claimed": ["2", "3"]},
+     "expect": {"status": "invalid", "reason_code": "SOLUTION_INCORRECT"}},
+
+    {"id": "false-identity-square", "category": "yanlış_özdeşlik",
+     "llm_error": "(x+1)² = x²+1 sanır (çapraz terim 2x'i unutur)",
+     "task": "cross_check",
+     "payload": {"left": "(x+1)**2", "right": "x**2 + 1"},
+     "expect": {"status": "invalid", "reason_code": "CONSENSUS_NOT_EQUAL"}},
+
+    {"id": "domain-trap-cancel", "category": "domain_tuzağı",
+     "llm_error": "(x²-1)/(x-1) = x+1 der, x=1'de tanımsızlığı atlar",
+     "task": "verify_equality",
+     "payload": {"left": "(x**2 - 1)/(x - 1)", "right": "x + 1"},
+     "expect": {"status": "valid", "reason_code": "EQUAL_ON_COMMON_DOMAIN"}},
+
+    {"id": "domain-trap-crosscheck", "category": "domain_tuzağı",
+     "llm_error": "aynı sadeleştirmeyi koşulsuz doğru sanır",
+     "task": "cross_check",
+     "payload": {"left": "(x**2 - 1)/(x - 1)", "right": "x + 1"},
+     "expect": {"status": "unknown", "reason_code": "ENGINES_DISAGREE"}},
+
+    {"id": "false-inequality", "category": "yanlış_eşitsizlik",
+     "llm_error": "x² ≥ x'i tüm gerçel x için doğru sanır (0<x<1'i unutur)",
+     "task": "prove_inequality",
+     "payload": {"goal": "x**2 >= x"},
+     "expect": {"status": "invalid", "reason_code": "COUNTEREXAMPLE_FOUND"}},
+
+    {"id": "root-branch", "category": "kök_dalı",
+     "llm_error": "√(x²) = x sanır (aslında |x|, x<0 için yanlış)",
+     "task": "verify_equality",
+     "payload": {"left": "sqrt(x**2)", "right": "x"},
+     "expect": {"status": "invalid", "reason_code": "NOT_EQUAL"}},
+
+    {"id": "bad-derivation-step", "category": "hatalı_adım",
+     "llm_error": "2·(x+3) = 2x+3 yazar (dağıtmayı yarım yapar)",
+     "task": "verify_steps",
+     "payload": {"steps": ["2*(x + 3)", "2*x + 3"]},
+     "expect": {"status": "invalid", "reason_code": "STEP_INVALID"}},
+
+    {"id": "composite-mistaken-prime", "category": "asallık",
+     "llm_error": "91'i asal sanır (aslında 7·13)",
+     "task": "is_prime",
+     "payload": {"n": "91"},
+     "expect": {"status": "ok", "result": false}},
+
+    {"id": "power-approximation", "category": "aritmetik",
+     "llm_error": "2¹⁰'u 1000 sanır (aslında 1024)",
+     "task": "verify_equality",
+     "payload": {"left": "2**10", "right": "1000"},
+     "expect": {"status": "invalid", "reason_code": "NOT_EQUAL"}},
+
+    {"id": "modular-inverse-nonexistent", "category": "modüler",
+     "llm_error": "4'ün mod 8 tersini uydurur (aslında yok, gcd≠1)",
+     "task": "modular_inverse",
+     "payload": {"a": "4", "m": "8"},
+     "expect": {"status": "error", "reason_code": "COMPUTE_FAILED"}},
+
+    {"id": "diophantine-no-solution", "category": "tam_sayı_çözüm",
+     "llm_error": "2x+4y=5'e tam sayı çözüm uydurur (gcd(2,4)=2 ∤ 5)",
+     "task": "linear_diophantine",
+     "payload": {"a": "2", "b": "4", "c": "5"},
+     "expect": {"status": "ok", "result": []}},
+
+    {"id": "correct-identity-not-flagged", "category": "doğru_pozitif",
+     "llm_error": "(kontrol) DOĞRU özdeşliği yanlış işaretlememeli",
+     "task": "cross_check",
+     "payload": {"left": "sin(x)**2 + cos(x)**2", "right": "1"},
+     "expect": {"status": "valid"}}
+  ]
+}

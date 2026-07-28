@@ -158,6 +158,7 @@ mathhead/
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
 │   └── server/          · MCP sunucusu (FastMCP, 64 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
+├── benchmarks/          · LLM-tuzak seti + harness (%100 yakalama, Track C4)
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```
 

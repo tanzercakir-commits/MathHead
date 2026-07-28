@@ -441,6 +441,26 @@ goal is not a comparison or the exponent is a variable (nonpolynomial),
 
 ---
 
+## Induction (H — proof depth)
+
+**Proves `∀ n ≥ start. P(n)` by mathematical induction** — something Z3 cannot do
+natively (the induction schema is not first-order SMT). MathHead checks the base case
+and the inductive step with Z3 and applies the induction principle as a sound meta-rule.
+
+| Tool | Signature | Example |
+|---|---|---|
+| `prove_by_induction` | `prove_by_induction(claim, var="n", start=0)` | `(n*(n+1)) % 2 == 0` → `valid` |
+
+`claim` is a boolean formula over the single integer `var`; nonlinear arithmetic is
+allowed here (`+ - * ** % //`, chained comparisons, `and`/`or`/`not`, `implies`).
+Returns an `InductionResult`: `valid` → `proof_steps` (base + step + principle) plus
+`base_case`/`inductive_step`; `invalid` → the base case is false (the claim fails at
+`start`); `unknown` → the step has a counterexample (`STEP_FAILED`, inconclusive — the
+claim may still be true) or Z3 could not decide the nonlinear step (`SOLVER_UNKNOWN`).
+**Honesty:** a failed or undecided step is NEVER reported as a proof.
+
+---
+
 ## Verification layer (AI reasoning auditor) — the direction that pulls ahead
 
 The layer that turns MathHead from "just another CAS" into **a judge of AI

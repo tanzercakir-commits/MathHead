@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **148 tools**.
+Total **149 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -53,6 +53,10 @@ Does `expression ≥ 0` hold for every real value (under the assumptions)?
 ### `find_real_solution(constraints)`
 
 Finds a point in the REALS satisfying a set of nonlinear constraints.
+
+### `prove_by_induction(claim, var='n', start=0)`
+
+Prove `∀ {var} ≥ {start}. {claim}` by MATHEMATICAL INDUCTION (Z3 can't do this natively).
 
 ### `verify_equality(left, right)`
 

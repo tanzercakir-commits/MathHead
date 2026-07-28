@@ -6,6 +6,14 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Mathematical induction (`prove_by_induction`):** ROADMAP H1 — Track H begins. Proves
+  `∀ n ≥ start. P(n)` by induction, something Z3 CANNOT do natively (the induction schema
+  is not first-order SMT). New `core/induction.py` checks the base case P(start) and the
+  inductive step P(k)→P(k+1) with Z3 and applies the induction principle as a SOUND
+  meta-rule. Single-variable nonlinear-int grammar (`+ - * ** % //`). Honest walls:
+  base-fail → `invalid` (counterexample at start), step-fail → `unknown` (`STEP_FAILED`,
+  inconclusive), hard nonlinear step → `unknown` (`SOLVER_UNKNOWN`) — never a fabricated
+  proof. MCP (**149 tools**) + CLI (`induction`) + 14 tests. ADR-0022. **990 tests green.**
 - **Natural language → formal (`interpret_natural`):** ROADMAP I2 — antidote to "wall #2"
   (over-assumption). Rule-based, bilingual (TR+EN), **RECOGNIZE-OR-REJECT**: does not guess on
   unrecognized/ambiguous input (`UNRECOGNIZED`/`AMBIGUOUS`). When it understands, it

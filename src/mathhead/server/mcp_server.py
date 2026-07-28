@@ -151,6 +151,23 @@ def find_real_solution(constraints: list[str]) -> dict[str, Any]:
     return asdict(route("find_real_solution", {"constraints": constraints}))
 
 
+# --------------------- Induction (H1 — proof depth) ----------------------- #
+@mcp.tool()
+def prove_by_induction(claim: str, var: str = "n", start: int = 0) -> dict[str, Any]:
+    """Prove `∀ {var} ≥ {start}. {claim}` by MATHEMATICAL INDUCTION (Z3 can't do this natively).
+
+    Checks the base case P(start) and the inductive step P(k) → P(k+1); the induction
+    principle (a sound meta-rule) then yields the universal conclusion. `claim` is a
+    boolean formula over the single integer `var` (nonlinear ok): e.g.
+    `"(n*(n+1)) % 2 == 0"`, `"n**2 >= n"`, `"(n**3 - n) % 3 == 0"`.
+
+    status: valid → `proof_steps` (base + step + principle). invalid → base case fails
+    (the claim is false; `base_case`). unknown → the step failed or the solver could not
+    decide the nonlinear step (`inductive_step`) — an honest wall, never a fake proof.
+    """
+    return asdict(route("prove_by_induction", {"claim": claim, "var": var, "start": start}))
+
+
 # --------------- Verification layer (AI reasoning auditor) ---------------- #
 @mcp.tool()
 def verify_equality(left: str, right: str) -> dict[str, Any]:

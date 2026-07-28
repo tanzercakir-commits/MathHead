@@ -35,6 +35,7 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
+from mathhead.core.induction import InductionResult, prove_by_induction
 from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.nl import NLResult, interpret
@@ -64,7 +65,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
-    | VerifyResult | CertificateResult | NLResult
+    | VerifyResult | CertificateResult | NLResult | InductionResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -97,6 +98,9 @@ def route(task: str, payload: dict[str, Any]) -> (
         return prove_nonnegative(payload["expression"], payload.get("assumptions"), **_opts(payload))
     if task == "find_real_solution":
         return find_real_solution(payload["constraints"], **_opts(payload))
+    if task == "prove_by_induction":
+        return prove_by_induction(payload["claim"], payload.get("var", "n"),
+                                  payload.get("start", 0), **_opts(payload))
 
     # --- Verification layer (AI reasoning auditor) ---
     if task == "verify_equality":

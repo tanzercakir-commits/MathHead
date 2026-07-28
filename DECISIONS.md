@@ -281,6 +281,29 @@
 
 ---
 
+## ADR-0022 — Induction as a sound meta-rule over Z3 subgoal checks
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP H1 (Logic & Proof Depth) asks for induction proofs. Z3 has no
+  native induction: the schema is second-order/meta, and a direct `∀n. P(n)` query over
+  nonlinear integer arithmetic simply returns `unknown`. We still want deterministic,
+  honest induction that fits the engine's contract.
+- **Decision:** Implement induction as a META-RULE, not inside Z3. `core/induction.py`
+  reduces `∀n≥start. P(n)` to two ordinary Z3 satisfiability checks — BASE (`¬P(start)`
+  UNSAT) and STEP (`P(k) ∧ k≥start ∧ ¬P(k+1)` UNSAT) — over a dedicated single-variable
+  nonlinear-int translator (Z3 NIA/LIA). Only if BOTH are discharged do we assert the
+  universal conclusion; the induction principle itself is the (sound) glue. A separate
+  `InductionResult` dataclass carries `base_case` / `inductive_step` / `proof_steps`.
+- **Consequences:** Real theorems become provable (n(n+1) even, n³−n ≡ 0 mod 3, n²≥n).
+  Honesty is preserved and sharpened: base-failure is `invalid` (a genuine
+  counterexample at `start`), but step-failure is `unknown` (NOT `invalid` — the claim
+  may still hold by another argument), and a solver `unknown` on a hard nonlinear step
+  stays a first-class wall. Soundness rests on Z3's verdicts for the two subgoals plus
+  the standard induction principle; completeness is explicitly not claimed (nonlinear
+  steps can defeat the decision procedure).
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

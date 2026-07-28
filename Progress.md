@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-28 — H1 · induction proofs (Track H begins)
+
+**Done — 1 new proof tool (149 total):**
+
+- `prove_by_induction` (new `core/induction.py`): mathematical induction over the
+  integers. Z3 CANNOT do induction natively (the schema is not first-order SMT; a naive
+  ∀n.P(n) over nonlinear arithmetic returns `unknown`). We add it as a SOUND META-RULE:
+  Z3 checks the BASE case P(start) and the INDUCTIVE STEP P(k)→P(k+1); the induction
+  principle then yields ∀n≥start.P(n). Dedicated single-variable nonlinear-int
+  mini-translator (`+ - * ** % //`) feeding Z3 NIA/LIA.
+- Wired router + MCP (149 tools) + CLI (`induction`) + `tests/test_induction.py` (14)
+  → **990/990 green**.
+
+**Verified (real theorems proved):** n(n+1) even; n³−n divisible by 3; n²≥n; the
+identity (n+1)²=n²+2n+1; n²≥2n from start=2.
+
+**Honest walls (PRINCIPLES 2/3 — never a fake proof):** base-case failure → `invalid`
+(the claim is false; n=start is a counterexample, e.g. `n>=5`); inductive-step failure
+→ `unknown`/`STEP_FAILED` with the counterexample k (NOT `invalid` — the claim may still
+be true by another argument, e.g. `n<3` fails the step at k=2); Z3 `unknown` on a hard
+nonlinear step → `unknown`/`SOLVER_UNKNOWN` (e.g. n(n+1)(n+2) divisible by 6 is TRUE but
+the step exceeds the decision procedure).
+
+**Decision:** ADR-0022 (induction = sound meta-rule over two Z3 subgoal checks).
+
+**Next:** H2 — SMT theories (arrays, bit-vectors, strings, uninterpreted functions).
+
 ## 2026-07-28 — G4 [S] · numerical hardening → TRACK G DONE 🎉
 
 **Done**

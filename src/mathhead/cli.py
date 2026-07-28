@@ -154,6 +154,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("real-solve", help="find a real solution to nonlinear constraints")
     p.add_argument("constraints", nargs="+", metavar="CONSTRAINT")
 
+    p = sub.add_parser("induction", help="prove ∀n≥start. P(n) by mathematical induction")
+    p.add_argument("claim", metavar="CLAIM", help="e.g. '(n*(n+1)) % 2 == 0'")
+    p.add_argument("--var", default="n", help="induction variable (default n)")
+    p.add_argument("--start", type=int, default=0, help="base value (default 0)")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -727,6 +732,7 @@ _DISPATCH = {
     "prove-inequality": lambda a: ("prove_inequality", {"goal": a.goal, "assumptions": a.assume}),
     "prove-nonnegative": lambda a: ("prove_nonnegative", {"expression": a.expression, "assumptions": a.assume}),
     "real-solve": lambda a: ("find_real_solution", {"constraints": a.constraints}),
+    "induction": lambda a: ("prove_by_induction", {"claim": a.claim, "var": a.var, "start": a.start}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

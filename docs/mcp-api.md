@@ -229,6 +229,12 @@ variables, func)` (first-order linear only — honest `COMPUTE_FAILED` otherwise
 Derivative input across the ODE/PDE family: prime notation `y'`/`y''` (w.r.t. the first
 variable) or the marker `D(func, var, …)` for explicit partials (e.g. `D(u,x)`).
 
+**Complex analysis (D4):** `residue(expression, symbol, point)` (Res(f, z₀); `point` may be
+complex, e.g. `I`), `contour_integral(expression, symbol, poles)` (∮ = 2πi·Σ Res over the
+enclosed poles you supply), `laurent_series(expression, symbol, point="0", order=6)` (includes
+negative powers), `complex_parts(expression)` (→ `{real, imag}`). `I` is the imaginary unit in
+any compute expression.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

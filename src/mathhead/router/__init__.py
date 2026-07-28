@@ -255,6 +255,15 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "solve_pde":
         return compute.solve_pde(payload["equation"], payload.get("func", "u"),
                                  payload["variables"])
+    if task == "residue":
+        return compute.residue(payload["expression"], payload["symbol"], payload["point"])
+    if task == "contour_integral":
+        return compute.contour_integral(payload["expression"], payload["symbol"], payload["poles"])
+    if task == "laurent_series":
+        return compute.laurent_series(payload["expression"], payload["symbol"],
+                                      payload.get("point", "0"), payload.get("order", 6))
+    if task == "complex_parts":
+        return compute.complex_parts(payload["expression"])
 
     # --- Probability & statistics ---
     if task == "mean":

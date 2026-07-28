@@ -397,6 +397,25 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--vars", required=True, metavar="X,Y", help="variables, with ','")
     p.add_argument("--func", default="u")
 
+    p = sub.add_parser("residue", help="residue Res(f, z0) at a pole (complex ok, e.g. I)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("point", metavar="POINT", help="pole, e.g. 0 or I")
+
+    p = sub.add_parser("contour", help="∮ f dz via residue theorem (--pole per enclosed pole)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("--pole", action="append", default=[], required=True, metavar="POLE")
+
+    p = sub.add_parser("laurent", help="Laurent series (includes negative powers)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("--point", default="0", metavar="POINT")
+    p.add_argument("--order", type=int, default=6)
+
+    p = sub.add_parser("complex-parts", help="split into real + imaginary parts")
+    p.add_argument("expression", metavar="EXPRESSION")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -561,6 +580,14 @@ _DISPATCH = {
     "pde": lambda a: ("solve_pde",
                       {"equation": a.equation, "func": a.func,
                        "variables": [v.strip() for v in a.vars.split(",")]}),
+    "residue": lambda a: ("residue",
+                          {"expression": a.expression, "symbol": a.symbol, "point": a.point}),
+    "contour": lambda a: ("contour_integral",
+                          {"expression": a.expression, "symbol": a.symbol, "poles": a.pole}),
+    "laurent": lambda a: ("laurent_series",
+                          {"expression": a.expression, "symbol": a.symbol,
+                           "point": a.point, "order": a.order}),
+    "complex-parts": lambda a: ("complex_parts", {"expression": a.expression}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

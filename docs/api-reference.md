@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **85 tools**.
+Total **89 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -301,6 +301,22 @@ Classifies an ODE — the applicable SymPy solution methods (e.g. `separable`, `
 ### `solve_pde(equation, variables, func='u')`
 
 Solves a first-order linear PDE (SymPy `pdsolve`). Partials via `D(u, x)`, `D(u, y)`.
+
+### `residue(expression, symbol, point)`
+
+Residue Res(f, z₀) of `expression` at the pole `point` (may be complex, e.g. `I`).
+
+### `contour_integral(expression, symbol, poles)`
+
+∮_C f dz by the RESIDUE THEOREM = 2πi·Σ Res(f, pole) over the ENCLOSED `poles` you supply.
+
+### `laurent_series(expression, symbol, point='0', order=6)`
+
+Laurent series of `expression` around `point` up to `order` — includes negative powers.
+
+### `complex_parts(expression)`
+
+Splits a complex expression into real and imaginary parts → `{real, imag}`.
 
 ### `mean(data)`
 

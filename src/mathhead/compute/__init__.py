@@ -33,9 +33,9 @@ _FUNCS = {
 }
 
 # Recognized mathematical constants: a bare name matching one of these is the
-# CONSTANT, not a free symbol (so `pi`, `E` mean π, e). Variable names declared via
-# `_symbol` are unaffected — a declared variable stays a variable.
-_CONSTS = {"pi": sympy.pi, "E": sympy.E}
+# CONSTANT, not a free symbol (so `pi`, `E`, `I` mean π, e, and the imaginary unit).
+# Variable names declared via `_symbol` are unaffected — a declared variable stays one.
+_CONSTS = {"pi": sympy.pi, "E": sympy.E, "I": sympy.I}
 
 
 class ComputeError(ValueError):
@@ -1407,6 +1407,103 @@ def solve_pde(equation: str, func: str = "u", variables: list[str] | None = None
                       t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "solve_pde", result,
                          f"PDE solution ({func}({', '.join(variables)})).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# D4 — complex analysis: residue, contour integral (residue theorem), Laurent
+# series, and real/imaginary splitting. `I` is the imaginary unit (see _CONSTS),
+# so poles/points like `I`, `-I`, `2+I` parse directly.
+# --------------------------------------------------------------------------- #
+def residue(expression: str, symbol: str, point: str) -> ComputeResult:
+    """Residue Res(f, z₀) of `expression` at `point` (may be complex, e.g. `I`).
+
+    (A residue of 0 at a regular point is the correct answer, not an error.)
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse(str(point), syms)
+    except ComputeError as exc:
+        return _error("residue", str(exc), t0)
+    try:
+        result = str(sympy.residue(expr, var, pt))
+    except Exception as exc:  # noqa: BLE001
+        return _error("residue", f"could not compute residue: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "residue", result,
+                         f"Res(f, {point}) = {result}.", "OK", _meta(t0))
+
+
+def contour_integral(expression: str, symbol: str, poles: list[str]) -> ComputeResult:
+    """∮_C f dz by the RESIDUE THEOREM = 2πi·Σ Res(f, pole) over the ENCLOSED `poles`.
+
+    The caller supplies the poles inside the contour; e.g. `1/(z**2+1)` enclosing `I` → π.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(poles, list) or not poles:
+            raise ComputeError("provide the poles enclosed by the contour (non-empty list)")
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        pts = [_parse(str(p), syms) for p in poles]
+    except ComputeError as exc:
+        return _error("contour_integral", str(exc), t0)
+    try:
+        total = sum((sympy.residue(expr, var, p) for p in pts), sympy.Integer(0))
+        result = str(sympy.simplify(2 * sympy.pi * sympy.I * total))
+    except Exception as exc:  # noqa: BLE001
+        return _error("contour_integral", f"could not integrate: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "contour_integral", result,
+                         f"∮_C f dz = 2πi·Σ Res = {result} ({len(pts)} pole(s) enclosed).",
+                         "OK", _meta(t0))
+
+
+def laurent_series(expression: str, symbol: str, point: str = "0",
+                   order: int = 6) -> ComputeResult:
+    """Laurent series of `expression` around `point` up to `order` (includes negative powers).
+
+    E.g. `exp(z)/z**2` around `0` → `z**(-2) + 1/z + 1/2 + z/6 + …`.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(order, int) or order < 1:
+            raise ComputeError("order must be an integer >= 1")
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse_point(str(point), syms)
+    except ComputeError as exc:
+        return _error("laurent_series", str(exc), t0)
+    try:
+        result = str(expr.series(var, pt, order).removeO())
+    except Exception as exc:  # noqa: BLE001
+        return _error("laurent_series", f"could not expand: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "laurent_series", result,
+                         f"Laurent series of {expression} around {symbol}={point}.",
+                         "OK", _meta(t0))
+
+
+def complex_parts(expression: str) -> ComputeResult:
+    """Splits a complex expression into real and imaginary parts → `{real, imag}`.
+
+    E.g. `(2 + 3*I)*(1 - I)` → `{"real": "5", "imag": "1"}`.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+    except ComputeError as exc:
+        return _error("complex_parts", str(exc), t0)
+    try:
+        expanded = sympy.expand_complex(expr)
+        result = {"real": str(sympy.simplify(sympy.re(expanded))),
+                  "imag": str(sympy.simplify(sympy.im(expanded)))}
+    except Exception as exc:  # noqa: BLE001
+        return _error("complex_parts", f"could not split: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "complex_parts", result,
+                         f"real = {result['real']}, imag = {result['imag']}.", "OK", _meta(t0))
 
 
 # --------------------------------------------------------------------------- #

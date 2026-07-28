@@ -135,7 +135,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] D3 🟡 Differential equations II — solve_ode_system / solve_ode_ivp (IVP+BVP) /
           classify_ode / solve_pde ✅ (85 tools; shared _parse_diffeq; higher-order via solve_ode).
           🔴 general PDE (heat/wave separation) beyond pdsolve → honest COMPUTE_FAILED
-[ ] D4 🟡 Complex analysis — residue, contour integral, Laurent series, complex evaluation
+[x] D4 🟡 Complex analysis — residue / contour_integral (residue theorem) / laurent_series /
+          complex_parts ✅ (89 tools; +I imaginary-unit constant, ADR-0021 extended)
 [ ] D5 [S] Hardening — analysis identity properties (∇×∇f=0, ∇·(∇×F)=0) + numerical check
 ```
 

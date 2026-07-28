@@ -269,10 +269,11 @@
   a circle (`param` up to `2*pi`) then returned `sin(4*pi)/2` instead of `0` — correct
   given `pi` as a symbol, but not the mathematical answer. The whole Analysis track (D)
   — transforms, complex analysis — routinely needs π and e.
-- **Decision:** A small constant map `_CONSTS = {"pi": π, "E": e}` is checked in the
-  `ast.Name` branch of `_to_sympy` BEFORE creating a symbol. Only expression parsing is
-  affected; a variable passed explicitly via `_symbol` (e.g. a `symbol`/`variables`
-  argument) stays a variable. Scope is intentionally minimal (π, e only).
+- **Decision:** A small constant map `_CONSTS` is checked in the `ast.Name` branch of
+  `_to_sympy` BEFORE creating a symbol. Only expression parsing is affected; a variable
+  passed explicitly via `_symbol` (e.g. a `symbol`/`variables` argument) stays a variable.
+  Initially `{pi, E}`; **extended to `I` (imaginary unit) for the D4 complex-analysis
+  track** (residue/contour/Laurent/complex_parts). Scope stays intentionally minimal.
 - **Consequences:** `pi`/`E` now mean the constants in any compute expression; the
   closed-loop line integral returns `0`. No existing test used `pi`/`E` as an input
   variable (the one `.result == "E"` case is an OUTPUT, unaffected). The specialized

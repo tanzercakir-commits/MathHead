@@ -110,6 +110,10 @@ ARGS = {
                       "func": "y", "var": "x"},
     "classify_ode": {"equation": "y' + y", "func": "y", "var": "x"},
     "solve_pde": {"equation": "D(u,x) + D(u,y) = 0", "variables": ["x", "y"], "func": "u"},
+    "residue": {"expression": "1/(z**2 + 1)", "symbol": "z", "point": "I"},
+    "contour_integral": {"expression": "1/(z**2 + 1)", "symbol": "z", "poles": ["I"]},
+    "laurent_series": {"expression": "exp(z)/z**2", "symbol": "z", "point": "0", "order": 4},
+    "complex_parts": {"expression": "(2 + 3*I)*(1 - I)"},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

@@ -671,6 +671,47 @@ def solve_pde(equation: str, variables: list[str], func: str = "u") -> dict[str,
     return asdict(route("solve_pde", {"equation": equation, "variables": variables, "func": func}))
 
 
+@mcp.tool()
+def residue(expression: str, symbol: str, point: str) -> dict[str, Any]:
+    """Residue Res(f, z₀) of `expression` at the pole `point` (may be complex, e.g. `I`).
+
+    `I` is the imaginary unit. E.g. `1/z` at `0` → `1`; `1/(z**2+1)` at `I` → `-I/2`.
+    A residue of `0` at a regular point is the correct answer, not an error.
+    """
+    return asdict(route("residue", {"expression": expression, "symbol": symbol, "point": point}))
+
+
+@mcp.tool()
+def contour_integral(expression: str, symbol: str, poles: list[str]) -> dict[str, Any]:
+    """∮_C f dz by the RESIDUE THEOREM = 2πi·Σ Res(f, pole) over the ENCLOSED `poles` you supply.
+
+    E.g. `1/(z**2+1)` enclosing `["I"]` → `pi`; enclosing both `["I","-I"]` → `0`.
+    """
+    return asdict(route("contour_integral",
+                        {"expression": expression, "symbol": symbol, "poles": poles}))
+
+
+@mcp.tool()
+def laurent_series(expression: str, symbol: str, point: str = "0",
+                   order: int = 6) -> dict[str, Any]:
+    """Laurent series of `expression` around `point` up to `order` — includes negative powers.
+
+    E.g. `exp(z)/z**2` around `0` → `z**(-2) + 1/z + 1/2 + z/6 + …`.
+    """
+    return asdict(route("laurent_series",
+                        {"expression": expression, "symbol": symbol, "point": point, "order": order}))
+
+
+@mcp.tool()
+def complex_parts(expression: str) -> dict[str, Any]:
+    """Splits a complex expression into real and imaginary parts → `{real, imag}`.
+
+    `I` is the imaginary unit. E.g. `(2 + 3*I)*(1 - I)` → `{"real":"5","imag":"1"}`;
+    `exp(I*pi)` → `{"real":"-1","imag":"0"}`.
+    """
+    return asdict(route("complex_parts", {"expression": expression}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

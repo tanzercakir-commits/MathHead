@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-28 — D4 · complex analysis (residue / contour / Laurent / re-im)
+
+**Done — 4 new compute tools (89 total):**
+
+- `residue` (Res(f, z₀); pole may be complex), `contour_integral` (∮ = 2πi·Σ Res over the
+  enclosed poles the caller supplies — the residue theorem), `laurent_series` (expansion
+  with negative powers), `complex_parts` (→ `{real, imag}`).
+- Parser: `I` (imaginary unit) added to `_CONSTS` — ADR-0021 extended. Safe: the only `I`
+  in tests is an eigenvalue OUTPUT assertion (unaffected); no input used `I` as a variable.
+- Wired router + MCP (89 tools) + CLI (`residue`/`contour`/`laurent`/`complex-parts`) +
+  `tests/test_complex.py` (13) → **656/656 green**.
+
+**Verified:** Res(1/z,0)=1, Res(1/(z²+1),I)=−I/2, residue at a regular point = 0 (correct,
+not an error); ∮1/(z²+1) enclosing I = π (residue theorem), both poles → 0; Laurent of
+exp(z)/z² has z⁻² and 1/z terms; (2+3i)(1−i) → {5, 1}; e^{iπ} → {−1, 0} (Euler's identity).
+
+**Next:** D5 [S] — analysis hardening (∇×∇f=0, ∇·(∇×F)=0 + numerical checks) → closes Track D.
+
 ## 2026-07-28 — D3 · differential equations II (systems / IVP+BVP / classify / PDE)
 
 **Done — 4 new compute tools (85 total):**

@@ -197,7 +197,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] H2 🟡 SMT theories — check_bitvector / check_uninterpreted / check_arrays / check_strings
           (BV bit-tricks, EUF congruence, McCarthy arrays, string theory); unified
           assumptions⊨goal / consistency shape ✅ (1023 tests, 153 tools; ADR-0023)
-[ ] H3 🟡 Proof generation II — step-by-step derivation for more theories; quantifier elimination
+[x] H3 🟡 Proof generation II — eliminate_quantifiers (Z3 qe over Presburger LIA/LRA; a True/False
+          collapse doubles as a decision procedure; honest QE_INCOMPLETE on a residual quantifier)
+          ✅ (1034 tests, 154 tools; ADR-0024)
 [ ] H4 🔴 Modal/temporal logic — K/S4/LTL basics (optional/frontier, careful scope)
 [ ] H5 [S] Hardening
 ```

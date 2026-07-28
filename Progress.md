@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — H3 · proof generation II (quantifier elimination)
+
+**Done — 1 new logic tool (154 total):**
+
+- `eliminate_quantifiers` (new `core/qe.py`): Z3's `qe` tactic over Presburger arithmetic
+  turns a quantified LINEAR formula into an equivalent QUANTIFIER-FREE one — genuine proof
+  depth, and a decision procedure for quantified LIA/LRA (collapses to True for a valid
+  statement, False for an unsatisfiable one). Input uses the kernel grammar
+  (`forall`/`exists`, `+ - *`, comparisons, `and`/`or`/`not`, `implies`/`iff`).
+- Wired router + MCP (154 tools) + CLI (`qe`) + `tests/test_qe.py` (9) → **1034/1034 green**.
+
+**Verified (real QE results, integer-aware):** ∃x. a≤x≤b ⟶ a≤b; ∃x. 0<x<1 ⟶ False
+(no integer strictly between); ∃y. x=2y ⟶ x%2=0 (x even); ∀x. x>5→x>3 ⟶ True.
+
+**Honest wall:** on a nonlinear/undecidable fragment where a residual quantifier remains,
+the tool returns `unknown`/`QE_INCOMPLETE` (the residual is reported, never dropped);
+nonlinear input is already rejected by the kernel grammar; a `TryFor` time bound →
+`SOLVER_TIMEOUT`.
+
+**Decision:** ADR-0024 (QE via Z3 `qe` + honest residual-quantifier detection).
+
+**Next:** H4 — modal/temporal logic (K/S4 basics, careful scope).
+
 ## 2026-07-28 — H2 · SMT theories (bit-vectors, EUF, arrays, strings)
 
 **Done — 4 new logic tools (153 total):**

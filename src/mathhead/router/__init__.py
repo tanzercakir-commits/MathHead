@@ -36,6 +36,7 @@ from mathhead.core.logic import (
 )
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.core.induction import InductionResult, prove_by_induction
+from mathhead.core.qe import QEResult, eliminate_quantifiers
 from mathhead.core.smt import (
     check_arrays,
     check_bitvector,
@@ -71,7 +72,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
-    | VerifyResult | CertificateResult | NLResult | InductionResult
+    | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -120,6 +121,8 @@ def route(task: str, payload: dict[str, Any]) -> (
                             **_opts(payload))
     if task == "check_strings":
         return check_strings(payload["assumptions"], payload.get("goal"), **_opts(payload))
+    if task == "eliminate_quantifiers":
+        return eliminate_quantifiers(payload["formula"], **_opts(payload))
 
     # --- Verification layer (AI reasoning auditor) ---
     if task == "verify_equality":

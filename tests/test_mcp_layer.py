@@ -206,6 +206,8 @@ ARGS = {
     "check_uninterpreted": {"assumptions": ["a == b"], "goal": "f(a) == f(b)"},
     "check_arrays": {"assumptions": [], "goal": "select(store(a, i, v), i) == v"},
     "check_strings": {"assumptions": [], "goal": "length(x + y) == length(x) + length(y)"},
+    # Quantifier elimination (H3)
+    "eliminate_quantifiers": {"formula": "exists(y, x == 2*y)"},
 }
 
 

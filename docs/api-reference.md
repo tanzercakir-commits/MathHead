@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **153 tools**.
+Total **154 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -73,6 +73,10 @@ Reason about ARRAYS with `select(a, i)` / `store(a, i, v)` (McCarthy axioms).
 ### `check_strings(assumptions, goal=None)`
 
 Reason about STRINGS/sequences (concat, length, contains, prefix/suffix).
+
+### `eliminate_quantifiers(formula)`
+
+QUANTIFIER ELIMINATION: turn a quantified linear-arithmetic formula into an equivalent quantifier-free one.
 
 ### `verify_equality(left, right)`
 

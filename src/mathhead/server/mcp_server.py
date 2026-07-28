@@ -222,6 +222,20 @@ def check_strings(assumptions: list[str], goal: str | None = None) -> dict[str, 
     return asdict(route("check_strings", {"assumptions": assumptions, "goal": goal}))
 
 
+@mcp.tool()
+def eliminate_quantifiers(formula: str) -> dict[str, Any]:
+    """QUANTIFIER ELIMINATION: turn a quantified linear-arithmetic formula into an equivalent quantifier-free one.
+
+    Z3 `qe` over Presburger (linear int/real). Grammar = the logic kernel's
+    (`forall`/`exists`, `+ - *`, comparisons, `and`/`or`/`not`, `implies`/`iff`).
+    `ok` → `result` is the quantifier-free equivalent; it can collapse to `True`
+    (the statement is valid) or `False` (unsatisfiable) via `equivalent_to`. E.g.
+    `exists(y, x == 2*y)` → `x % 2 == 0`; `exists(x, (x > 0) and (x < 1))` → `False`.
+    `unknown`/`QE_INCOMPLETE` → a residual quantifier remained (honest, not dropped).
+    """
+    return asdict(route("eliminate_quantifiers", {"formula": formula}))
+
+
 # --------------- Verification layer (AI reasoning auditor) ---------------- #
 @mcp.tool()
 def verify_equality(left: str, right: str) -> dict[str, Any]:

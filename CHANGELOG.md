@@ -6,6 +6,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Quantifier elimination (`eliminate_quantifiers`):** ROADMAP H3 (proof depth II). Z3
+  `qe` over Presburger arithmetic turns a quantified linear formula into an equivalent
+  quantifier-free one, doubling as a decision procedure for quantified LIA/LRA
+  (`exists(y, x == 2*y)` → `x % 2 == 0`; `exists(x, 0 < x and x < 1)` → `False`;
+  `forall(x, x > 5 → x > 3)` → `True`). New `core/qe.py`; honest `QE_INCOMPLETE` when a
+  residual quantifier remains. MCP (**154 tools**) + CLI (`qe`) + 9 tests. ADR-0024.
+  **1034 tests green.**
 - **SMT theories — bit-vectors, EUF, arrays, strings (`check_bitvector`,
   `check_uninterpreted`, `check_arrays`, `check_strings`):** ROADMAP H2. Four more of Z3's
   decision theories, each with the kernel's shape `check_<theory>(assumptions, goal=None)`

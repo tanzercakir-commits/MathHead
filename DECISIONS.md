@@ -327,6 +327,27 @@
 
 ---
 
+## ADR-0024 — Quantifier elimination via Z3's `qe` tactic, with honest residual detection
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP H3 (proof generation II) wants quantifier elimination. Z3 exposes a
+  `qe` tactic that is complete for linear integer/real arithmetic (Presburger) but may
+  leave residual quantifiers on nonlinear/undecidable input.
+- **Decision:** `core/qe.py` translates the formula with the existing kernel grammar,
+  applies `Then(qe, simplify)` under a `TryFor` time bound, and renders the result with
+  Z3's canonical string form. It then WALKS the result tree for any residual quantifier:
+  if one remains, the tool returns `unknown`/`QE_INCOMPLETE` (honest) rather than
+  pretending elimination succeeded; a `True`/`False` collapse is surfaced via
+  `equivalent_to`.
+- **Consequences:** QE serves both as a simplifier and as a decision procedure for
+  quantified LIA/LRA (∃x. 0<x<1 → False; ∃y. x=2y → x%2=0; ∀x. x>5→x>3 → True). Output is
+  Z3's canonical form (deterministic, if not always the prettiest infix). Nonlinear input
+  is already rejected by the kernel grammar (Wall #2); time is bounded by `TryFor` →
+  `SOLVER_TIMEOUT`. No contract change — `QEResult` is a plain dataclass returned via
+  `asdict`.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

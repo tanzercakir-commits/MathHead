@@ -177,6 +177,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--assume", action="append", default=[], metavar="ASSUMPTION")
     p.add_argument("--goal", default=None, metavar="GOAL")
 
+    p = sub.add_parser("qe", help="quantifier elimination (Presburger: forall/exists over linear arith)")
+    p.add_argument("formula", metavar="FORMULA", help="e.g. 'exists(y, x == 2*y)'")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -757,6 +760,7 @@ _DISPATCH = {
     "arrays": lambda a: ("check_arrays", {"assumptions": a.assume, "goal": a.goal,
                                           "index_sort": a.index_sort, "value_sort": a.value_sort}),
     "strings": lambda a: ("check_strings", {"assumptions": a.assume, "goal": a.goal}),
+    "qe": lambda a: ("eliminate_quantifiers", {"formula": a.formula}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

@@ -461,6 +461,24 @@ claim may still be true) or Z3 could not decide the nonlinear step (`SOLVER_UNKN
 
 ---
 
+## Quantifier elimination (H — proof depth)
+
+**Eliminates quantifiers** from a linear-arithmetic (Presburger) formula, returning an
+equivalent quantifier-free one — which doubles as a decision procedure for quantified
+LIA/LRA.
+
+| Tool | Signature | Example |
+|---|---|---|
+| `eliminate_quantifiers` | `eliminate_quantifiers(formula)` | `exists(y, x == 2*y)` → `x % 2 == 0` |
+
+Input uses the logic-kernel grammar (`forall`/`exists`, `+ - *`, comparisons,
+`and`/`or`/`not`, `implies`/`iff`). Returns a `QEResult`: `ok` → `result` (the
+quantifier-free equivalent); if it collapses, `equivalent_to` is `"true"` (valid) or
+`"false"` (unsatisfiable). `unknown`/`QE_INCOMPLETE` → a residual quantifier remained (a
+nonlinear/undecidable fragment) — reported, never dropped.
+
+---
+
 ## SMT theories (H — bit-vectors, EUF, arrays, strings)
 
 Four more of Z3's decision theories, each with the same shape as the logic kernel:

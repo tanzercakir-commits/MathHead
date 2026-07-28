@@ -1,11 +1,25 @@
 [project]
 name = "mathhead"
-version = "0.0.1"
+version = "0.1.0"
 description = "AI'ın MCP üzerinden kullanabileceği, first-order logic temelli, deterministik matematik akıl yürütme ve ispat motoru."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "tanzercakir" }]
+keywords = ["logic", "first-order-logic", "theorem-proving", "smt", "z3", "sympy",
+            "mcp", "reasoning", "sat", "van-der-waerden", "schur"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 # Mimari karar: tek bir "FOL motoru" yazmak yerine kanıtlanmış çözücüleri
 # orkestre ediyoruz (bkz. DECISIONS.md ADR-0001/0002).
@@ -25,6 +39,11 @@ dev = [
 [project.scripts]
 mathhead = "mathhead.cli:main"
 mathhead-server = "mathhead.server.mcp_server:main"
+
+[project.urls]
+Homepage = "https://github.com/tanzercakir-commits/MathHead"
+Repository = "https://github.com/tanzercakir-commits/MathHead"
+Issues = "https://github.com/tanzercakir-commits/MathHead/issues"
 
 [build-system]
 requires = ["hatchling"]

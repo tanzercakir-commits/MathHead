@@ -16,6 +16,8 @@ gövdeleri v1'de doldurulacak. Yol için `Todo.md`, hedef için `Plan.md`.
 
 ## Hızlı başlangıç
 
+PyPI'ye yüklendiğinde: `pip install mathhead` (bkz. `RELEASING.md`). Şimdilik kaynaktan:
+
 ```bash
 git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
 python -m venv .venv && source .venv/bin/activate

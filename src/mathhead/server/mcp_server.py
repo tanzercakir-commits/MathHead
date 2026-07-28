@@ -388,6 +388,42 @@ def solve_ode(equation: str, func: str = "y", var: str = "x") -> dict[str, Any]:
     return asdict(route("solve_ode", {"equation": equation, "func": func, "var": var}))
 
 
+# --------------------- Olasılık & istatistik ------------------------------ #
+@mcp.tool()
+def mean(data: list[str]) -> dict[str, Any]:
+    """Bir sayı listesinin aritmetik ortalaması (tam/rasyonel)."""
+    return asdict(route("mean", {"data": data}))
+
+
+@mcp.tool()
+def variance(data: list[str], sample: bool = False) -> dict[str, Any]:
+    """Varyans. sample=True → örneklem (n-1); aksi halde yığın (n)."""
+    return asdict(route("variance", {"data": data, "sample": sample}))
+
+
+@mcp.tool()
+def standard_deviation(data: list[str], sample: bool = False) -> dict[str, Any]:
+    """Standart sapma = √varyans (sample seçeneği variance ile aynı)."""
+    return asdict(route("standard_deviation", {"data": data, "sample": sample}))
+
+
+@mcp.tool()
+def median(data: list[str]) -> dict[str, Any]:
+    """Ortanca. Çift sayıda gözlemde ortadaki ikinin ortalaması."""
+    return asdict(route("median", {"data": data}))
+
+
+@mcp.tool()
+def distribution(name: str, params: list[str], at: str | None = None) -> dict[str, Any]:
+    """Adlandırılmış dağılımın E[X]/Var/std (sembolik/tam) özellikleri.
+
+    `at` verilirse `P(X ≤ at)` (cdf) + yoğunluk/pmf eklenir. Desteklenen:
+    normal(mu,sigma), binomial(n,p), poisson(lambda), exponential(rate),
+    uniform(a,b), bernoulli(p), geometric(p).
+    """
+    return asdict(route("distribution", {"name": name, "params": params, "at": at}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

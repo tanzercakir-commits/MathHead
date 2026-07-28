@@ -12,8 +12,9 @@ AI'ın (ör. Claude) **MCP** üzerinden çağırabileceği, first-order logic te
 ## Durum
 
 **Çalışır motor.** Mantık çekirdeği (Z3) + hesap/kalkülüs/lineer cebir/sayı
-teorisi/kombinatorik (SymPy) + Track B (SAT indirgeme): **49 MCP aracı**, CLI ve
-242+ otomatik test. Aşamalı yol haritası `ROADMAP.md`'de; sıradaki iş `Todo.md`'de.
+teorisi/kombinatorik/olasılık (SymPy) + Track B (SAT indirgeme): **50+ MCP aracı**,
+CLI ve kapsamlı test paketi. Aşamalı yol haritası `ROADMAP.md`'de; sıradaki iş
+`Todo.md`'de.
 
 ## Hızlı başlangıç
 
@@ -80,6 +81,11 @@ from mathhead.compute import gradient, summation, solve_ode  # v2+ (çok değiş
 gradient("x**2*y + sin(y)", ["x", "y"])           # -> ["2*x*y", "x**2 + cos(y)"]
 summation("i", "i", "1", "n")                     # -> "n**2/2 + n/2"  (kapalı form)
 solve_ode("y'' + y = 0")                          # -> Eq(y(x), C1*sin(x) + C2*cos(x))
+
+from mathhead.compute import mean, distribution   # v2+ (olasılık & istatistik)
+mean(["2", "4", "4", "5", "5"])                   # -> "4"
+distribution("binomial", ["10", "1/2"], at="3")   # -> {mean:5, variance:5/2, cdf_at:11/64, ...}
+distribution("normal", ["mu", "sigma"])           # -> {mean:"mu", variance:"sigma**2", ...}
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -129,9 +135,9 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 49 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 54 araç)
 ├── scripts/             · benchmark.py (performans taban çizgisi)
-└── tests/               · 242 test + fixtures/golden.json (regresyon çiti)
+└── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```
 
 ## Nereden okumaya başlamalı?

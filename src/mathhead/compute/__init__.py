@@ -1006,3 +1006,132 @@ def solve_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
         return _error("solve_ode", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "solve_ode", result,
                          f"ODE çözümü ({func}({var})).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# Olasılık & istatistik (probability & statistics).
+# Betimsel: mean/variance/std/median (veri listesi, tam/rasyonel).
+# Dağılımlar: sympy.stats ile E[X]/Var/std + P(X≤k)/yoğunluk (sembolik, tam).
+# --------------------------------------------------------------------------- #
+def _parse_data(data: list[Any]) -> list[Any]:
+    """Sayısal veri listesini SymPy sayılarına çevirir (sembol reddedilir)."""
+    if not isinstance(data, list) or not data:
+        raise ComputeError("veri listesi boş olamaz")
+    syms: dict[str, Any] = {}
+    vals = [_parse(str(x), syms) for x in data]
+    if syms:
+        raise ComputeError("veri sayısal olmalı (sembol içeremez)")
+    return vals
+
+
+def mean(data: list[Any]) -> ComputeResult:
+    """Aritmetik ortalama (tam/rasyonel sonuç)."""
+    t0 = time.perf_counter()
+    try:
+        vals = _parse_data(data)
+    except ComputeError as exc:
+        return _error("mean", str(exc), t0)
+    result = str(sympy.simplify(sum(vals) / len(vals)))
+    return ComputeResult("ok", "mean", result, f"ortalama = {result} (n={len(vals)}).", "OK", _meta(t0))
+
+
+def variance(data: list[Any], sample: bool = False) -> ComputeResult:
+    """Varyans. sample=True → örneklem (n-1'e böler), aksi halde yığın (n)."""
+    t0 = time.perf_counter()
+    try:
+        vals = _parse_data(data)
+        n = len(vals)
+        if sample and n < 2:
+            raise ComputeError("örneklem varyansı için en az 2 gözlem gerekir")
+    except ComputeError as exc:
+        return _error("variance", str(exc), t0)
+    mu = sum(vals) / n
+    denom = (n - 1) if sample else n
+    result = str(sympy.simplify(sum((v - mu) ** 2 for v in vals) / denom))
+    kind = "örneklem" if sample else "yığın"
+    return ComputeResult("ok", "variance", result, f"{kind} varyansı = {result}.", "OK", _meta(t0))
+
+
+def standard_deviation(data: list[Any], sample: bool = False) -> ComputeResult:
+    """Standart sapma = √varyans (sample seçeneği variance ile aynı)."""
+    t0 = time.perf_counter()
+    try:
+        vals = _parse_data(data)
+        n = len(vals)
+        if sample and n < 2:
+            raise ComputeError("örneklem için en az 2 gözlem gerekir")
+    except ComputeError as exc:
+        return _error("standard_deviation", str(exc), t0)
+    mu = sum(vals) / n
+    denom = (n - 1) if sample else n
+    var = sum((v - mu) ** 2 for v in vals) / denom
+    result = str(sympy.simplify(sympy.sqrt(var)))
+    return ComputeResult("ok", "standard_deviation", result,
+                         f"standart sapma = {result}.", "OK", _meta(t0))
+
+
+def median(data: list[Any]) -> ComputeResult:
+    """Ortanca. Çift sayıda gözlemde ortadaki ikinin ortalaması."""
+    t0 = time.perf_counter()
+    try:
+        vals = _parse_data(data)
+    except ComputeError as exc:
+        return _error("median", str(exc), t0)
+    try:
+        srt = sorted(vals, key=lambda v: float(v))
+    except (TypeError, ValueError):
+        return _error("median", "veri gerçel sayı olmalı (sıralanamadı)", t0, "COMPUTE_FAILED")
+    n = len(srt)
+    mid = n // 2
+    med = srt[mid] if n % 2 == 1 else (srt[mid - 1] + srt[mid]) / 2
+    result = str(sympy.simplify(med))
+    return ComputeResult("ok", "median", result, f"ortanca = {result}.", "OK", _meta(t0))
+
+
+# İsim -> (kurucu, parametre adları). Genişletilebilir kayıt.
+_DIST_NAMES = ("normal", "binomial", "poisson", "exponential", "uniform",
+               "bernoulli", "geometric")
+
+
+def distribution(name: str, params: list[Any], at: Any = None) -> ComputeResult:
+    """Adlandırılmış bir dağılımın özellikleri: E[X], Var, std (sembolik/tam).
+
+    `at` verilirse `P(X ≤ at)` (cdf) ve `at` noktasında yoğunluk/pmf de eklenir.
+    Desteklenen: normal(mu,sigma), binomial(n,p), poisson(lambda), exponential(rate),
+    uniform(a,b), bernoulli(p), geometric(p).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        key = str(name).strip().lower()
+        if key not in _DIST_NAMES:
+            raise ComputeError(f"desteklenmeyen dağılım: {name} (geçerli: {', '.join(_DIST_NAMES)})")
+        if not isinstance(params, list) or not params:
+            raise ComputeError("parametre listesi boş olamaz")
+        pvals = [_parse(str(p), syms) for p in params]
+    except ComputeError as exc:
+        return _error("distribution", str(exc), t0)
+    try:
+        from sympy.stats import (Bernoulli, Binomial, Exponential, Geometric,
+                                 Normal, Poisson, Uniform, E, P, density, std, variance)
+        ctors = {
+            "normal": Normal, "binomial": Binomial, "poisson": Poisson,
+            "exponential": Exponential, "uniform": Uniform,
+            "bernoulli": Bernoulli, "geometric": Geometric,
+        }
+        X = ctors[key]("X", *pvals)
+        result: dict[str, Any] = {
+            "mean": str(sympy.simplify(E(X))),
+            "variance": str(sympy.simplify(variance(X))),
+            "std": str(sympy.simplify(std(X))),
+        }
+        if at is not None:
+            av = _parse(str(at), syms)
+            result["cdf_at"] = str(sympy.simplify(P(X <= av)))
+            result["density_at"] = str(sympy.simplify(density(X)(av)))
+    except ComputeError as exc:
+        return _error("distribution", str(exc), t0)
+    except Exception as exc:  # noqa: BLE001
+        return _error("distribution", f"dağılım hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "distribution", result,
+                         f"{key} dağılımı özellikleri.", "OK", _meta(t0))

@@ -290,6 +290,23 @@ bir güvenli ayrıştırıcı kullanır (`=`/`==`, whitelist dışı ad reddedil
 **Dürüstlük:** çözülemeyen ODE'de uydurmaz, `COMPUTE_FAILED`. `definite_integral`/
 `summation` sınırları sonsuz (`oo`) ve `summation` üst sınırı sembolik (`n`) olabilir.
 
+### Olasılık & istatistik (probability & statistics)
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `mean` | `mean(data)` | `[2,4,4,4,5,5,7,9]` → `5` |
+| `variance` | `variance(data, sample=False)` | yığın → `4`; `sample=True` → `32/7` |
+| `standard_deviation` | `standard_deviation(data, sample=False)` | → `2` |
+| `median` | `median(data)` | çift n → ortadaki ikinin ortalaması (`9/2`) |
+| `distribution` | `distribution(name, params, at=None)` | `binomial`,`["10","1/2"]`,`"3"` → `{mean:5, variance:5/2, cdf_at:11/64, density_at:15/128}` |
+
+Betimsel istatistik **tam/rasyonel** sonuç verir (sembolik veri reddedilir).
+`distribution` `sympy.stats` üstünde **sembolik/tam**: `E[X]`, `Var`, `std`; `at`
+verilirse `P(X ≤ at)` (cdf) + yoğunluk/pmf. Desteklenen: `normal(mu,sigma)`,
+`binomial(n,p)`, `poisson(lambda)`, `exponential(rate)`, `uniform(a,b)`,
+`bernoulli(p)`, `geometric(p)`. Bilinmeyen dağılım / yanlış parametre sayısı
+reddedilir (dürüst).
+
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
 `COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).

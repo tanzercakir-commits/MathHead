@@ -160,6 +160,18 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.solve_ode(payload["equation"], payload.get("func", "y"),
                                  payload.get("var", "x"))
 
+    # --- Olasılık & istatistik ---
+    if task == "mean":
+        return compute.mean(payload["data"])
+    if task == "variance":
+        return compute.variance(payload["data"], payload.get("sample", False))
+    if task == "standard_deviation":
+        return compute.standard_deviation(payload["data"], payload.get("sample", False))
+    if task == "median":
+        return compute.median(payload["data"])
+    if task == "distribution":
+        return compute.distribution(payload["name"], payload["params"], payload.get("at"))
+
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))

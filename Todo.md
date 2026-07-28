@@ -39,7 +39,8 @@
 - [x] **T18** ROADMAP Aşama 4: kombinatorik & ayrık ✅ (205 test, 42 araç, Fibonacci→Binet)
 - [x] **T19** ROADMAP Aşama 5 [S]: taksonomi + golden fixtures + benchmark ✅ (242 test)
 - [x] **T20** ROADMAP Aşama 6: çok değişkenli analiz ✅ (258 test, 49 araç, ODE dahil)
-- [ ] **T21** ROADMAP Aşama 7: olasılık & istatistik (dağılımlar, beklenen değer/varyans, çıkarım)
+- [x] **T21** ROADMAP Aşama 7: olasılık & istatistik ✅ (273 test, 54 araç, 7 dağılım)
+- [ ] **T22** ROADMAP Aşama 8 [S]: coverage + benchmark regresyon çiti + doküman konsolidasyonu
 
 ---
 

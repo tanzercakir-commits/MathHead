@@ -61,8 +61,9 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        temel ODE (diferansiyel denklem) çözümü ✅
        ↳ dürüst: çözülemeyen ODE → COMPUTE_FAILED (uydurma yok)
 
-[ ] Aşama 7 · Olasılık & istatistik
-    └─ dağılımlar (sembolik), beklenen değer/varyans, temel çıkarım
+[x] Aşama 7 · Olasılık & istatistik  (bitti — 273 test, 54 araç)
+    └─ betimsel (mean/var/std/median) + 7 adlandırılmış dağılım (E/Var/std +
+       cdf/pmf, sembolik) ✅
 
 [ ] Aşama 8 · [S] Sağlamlaştırma-3
     └─ kapsam (coverage) raporu + benchmark regresyon çiti +

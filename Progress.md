@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — Aşama 7 · olasılık & istatistik (mean/var/std/median + distribution)
+
+**Yapıldı**
+
+- 5 yeni işlem: betimsel `mean`, `variance` (yığın/örneklem), `standard_deviation`,
+  `median` (tam/rasyonel) + birleşik `distribution` (sympy.stats, 7 dağılım).
+- Uçtan uca: router (5) + MCP (**54 araç**) + CLI (`mean/variance/std/median/
+  distribution`) + `tests/test_statistics.py` (15) → **273/273 yeşil**.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- mean=5, yığın var=4, örneklem var=32/7, std=2, ortanca 9/2 (tam kesir).
+- `binomial(10,½)@3` → E=5, Var=5/2, cdf=11/64, pmf=15/128; `normal(μ,σ)` sembolik
+  → E=μ, Var=σ²; `P(Z≤1.96)` exact (erfc), ≈0.975.
+- Dürüstlük: sembolik veri / bilinmeyen dağılım / yanlış parametre sayısı → red.
+
+**Sıradaki:** Aşama 8 [S] — coverage + benchmark regresyon çiti + doküman
+konsolidasyonu.
+
 ## 2026-07-28 — Aşama 6 · çok değişkenli analiz (grad/Jacobian/Hessian/∫/Σ/Π/ODE)
 
 **Yapıldı**

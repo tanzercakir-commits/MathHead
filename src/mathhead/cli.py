@@ -261,6 +261,25 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("equation", metavar="DENKLEM", help="ör. \"y'' + y = 0\"")
     p.add_argument("--func", default="y"); p.add_argument("--var", default="x")
 
+    p = sub.add_parser("mean", help="aritmetik ortalama")
+    p.add_argument("data", nargs="+", metavar="SAYI")
+
+    p = sub.add_parser("variance", help="varyans (--sample: örneklem)")
+    p.add_argument("data", nargs="+", metavar="SAYI")
+    p.add_argument("--sample", action="store_true")
+
+    p = sub.add_parser("std", help="standart sapma (--sample: örneklem)")
+    p.add_argument("data", nargs="+", metavar="SAYI")
+    p.add_argument("--sample", action="store_true")
+
+    p = sub.add_parser("median", help="ortanca")
+    p.add_argument("data", nargs="+", metavar="SAYI")
+
+    p = sub.add_parser("distribution", help="dağılım özellikleri (E/Var/std [+cdf])")
+    p.add_argument("name", metavar="AD", help="normal|binomial|poisson|exponential|uniform|bernoulli|geometric")
+    p.add_argument("--params", required=True, metavar="P", help="parametreler ',' ile (ör. '0,1')")
+    p.add_argument("--at", metavar="K", help="P(X<=K) + yoğunluk için nokta")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -339,6 +358,13 @@ _DISPATCH = {
     "product": lambda a: ("product", {"expression": a.expression, "index": a.index,
                                       "lower": a.lower, "upper": a.upper}),
     "ode": lambda a: ("solve_ode", {"equation": a.equation, "func": a.func, "var": a.var}),
+    "mean": lambda a: ("mean", {"data": a.data}),
+    "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
+    "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),
+    "median": lambda a: ("median", {"data": a.data}),
+    "distribution": lambda a: ("distribution", {"name": a.name,
+                                                "params": [p.strip() for p in a.params.split(",")],
+                                                "at": a.at}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

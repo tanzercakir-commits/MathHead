@@ -6,6 +6,11 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Olasılık & istatistik (`mean`, `variance`, `standard_deviation`, `median`,
+  `distribution`):** Aşama 7. Betimsel istatistik (tam/rasyonel) + `sympy.stats`
+  ile 7 adlandırılmış dağılım (`normal/binomial/poisson/exponential/uniform/
+  bernoulli/geometric`): E[X]/Var/std (sembolik/tam) + `P(X≤k)`/yoğunluk. MCP
+  (**54 araç**) + CLI (`mean/variance/std/median/distribution`). +15 test.
 - **Çok değişkenli analiz (`gradient`, `jacobian`, `hessian`, `definite_integral`,
   `summation`, `product`, `solve_ode`):** Aşama 6. Gradyan/Jacobian/Hessian,
   belirli integral (sonsuz sınır dahil), toplam/çarpım (Σ/Π, kapalı form:

@@ -40,6 +40,7 @@ from mathhead.core.crosscheck import cross_check
 from mathhead.core.nl import NLResult, interpret
 from mathhead.core.verify import (
     VerifyResult,
+    verify_derivation,
     verify_derivative,
     verify_equality,
     verify_integral,
@@ -104,6 +105,8 @@ def route(task: str, payload: dict[str, Any]) -> (
         return verify_solution(payload["equation"], payload["symbol"], payload["claimed"])
     if task == "verify_steps":
         return verify_steps(payload["steps"])
+    if task == "verify_derivation":
+        return verify_derivation(payload["steps"], payload["operations"])
     if task == "cross_check":
         return cross_check(payload["left"], payload["right"])
     if task == "verify_derivative":

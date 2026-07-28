@@ -6,6 +6,39 @@
 
 ---
 
+## 2026-07-28 — I3 · full derivation proof check (operation-replay justification)
+
+**Context:** After the repo→English conversion, resumed the approved D–K roadmap at I3.
+
+**Done**
+
+- New `verify_derivation(steps, operations)` in `core/verify.py`: audits a multi-step
+  derivation by **REPLAYING** each transition's cited operation on the previous line and
+  checking (deterministically) that it produces the stated next line. This is the
+  **justification audit** — deeper than `verify_steps` (which only asks "are consecutive
+  lines equal?"). It answers "does the RULE you cited actually yield this step?".
+- **Equation-aware:** steps may be equations (`L == R`) or expressions; an operation on
+  an equation applies to both sides. Supported ops: `add`/`subtract`/`multiply`/`divide`
+  (value required) + `simplify`/`expand`/`factor`.
+- End to end: router + MCP (**71 tools**) + CLI (`check-derivation --ops JSON`) +
+  `tests/test_verify_derivation.py` (17) + 2 reason codes (`DERIVATION_VALID`,
+  `STEP_UNJUSTIFIED`) in taxonomy/docs → **542/542 green**.
+
+**Honesty at the center**
+
+- Unjustified step → `STEP_UNJUSTIFIED` with `first_bad_step`, the operation cited, what
+  it WOULD produce vs. the claimed line, and a counterexample (e.g. `2x+3=7` --subtract 3-->
+  `2x=5` is caught; correct is `2x=4`).
+- **Domain wall:** multiply/divide by a non-constant (contains the variable) may change the
+  solution set → reported as a `domain_caveats` note (still mechanically valid, honestly flagged).
+- Guardrails: unknown op / divide-by-zero / missing value → `GUARDRAIL_VIOLATION`;
+  wrong operations length / <2 steps / malicious input → `PARSE_ERROR`. No fabrication.
+
+**Also:** fixed a hidden Turkish assert message (`eksik`/`fazla`→`missing`/`extra` in
+`test_mcp_layer.py`) that the English-conversion scan missed (no special TR letters).
+
+**Next:** I4 — certificate extension (matrix / number-theory / probability certificates, stdlib).
+
 ## 2026-07-28 — Repo language → English (developer-experience hardening)
 
 **Context:** The user requires the project repo language to be English ("proje repo dili

@@ -32,6 +32,7 @@ ALLOWED_REASON = frozenset({
     "EQUAL", "NOT_EQUAL", "EQUAL_ON_COMMON_DOMAIN", "UNDECIDED",
     "SOLUTION_VERIFIED", "SOLUTION_INCOMPLETE", "SOLUTION_INCORRECT",
     "COMPLETENESS_UNKNOWN", "STEPS_VALID", "STEP_INVALID",
+    "DERIVATION_VALID", "STEP_UNJUSTIFIED",
     # cross-check (Track C3)
     "CONSENSUS_EQUAL", "CONSENSUS_NOT_EQUAL", "ENGINES_DISAGREE",
     "SINGLE_ENGINE", "CROSS_UNDECIDED",
@@ -107,6 +108,9 @@ CALLS = [
     ("verify_solution", {"equation": "x**2==4", "symbol": "x", "claimed": ["2"]}),  # incomplete
     ("verify_solution", {"equation": "x + sin(x) == 0", "symbol": "x", "claimed": ["0"]}),  # unknown
     ("verify_steps", {"steps": ["(x+1)**2", "x**2 + 1"]}),                  # step invalid
+    ("verify_derivation", {"steps": ["2*x + 3 == 7", "2*x == 4", "x == 2"],
+                           "operations": [{"op": "subtract", "value": "3"},
+                                          {"op": "divide", "value": "2"}]}),  # derivation valid
     ("cross_check", {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"}),       # consensus
     ("cross_check", {"left": "(x**2-1)/(x-1)", "right": "x+1"}),            # disagree (domain)
     ("cross_check", {"left": "sin(x)**2 + cos(x)**2", "right": "1"}),       # single engine

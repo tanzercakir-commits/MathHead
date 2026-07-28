@@ -187,6 +187,21 @@ def verify_steps(steps: list[str]) -> dict[str, Any]:
 
 
 @mcp.tool()
+def verify_derivation(steps: list[str], operations: list[dict[str, Any]]) -> dict[str, Any]:
+    """Audits a multi-step derivation by REPLAYING each transition's cited operation.
+
+    Deeper than `verify_steps`: it checks the JUSTIFICATION of every step (does the
+    rule you cited actually produce this line?), and handles equations, not just
+    expressions. `operations` has one entry per transition (len = len(steps)-1), each
+    `{"op": add|subtract|multiply|divide|simplify|expand|factor, "value": "<expr>"}`
+    (value required for add/subtract/multiply/divide). valid → `DERIVATION_VALID`;
+    invalid → `STEP_UNJUSTIFIED` (first unjustified step + what the operation WOULD
+    yield). E.g. `2*x+3==7` --subtract 3--> `2*x==5` is unjustified (should be `2*x==4`).
+    """
+    return asdict(route("verify_derivation", {"steps": steps, "operations": operations}))
+
+
+@mcp.tool()
 def cross_check(left: str, right: str) -> dict[str, Any]:
     """Verifies the `left = right` claim INDEPENDENTLY with Z3 AND SymPy; seeks consensus.
 

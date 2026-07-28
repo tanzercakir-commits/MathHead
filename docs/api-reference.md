@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **70 tools**.
+Total **71 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -65,6 +65,10 @@ Are the `claimed` values solutions of `equation`, and are they COMPLETE? (an AI'
 ### `verify_steps(steps)`
 
 In a chain of expressions, is each step EQUIVALENT to the previous — finds the first bad transition.
+
+### `verify_derivation(steps, operations)`
+
+Audits a multi-step derivation by REPLAYING each transition's cited operation.
 
 ### `cross_check(left, right)`
 

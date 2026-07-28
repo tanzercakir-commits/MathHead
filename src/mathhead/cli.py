@@ -157,6 +157,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("verify-steps", help="find the first error in a chain of steps")
     p.add_argument("steps", nargs="+", metavar="STEP")
 
+    p = sub.add_parser("check-derivation", help="check each step's cited operation in a derivation")
+    p.add_argument("steps", nargs="+", metavar="STEP", help="steps (equations or expressions), in order")
+    p.add_argument("--ops", required=True, metavar="JSON",
+                   help='operations JSON, len = steps-1, e.g. \'[{"op":"subtract","value":"3"}]\'')
+
     p = sub.add_parser("cross-check", help="cross-verify a claim with Z3 + SymPy")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -384,6 +389,8 @@ _DISPATCH = {
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),
     "verify-steps": lambda a: ("verify_steps", {"steps": a.steps}),
+    "check-derivation": lambda a: ("verify_derivation",
+                                   {"steps": a.steps, "operations": json.loads(a.ops)}),
     "cross-check": lambda a: ("cross_check", {"left": a.left, "right": a.right}),
     "check-certificate": lambda a: ("check_certificate", {"certificate": json.loads(a.certificate)}),
     "verify-derivative": lambda a: ("verify_derivative", {"expression": a.expression,

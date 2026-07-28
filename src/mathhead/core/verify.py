@@ -41,7 +41,7 @@ from mathhead.compute import (
 __all__ = [
     "verify_equality", "verify_solution", "verify_steps",
     "verify_limit", "verify_derivative", "verify_integral",
-    "verify_series", "verify_matrix_identity",
+    "verify_series", "verify_matrix_identity", "verify_derivation",
 ]
 
 _SAMPLE = (0, 1, 2, -1, 3, -2, 5)   # set of points for counterexample scanning
@@ -425,3 +425,164 @@ def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> Ver
     return VerifyResult("valid", "EQUAL",
                         f"the matrices are equal ({A.rows}×{A.cols}, all cells verified).",
                         None, _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# I3 — full derivation check: REPLAY each cited operation and confirm it really
+# produces the next line (equation- or expression-aware). This is the JUSTIFICATION
+# audit — not just "are consecutive lines equal?" (verify_steps), but "does the RULE
+# you cited actually yield this step?". Grades a worked solution the way a teacher does.
+# --------------------------------------------------------------------------- #
+_DERIV_OPS = frozenset({"add", "subtract", "multiply", "divide",
+                        "simplify", "expand", "factor"})
+_VALUE_OPS = frozenset({"add", "subtract", "multiply", "divide"})
+
+
+def _stmt_str(node: Any) -> str:
+    """Renders a parsed step (equation or expression) back to a readable string."""
+    if isinstance(node, sympy.Equality):
+        return f"{node.lhs} == {node.rhs}"
+    return str(node)
+
+
+def _describe(op: str, value: Any) -> str:
+    return f"{op} {value}" if value is not None else op
+
+
+def _apply_operation(prev: Any, op: str, value: Any) -> Any:
+    """Applies ONE cited operation to `prev` (an equation applies to both sides)."""
+    is_eq = isinstance(prev, sympy.Equality)
+    sides = [prev.lhs, prev.rhs] if is_eq else [prev]
+    if op == "add":
+        out = [s + value for s in sides]
+    elif op == "subtract":
+        out = [s - value for s in sides]
+    elif op == "multiply":
+        out = [s * value for s in sides]
+    elif op == "divide":
+        out = [s / value for s in sides]
+    elif op == "simplify":
+        out = [sympy.simplify(s) for s in sides]
+    elif op == "expand":
+        out = [sympy.expand(s) for s in sides]
+    else:  # factor (op set is validated by the caller)
+        out = [sympy.factor(s) for s in sides]
+    return sympy.Eq(out[0], out[1]) if is_eq else out[0]
+
+
+def _same_statement(expected: Any, actual: Any, syms: dict[str, Any]) -> tuple[str, dict | None]:
+    """Deterministically decides whether two steps state the SAME thing.
+
+    Both must be equations or both expressions. For equations `L1==R1` and
+    `L2==R2`, they match if `(L1-R1)` equals `(L2-R2)` up to sign (sides may be
+    swapped/negated). Returns ('equal'|'not_equal'|'undecided', counterexample?).
+    """
+    e_eq = isinstance(expected, sympy.Equality)
+    a_eq = isinstance(actual, sympy.Equality)
+    if e_eq != a_eq:
+        return "not_equal", {"reason": "equation/expression type mismatch"}
+    if e_eq:
+        de = expected.lhs - expected.rhs
+        da = actual.lhs - actual.rhs
+        if _equal_verdict(de, da, syms)[0] == "equal":
+            return "equal", None
+        if _equal_verdict(de, -da, syms)[0] == "equal":
+            return "equal", None
+        try:
+            cx = _counterexample(sympy.simplify(de - da), syms)
+        except Exception:              # noqa: BLE001
+            cx = None
+        return ("not_equal", cx) if cx is not None else ("undecided", None)
+    return _equal_verdict(expected, actual, syms)
+
+
+def verify_derivation(steps: list[str], operations: list[dict[str, Any]]) -> VerifyResult:
+    """Audits a multi-step derivation where each transition CITES an operation.
+
+    For each transition the cited `operation` is REPLAYED on the previous line and
+    the result is compared (deterministically) to the stated next line. This checks
+    the JUSTIFICATION of each step — not merely that consecutive lines are equal.
+
+    `steps`: list of >=2 strings, each an equation ('L == R') or an expression.
+    `operations`: list with exactly `len(steps)-1` entries; each a dict
+    `{"op": <add|subtract|multiply|divide|simplify|expand|factor>, "value": <str>}`
+    (`value` is required for add/subtract/multiply/divide, ignored otherwise).
+
+    valid → `DERIVATION_VALID` (every step follows from its cited operation).
+    invalid → `STEP_UNJUSTIFIED` (`details.first_bad_step`, 1-based) — the cited
+    operation does NOT produce the stated line (+ what it WOULD produce). unknown →
+    `UNDECIDED`. error → `PARSE_ERROR` / `GUARDRAIL_VIOLATION` (bad or unusable input).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(steps, list) or len(steps) < 2:
+            raise ComputeError("at least 2 steps are required")
+        if not isinstance(operations, list) or len(operations) != len(steps) - 1:
+            raise ComputeError("operations must have exactly len(steps)-1 entries (one per transition)")
+        parsed = [_parse(s, syms) for s in steps]
+    except ComputeError as exc:
+        return _err("verify_derivation", str(exc), t0)
+
+    # Validate + normalize operations up front (fail fast, honestly).
+    normalized: list[tuple[str, Any]] = []
+    for k, spec in enumerate(operations):
+        if not isinstance(spec, dict) or "op" not in spec:
+            return VerifyResult("error", "GUARDRAIL_VIOLATION",
+                                f"verify_derivation: operation {k + 1} must be a dict with an 'op' key.",
+                                None, _meta(t0))
+        op = str(spec["op"]).strip().lower()
+        if op not in _DERIV_OPS:
+            return VerifyResult("error", "GUARDRAIL_VIOLATION",
+                                f"verify_derivation: unknown operation {op!r} "
+                                f"(supported: {', '.join(sorted(_DERIV_OPS))}).", None, _meta(t0))
+        value = None
+        if op in _VALUE_OPS:
+            if spec.get("value") in (None, ""):
+                return VerifyResult("error", "GUARDRAIL_VIOLATION",
+                                    f"verify_derivation: operation '{op}' (step {k + 1}) requires a 'value'.",
+                                    None, _meta(t0))
+            try:
+                value = _as_expr(str(spec["value"]), syms)
+            except ComputeError as exc:
+                return _err("verify_derivation", f"operation {k + 1} value: {exc}", t0)
+            if op == "divide" and sympy.simplify(value) == 0:
+                return VerifyResult("error", "GUARDRAIL_VIOLATION",
+                                    f"verify_derivation: cannot divide by zero (step {k + 1}).",
+                                    None, _meta(t0))
+        normalized.append((op, value))
+
+    undecided_at = None
+    caveats: list[str] = []
+    for i, (op, value) in enumerate(normalized):
+        try:
+            expected = _apply_operation(parsed[i], op, value)
+            verdict, cx = _same_statement(expected, parsed[i + 1], syms)
+        except Exception:              # noqa: BLE001
+            undecided_at = undecided_at or (i + 1)
+            continue
+        # Honesty wall: multiply/divide by a non-constant may change the solution set.
+        if op in ("multiply", "divide") and value is not None and value.free_symbols:
+            caveats.append(f"step {i + 1}: '{op}' by a non-constant ({value}) may change the solution set")
+        if verdict == "not_equal":
+            return VerifyResult(
+                "invalid", "STEP_UNJUSTIFIED",
+                f"step {i + 2} is NOT justified: applying '{_describe(op, value)}' to "
+                f"'{steps[i]}' gives '{_stmt_str(expected)}', not '{steps[i + 1]}'.",
+                {"first_bad_step": i + 1, "operation": _describe(op, value),
+                 "from": steps[i], "expected": _stmt_str(expected),
+                 "claimed_next": steps[i + 1], "counterexample": cx}, _meta(t0))
+        if verdict == "undecided" and undecided_at is None:
+            undecided_at = i + 1
+    if undecided_at is not None:
+        return VerifyResult("unknown", "UNDECIDED",
+                            f"transition {undecided_at} could not be decided; the rest are justified.",
+                            {"undecided_step": undecided_at,
+                             "domain_caveats": caveats or None}, _meta(t0))
+    details: dict[str, Any] = {"steps": len(steps)}
+    if caveats:
+        details["domain_caveats"] = caveats
+    return VerifyResult("valid", "DERIVATION_VALID",
+                        f"all {len(operations)} steps are justified by their cited operations"
+                        + (" (with domain caveats)." if caveats else " (verified)."),
+                        details, _meta(t0))

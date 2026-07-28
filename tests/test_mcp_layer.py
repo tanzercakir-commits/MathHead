@@ -38,6 +38,9 @@ ARGS = {
     "verify_equality": {"left": "sin(x)**2 + cos(x)**2", "right": "1"},
     "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
     "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
+    "verify_derivation": {"steps": ["2*x + 3 == 7", "2*x == 4", "x == 2"],
+                          "operations": [{"op": "subtract", "value": "3"},
+                                         {"op": "divide", "value": "2"}]},
     "cross_check": {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"},
     "verify_derivative": {"expression": "x**3", "symbol": "x", "claimed": "3*x**2", "order": 1},
     "verify_integral": {"expression": "2*x", "symbol": "x", "claimed": "x**2"},
@@ -115,7 +118,7 @@ def test_args_cover_all_registered_tools():
     registered = _registered_names()
     covered = set(ARGS)
     assert registered == covered, (
-        f"eksik: {registered - covered}  |  fazla: {covered - registered}"
+        f"missing: {registered - covered}  |  extra: {covered - registered}"
     )
 
 

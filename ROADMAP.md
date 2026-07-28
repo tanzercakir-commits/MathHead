@@ -180,7 +180,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           verify_series / verify_matrix_identity ✅ (69 tools; +C constant difference honest)
 [x] I2 🔴 Natural language → formal + BACK-translation (round-trip) ✅ (70 tools; RECOGNIZE-OR-REJECT,
           bilingual TR+EN, NO guessing — antidote to "wall #2")
-[ ] I3 🟡 Full derivation proof check — check each step's justification in a multi-step solution (rule-based)
+[x] I3 🟡 Full derivation proof check — REPLAY each cited operation, confirm it produces the next line ✅
+          (71 tools; equation-aware; DERIVATION_VALID / STEP_UNJUSTIFIED; honest domain caveat)
 [ ] I4 🟡 Certificate extension (C2 continuation) — matrix / number theory / probability certificates (stdlib)
 [ ] I5 [S] Hardening
 ```

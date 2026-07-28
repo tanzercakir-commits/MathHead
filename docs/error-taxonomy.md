@@ -78,6 +78,8 @@ VERIFICATION LAYER (Track C — AI reasoning auditor)
   COMPLETENESS_UNKNOWN   · values hold but completeness unverified (unknown)
   STEPS_VALID            · all transitions in the step chain are equivalent (valid)
   STEP_INVALID           · first invalid transition found (invalid)
+  DERIVATION_VALID       · every step is justified by its cited operation (I3) (valid)
+  STEP_UNJUSTIFIED       · the cited operation does not produce the stated step (I3) (invalid)
   UNDECIDED              · equivalence/transition could not be decided (unknown)
 
 CROSS-CHECK (Track C3 — Z3 ⋈ SymPy)

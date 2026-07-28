@@ -62,7 +62,8 @@
 - [x] **I2** natural language → formal + round-trip ✅ (523 tests, 70 tools, recognize-or-reject)
 - [x] **Repo language → English** ✅ (docstrings/comments/user-strings/docs/data prose;
       Anglicized output keys; bilingual TR+EN NL *input* kept as a feature) — 523/523 green
-- [ ] **I3** full derivation proof check · **I4** certificate extension · **I5** [S]
+- [x] **I3** full derivation proof check (verify_derivation — operation-replay justification) ✅ (542 tests, 71 tools)
+- [ ] **I4** certificate extension · **I5** [S]
 - [ ] then: D → E → F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

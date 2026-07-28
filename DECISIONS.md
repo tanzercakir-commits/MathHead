@@ -112,6 +112,20 @@
   biçiminde). v1 parçası **karar verilebilir** seçildi (Presburger + önermeler)
   → çoğunlukla kesin sonuç, az "unknown".
 
+## ADR-0010 — Nicelik belirteçleri (∀/∃) + Real; iki geçişli çevirmen
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** v1.1, FOL'u gerçekten "first-order" yapmak için `∀`/`∃` ve Real
+  istedi. Nicelik belirteci bağlı değişken tanıtır; sortu gövdeden belli olur
+  (inşadan önce) ve serbest değişkenle çakışmamalı (variable capture).
+- **Karar:** Çevirmen iki geçişe ayrıldı — (1) infer: kapsamlı (scoped) sort
+  çıkarımı, (2) build: Z3 inşası. Bağlı sabitlere benzersiz iç ad (mangling) →
+  capture yok. Sayısal alan: problemde ondalık varsa Real, yoksa Int.
+- **Sonuçlar:** Gerçek FOL ifade gücü. Bedeli: karar-verilebilirlik zayıflar,
+  bazı formüllerde `unknown` mümkün (dürüstçe raporlanır; **soundness** korunur —
+  motor asla yanlış cevap üretmez). Int/Real karışımı ve yüklem sembolleri
+  sonraki sürümlere.
+
 ---
 
 <!-- Yeni karar şablonu:

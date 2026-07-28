@@ -37,21 +37,22 @@
 
 ---
 
-## Girdi grameri (v1)
+## Girdi grameri (v1.1)
 
 Girdi **Python ifade sözdizimi** ile yazılır; motorun ayrıştırıcısı (`ast`
-tabanlı, beyaz-listeli — ADR-0009) yalnızca aşağıdakine izin verir, gerisini net
-reddeder. Ayrıştırmayı Python yaptığı için **operatör önceliği ve parantez**
+tabanlı, beyaz-listeli — ADR-0009/0010) yalnızca aşağıdakine izin verir, gerisini
+net reddeder. Ayrıştırmayı Python yaptığı için **operatör önceliği ve parantez**
 beklendiği gibi çalışır.
 
 | Kategori | İzin verilenler | Not |
 |---|---|---|
 | Boolean bağlaç | `and`, `or`, `not` | Python anahtar sözcükleri |
 | Boolean fonksiyon | `implies(a, b)`, `iff(a, b)`, `xor(a, b)` | her biri tam 2 argüman |
+| Nicelik belirteci | `forall(x, gövde)`, `exists(x, gövde)` | `x` bağlı değişken |
 | Karşılaştırma | `<`, `<=`, `==`, `!=`, `>=`, `>` | zincir destekli: `1 < x < 5` |
 | Aritmetik | `+`, `-`, `*` | **doğrusal**: `değişken*değişken` yasak |
-| Değişken | `Bool` veya `Int` | sort **bağlamdan** çıkarılır (aşağıda) |
-| Sabit | tam sayı, `True`, `False` | Real yok (v1.1) |
+| Değişken | `Bool` veya sayısal | sort **bağlamdan** çıkarılır (aşağıda) |
+| Sabit | tam sayı, ondalık, `True`, `False` | ondalık → Real |
 
 **Sort çıkarımı (tür):** bir ismin Boolean mı Int mi olduğu kullanımından
 belirlenir — karşılaştırma/aritmetik içinde geçen → `Int`; bağlaç/fonksiyon
@@ -59,13 +60,18 @@ içinde ya da yalın atom → `Bool`. Bir isim **aynı problemde** hem Bool hem 
 kullanılırsa motor `error` (`PARSE_ERROR`) döner — sessiz varsayım yok
 (PRINCIPLES #2).
 
-**v1'de YOK (bilerek):** Real sayılar, `∀`/`∃` nicelik belirteçleri, doğrusal
-olmayan çarpım. Bunlar v1.1+ hedefi (Plan yol haritası). Neden dar? Bu parça
-**karar verilebilir** (decidable: önermeler + doğrusal tam sayı / Presburger),
-yani motor neredeyse her zaman kesin `valid/invalid/sat/unsat` verir.
+**Sayısal alan (Int vs Real):** problemde herhangi bir **ondalık** sabit (ör.
+`2.0`) varsa tüm sayısal değişkenler **Real**, yoksa **Int** (v1.1 sadeleştirmesi;
+aynı problemde karışım yok). Anlamı değiştirir: `exists(x, 1 < x and x < 2)`
+Int'te **unsat**; `1.0 < x and x < 2.0` ile Real'de **sat**.
 
-Örnek geçerli ifadeler: `p`, `not(p)`, `implies(p, q)`, `p and (q or not(r))`,
-`x > 2`, `1 < x < 5`, `2*x + 3 <= y`, `iff(p, q)`.
+**Hâlâ YOK:** doğrusal olmayan çarpım, fonksiyon/yüklem sembolleri (`P(x)`),
+küme/dizi teorileri. **Dürüst uyarı:** nicelik belirteçleri FOL'u yarı-karar
+verilebilir yapar; Z3 bazı formüllerde (ör. iç içe `∀∃`) `unknown` dönebilir —
+gizlenmez, birinci sınıf raporlanır (soundness: motor asla yanlış cevap üretmez).
+
+Örnek geçerli ifadeler: `p`, `implies(p, q)`, `p and (q or not(r))`, `1 < x < 5`,
+`2*x + 3 <= y`, `forall(x, implies(x > 2, x > 1))`, `exists(x, 1.0 < x and x < 2.0)`.
 
 ---
 

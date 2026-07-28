@@ -23,7 +23,7 @@ from typing import Any
 
 import z3
 
-from mathhead.core.translate import ParseError, to_z3
+from mathhead.core.translate import ParseError, translate_all
 from mathhead.guardrails import GuardrailError, solver_config, validate_input
 
 DEFAULT_TIMEOUT_MS: int = 5_000
@@ -70,7 +70,9 @@ def _py_value(val: Any) -> Any:
         return False
     if z3.is_int_value(val):
         return val.as_long()
-    return str(val)
+    if z3.is_rational_value(val):
+        return float(val.as_fraction())   # Real: kesirli değeri ondalığa çevir
+    return str(val)                        # cebirsel/irrasyonel: tam metin gösterim
 
 
 def _witness(model: z3.ModelRef, symbols: dict[str, Any]) -> dict[str, Any]:
@@ -104,9 +106,7 @@ def _prepare(statements: list[str], t0: float, seed: int, timeout_ms: int):
     except GuardrailError as exc:
         return _error("GUARDRAIL_VIOLATION", str(exc), t0, seed, timeout_ms), None, None
     try:
-        symbols: dict[str, Any] = {}
-        sorts: dict[str, str] = {}
-        z3_list = [to_z3(s, symbols, sorts) for s in statements]
+        z3_list, symbols = translate_all(statements)
     except ParseError as exc:
         return _error("PARSE_ERROR", str(exc), t0, seed, timeout_ms), None, None
     return None, z3_list, symbols

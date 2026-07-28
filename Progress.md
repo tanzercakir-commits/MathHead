@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-28 — v1.1 · nicelik belirteçleri + Real (aynı oturum)
+
+**Yapıldı**
+
+- `translate` iki geçişe ayrıldı (infer/sort + build); kapsam (scope) yönetimi.
+- `forall(x, …)` / `exists(x, …)`: bağlı sabit mangling → değişken yakalama yok.
+- Real sayı desteği: ondalık sabit varsa numeric domain = Real (yoksa Int).
+- `logic` artık `translate_all` kullanıyor (paylaşımlı bağlam + doğru domain).
+- Real model değeri okunur (`3/2` → `1.5`).
+- Testler: quantifier + Real + capture + **soundness** (∀∃'de asla yanlış cevap;
+  gerekirse `unknown`) → **25/25 yeşil**.
+- Yeni karar: ADR-0010.
+
+**Karar:** Nicelik belirteçleri karar-verilebilirliği zayıflatır; `unknown`
+birinci sınıf, **soundness** korunur. Dış sözleşme (ReasoningResult, MCP) DEĞİŞMEDİ.
+
+**Sıradaki:** T9 (explanation zenginleştir) / v2 (SymPy compute).
+
 ## 2026-07-28 — v1 · çekirdek çalışır (aynı oturum)
 
 **Yapıldı**

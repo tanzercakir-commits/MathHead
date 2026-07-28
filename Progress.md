@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-07-28 — I4 · certificate extension (matrix / number-theory / probability, stdlib)
+
+**Context:** Continued the D–K roadmap at I4 — extend the independent (stdlib-only)
+certificate checker (Track C2) to more result types. No new tools: new certificate
+KINDS flow through the existing `check_certificate` (router/MCP/CLI unchanged).
+
+**Done — 8 new certificate kinds** (`certificate.py`, exact `Fraction` where possible):
+
+- Matrix: `matrix_product` (A·B == claimed), `matrix_inverse` (A·inv == I),
+  `linear_system` (A·x == b). Checking is a matmul — cheaper than solving.
+- Number theory: `factorization` (∏ pᵉ == n AND each p prime via stdlib trial division),
+  `bezout_gcd` (g = a·x+b·y ∧ g|a ∧ g|b ⟹ g = gcd), `modular_inverse` ((a·inv) mod m == 1),
+  `chinese_remainder` (x ≡ residues[i] mod moduli[i]).
+- Probability: `expectation` (Σp == 1 ∧ Σ pᵢ·vᵢ == E), exact.
+
+**Honesty at the center**
+
+- **Engine independence preserved:** a subprocess test proves the new kinds still do
+  NOT import z3/sympy (stdlib `fractions`/`math`/`ast` only). End-to-end test: SymPy
+  inverts a matrix → the stdlib checker independently confirms A·inv == I.
+- `factorization` honestly refuses (`error`) if a claimed prime factor exceeds the
+  trial-division bound (10¹²) — it will not *assert* primality it cannot check.
+- Exact vs numeric surfaced via `exact` (Fraction → exact; float → tolerance).
+
+- `tests/test_certificate.py` +11 (23 total) → **553/553 green**. Regenerated api-reference
+  (check_certificate now lists all 13 kinds).
+
+**Next:** I5 [S] — hardening (determinism/property/fuzz sweep across the I-track additions).
+
 ## 2026-07-28 — I3 · full derivation proof check (operation-replay justification)
 
 **Context:** After the repo→English conversion, resumed the approved D–K roadmap at I3.

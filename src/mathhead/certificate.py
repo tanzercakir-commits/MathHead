@@ -18,6 +18,14 @@ Certificate kinds (self-contained dicts):
 - solution          · {expression, symbol, value}  (is the residual 0)
 - not_equal         · {left, right, point}          (counterexample: left ≠ right)
 - inequality_counterexample · {expression, point, relation}  (poly. violated at that point)
+- matrix_product    · {a, b, product}               (A·B == product)
+- matrix_inverse    · {matrix, inverse}             (A·inverse == I)
+- linear_system     · {matrix, rhs, solution}       (A·x == b)
+- factorization     · {n, factors: [[p, e], ...]}   (∏ pᵉ == n AND each p prime)
+- bezout_gcd        · {a, b, g, x, y}               (g = a·x + b·y, g|a, g|b ⟹ g = gcd)
+- modular_inverse   · {a, m, inverse}               ((a·inverse) mod m == 1)
+- chinese_remainder · {moduli, residues, x}         (x ≡ residues[i] (mod moduli[i]))
+- expectation       · {values, probabilities, expectation}  (Σp == 1 AND Σ pᵢ·vᵢ == E)
 """
 from __future__ import annotations
 
@@ -126,6 +134,67 @@ def _env(point: dict[str, Any]) -> dict[str, Any]:
     return {str(k): _num(v) for k, v in point.items()}
 
 
+# --- I4 stdlib helpers: exact matrix + integer arithmetic (no z3/sympy) ---- #
+_PRIME_BOUND = 10 ** 12          # trial-division confirms primality up to here
+
+
+def _int(value: Any) -> int:
+    """Coerces to a Python int (exact); rejects non-integers honestly."""
+    n = _num(value)
+    if isinstance(n, Fraction) and n.denominator == 1:
+        return int(n.numerator)
+    raise _CertError(f"expected an integer: {value!r}")
+
+
+def _is_prime_trial(n: int) -> tuple[bool | None, bool]:
+    """Deterministic stdlib primality by trial division. (is_prime|None, decided?)."""
+    if n < 2:
+        return False, True
+    if n < 4:
+        return True, True
+    if n % 2 == 0:
+        return False, True
+    if n > _PRIME_BOUND:                 # honest: too large to confirm by trial division
+        return None, False
+    i = 3
+    while i * i <= n:
+        if n % i == 0:
+            return False, True
+        i += 2
+    return True, True
+
+
+def _cert_matrix(rows: Any) -> list[list[Any]]:
+    """Parses a matrix to exact (Fraction) / float cells; rejects ragged/empty input."""
+    if not isinstance(rows, list) or not rows or not all(isinstance(r, list) and r for r in rows):
+        raise _CertError("matrix must be a non-empty list of non-empty rows")
+    width = len(rows[0])
+    if any(len(r) != width for r in rows):
+        raise _CertError("ragged matrix (rows of unequal length)")
+    return [[_num(c) for c in r] for r in rows]
+
+
+def _matmul(A: list[list[Any]], B: list[list[Any]]) -> list[list[Any]]:
+    if len(A[0]) != len(B):
+        raise _CertError(f"dimension mismatch: {len(A)}×{len(A[0])} · {len(B)}×{len(B)}")
+    return [[sum((A[i][k] * B[k][j] for k in range(len(B))), Fraction(0))
+             for j in range(len(B[0]))] for i in range(len(A))]
+
+
+def _matrix_equal(A: list[list[Any]], B: list[list[Any]]) -> tuple[bool, bool]:
+    """(equal, exact) — cell-by-cell; Fraction → exact, float → tolerance."""
+    if len(A) != len(B) or len(A[0]) != len(B[0]):
+        return False, True
+    exact = True
+    for i in range(len(A)):
+        for j in range(len(A[0])):
+            zero, ex = _is_zero(A[i][j] - B[i][j])
+            exact = exact and ex
+            if not zero:
+                return False, exact
+    return True, exact
+
+
 def _ok(msg: str, exact: bool = True) -> CertificateResult:
     return CertificateResult("verified", "CERTIFICATE_VALID", msg, True, exact)
 
@@ -216,8 +285,127 @@ def _check_impl(certificate: dict[str, Any]) -> CertificateResult:
                     _no(f"expression value {val} does not violate '{rel} 0'{note}: "
                         f"counterexample invalid.", exact))
 
+        # --- I4: matrix certificates (checking is cheaper than solving) ---
+        if kind == "matrix_product":
+            A = _cert_matrix(certificate["a"])
+            B = _cert_matrix(certificate["b"])
+            claimed = _cert_matrix(certificate["product"])
+            prod = _matmul(A, B)
+            equal, exact = _matrix_equal(prod, claimed)
+            note = "" if exact else " (numeric)"
+            return (_ok(f"A·B equals the claimed {len(prod)}×{len(prod[0])} product{note}.", exact)
+                    if equal else
+                    _no(f"A·B does NOT equal the claimed product{note}: the result is wrong.", exact))
+
+        if kind == "matrix_inverse":
+            A = _cert_matrix(certificate["matrix"])
+            inv = _cert_matrix(certificate["inverse"])
+            if len(A) != len(A[0]):
+                return _bad("matrix must be square for an inverse")
+            prod = _matmul(A, inv)
+            n = len(A)
+            identity = [[Fraction(1 if i == j else 0) for j in range(n)] for i in range(n)]
+            equal, exact = _matrix_equal(prod, identity)
+            note = "" if exact else " (numeric)"
+            return (_ok(f"A·inverse == I ({n}×{n}){note}: the inverse is verified.", exact)
+                    if equal else
+                    _no(f"A·inverse != I{note}: the claimed inverse is wrong.", exact))
+
+        if kind == "linear_system":
+            A = _cert_matrix(certificate["matrix"])
+            rhs = [_num(v) for v in certificate["rhs"]]
+            sol = [_num(v) for v in certificate["solution"]]
+            if len(A[0]) != len(sol):
+                return _bad(f"solution length {len(sol)} != number of columns {len(A[0])}")
+            if len(A) != len(rhs):
+                return _bad(f"rhs length {len(rhs)} != number of rows {len(A)}")
+            exact = True
+            for i in range(len(A)):
+                dot = sum((A[i][k] * sol[k] for k in range(len(sol))), Fraction(0))
+                zero, ex = _is_zero(dot - rhs[i])
+                exact = exact and ex
+                if not zero:
+                    note = "" if ex else " (numeric)"
+                    return _no(f"row {i}: A·x = {dot} != b = {rhs[i]}{note}: not a solution.", exact)
+            note = "" if exact else " (numeric)"
+            return _ok(f"A·x == b for all {len(A)} rows{note}: the solution is verified.", exact)
+
+        # --- I4: number-theory certificates ---
+        if kind == "factorization":
+            n = _int(certificate["n"])
+            factors = certificate["factors"]
+            product = 1
+            for pair in factors:
+                p, e = _int(pair[0]), _int(pair[1])
+                if e < 1:
+                    return _bad(f"exponent must be >= 1 (got {e})")
+                is_p, decided = _is_prime_trial(p)
+                if not decided:
+                    return _bad(f"primality of {p} exceeds the trial-division bound "
+                                f"({_PRIME_BOUND}); cannot confirm independently.")
+                if not is_p:
+                    return _no(f"{p} is NOT prime: this is not a prime factorization.")
+                product *= p ** e
+            return (_ok(f"the prime powers multiply to {n}: factorization verified.")
+                    if product == n else
+                    _no(f"the factors multiply to {product} != {n}: factorization is wrong."))
+
+        if kind == "bezout_gcd":
+            a, b = _int(certificate["a"]), _int(certificate["b"])
+            g = _int(certificate["g"])
+            x, y = _int(certificate["x"]), _int(certificate["y"])
+            if g <= 0:
+                return _no(f"g = {g} must be positive to be a gcd.")
+            if a * x + b * y != g:
+                return _no(f"a·x + b·y = {a * x + b * y} != g = {g}: Bézout identity fails.")
+            if a % g != 0 or b % g != 0:
+                return _no(f"g = {g} does not divide both a={a} and b={b}: not a common divisor.")
+            return _ok(f"g = {g} = {a}·{x} + {b}·{y} and divides both ⟹ gcd verified.")
+
+        if kind == "modular_inverse":
+            a, m = _int(certificate["a"]), _int(certificate["m"])
+            inv = _int(certificate["inverse"])
+            if m <= 0:
+                return _bad(f"modulus must be positive (got {m})")
+            return (_ok(f"(a·inverse) mod m = ({a}·{inv}) mod {m} = 1: modular inverse verified.")
+                    if (a * inv) % m == 1 % m else
+                    _no(f"(a·inverse) mod m = {(a * inv) % m} != 1: the claimed inverse is wrong."))
+
+        if kind == "chinese_remainder":
+            moduli = [_int(v) for v in certificate["moduli"]]
+            residues = [_int(v) for v in certificate["residues"]]
+            x = _int(certificate["x"])
+            if len(moduli) != len(residues):
+                return _bad("moduli and residues must have equal length")
+            for mod, res in zip(moduli, residues):
+                if mod <= 0:
+                    return _bad(f"modulus must be positive (got {mod})")
+                if x % mod != res % mod:
+                    return _no(f"x={x} mod {mod} = {x % mod} != {res % mod}: congruence fails.")
+            return _ok(f"x = {x} satisfies all {len(moduli)} congruences: CRT solution verified.")
+
+        # --- I4: probability certificate ---
+        if kind == "expectation":
+            values = [_num(v) for v in certificate["values"]]
+            probs = [_num(p) for p in certificate["probabilities"]]
+            claimed = _num(certificate["expectation"])
+            if len(values) != len(probs):
+                return _bad("values and probabilities must have equal length")
+            psum = sum(probs, Fraction(0)) if all(isinstance(p, Fraction) for p in probs) else sum(map(float, probs))
+            one_ok, ex1 = _is_zero(psum - 1)
+            if not one_ok:
+                return _no(f"probabilities sum to {psum} != 1: not a valid distribution.")
+            exp = sum((values[i] * probs[i] for i in range(len(values))),
+                      Fraction(0) if all(isinstance(v, Fraction) for v in values + probs) else 0)
+            zero, ex2 = _is_zero(exp - claimed)
+            exact = ex1 and ex2
+            note = "" if exact else " (numeric)"
+            return (_ok(f"Σp = 1 and Σ pᵢ·vᵢ = {exp} = claimed{note}: expectation verified.", exact)
+                    if zero else
+                    _no(f"Σ pᵢ·vᵢ = {exp} != claimed {claimed}{note}: the expectation is wrong.", exact))
+
         return _bad(f"unknown certificate kind: {kind!r}")
-    except (KeyError, TypeError) as exc:
+    except (KeyError, TypeError, IndexError) as exc:
         return _bad(f"missing/corrupt field: {exc}")
     except _CertError as exc:
         return _bad(f"evaluation error: {exc}")

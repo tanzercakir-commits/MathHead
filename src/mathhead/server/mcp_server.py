@@ -273,7 +273,9 @@ def check_certificate(certificate: dict[str, Any]) -> dict[str, Any]:
 
     "Don't trust us, run the checker." status: `verified` (holds) / `refuted`
     (result is WRONG) / `error`. Kinds: `subset_sum`, `graph_coloring`, `solution`,
-    `not_equal`, `inequality_counterexample`. Arithmetic is exact when possible (Fraction),
+    `not_equal`, `inequality_counterexample`, `matrix_product`, `matrix_inverse`,
+    `linear_system`, `factorization`, `bezout_gcd`, `modular_inverse`,
+    `chinese_remainder`, `expectation`. Arithmetic is exact when possible (Fraction),
     otherwise numeric (float+tolerance, `exact=false`).
     """
     return asdict(route("check_certificate", {"certificate": certificate}))

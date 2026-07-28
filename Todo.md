@@ -63,7 +63,8 @@
 - [x] **Repo language → English** ✅ (docstrings/comments/user-strings/docs/data prose;
       Anglicized output keys; bilingual TR+EN NL *input* kept as a feature) — 523/523 green
 - [x] **I3** full derivation proof check (verify_derivation — operation-replay justification) ✅ (542 tests, 71 tools)
-- [ ] **I4** certificate extension · **I5** [S]
+- [x] **I4** certificate extension — 8 new stdlib kinds (matrix/number-theory/probability) ✅ (553 tests)
+- [ ] **I5** [S] hardening
 - [ ] then: D → E → F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

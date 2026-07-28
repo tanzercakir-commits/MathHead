@@ -182,7 +182,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           bilingual TR+EN, NO guessing — antidote to "wall #2")
 [x] I3 🟡 Full derivation proof check — REPLAY each cited operation, confirm it produces the next line ✅
           (71 tools; equation-aware; DERIVATION_VALID / STEP_UNJUSTIFIED; honest domain caveat)
-[ ] I4 🟡 Certificate extension (C2 continuation) — matrix / number theory / probability certificates (stdlib)
+[x] I4 🟡 Certificate extension (C2 continuation) — matrix / number theory / probability certificates ✅
+          (8 new stdlib kinds: matrix_product/inverse, linear_system, factorization, bezout_gcd,
+           modular_inverse, chinese_remainder, expectation; engine-independence preserved)
 [ ] I5 [S] Hardening
 ```
 

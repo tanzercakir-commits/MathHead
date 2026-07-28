@@ -92,6 +92,14 @@ def _matrix(s: str) -> list[list[str]]:
     return [[cell.strip() for cell in row.split(",")] for row in s.split(";")]
 
 
+def _node(s: str) -> object:
+    """Graph node from CLI text: int when it looks numeric, else the string as-is."""
+    try:
+        return int(s)
+    except ValueError:
+        return s
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mathhead",
@@ -462,6 +470,33 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("matrix", metavar="MATRIX")
     p.add_argument("rhs", nargs="+", metavar="B")
 
+    p = sub.add_parser("shortest-path", help="shortest path (edges as JSON)")
+    p.add_argument("--edges", required=True, metavar="JSON", help="e.g. '[[0,1,4],[0,2,1]]'")
+    p.add_argument("--source", required=True)
+    p.add_argument("--target", required=True)
+    p.add_argument("--directed", action="store_true")
+    p.add_argument("--weighted", action="store_true")
+
+    p = sub.add_parser("components", help="connected components (edges as JSON)")
+    p.add_argument("--edges", required=True, metavar="JSON")
+    p.add_argument("--nodes", metavar="JSON", help="optional node-list JSON (isolated vertices)")
+
+    p = sub.add_parser("mst", help="minimum spanning tree (edges [u,v,w] as JSON)")
+    p.add_argument("--edges", required=True, metavar="JSON")
+
+    p = sub.add_parser("max-flow", help="max flow (directed [u,v,cap] as JSON)")
+    p.add_argument("--edges", required=True, metavar="JSON")
+    p.add_argument("--source", required=True)
+    p.add_argument("--sink", required=True)
+
+    p = sub.add_parser("matching", help="max bipartite matching (edges + left partition JSON)")
+    p.add_argument("--edges", required=True, metavar="JSON")
+    p.add_argument("--left", required=True, metavar="JSON")
+
+    p = sub.add_parser("isomorphic", help="graph isomorphism (two edge lists JSON)")
+    p.add_argument("--edges1", required=True, metavar="JSON")
+    p.add_argument("--edges2", required=True, metavar="JSON")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -654,6 +689,21 @@ _DISPATCH = {
                            {"matrix": _matrix(a.matrix), "symbol": a.symbol}),
     "least-squares": lambda a: ("least_squares",
                                 {"matrix": _matrix(a.matrix), "rhs": a.rhs}),
+    "shortest-path": lambda a: ("shortest_path",
+                                {"edges": json.loads(a.edges), "source": _node(a.source),
+                                 "target": _node(a.target), "directed": a.directed,
+                                 "weighted": a.weighted}),
+    "components": lambda a: ("connected_components",
+                             {"edges": json.loads(a.edges),
+                              "nodes": json.loads(a.nodes) if a.nodes else None}),
+    "mst": lambda a: ("minimum_spanning_tree", {"edges": json.loads(a.edges)}),
+    "max-flow": lambda a: ("max_flow",
+                           {"edges": json.loads(a.edges), "source": _node(a.source),
+                            "sink": _node(a.sink)}),
+    "matching": lambda a: ("maximum_matching",
+                           {"edges": json.loads(a.edges), "left": json.loads(a.left)}),
+    "isomorphic": lambda a: ("is_isomorphic",
+                             {"edges1": json.loads(a.edges1), "edges2": json.loads(a.edges2)}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

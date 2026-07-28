@@ -149,8 +149,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           generated-group order ✅ (94 tools). 🔴 full ring/field structure theory deferred
 [x] E2 🟢 Linear algebra III — singular values, QR, Cholesky, Gram-Schmidt, least squares,
           pseudo-inverse, matrix exp, Jordan form, characteristic polynomial ✅ (103 tools)
-[ ] E3 🟡 Graph theory — shortest path, connectivity, matching, max-flow/min-cut,
-          MST, isomorphism
+[x] E3 🟡 Graph theory — shortest_path, connected_components, MST, max_flow/min-cut,
+          maximum_matching, is_isomorphic ✅ (109 tools; PURE STDLIB, deterministic, no networkx)
 [ ] E4 🟡 Number theory II — continued fractions, quadratic residue, primitive root, Pell, Euler φ / Möbius
 [ ] E5 🟡 Combinatorics II — generating functions, inclusion-exclusion, Catalan/Bell/Stirling, Polya
 [ ] E6 [S] Hardening

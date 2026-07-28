@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — E3 · graph theory (pure stdlib, deterministic)
+
+**Done — 6 new compute tools (109 total):**
+
+- `shortest_path` (Dijkstra/BFS), `connected_components` (union-find), `minimum_spanning_tree`
+  (Kruskal), `max_flow` (Edmonds-Karp = min cut), `maximum_matching` (bipartite, Kuhn),
+  `is_isomorphic` (backtracking + degree pruning, ≤10 nodes).
+- **PURE STDLIB — no networkx.** In keeping with the project's minimal-dependency ethos
+  (z3+sympy+mcp, stdlib-only certificate checker), the graph algorithms are hand-written and
+  **deterministic by construction** (sorted neighbor iteration, tie-break counters).
+- Wired router + MCP (109 tools) + CLI (`shortest-path`/`components`/`mst`/`max-flow`/
+  `matching`/`isomorphic`, edges as JSON) + `tests/test_graph.py` (16) → **751/751 green**.
+
+**Verified:** weighted shortest path 0→2→1→3 = 4; components counts an isolated node;
+MST of a triangle = 3 (+ forest when disconnected); max flow = min cut = 5; bipartite
+matching size 2; relabeled triangles isomorphic (with mapping), K₁,₃ vs P₄ pruned by degree.
+
+**Honesty:** an unreachable target returns `{path: null}` (no fabricated path); a non-bipartite
+input to matching, or graphs >10 nodes to isomorphism, are rejected honestly.
+
+**Next:** E4 — number theory II (continued fractions, quadratic residue, primitive root, Pell, Euler φ / Möbius).
+
 ## 2026-07-28 — E2 · linear algebra III (decompositions & matrix functions)
 
 **Done — 9 new compute tools (103 total — crossed 100):**

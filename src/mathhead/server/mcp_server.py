@@ -807,6 +807,52 @@ def least_squares(matrix: list[list[str]], rhs: list[str]) -> dict[str, Any]:
     return asdict(route("least_squares", {"matrix": matrix, "rhs": rhs}))
 
 
+# --------------------------- Graph theory --------------------------------- #
+@mcp.tool()
+def shortest_path(edges: list, source: Any, target: Any, directed: bool = False,
+                  weighted: bool = False) -> dict[str, Any]:
+    """Shortest path source→target. Edges `[u,v]` or `[u,v,weight]` (set `weighted`). Dijkstra/BFS.
+
+    Returns `{path, length}`; `{path:null}` if unreachable (honest, not fabricated).
+    """
+    return asdict(route("shortest_path", {"edges": edges, "source": source, "target": target,
+                                          "directed": directed, "weighted": weighted}))
+
+
+@mcp.tool()
+def connected_components(edges: list, nodes: list | None = None,
+                         directed: bool = False) -> dict[str, Any]:
+    """Connected components → `{count, is_connected, components}`. `nodes` adds isolated vertices."""
+    return asdict(route("connected_components",
+                        {"edges": edges, "nodes": nodes, "directed": directed}))
+
+
+@mcp.tool()
+def minimum_spanning_tree(edges: list) -> dict[str, Any]:
+    """Minimum spanning tree/forest (Kruskal). Edges `[u,v,weight]` → `{edges, total_weight, spans_all}`."""
+    return asdict(route("minimum_spanning_tree", {"edges": edges}))
+
+
+@mcp.tool()
+def max_flow(edges: list, source: Any, sink: Any) -> dict[str, Any]:
+    """Maximum flow source→sink (Edmonds-Karp). Directed `[u,v,capacity]`. Equals the min-cut capacity."""
+    return asdict(route("max_flow", {"edges": edges, "source": source, "sink": sink}))
+
+
+@mcp.tool()
+def maximum_matching(edges: list, left: list) -> dict[str, Any]:
+    """Maximum bipartite matching (Kuhn). `left` = the left-partition nodes → `{size, matching}`."""
+    return asdict(route("maximum_matching", {"edges": edges, "left": left}))
+
+
+@mcp.tool()
+def is_isomorphic(edges1: list, edges2: list, nodes1: list | None = None,
+                  nodes2: list | None = None) -> dict[str, Any]:
+    """Are two undirected graphs isomorphic? Backtracking + degree pruning (≤10 nodes) → `{isomorphic, mapping}`."""
+    return asdict(route("is_isomorphic",
+                        {"edges1": edges1, "edges2": edges2, "nodes1": nodes1, "nodes2": nodes2}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

@@ -297,6 +297,23 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "least_squares":
         return compute.least_squares(payload["matrix"], payload["rhs"])
 
+    # --- Graph theory (pure stdlib) ---
+    if task == "shortest_path":
+        return compute.shortest_path(payload["edges"], payload["source"], payload["target"],
+                                     payload.get("directed", False), payload.get("weighted", False))
+    if task == "connected_components":
+        return compute.connected_components(payload["edges"], payload.get("nodes"),
+                                            payload.get("directed", False))
+    if task == "minimum_spanning_tree":
+        return compute.minimum_spanning_tree(payload["edges"])
+    if task == "max_flow":
+        return compute.max_flow(payload["edges"], payload["source"], payload["sink"])
+    if task == "maximum_matching":
+        return compute.maximum_matching(payload["edges"], payload["left"])
+    if task == "is_isomorphic":
+        return compute.is_isomorphic(payload["edges1"], payload["edges2"],
+                                     payload.get("nodes1"), payload.get("nodes2"))
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

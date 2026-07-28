@@ -130,6 +130,15 @@ ARGS = {
     "jordan_form": {"matrix": [["2", "1"], ["0", "2"]]},
     "characteristic_polynomial": {"matrix": [["2", "0"], ["0", "3"]], "symbol": "lambda"},
     "least_squares": {"matrix": [["1", "1"], ["1", "2"], ["1", "3"]], "rhs": ["1", "2", "2"]},
+    # graph theory
+    "shortest_path": {"edges": [[0, 1, 4], [0, 2, 1], [2, 1, 2], [1, 3, 1]],
+                      "source": 0, "target": 3, "directed": False, "weighted": True},
+    "connected_components": {"edges": [[0, 1], [2, 3]], "nodes": [0, 1, 2, 3, 4], "directed": False},
+    "minimum_spanning_tree": {"edges": [[0, 1, 1], [1, 2, 2], [0, 2, 3]]},
+    "max_flow": {"edges": [[0, 1, 3], [0, 2, 2], [1, 3, 2], [2, 3, 3], [1, 2, 1]], "source": 0, "sink": 3},
+    "maximum_matching": {"edges": [[0, 2], [0, 3], [1, 2]], "left": [0, 1]},
+    "is_isomorphic": {"edges1": [[0, 1], [1, 2], [0, 2]], "edges2": [[0, 1], [1, 2], [0, 2]],
+                      "nodes1": None, "nodes2": None},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

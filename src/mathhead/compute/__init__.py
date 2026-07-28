@@ -1801,6 +1801,320 @@ def least_squares(matrix: list[list[str]], rhs: list[str]) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# E3 — graph theory (pure stdlib, deterministic by construction — no networkx).
+# Edges are `[u, v]` or `[u, v, weight]`; nodes are ints/strings inferred from the
+# edges (+ an optional explicit node list to include isolated vertices).
+# --------------------------------------------------------------------------- #
+def _gw(x: Any) -> Any:
+    """Parses an edge weight: int when possible, else float."""
+    try:
+        return int(x)
+    except (ValueError, TypeError):
+        try:
+            return float(x)
+        except (ValueError, TypeError) as exc:
+            raise ComputeError(f"bad edge weight: {x!r}") from exc
+
+
+def _graph(edges: Any, *, directed: bool, weighted: bool) -> tuple[set, dict]:
+    """Builds (node set, adjacency {u: [(v, w), ...]}) from an edge list."""
+    if not isinstance(edges, list):
+        raise ComputeError("edges must be a list of [u, v] (or [u, v, weight])")
+    adj: dict[Any, list] = {}
+    nodes: set = set()
+    for e in edges:
+        if not isinstance(e, list) or len(e) < 2:
+            raise ComputeError(f"each edge needs at least [u, v]: {e!r}")
+        u, v = e[0], e[1]
+        w = _gw(e[2]) if weighted and len(e) >= 3 else 1
+        nodes.add(u)
+        nodes.add(v)
+        adj.setdefault(u, []).append((v, w))
+        adj.setdefault(v, []).append((u, w)) if not directed else None
+        if directed:
+            adj.setdefault(v, [])
+    return nodes, adj
+
+
+class _DSU:
+    """Union-find (disjoint set)."""
+
+    def __init__(self, items):
+        self.p = {x: x for x in items}
+
+    def find(self, x):
+        while self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]
+            x = self.p[x]
+        return x
+
+    def union(self, a, b):
+        ra, rb = self.find(a), self.find(b)
+        if ra != rb:
+            self.p[ra] = rb
+            return True
+        return False
+
+
+def shortest_path(edges: list, source: Any, target: Any, directed: bool = False,
+                  weighted: bool = False) -> ComputeResult:
+    """Shortest path source→target (Dijkstra if `weighted`, else BFS). Honest if unreachable."""
+    import heapq
+    t0 = time.perf_counter()
+    try:
+        nodes, adj = _graph(edges, directed=directed, weighted=weighted)
+        if source not in nodes:
+            raise ComputeError(f"source {source!r} is not a node")
+        if target not in nodes:
+            raise ComputeError(f"target {target!r} is not a node")
+    except ComputeError as exc:
+        return _error("shortest_path", str(exc), t0)
+    dist = {source: 0}
+    prev: dict[Any, Any] = {}
+    pq = [(0, 0, source)]           # (dist, tiebreak-counter, node) — deterministic order
+    counter = 1
+    seen = set()
+    while pq:
+        d, _, u = heapq.heappop(pq)
+        if u in seen:
+            continue
+        seen.add(u)
+        if u == target:
+            break
+        for v, w in sorted(adj.get(u, []), key=lambda t: (str(t[0]), t[1])):
+            nd = d + w
+            if v not in dist or nd < dist[v]:
+                dist[v] = nd
+                prev[v] = u
+                pq.append((nd, counter, v))
+                counter += 1
+                heapq.heapify(pq)
+    if target not in dist:
+        return ComputeResult("ok", "shortest_path", {"path": None, "length": None},
+                             f"no path from {source} to {target} (unreachable).", "OK", _meta(t0))
+    path = [target]
+    while path[-1] != source:
+        path.append(prev[path[-1]])
+    path.reverse()
+    result = {"path": path, "length": dist[target]}
+    return ComputeResult("ok", "shortest_path", result,
+                         f"length {dist[target]} via {len(path)} node(s).", "OK", _meta(t0))
+
+
+def connected_components(edges: list, nodes: list | None = None,
+                         directed: bool = False) -> ComputeResult:
+    """Connected components (weakly connected if `directed`). Returns count + is_connected + components."""
+    t0 = time.perf_counter()
+    try:
+        node_set, adj = _graph(edges, directed=False, weighted=False)  # weak connectivity
+        if nodes:
+            node_set |= set(nodes)
+    except ComputeError as exc:
+        return _error("connected_components", str(exc), t0)
+    if not node_set:
+        return _error("connected_components", "the graph has no nodes", t0)
+    dsu = _DSU(node_set)
+    for u in adj:
+        for v, _w in adj[u]:
+            dsu.union(u, v)
+    groups: dict[Any, list] = {}
+    for x in node_set:
+        groups.setdefault(dsu.find(x), []).append(x)
+    comps = [sorted(g, key=str) for g in groups.values()]
+    comps.sort(key=lambda g: str(g[0]))
+    result = {"count": len(comps), "is_connected": len(comps) == 1, "components": comps}
+    return ComputeResult("ok", "connected_components", result,
+                         f"{len(comps)} component(s); {'connected' if len(comps) == 1 else 'disconnected'}.",
+                         "OK", _meta(t0))
+
+
+def minimum_spanning_tree(edges: list) -> ComputeResult:
+    """Minimum spanning tree/forest (Kruskal, undirected). Returns the chosen edges + total weight."""
+    t0 = time.perf_counter()
+    try:
+        node_set, _adj = _graph(edges, directed=False, weighted=True)
+        parsed = []
+        for e in edges:
+            w = _gw(e[2]) if len(e) >= 3 else 1
+            parsed.append((w, e[0], e[1]))
+    except ComputeError as exc:
+        return _error("minimum_spanning_tree", str(exc), t0)
+    if not node_set:
+        return _error("minimum_spanning_tree", "the graph has no nodes", t0)
+    dsu = _DSU(node_set)
+    chosen = []
+    total = 0
+    for w, u, v in sorted(parsed, key=lambda t: (t[0], str(t[1]), str(t[2]))):
+        if dsu.union(u, v):
+            chosen.append([u, v, w])
+            total += w
+    connected = len(chosen) == len(node_set) - 1
+    result = {"edges": chosen, "total_weight": total, "spans_all": connected}
+    note = "" if connected else " (graph disconnected — spanning FOREST)"
+    return ComputeResult("ok", "minimum_spanning_tree", result,
+                         f"total weight {total}, {len(chosen)} edge(s){note}.", "OK", _meta(t0))
+
+
+def max_flow(edges: list, source: Any, sink: Any) -> ComputeResult:
+    """Maximum flow source→sink (Edmonds-Karp). By max-flow-min-cut, this equals the min-cut capacity.
+
+    Directed edges `[u, v, capacity]`.
+    """
+    from collections import deque
+    t0 = time.perf_counter()
+    try:
+        if source == sink:
+            raise ComputeError("source and sink must differ")
+        cap: dict = {}
+        nodes: set = set()
+        for e in edges:
+            if not isinstance(e, list) or len(e) < 3:
+                raise ComputeError(f"each edge needs [u, v, capacity]: {e!r}")
+            u, v, c = e[0], e[1], _gw(e[2])
+            if c < 0:
+                raise ComputeError("capacities must be non-negative")
+            cap[(u, v)] = cap.get((u, v), 0) + c
+            cap.setdefault((v, u), cap.get((v, u), 0))
+            nodes.add(u)
+            nodes.add(v)
+        if source not in nodes or sink not in nodes:
+            raise ComputeError("source/sink must be nodes of the graph")
+    except ComputeError as exc:
+        return _error("max_flow", str(exc), t0)
+    adj: dict = {}
+    for (u, v) in cap:
+        adj.setdefault(u, set()).add(v)
+    flow = 0
+    while True:
+        parent = {source: None}
+        q = deque([source])
+        while q:
+            u = q.popleft()
+            for v in sorted(adj.get(u, ()), key=str):
+                if v not in parent and cap[(u, v)] > 0:
+                    parent[v] = u
+                    q.append(v)
+        if sink not in parent:
+            break
+        # bottleneck
+        path_flow = None
+        v = sink
+        while v != source:
+            u = parent[v]
+            path_flow = cap[(u, v)] if path_flow is None else min(path_flow, cap[(u, v)])
+            v = u
+        v = sink
+        while v != source:
+            u = parent[v]
+            cap[(u, v)] -= path_flow
+            cap[(v, u)] += path_flow
+            v = u
+        flow += path_flow
+    return ComputeResult("ok", "max_flow", {"max_flow": flow, "min_cut": flow},
+                         f"max flow = min cut = {flow}.", "OK", _meta(t0))
+
+
+def maximum_matching(edges: list, left: list) -> ComputeResult:
+    """Maximum bipartite matching (Kuhn's augmenting paths). `left` = the left-partition nodes."""
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(left, list) or not left:
+            raise ComputeError("provide the left-partition node list")
+        left_set = set(left)
+        adj: dict = {u: [] for u in left_set}
+        for e in edges:
+            if not isinstance(e, list) or len(e) < 2:
+                raise ComputeError(f"each edge needs [u, v]: {e!r}")
+            u, v = e[0], e[1]
+            if u in left_set and v in left_set:
+                raise ComputeError(f"edge {e!r} is within the left partition (not bipartite)")
+            if u in left_set:
+                adj[u].append(v)
+            elif v in left_set:
+                adj[v].append(u)
+            else:
+                raise ComputeError(f"edge {e!r} touches no left node")
+    except ComputeError as exc:
+        return _error("maximum_matching", str(exc), t0)
+    match_r: dict = {}
+
+    def _try(u, visited):
+        for v in sorted(adj[u], key=str):
+            if v not in visited:
+                visited.add(v)
+                if v not in match_r or _try(match_r[v], visited):
+                    match_r[v] = u
+                    return True
+        return False
+
+    for u in sorted(left_set, key=str):
+        _try(u, set())
+    pairs = sorted(([u, v] for v, u in match_r.items()), key=lambda p: str(p[0]))
+    result = {"size": len(pairs), "matching": pairs}
+    return ComputeResult("ok", "maximum_matching", result,
+                         f"maximum matching size = {len(pairs)}.", "OK", _meta(t0))
+
+
+def is_isomorphic(edges1: list, edges2: list, nodes1: list | None = None,
+                  nodes2: list | None = None) -> ComputeResult:
+    """Are two (undirected) graphs isomorphic? Backtracking with degree pruning (small graphs)."""
+    t0 = time.perf_counter()
+
+    def _build(edges, extra):
+        nodes, _a = _graph(edges, directed=False, weighted=False)
+        if extra:
+            nodes |= set(extra)
+        adjset = {x: set() for x in nodes}
+        for e in edges:
+            adjset[e[0]].add(e[1])
+            adjset[e[1]].add(e[0])
+        return sorted(nodes, key=str), adjset
+
+    try:
+        n1, a1 = _build(edges1, nodes1)
+        n2, a2 = _build(edges2, nodes2)
+    except ComputeError as exc:
+        return _error("is_isomorphic", str(exc), t0)
+    if len(n1) > 10:
+        return _error("is_isomorphic", "graphs too large for the backtracking check (>10 nodes)",
+                      t0, "COMPUTE_FAILED")
+    e1 = sum(len(a1[x]) for x in n1) // 2
+    e2 = sum(len(a2[x]) for x in n2) // 2
+    deg1 = sorted(len(a1[x]) for x in n1)
+    deg2 = sorted(len(a2[x]) for x in n2)
+    if len(n1) != len(n2) or e1 != e2 or deg1 != deg2:
+        return ComputeResult("ok", "is_isomorphic", {"isomorphic": False, "mapping": None},
+                             "not isomorphic (node/edge count or degree sequence differ).",
+                             "OK", _meta(t0))
+    mapping: dict = {}
+    used: set = set()
+
+    def _bt(i):
+        if i == len(n1):
+            return True
+        u = n1[i]
+        for v in n2:
+            if v in used or len(a1[u]) != len(a2[v]):
+                continue
+            ok = all((mapping[w] in a2[v]) for w in a1[u] if w in mapping)
+            if ok:
+                mapping[u] = v
+                used.add(v)
+                if _bt(i + 1):
+                    return True
+                used.discard(v)
+                del mapping[u]
+        return False
+
+    if _bt(0):
+        return ComputeResult("ok", "is_isomorphic",
+                             {"isomorphic": True, "mapping": {str(k): str(v) for k, v in mapping.items()}},
+                             "isomorphic (an explicit mapping was found).", "OK", _meta(t0))
+    return ComputeResult("ok", "is_isomorphic", {"isomorphic": False, "mapping": None},
+                         "not isomorphic (no adjacency-preserving bijection exists).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

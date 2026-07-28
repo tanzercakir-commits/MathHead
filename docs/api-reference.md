@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **103 tools**.
+Total **109 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -373,6 +373,30 @@ Characteristic polynomial det(A − λI) of a square matrix. E.g. diag(2,3) → 
 ### `least_squares(matrix, rhs)`
 
 Least-squares solution of A·x ≈ b (minimizes ‖A·x − b‖) for overdetermined systems.
+
+### `shortest_path(edges, source, target, directed=False, weighted=False)`
+
+Shortest path source→target. Edges `[u,v]` or `[u,v,weight]` (set `weighted`). Dijkstra/BFS.
+
+### `connected_components(edges, nodes=None, directed=False)`
+
+Connected components → `{count, is_connected, components}`. `nodes` adds isolated vertices.
+
+### `minimum_spanning_tree(edges)`
+
+Minimum spanning tree/forest (Kruskal). Edges `[u,v,weight]` → `{edges, total_weight, spans_all}`.
+
+### `max_flow(edges, source, sink)`
+
+Maximum flow source→sink (Edmonds-Karp). Directed `[u,v,capacity]`. Equals the min-cut capacity.
+
+### `maximum_matching(edges, left)`
+
+Maximum bipartite matching (Kuhn). `left` = the left-partition nodes → `{size, matching}`.
+
+### `is_isomorphic(edges1, edges2, nodes1=None, nodes2=None)`
+
+Are two undirected graphs isomorphic? Backtracking + degree pruning (≤10 nodes) → `{isomorphic, mapping}`.
 
 ### `mean(data)`
 

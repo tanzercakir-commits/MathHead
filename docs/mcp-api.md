@@ -247,6 +247,12 @@ normalize=True)`, `pseudoinverse` (A⁺), `matrix_exponential` (e^A), `jordan_fo
 `characteristic_polynomial(matrix, symbol="lambda")`, `least_squares(matrix, rhs)`. All symbolic
 (exact); a precondition failure (e.g. non-positive-definite Cholesky) is an honest `COMPUTE_FAILED`.
 
+**Graph theory (E3, pure stdlib):** `shortest_path(edges, source, target, directed, weighted)`
+(Dijkstra/BFS; `{path,length}`, honest `null` if unreachable), `connected_components(edges, nodes)`,
+`minimum_spanning_tree(edges)` (Kruskal), `max_flow(edges, source, sink)` (Edmonds-Karp = min cut),
+`maximum_matching(edges, left)` (bipartite, Kuhn), `is_isomorphic(edges1, edges2)` (backtracking,
+≤10 nodes). Edges are `[u,v]` or `[u,v,weight]`; nodes are ints or strings.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

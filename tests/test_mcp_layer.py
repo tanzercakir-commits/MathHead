@@ -120,6 +120,16 @@ ARGS = {
     "permutation_compose": {"permutations": [[1, 2, 0], [1, 0, 2]]},
     "group_order": {"name": "symmetric", "degree": 3},
     "generated_group": {"generators": [[1, 2, 0], [1, 0, 2]]},
+    # linear algebra III
+    "singular_values": {"matrix": [["4", "0"], ["3", "-5"]]},
+    "qr_decomposition": {"matrix": [["1", "1"], ["0", "1"], ["1", "0"]]},
+    "cholesky_decomposition": {"matrix": [["4", "2"], ["2", "3"]]},
+    "gram_schmidt": {"vectors": [["1", "1", "0"], ["1", "0", "1"]], "normalize": True},
+    "pseudoinverse": {"matrix": [["1"], ["2"]]},
+    "matrix_exponential": {"matrix": [["0", "1"], ["0", "0"]]},
+    "jordan_form": {"matrix": [["2", "1"], ["0", "2"]]},
+    "characteristic_polynomial": {"matrix": [["2", "0"], ["0", "3"]], "symbol": "lambda"},
+    "least_squares": {"matrix": [["1", "1"], ["1", "2"], ["1", "3"]], "rhs": ["1", "2", "2"]},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

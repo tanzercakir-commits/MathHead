@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — E2 · linear algebra III (decompositions & matrix functions)
+
+**Done — 9 new compute tools (103 total — crossed 100):**
+
+- `singular_values`, `qr_decomposition` (→ {Q, R}), `cholesky_decomposition` (→ {L}),
+  `gram_schmidt` (orthonormal), `pseudoinverse` (A⁺), `matrix_exponential` (e^A),
+  `jordan_form` (→ {P, J}), `characteristic_polynomial`, `least_squares`.
+- All symbolic/exact (SymPy). Preconditions checked honestly: Cholesky requires
+  symmetric positive-definite (else COMPUTE_FAILED); exp/Jordan/charpoly require square.
+- Wired router + MCP (103 tools) + CLI (`singular-values`/`qr`/`cholesky`/`gram-schmidt`/
+  `pinv`/`matrix-exp`/`jordan`/`charpoly`/`least-squares`) + `tests/test_linalg3.py` (14)
+  → **723/723 green**.
+
+**Verified:** σ([4,0;3,−5]) = [2√10, √10]; Q·R reconstructs A (checked in-test); Cholesky
+[4,2;2,3]=[2,0;1,√2]; e^[[0,1],[0,0]]=[[1,1],[0,1]]; charpoly diag(2,3)=λ²−5λ+6; least
+squares through (1,1),(2,2),(3,2) → intercept 2/3, slope 1/2.
+
+**Next:** E3 — graph theory (shortest path, connectivity, matching, max-flow/min-cut, MST, isomorphism).
+
 ## 2026-07-28 — E1 · abstract algebra: permutation groups (Track E begins)
 
 **Done — 5 new compute tools (94 total):**

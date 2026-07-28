@@ -1631,6 +1631,176 @@ def generated_group(generators: list) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# E2 — linear algebra III: decompositions & matrix functions (SVD singular values,
+# QR, Cholesky, Gram-Schmidt, pseudo-inverse, matrix exp, Jordan form, char.
+# polynomial, least squares). All symbolic (exact) via SymPy; honest errors when a
+# decomposition's precondition fails (e.g. Cholesky needs positive-definite).
+# --------------------------------------------------------------------------- #
+def singular_values(matrix: list[list[str]]) -> ComputeResult:
+    """Singular values σᵢ of a matrix (√ of the eigenvalues of AᵀA), largest first."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("singular_values", str(exc), t0)
+    try:
+        result = [str(s) for s in M.singular_values()]
+    except Exception as exc:  # noqa: BLE001
+        return _error("singular_values", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "singular_values", result,
+                         f"{len(result)} singular value(s).", "OK", _meta(t0))
+
+
+def qr_decomposition(matrix: list[list[str]]) -> ComputeResult:
+    """QR decomposition A = Q·R (Q orthonormal columns, R upper-triangular)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("qr_decomposition", str(exc), t0)
+    try:
+        Q, R = M.QRdecomposition()
+        result = {"Q": _mat_out(Q), "R": _mat_out(R)}
+    except Exception as exc:  # noqa: BLE001
+        return _error("qr_decomposition", f"could not decompose: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "qr_decomposition", result, "A = Q·R.", "OK", _meta(t0))
+
+
+def cholesky_decomposition(matrix: list[list[str]]) -> ComputeResult:
+    """Cholesky decomposition A = L·Lᵀ (L lower-triangular). Needs symmetric positive-definite."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("cholesky_decomposition", str(exc), t0)
+    try:
+        L = M.cholesky()
+        result = {"L": _mat_out(L)}
+    except Exception as exc:  # noqa: BLE001
+        return _error("cholesky_decomposition",
+                      f"not symmetric positive-definite (Cholesky requires it): {exc}",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "cholesky_decomposition", result, "A = L·Lᵀ.", "OK", _meta(t0))
+
+
+def gram_schmidt(vectors: list[list[str]], normalize: bool = True) -> ComputeResult:
+    """Gram-Schmidt orthogonalization of a list of vectors (orthonormal if `normalize`)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(vectors, list) or not vectors:
+            raise ComputeError("provide at least one vector")
+        cols = [sympy.Matrix([_parse(c, syms) for c in v]) for v in vectors]
+    except ComputeError as exc:
+        return _error("gram_schmidt", str(exc), t0)
+    try:
+        from sympy import GramSchmidt
+        ortho = GramSchmidt(cols, bool(normalize))
+        result = [[str(x) for x in vec] for vec in ortho]
+    except Exception as exc:  # noqa: BLE001
+        return _error("gram_schmidt", f"could not orthogonalize (are the vectors independent?): {exc}",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "gram_schmidt", result,
+                         f"{len(result)} orthogonal{'/normal' if normalize else ''} vector(s).",
+                         "OK", _meta(t0))
+
+
+def pseudoinverse(matrix: list[list[str]]) -> ComputeResult:
+    """Moore-Penrose pseudo-inverse A⁺ (generalizes the inverse to non-square/singular A)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("pseudoinverse", str(exc), t0)
+    try:
+        result = _mat_out(M.pinv())
+    except Exception as exc:  # noqa: BLE001
+        return _error("pseudoinverse", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "pseudoinverse", result,
+                         f"A⁺ = {len(result)}×{len(result[0])} matrix.", "OK", _meta(t0))
+
+
+def matrix_exponential(matrix: list[list[str]]) -> ComputeResult:
+    """Matrix exponential e^A (square matrix). E.g. e^[[0,1],[0,0]] = [[1,1],[0,1]]."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("matrix must be square")
+    except ComputeError as exc:
+        return _error("matrix_exponential", str(exc), t0)
+    try:
+        result = _mat_out(M.exp())
+    except Exception as exc:  # noqa: BLE001
+        return _error("matrix_exponential", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "matrix_exponential", result, "e^A.", "OK", _meta(t0))
+
+
+def jordan_form(matrix: list[list[str]]) -> ComputeResult:
+    """Jordan canonical form A = P·J·P⁻¹ → returns `{P, J}` (J block-diagonal)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("matrix must be square")
+    except ComputeError as exc:
+        return _error("jordan_form", str(exc), t0)
+    try:
+        P, J = M.jordan_form()
+        result = {"P": _mat_out(P), "J": _mat_out(J)}
+    except Exception as exc:  # noqa: BLE001
+        return _error("jordan_form", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "jordan_form", result, "A = P·J·P⁻¹ (Jordan form).", "OK", _meta(t0))
+
+
+def characteristic_polynomial(matrix: list[list[str]], symbol: str = "lambda") -> ComputeResult:
+    """Characteristic polynomial det(A − λI) of a square matrix (variable `symbol`)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("matrix must be square")
+        lam = sympy.Symbol(symbol)
+    except ComputeError as exc:
+        return _error("characteristic_polynomial", str(exc), t0)
+    try:
+        result = str(M.charpoly(lam).as_expr())
+    except Exception as exc:  # noqa: BLE001
+        return _error("characteristic_polynomial", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "characteristic_polynomial", result,
+                         f"det(A − {symbol}·I) = {result}.", "OK", _meta(t0))
+
+
+def least_squares(matrix: list[list[str]], rhs: list[str]) -> ComputeResult:
+    """Least-squares solution of A·x ≈ b (minimizes ‖A·x − b‖) — overdetermined systems."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        A = _parse_matrix(matrix, syms)
+        if not isinstance(rhs, list) or not rhs:
+            raise ComputeError("the right-hand side vector cannot be empty")
+        if len(rhs) != A.rows:
+            raise ComputeError(f"rhs length {len(rhs)} != number of rows {A.rows}")
+        b = sympy.Matrix([_parse(v, syms) for v in rhs])
+    except ComputeError as exc:
+        return _error("least_squares", str(exc), t0)
+    try:
+        x = A.solve_least_squares(b)
+        result = [str(v) for v in x]
+    except Exception as exc:  # noqa: BLE001
+        return _error("least_squares", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "least_squares", result,
+                         f"least-squares solution ({len(result)} component(s)).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

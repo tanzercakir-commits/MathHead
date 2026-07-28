@@ -752,6 +752,61 @@ def generated_group(generators: list) -> dict[str, Any]:
     return asdict(route("generated_group", {"generators": generators}))
 
 
+# -------------------- Linear algebra III (decompositions) ----------------- #
+@mcp.tool()
+def singular_values(matrix: list[list[str]]) -> dict[str, Any]:
+    """Singular values σᵢ of a matrix (largest first). E.g. `[[4,0],[3,-5]]` → `[2*sqrt(10), sqrt(10)]`."""
+    return asdict(route("singular_values", {"matrix": matrix}))
+
+
+@mcp.tool()
+def qr_decomposition(matrix: list[list[str]]) -> dict[str, Any]:
+    """QR decomposition A = Q·R (Q orthonormal columns, R upper-triangular) → `{Q, R}`."""
+    return asdict(route("qr_decomposition", {"matrix": matrix}))
+
+
+@mcp.tool()
+def cholesky_decomposition(matrix: list[list[str]]) -> dict[str, Any]:
+    """Cholesky A = L·Lᵀ (L lower-triangular) → `{L}`. Needs symmetric positive-definite (else error)."""
+    return asdict(route("cholesky_decomposition", {"matrix": matrix}))
+
+
+@mcp.tool()
+def gram_schmidt(vectors: list[list[str]], normalize: bool = True) -> dict[str, Any]:
+    """Gram-Schmidt orthogonalization of a list of vectors (orthonormal if `normalize`)."""
+    return asdict(route("gram_schmidt", {"vectors": vectors, "normalize": normalize}))
+
+
+@mcp.tool()
+def pseudoinverse(matrix: list[list[str]]) -> dict[str, Any]:
+    """Moore-Penrose pseudo-inverse A⁺ (works for non-square / singular A)."""
+    return asdict(route("pseudoinverse", {"matrix": matrix}))
+
+
+@mcp.tool()
+def matrix_exponential(matrix: list[list[str]]) -> dict[str, Any]:
+    """Matrix exponential e^A (square). E.g. `[[0,1],[0,0]]` → `[[1,1],[0,1]]`."""
+    return asdict(route("matrix_exponential", {"matrix": matrix}))
+
+
+@mcp.tool()
+def jordan_form(matrix: list[list[str]]) -> dict[str, Any]:
+    """Jordan canonical form A = P·J·P⁻¹ (J block-diagonal) → `{P, J}`."""
+    return asdict(route("jordan_form", {"matrix": matrix}))
+
+
+@mcp.tool()
+def characteristic_polynomial(matrix: list[list[str]], symbol: str = "lambda") -> dict[str, Any]:
+    """Characteristic polynomial det(A − λI) of a square matrix. E.g. diag(2,3) → `lambda**2 - 5*lambda + 6`."""
+    return asdict(route("characteristic_polynomial", {"matrix": matrix, "symbol": symbol}))
+
+
+@mcp.tool()
+def least_squares(matrix: list[list[str]], rhs: list[str]) -> dict[str, Any]:
+    """Least-squares solution of A·x ≈ b (minimizes ‖A·x − b‖) for overdetermined systems."""
+    return asdict(route("least_squares", {"matrix": matrix, "rhs": rhs}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

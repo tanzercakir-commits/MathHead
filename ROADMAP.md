@@ -147,8 +147,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 ```
 [x] E1 🟡 Abstract algebra — permutation groups: order/parity/compose, named-group order (+abelian),
           generated-group order ✅ (94 tools). 🔴 full ring/field structure theory deferred
-[ ] E2 🟢 Linear algebra III — SVD, QR, Cholesky, Gram-Schmidt, least squares,
-          pseudo-inverse, matrix exponential (exp), Jordan form, characteristic/minimal polynomial
+[x] E2 🟢 Linear algebra III — singular values, QR, Cholesky, Gram-Schmidt, least squares,
+          pseudo-inverse, matrix exp, Jordan form, characteristic polynomial ✅ (103 tools)
 [ ] E3 🟡 Graph theory — shortest path, connectivity, matching, max-flow/min-cut,
           MST, isomorphism
 [ ] E4 🟡 Number theory II — continued fractions, quadratic residue, primitive root, Pell, Euler φ / Möbius

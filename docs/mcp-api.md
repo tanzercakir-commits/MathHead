@@ -241,6 +241,12 @@ groups `symmetric`/`alternating`/`cyclic`/`dihedral` → order + abelian), `gene
 (order + abelian + degree). Permutations are in **array form** — the 0-indexed image list, e.g.
 `[1,2,0]` is the cycle (0 1 2).
 
+**Linear algebra III (E2):** `singular_values`, `qr_decomposition` (→ `{Q, R}`),
+`cholesky_decomposition` (→ `{L}`; symmetric positive-definite required), `gram_schmidt(vectors,
+normalize=True)`, `pseudoinverse` (A⁺), `matrix_exponential` (e^A), `jordan_form` (→ `{P, J}`),
+`characteristic_polynomial(matrix, symbol="lambda")`, `least_squares(matrix, rhs)`. All symbolic
+(exact); a precondition failure (e.g. non-positive-definite Cholesky) is an honest `COMPUTE_FAILED`.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

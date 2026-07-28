@@ -432,6 +432,36 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("gen-group", help="group order from generators (multiple --gen)")
     p.add_argument("--gen", action="append", default=[], required=True, metavar="PERM")
 
+    p = sub.add_parser("singular-values", help="singular values of a matrix ('1,2;3,4')")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("qr", help="QR decomposition (A = Q·R)")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("cholesky", help="Cholesky (symmetric positive-definite)")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("gram-schmidt", help="Gram-Schmidt (multiple --vec 'a,b,c')")
+    p.add_argument("--vec", action="append", default=[], required=True, metavar="VECTOR")
+    p.add_argument("--no-normalize", action="store_true", help="orthogonal but not normalized")
+
+    p = sub.add_parser("pinv", help="Moore-Penrose pseudo-inverse")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("matrix-exp", help="matrix exponential e^A")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("jordan", help="Jordan canonical form")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("charpoly", help="characteristic polynomial det(A - λI)")
+    p.add_argument("matrix", metavar="MATRIX")
+    p.add_argument("--symbol", default="lambda")
+
+    p = sub.add_parser("least-squares", help="least-squares solution A x ≈ b")
+    p.add_argument("matrix", metavar="MATRIX")
+    p.add_argument("rhs", nargs="+", metavar="B")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -611,6 +641,19 @@ _DISPATCH = {
     "group-order": lambda a: ("group_order", {"name": a.name, "degree": a.degree}),
     "gen-group": lambda a: ("generated_group",
                             {"generators": [g.split(",") for g in a.gen]}),
+    "singular-values": lambda a: ("singular_values", {"matrix": _matrix(a.matrix)}),
+    "qr": lambda a: ("qr_decomposition", {"matrix": _matrix(a.matrix)}),
+    "cholesky": lambda a: ("cholesky_decomposition", {"matrix": _matrix(a.matrix)}),
+    "gram-schmidt": lambda a: ("gram_schmidt",
+                               {"vectors": [v.split(",") for v in a.vec],
+                                "normalize": not a.no_normalize}),
+    "pinv": lambda a: ("pseudoinverse", {"matrix": _matrix(a.matrix)}),
+    "matrix-exp": lambda a: ("matrix_exponential", {"matrix": _matrix(a.matrix)}),
+    "jordan": lambda a: ("jordan_form", {"matrix": _matrix(a.matrix)}),
+    "charpoly": lambda a: ("characteristic_polynomial",
+                           {"matrix": _matrix(a.matrix), "symbol": a.symbol}),
+    "least-squares": lambda a: ("least_squares",
+                                {"matrix": _matrix(a.matrix), "rhs": a.rhs}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

@@ -277,6 +277,26 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "generated_group":
         return compute.generated_group(payload["generators"])
 
+    # --- Linear algebra III (decompositions & matrix functions) ---
+    if task == "singular_values":
+        return compute.singular_values(payload["matrix"])
+    if task == "qr_decomposition":
+        return compute.qr_decomposition(payload["matrix"])
+    if task == "cholesky_decomposition":
+        return compute.cholesky_decomposition(payload["matrix"])
+    if task == "gram_schmidt":
+        return compute.gram_schmidt(payload["vectors"], payload.get("normalize", True))
+    if task == "pseudoinverse":
+        return compute.pseudoinverse(payload["matrix"])
+    if task == "matrix_exponential":
+        return compute.matrix_exponential(payload["matrix"])
+    if task == "jordan_form":
+        return compute.jordan_form(payload["matrix"])
+    if task == "characteristic_polynomial":
+        return compute.characteristic_polynomial(payload["matrix"], payload.get("symbol", "lambda"))
+    if task == "least_squares":
+        return compute.least_squares(payload["matrix"], payload["rhs"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

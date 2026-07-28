@@ -47,6 +47,7 @@ ARGS = {
     "verify_matrix_identity": {"left": [["1", "2"], ["3", "4"]], "right": [["1", "2"], ["3", "4"]]},
     "check_certificate": {"certificate": {"kind": "subset_sum", "numbers": [3, 4, 2],
                                           "target": 9, "indices": [0, 1, 2]}},
+    "interpret_natural": {"text": "derivative of x**3 with respect to x"},
     # hesap
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},

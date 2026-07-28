@@ -178,7 +178,8 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
 ```
 [x] I1 🟢 Yeni iddia türleri — verify_limit / verify_derivative / verify_integral /
           verify_series / verify_matrix_identity ✅ (69 araç; +C sabit farkı dürüst)
-[ ] I2 🔴 Doğal dil → formal (NL→formal) + GERİ-çeviri doğrulaması (round-trip; "2. duvar"a doğrudan)
+[x] I2 🔴 Doğal dil → formal + GERİ-çeviri (round-trip) ✅ (70 araç; TANI-YA-DA-REDDET,
+          bilingual TR+EN, tahmin YOK — "2. duvar"a panzehir)
 [ ] I3 🟡 Tam türetim ispat denetimi — çok adımlı çözümde her adımın gerekçesini denetle (kural bazlı)
 [ ] I4 🟡 Sertifika genişletme (C2 devamı) — matris / sayı teorisi / olasılık sertifikaları (stdlib)
 [ ] I5 [S] Sağlamlaştırma

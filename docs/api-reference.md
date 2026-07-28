@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **69 araç**.
+Toplam **70 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -89,6 +89,10 @@ Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur
 ### `verify_matrix_identity(left, right)`
 
 İki matris (sembolik hücreler dahil) EŞİT mi? Boyut/ilk farklı hücre raporlanır.
+
+### `interpret_natural(text)`
+
+Doğal dildeki matematik ifadesini FORMAL göreve çevirir (tanı-ya-da-reddet).
 
 ### `check_certificate(certificate)`
 

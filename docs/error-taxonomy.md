@@ -90,6 +90,11 @@ DOĞRULAMA KATMANI (Track C — AI muhakeme denetçisi)
 BAĞIMSIZ SERTİFİKA (Track C2 — stdlib checker)
   CERTIFICATE_VALID      · sertifika bağımsız doğrulandı (verified)
   CERTIFICATE_INVALID    · sertifika çürütüldü (refuted)
+
+DOĞAL DİL → FORMAL (I2 — tanı-ya-da-reddet)
+  UNDERSTOOD             · NL formal göreve çevrildi (ok) + round-trip restatement
+  AMBIGUOUS              · birden çok yorum, netleştir (unknown)
+  UNRECOGNIZED           · tanınmadı, tahmin edilmez (error)
 ```
 
 **Değişmez (test_taxonomy):** her araç çağrısı yalnız yukarıdaki `status` ve

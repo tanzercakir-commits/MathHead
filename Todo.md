@@ -59,7 +59,7 @@
 ### D–K roadmap ONAYLANDI (a: hepsi, önerilen sıra I→D→E→F→G→H→J→K). Kalite>hız.
 
 - [x] **I1** yeni doğrulama türleri (türev/integral/limit/seri/matris) ✅ (505 test, 69 araç)
-- [ ] **I2** doğal dil → formal + round-trip (🔴 "2. duvar", dikkatli)
+- [x] **I2** doğal dil → formal + round-trip ✅ (523 test, 70 araç, tanı-ya-da-reddet)
 - [ ] **I3** tam türetim ispat denetimi · **I4** sertifika genişletme · **I5** [S]
 - [ ] sonra: D → E → F → G → H → J → K (ROADMAP'te tam liste)
 

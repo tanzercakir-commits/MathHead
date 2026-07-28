@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Doğal dil → formal (`interpret_natural`):** ROADMAP I2 — "2. duvar"a (fazla
+  varsayım) panzehir. Kurallı, bilingual (TR+EN), **TANI-YA-DA-REDDET**: tanınmayan/
+  belirsiz girdide tahmin etmez (`UNRECOGNIZED`/`AMBIGUOUS`). Anladığında
+  **round-trip restatement** ile ne anlaşıldığını NL geri-ifade eder (onayla-sonra-
+  güven). Tanınan: türev/integral/limit/çözme/çarpanlara ayırma/asallık/EBOB/denklik.
+  Yeni `core/nl.py`. MCP (**70 araç**) + CLI (`interpret`) + 18 test. 3 yeni reason_code.
 - **Doğrulama katmanı II — kalkülüs & matris iddiaları (`verify_derivative`,
   `verify_integral`, `verify_limit`, `verify_series`, `verify_matrix_identity`):**
   ROADMAP I1. AI'ın türev/integral/limit/Taylor-seri/matris-özdeşliği iddialarını

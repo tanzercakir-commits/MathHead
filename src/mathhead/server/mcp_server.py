@@ -239,6 +239,19 @@ def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> dic
 
 
 @mcp.tool()
+def interpret_natural(text: str) -> dict[str, Any]:
+    """Doğal dildeki matematik ifadesini FORMAL göreve çevirir (tanı-ya-da-reddet).
+
+    "2. duvara" (fazla varsayım) panzehir: TAHMİN ETMEZ. ok+`UNDERSTOOD` →
+    `interpretation` {task, payload, **restatement**} — restatement, ne anlaşıldığının
+    NL yeniden ifadesidir (GÜVENMEDEN ÖNCE onayla, sonra o task+payload'ı çağır).
+    unknown+`AMBIGUOUS` → birden çok yorum; error+`UNRECOGNIZED` → tanınmadı (formal yaz).
+    Bilingual (TR+EN): türev/integral/limit/çözme/çarpanlara ayırma/asallık/EBOB/denklik.
+    """
+    return asdict(route("interpret_natural", {"text": text}))
+
+
+@mcp.tool()
 def check_certificate(certificate: dict[str, Any]) -> dict[str, Any]:
     """Bir sonucu ÜRETEN motordan (Z3/SymPy) BAĞIMSIZ, yalnız stdlib ile doğrular.
 

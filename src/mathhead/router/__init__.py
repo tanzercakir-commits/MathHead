@@ -37,6 +37,7 @@ from mathhead.core.logic import (
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.core.crosscheck import cross_check
+from mathhead.core.nl import NLResult, interpret
 from mathhead.core.verify import (
     VerifyResult,
     verify_derivative,
@@ -62,7 +63,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
-    | VerifyResult | CertificateResult
+    | VerifyResult | CertificateResult | NLResult
 ):
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
@@ -120,6 +121,8 @@ def route(task: str, payload: dict[str, Any]) -> (
         return verify_matrix_identity(payload["left"], payload["right"])
     if task == "check_certificate":
         return check_certificate(payload["certificate"])
+    if task == "interpret_natural":
+        return interpret(payload["text"])
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

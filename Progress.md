@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — I2 · doğal dil → formal (tanı-ya-da-reddet + round-trip)
+
+**Yapıldı**
+
+- Yeni `core/nl.py` + `interpret`: kurallı, bilingual (TR+EN) NL→formal.
+  **Tasarım ilkesi TANI-YA-DA-REDDET** (tahmin yok — "2. duvar"/fazla varsayıma
+  panzehir). Round-trip: formal→NL `restatement` ("ne anladım", onayla-sonra-güven).
+- Uçtan uca: router (1) + MCP (**70 araç**) + CLI (`interpret`) + `tests/test_nl.py`
+  (18) + 3 reason_code (UNDERSTOOD/AMBIGUOUS/UNRECOGNIZED) → **523/523 yeşil**.
+
+**Doğrulandı (dürüstlük merkezde)**
+
+- TR postfix ("x**3 ifadesinin x e göre türevi"), TR EBOB postfix, EN öntakılı
+  hepsi anlaşılıyor; `restatement` ne anlaşıldığını geri-ifade ediyor.
+- **TAHMİN YOK:** tanınmayan cümle → `UNRECOGNIZED` (interpretation=None); salt
+  ifade ("x squared plus one") reddediliyor; iki-yorumlu ("factorize 91 is 91
+  prime") → `AMBIGUOUS` (aday listesi, netleştir). Sonsuz kelimesi → oo.
+
+**Not:** MathHead tam NL ayrıştırıcı OLMAYA çalışmıyor (o LLM'in işi + varsayım
+kaynağı); yalnız şeffaf, sınırlı, onaylanabilir bir köprü. Dürüst kapsam.
+
+**Sıradaki:** I3 tam türetim ispat denetimi (kural bazlı).
+
 ## 2026-07-28 — I1 · doğrulama katmanı II (kalkülüs & matris iddiaları)
 
 **Bağlam:** Kullanıcı D–K roadmap'ini (a) onayladı, önerilen sırayla (I→D→…→K),

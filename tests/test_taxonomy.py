@@ -37,6 +37,8 @@ ALLOWED_REASON = frozenset({
     "SINGLE_ENGINE", "CROSS_UNDECIDED",
     # bağımsız sertifika (Track C2)
     "CERTIFICATE_VALID", "CERTIFICATE_INVALID",
+    # doğal dil → formal (I2)
+    "UNDERSTOOD", "AMBIGUOUS", "UNRECOGNIZED",
 })
 
 _ERROR_STATUS = {"error"}
@@ -119,6 +121,9 @@ CALLS = [
     ("verify_series", {"expression": "exp(x)", "symbol": "x", "point": "0", "order": 3,
                        "claimed": "x**2 + x + 1"}),                          # invalid
     ("verify_matrix_identity", {"left": [["1", "2"]], "right": [["1"], ["2"]]}),      # invalid (dim)
+    ("interpret_natural", {"text": "derivative of x**3 with respect to x"}),   # understood
+    ("interpret_natural", {"text": "factorize 91 is 91 prime"}),               # ambiguous
+    ("interpret_natural", {"text": "anlamsız cümle"}),                         # unrecognized
 ]
 
 

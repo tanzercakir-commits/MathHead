@@ -56,6 +56,8 @@ def _emit(result: Any, as_json: bool) -> int:
         if "verified" in data:
             exact = "tam" if data.get("exact") else "sayısal"
             print(f"doğrulama: {data['verified']} ({exact})")
+        if data.get("interpretation") is not None:
+            print(f"yorum    : {data['interpretation']}")
         if data.get("result") is not None:
             print(f"sonuç    : {data['result']}")
         if data.get("used_premises") is not None:
@@ -180,6 +182,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("verify-matrix", help="matris özdeşliği denetle ('1,2;3,4')")
     p.add_argument("left", metavar="SOL"); p.add_argument("right", metavar="SAĞ")
+
+    p = sub.add_parser("interpret", help="doğal dili formal göreve çevir (tanı-ya-da-reddet)")
+    p.add_argument("text", metavar="METİN", help="ör. 'x**3 ifadesinin x e göre türevi'")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -391,6 +396,7 @@ _DISPATCH = {
                                 "point": a.point, "order": a.order, "claimed": a.claimed}),
     "verify-matrix": lambda a: ("verify_matrix_identity", {"left": _matrix(a.left),
                                 "right": _matrix(a.right)}),
+    "interpret": lambda a: ("interpret_natural", {"text": a.text}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

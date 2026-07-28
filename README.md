@@ -59,6 +59,10 @@ verify_derivative("x**3", "x", "3*x**2")          # -> valid (türev doğru)
 verify_integral("2*x", "x", "x**2 + 5")           # -> valid (+C sabit farkı hoşgörülür)
 verify_limit("sin(x)/x", "x", "0", "1")           # -> valid (limit doğru)
 
+from mathhead.core.nl import interpret            # DOĞAL DİL → formal (tanı-ya-da-reddet)
+interpret("x**3 ifadesinin x e göre türevi")      # -> UNDERSTOOD + "ne anladım" (onayla-sonra-güven)
+interpret("anlamsız cümle")                       # -> UNRECOGNIZED (TAHMİN YOK)
+
 from mathhead.certificate import check_certificate  # BAĞIMSIZ checker (z3/sympy YOK)
 check_certificate({"kind":"subset_sum","numbers":[3,4,2],"target":9,"indices":[0,1,2]})  # verified
 check_certificate({"kind":"solution","expression":"x**2 - 4","symbol":"x","value":"3"})  # refuted
@@ -161,7 +165,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 69 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 70 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 ├── benchmarks/          · LLM-tuzak seti + harness (%100 yakalama, Track C4)
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)

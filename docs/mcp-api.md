@@ -356,6 +356,7 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
 | `verify_series` | `verify_series(expression, symbol, point, order, claimed)` | `exp(x)`,`x`,`0`,`3`,`x**2/2+x+1` → `EQUAL` |
 | `verify_matrix_identity` | `verify_matrix_identity(left, right)` | `[[a+a]]` vs `[[2*a]]` → `EQUAL` (sembolik) |
 | `check_certificate` | `check_certificate(certificate)` | `{kind:"subset_sum",...}` → `verified`/`refuted` (BAĞIMSIZ) |
+| `interpret_natural` | `interpret_natural(text)` | `"x**3 ifadesinin x e göre türevi"` → `UNDERSTOOD` + restatement |
 
 **Neden öne geçirir (naif kontrolün kaçırdıkları):**
 
@@ -378,6 +379,11 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
   (iddia ≟ bağımsız hesaplanan doğru → `EQUAL`/`NOT_EQUAL`/`UNDECIDED`, `details.correct`
   doğru değeri verir). `verify_integral` **türev-alıp-karşılaştır** yöntemiyle +C
   sabit farkını dürüstçe hoş görür.
+- `interpret_natural` doğal dili (TR+EN) formal göreve çevirir ama **TANI-YA-DA-
+  REDDET**: tanınmayan/belirsiz girdide tahmin etmez (`UNRECOGNIZED`/`AMBIGUOUS`).
+  Anladığında `interpretation.restatement` ile **ne anlaşıldığını NL geri-ifade**
+  eder — çağıran güvenmeden önce onaylar ("2. duvar"a panzehir). Sonra dönen
+  `task`+`payload` ilgili formal araca verilir.
 - `check_certificate` bir sonucu, onu üreten motordan (Z3/SymPy) **BAĞIMSIZ**,
   yalnız Python **stdlib** ile (`ast`+`fractions`, mümkünse tam aritmetik)
   yeniden doğrular: `verified`/`refuted`. "Bize güvenme, checker'ı çalıştır."

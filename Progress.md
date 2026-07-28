@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — E1 · abstract algebra: permutation groups (Track E begins)
+
+**Done — 5 new compute tools (94 total):**
+
+- `permutation_order`, `permutation_parity` (even/odd), `permutation_compose`
+  (left-to-right → result array + order), `group_order(name, degree)` (named groups
+  symmetric/alternating/cyclic/dihedral → order + abelian), `generated_group(generators)`.
+- Backed by `sympy.combinatorics`; permutations in **array form** (0-indexed image list).
+  Invalid permutations (non-bijections) and unknown group names are rejected honestly.
+- Wired router + MCP (94 tools) + CLI (`perm-order`/`perm-parity`/`perm-compose`/
+  `group-order`/`gen-group`) + `tests/test_algebra.py` (18) → **691/691 green**.
+
+**Verified:** order of (0 1 2) = 3; 3-cycle even, transposition odd; |S₃|=6 non-abelian,
+|A₄|=12, |C₆|=6 abelian, |Dₙ|=2n; a 3-cycle + a transposition generate S₃ (order 6).
+
+**Honest wall:** full ring/field structure theory is deferred — E1 covers the concrete,
+well-supported permutation-group layer; broader abstract structures are a larger effort.
+
+**Next:** E2 — linear algebra III (SVD, QR, Cholesky, Gram-Schmidt, pseudo-inverse, matrix exp, Jordan).
+
 ## 2026-07-28 — D5 [S] · analysis hardening → TRACK D DONE 🎉
 
 **Done**

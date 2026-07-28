@@ -265,6 +265,18 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "complex_parts":
         return compute.complex_parts(payload["expression"])
 
+    # --- Abstract algebra (permutation groups) ---
+    if task == "permutation_order":
+        return compute.permutation_order(payload["permutation"])
+    if task == "permutation_parity":
+        return compute.permutation_parity(payload["permutation"])
+    if task == "permutation_compose":
+        return compute.permutation_compose(payload["permutations"])
+    if task == "group_order":
+        return compute.group_order(payload["name"], payload["degree"])
+    if task == "generated_group":
+        return compute.generated_group(payload["generators"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

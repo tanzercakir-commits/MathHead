@@ -114,6 +114,12 @@ ARGS = {
     "contour_integral": {"expression": "1/(z**2 + 1)", "symbol": "z", "poles": ["I"]},
     "laurent_series": {"expression": "exp(z)/z**2", "symbol": "z", "point": "0", "order": 4},
     "complex_parts": {"expression": "(2 + 3*I)*(1 - I)"},
+    # abstract algebra (groups)
+    "permutation_order": {"permutation": [1, 2, 0]},
+    "permutation_parity": {"permutation": [1, 0, 2]},
+    "permutation_compose": {"permutations": [[1, 2, 0], [1, 0, 2]]},
+    "group_order": {"name": "symmetric", "degree": 3},
+    "generated_group": {"generators": [[1, 2, 0], [1, 0, 2]]},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

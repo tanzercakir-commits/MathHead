@@ -76,7 +76,11 @@
 
 ### 🎉 TRACK D DONE — Analysis & Transforms (89 tools, 664 tests). Next: **E → F → G → H → J → K**.
 
-- [ ] then: E → F → G → H → J → K (full list in ROADMAP)
+### Track E — Algebra & Discrete Structures (in progress)
+
+- [x] **E1** abstract algebra — permutation groups (order/parity/compose/group_order/generated_group) ✅ (691 tests, 94 tools)
+- [ ] **E2** linear algebra III · **E3** graph theory · **E4** number theory II · **E5** combinatorics II · **E6** [S]
+- [ ] then: F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

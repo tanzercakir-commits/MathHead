@@ -145,7 +145,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## E. Algebra & Discrete Structures
 ```
-[ ] E1 🟡 Abstract algebra — permutation groups (order/subgroup/generator/Cayley), ring/field basics
+[x] E1 🟡 Abstract algebra — permutation groups: order/parity/compose, named-group order (+abelian),
+          generated-group order ✅ (94 tools). 🔴 full ring/field structure theory deferred
 [ ] E2 🟢 Linear algebra III — SVD, QR, Cholesky, Gram-Schmidt, least squares,
           pseudo-inverse, matrix exponential (exp), Jordan form, characteristic/minimal polynomial
 [ ] E3 🟡 Graph theory — shortest path, connectivity, matching, max-flow/min-cut,

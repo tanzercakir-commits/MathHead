@@ -416,6 +416,22 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("complex-parts", help="split into real + imaginary parts")
     p.add_argument("expression", metavar="EXPRESSION")
 
+    p = sub.add_parser("perm-order", help="order of a permutation (array form '1,2,0')")
+    p.add_argument("perm", metavar="PERM", help="array form, comma-separated, e.g. 1,2,0")
+
+    p = sub.add_parser("perm-parity", help="parity of a permutation (even/odd)")
+    p.add_argument("perm", metavar="PERM")
+
+    p = sub.add_parser("perm-compose", help="compose permutations (multiple --perm)")
+    p.add_argument("--perm", action="append", default=[], required=True, metavar="PERM")
+
+    p = sub.add_parser("group-order", help="order of a named group (+ abelian)")
+    p.add_argument("name", metavar="NAME", help="symmetric|alternating|cyclic|dihedral")
+    p.add_argument("degree", type=int, metavar="DEGREE")
+
+    p = sub.add_parser("gen-group", help="group order from generators (multiple --gen)")
+    p.add_argument("--gen", action="append", default=[], required=True, metavar="PERM")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -588,6 +604,13 @@ _DISPATCH = {
                           {"expression": a.expression, "symbol": a.symbol,
                            "point": a.point, "order": a.order}),
     "complex-parts": lambda a: ("complex_parts", {"expression": a.expression}),
+    "perm-order": lambda a: ("permutation_order", {"permutation": a.perm.split(",")}),
+    "perm-parity": lambda a: ("permutation_parity", {"permutation": a.perm.split(",")}),
+    "perm-compose": lambda a: ("permutation_compose",
+                               {"permutations": [p.split(",") for p in a.perm]}),
+    "group-order": lambda a: ("group_order", {"name": a.name, "degree": a.degree}),
+    "gen-group": lambda a: ("generated_group",
+                            {"generators": [g.split(",") for g in a.gen]}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

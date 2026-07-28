@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-import gen_api_reference  # noqa: E402
+import gen_api_reference
 
 
 def test_api_reference_up_to_date():

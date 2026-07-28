@@ -4,7 +4,6 @@ v1 DAVRANIŞ SPESİFİKASYONU — best-case / worst-case senaryolar (gerçek Z3)
 Bunlar motorun v1 sözleşmesidir ve YEŞİL kalmalıdır. Kaynak: proje prensibi
 "iyi tasarlanmış otomatik testler (best/worst case)".
 """
-import pytest
 
 from mathhead.core import check_consistency, check_entailment, find_model
 

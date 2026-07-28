@@ -4,6 +4,16 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ## [Yayınlanmamış]
 
+_(sıradaki değişiklikler buraya)_
+
+## [0.2.0] — 2026-07-28
+
+Motorun büyük genişlemesi: **24 → 59 MCP aracı**, **146 → 357 test**, kapsam
+**%87**. Aşamalı yol haritasının (`ROADMAP.md`) 1–11 aşamaları tamamlandı —
+lineer cebir, sayı teorisi, kombinatorik, çok değişkenli analiz, olasılık &
+istatistik, eşitsizlik ispatı (Z3 NRA) ve genişletilmiş Track B; arada üç
+sağlamlaştırma turu (property/fuzz, taksonomi/golden, coverage/API-ref).
+
 ### Eklendi
 
 - **Track B genişleme + doğrulanabilir sertifika (`graph_coloring`, `subset_sum`):**

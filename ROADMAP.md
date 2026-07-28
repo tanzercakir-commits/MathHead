@@ -80,10 +80,13 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        → olumlu sertifika: sat tanığı BAĞIMSIZ doğrulanır (meta.verified) ✅
        ↳ dürüst asimetri: unsat DRAT/LRAT = duvar (DIMACS hattı gerekir), belgelendi
 
-[ ] Aşama 11 · [S] Büyük sağlamlaştırma (sürüm hazırlığı)
-    └─ uçtan uca CANLI MCP entegrasyon testi + tüm araçların sözleşme
-       denetimi + sürüm dondurma (release candidate / RC)
+[x] Aşama 11 · [S] Büyük sağlamlaştırma (sürüm hazırlığı)  (bitti — 417 test, v0.2.0)
+    └─ CANLI MCP entegrasyon testi (subprocess+stdio+JSON-RPC) + tüm araçların
+       sözleşme denetimi (59) + sürüm dondurma 0.1.0→0.2.0 (RC) ✅
 ```
+
+**🎉 Aşama 1–11 TAMAM.** Motor: 24→59 MCP aracı, 146→417 test, kapsam %87.
+Ürünleştirme (B) kullanıcıda.
 
 ## B. Ürünleştirme (akşam sende — ayrı track)
 

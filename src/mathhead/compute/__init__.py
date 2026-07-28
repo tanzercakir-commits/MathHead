@@ -1112,8 +1112,20 @@ def distribution(name: str, params: list[Any], at: Any = None) -> ComputeResult:
     except ComputeError as exc:
         return _error("distribution", str(exc), t0)
     try:
-        from sympy.stats import (Bernoulli, Binomial, Exponential, Geometric,
-                                 Normal, Poisson, Uniform, E, P, density, std, variance)
+        from sympy.stats import (
+            Bernoulli,
+            Binomial,
+            E,
+            Exponential,
+            Geometric,
+            Normal,
+            P,
+            Poisson,
+            Uniform,
+            density,
+            std,
+            variance,
+        )
         ctors = {
             "normal": Normal, "binomial": Binomial, "poisson": Poisson,
             "exponential": Exponential, "uniform": Uniform,

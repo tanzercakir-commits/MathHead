@@ -21,8 +21,8 @@
 
 - [x] **T6** `router.route` (3 ilkel) + `server → router`
 - [x] **T7** testler: best/worst + **determinizm (×50)** + guardrail → **17/17 yeşil**
-- [~] **T8** gerçek MCP istemcisi (Claude): araçlar in-process doğrulandı; canlı
-  `stdio` bağlantısı senin tarafında (`claude mcp add ...`) — README'de tarif var
+- [x] **T8** gerçek MCP istemcisi: **canlı stdio entegrasyon testi** eklendi
+  (`tests/test_mcp_live.py` — subprocess + JSON-RPC uçtan uca) ✅ (Aşama 11)
 
 ### P2 — Cila / sıradaki
 
@@ -43,7 +43,11 @@
 - [x] **T22** ROADMAP Aşama 8 [S]: coverage %87 + benchmark çiti + otomatik API ref ✅ (330 test)
 - [x] **T23** ROADMAP Aşama 9: eşitsizlik ispatı (Z3 NRA) ✅ (345 test, 57 araç, AM-GM ispatı)
 - [x] **T24** ROADMAP Aşama 10: Track B + doğrulanabilir sertifika ✅ (357 test, 59 araç)
-- [ ] **T25** ROADMAP Aşama 11 [S]: canlı MCP entegrasyon testi + sözleşme denetimi + sürüm (RC)
+- [x] **T25** ROADMAP Aşama 11 [S]: canlı MCP testi + sözleşme denetimi + sürüm 0.2.0 (RC) ✅ (417 test)
+
+### 🎉 ROADMAP Aşama 1–11 TAMAM — motor 24→59 araç, 146→417 test, kapsam %87
+
+**Sıradaki (kullanıcıda):** ürünleştirme — PyPI yayını (0.2.0), GitHub release, tutorial.
 
 ---
 

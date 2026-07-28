@@ -6,11 +6,10 @@ Golden senaryo testleri (ROADMAP Aşama 5 [S]) — veri-güdümlü regresyon çi
 Bilinen doğru çıktıların ileride sessizce bozulmasını engeller.
 """
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
-
-from dataclasses import asdict
 
 from mathhead.router import route
 

@@ -9,7 +9,7 @@ from mathhead.core.logic import (
 
 __all__ = [
     "ReasoningResult",
-    "check_entailment",
     "check_consistency",
+    "check_entailment",
     "find_model",
 ]

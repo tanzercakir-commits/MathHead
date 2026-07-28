@@ -31,7 +31,7 @@ from mathhead.core.logic import (
 )
 from mathhead.guardrails import solver_config
 
-__all__ = ["prove_inequality", "prove_nonnegative", "find_real_solution"]
+__all__ = ["find_real_solution", "prove_inequality", "prove_nonnegative"]
 
 
 class _IneqError(ValueError):

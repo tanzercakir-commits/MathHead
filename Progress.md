@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-28 — Aşama 11 [S] · büyük sağlamlaştırma + RC (SON AŞAMA — 1–11 TAMAM 🎉)
+
+**Yapıldı**
+
+- **Canlı MCP entegrasyon testi** (`tests/test_mcp_live.py`): sunucuyu GERÇEK bir
+  alt süreç olarak `stdio` üzerinden başlatır, MCP istemcisiyle el sıkışır, 59+
+  aracı listeler ve 5 katmandan araç çağırıp JSON yanıtı doğrular. Todo T8 (canlı
+  stdio) fiilen kapandı.
+- **Sözleşme denetimi** (`tests/test_contract.py`, 59): HER araç `status +
+  reason_code + explanation + meta(elapsed_ms)` sözleşmesine uyuyor — makine
+  denetimi (biri bozarsa kırılır).
+- **Sürüm dondurma (RC):** `0.1.0 → 0.2.0` (pyproject + `__init__`); CHANGELOG
+  `[0.2.0] — 2026-07-28` olarak finalize edildi. Ruff temizliği (13 otomatik
+  düzeltme). → **417/417 yeşil**, kapsam %87.
+
+**Doğrulandı**
+
+- Tam yığın uçtan uca çalışıyor: subprocess → JSON-RPC → FastMCP → router →
+  Z3/SymPy. "Canlı stdio bağlantısı" artık test-güvenceli.
+- 1–11 aşamalarının hepsi bitti: **24→59 araç, 146→417 test.** Motor üç ayakta
+  (mantık/Z3 · hesap/SymPy · Track B/SAT) sağlam.
+
+**Sıradaki (kullanıcıda):** ürünleştirme — PyPI yayını (0.2.0), GitHub release,
+tutorial. Motor tarafı ROADMAP'te tamam; yeni yön kullanıcının çağrısına bağlı.
+
 ## 2026-07-28 — Aşama 10 · Track B genişleme + doğrulanabilir sertifika
 
 **Yapıldı**

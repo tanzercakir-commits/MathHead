@@ -15,6 +15,11 @@ from typing import Any
 
 from mathhead import compute, frontier
 from mathhead.compute import ComputeResult
+from mathhead.core.inequality import (
+    find_real_solution,
+    prove_inequality,
+    prove_nonnegative,
+)
 from mathhead.core.logic import (
     MaxSatResult,
     ModelSet,
@@ -28,11 +33,6 @@ from mathhead.core.logic import (
     find_model,
     max_satisfy,
     optimize,
-)
-from mathhead.core.inequality import (
-    find_real_solution,
-    prove_inequality,
-    prove_nonnegative,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
 

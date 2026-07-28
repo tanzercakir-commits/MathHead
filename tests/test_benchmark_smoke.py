@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-import benchmark  # noqa: E402
+import benchmark
 
 
 def test_bench_runs_and_reports():

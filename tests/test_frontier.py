@@ -9,6 +9,7 @@ from mathhead.frontier import (
     boolean_pythagorean_coloring,
     pigeonhole,
     pythagorean_triples,
+    schur_number_coloring,
     van_der_waerden_coloring,
 )
 
@@ -73,3 +74,33 @@ def test_vdw_produced_coloring_is_valid():
 def test_vdw_guardrail():
     assert van_der_waerden_coloring(10, 1).status == "error"       # k<2
     assert van_der_waerden_coloring(10**6, 3).status == "error"    # n çok büyük
+
+
+# --------------------------- Schur sayıları S(r) -------------------------- #
+def test_schur_s2_boundary():
+    # S(2) = 4: {1..4} 2 sum-free renge bölünür; {1..5} bölünmez
+    assert schur_number_coloring(4, 2).status == "sat"
+    assert schur_number_coloring(5, 2).status == "unsat"
+
+
+def test_schur_s3_boundary():
+    # S(3) = 13: {1..13} 3 sum-free renge bölünür; {1..14} bölünmez (imkânsızlık ispatı)
+    assert schur_number_coloring(13, 3).status == "sat"
+    assert schur_number_coloring(14, 3).status == "unsat"
+
+
+def test_schur_produced_coloring_is_sum_free():
+    # Motorun döndürdüğü bölmeyi BAĞIMSIZ doğrula: hiçbir renk sınıfında x+y=z yok
+    r = schur_number_coloring(13, 3)
+    assert r.status == "sat"
+    col = r.witness["coloring"]
+    for x in range(1, 14):
+        for y in range(x, 14):
+            z = x + y
+            if z <= 13:
+                assert not (col[x] == col[y] == col[z])
+
+
+def test_schur_guardrail():
+    assert schur_number_coloring(10, 1).status == "error"      # colors<2
+    assert schur_number_coloring(9999, 3).status == "error"    # n çok büyük

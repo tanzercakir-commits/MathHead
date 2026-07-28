@@ -111,6 +111,16 @@ def van_der_waerden(n: int, k: int, colors: int = 2) -> dict[str, Any]:
     return asdict(route("van_der_waerden", {"n": n, "k": k, "colors": colors}))
 
 
+@mcp.tool()
+def schur_number(n: int, colors: int) -> dict[str, Any]:
+    """{1..n}'i `colors` sum-free renge bölmeyi dener (Schur sayısı S(colors) çekirdeği).
+
+    `unsat` -> n > S(colors) (ispat). Bilinen: S(2)=4, S(3)=13, S(4)=44, S(5)=160;
+    S(6) açık.
+    """
+    return asdict(route("schur_number", {"n": n, "colors": colors}))
+
+
 def main() -> None:
     """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
     mcp.run(transport="stdio")

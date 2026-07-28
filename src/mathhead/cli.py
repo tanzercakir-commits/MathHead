@@ -99,6 +99,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("k", type=int)
     p.add_argument("--colors", type=int, default=2)
 
+    p = sub.add_parser("schur", help="Schur sayısı S(colors) boyaması (Track B)")
+    p.add_argument("n", type=int)
+    p.add_argument("colors", type=int)
+
     return parser
 
 
@@ -113,6 +117,7 @@ _DISPATCH = {
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),
+    "schur": lambda a: ("schur_number", {"n": a.n, "colors": a.colors}),
 }
 
 

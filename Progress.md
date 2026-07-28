@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-28 — Track B · Schur sayıları (bilinen değerler yeniden üretildi)
+
+**Yapıldı**
+
+- `frontier.schur_number_coloring`: {1..n} r-renk sum-free bölme. Router + MCP
+  (**11. araç**) + CLI (`mathhead schur n r`) + testler → **65/65 yeşil**.
+- Dürüst saldırı: S(2)=4, S(3)=13 **tam** yeniden üretildi (n=5, n=14 imkânsızlık
+  ispatları); S(4) için S(4) ≥ 44 doğrulandı (n=44 sat, ~25 sn), üst sınır (n=45)
+  duvara takıldı. Detay: `docs/track-b-results.md`.
+
+**Dürüst sonuç:** S(5)=160 ve açık S(6) bu ortamda erişilemez. Sahte zafer yok.
+
+**Sıradaki (gelecek oturumlar):** PyPI paketi; ölçek/çözücü; v3 ispat üretimi.
+
 ## 2026-07-28 — Track B · van der Waerden (bilinen değerler yeniden üretildi)
 
 **Yapıldı**

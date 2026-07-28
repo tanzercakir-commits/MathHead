@@ -223,3 +223,71 @@ def van_der_waerden_coloring(
             {"note": "imkânsızlık ispatı"}, _meta(t0, seed, timeout_ms, extra),
         )
     return _unknown(solver, t0, seed, timeout_ms, extra)
+
+
+def schur_number_coloring(
+    n: int, colors: int, *, timeout_ms: int = 20_000, seed: int = 42
+) -> ReasoningResult:
+    """{1..n}, `colors` renge, hiçbir renk sınıfında `x + y = z` (aynı renk) olmadan
+    boyanabilir mi? (yani her renk sınıfı **sum-free** mi; x=y'ye izin verilir).
+
+    Schur sayısı S(r) = böyle boyanabilen en büyük n. `n ≤ S(r)` -> `sat`;
+    `n = S(r)+1` -> `unsat` (ispat). Bilinen: S(2)=4, S(3)=13, S(4)=44, S(5)=160.
+    **S(6) AÇIK.** Bilinen değerler bu yöntemle hesaplandı; büyük ölçek devasadır.
+    """
+    t0 = time.perf_counter()
+    if not all(isinstance(x, int) for x in (n, colors)):
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION", "n, colors tam sayı olmalı",
+                               None, _meta(t0, seed, timeout_ms))
+    if colors < 2 or colors > 6 or n < 1 or n > 500:
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "colors 2..6, 1≤n≤500 olmalı", None, _meta(t0, seed, timeout_ms))
+
+    solver = solver_config(timeout_ms, seed)
+    triples = 0
+    if colors == 2:
+        c = {i: z3.Bool(f"c_{i}") for i in range(1, n + 1)}
+        for x in range(1, n + 1):
+            for y in range(x, n + 1):
+                z = x + y
+                if z > n:
+                    break
+                solver.add(z3.Or(z3.Not(c[x]), z3.Not(c[y]), z3.Not(c[z])))
+                solver.add(z3.Or(c[x], c[y], c[z]))
+                triples += 1
+    else:
+        c = {i: z3.Int(f"c_{i}") for i in range(1, n + 1)}
+        for i in range(1, n + 1):
+            solver.add(c[i] >= 0, c[i] < colors)
+        for x in range(1, n + 1):
+            for y in range(x, n + 1):
+                z = x + y
+                if z > n:
+                    break
+                solver.add(z3.Or(c[x] != c[y], c[y] != c[z]))
+                triples += 1
+
+    extra = {"n": n, "colors": colors, "sum_triples": triples}
+    result = solver.check()
+    if result == z3.sat:
+        model = solver.model()
+        if colors == 2:
+            coloring = {i: (0 if z3.is_true(model.eval(c[i], model_completion=True)) else 1)
+                        for i in range(1, n + 1)}
+        else:
+            coloring = {i: model.eval(c[i], model_completion=True).as_long()
+                        for i in range(1, n + 1)}
+        witness = {"coloring": coloring} if n <= 60 else {"note": f"{n} sayı bölündü (özet)"}
+        return ReasoningResult(
+            "sat", "COLORING_FOUND",
+            f"{{1..{n}}}, {colors} sum-free renge bölünebilir → S({colors}) ≥ {n}.",
+            witness, _meta(t0, seed, timeout_ms, extra),
+        )
+    if result == z3.unsat:
+        return ReasoningResult(
+            "unsat", "NO_COLORING",
+            f"{{1..{n}}}, {colors} sum-free renge bölünEMEZ → S({colors}) < {n} "
+            f"(imkânsızlık ispatlandı).",
+            {"note": "imkânsızlık ispatı"}, _meta(t0, seed, timeout_ms, extra),
+        )
+    return _unknown(solver, t0, seed, timeout_ms, extra)

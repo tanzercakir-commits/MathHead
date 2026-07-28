@@ -45,3 +45,4 @@
 - [x] **v1.2**: yüklemler + bireyler (klasik silogizm çalışır) → 51/51 yeşil
 - [x] **CLI**: `mathhead` terminal aracı (9 komut + --json) → 56/56 yeşil
 - [x] **Track B / van der Waerden**: W(2,3..5) bilinen değerleri yeniden üretildi (dürüst) → 61/61
+- [x] **Track B / Schur**: S(2)=4, S(3)=13 yeniden üretildi; S(4)≥44 (dürüst duvar) → 65/65

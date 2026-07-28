@@ -66,5 +66,7 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
         return frontier.van_der_waerden_coloring(
             payload["n"], payload["k"], payload.get("colors", 2), **_opts(payload)
         )
+    if task == "schur_number":
+        return frontier.schur_number_coloring(payload["n"], payload["colors"], **_opts(payload))
 
     raise ValueError(f"bilinmeyen görev: {task!r}")

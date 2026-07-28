@@ -38,6 +38,22 @@ renkli `k`-terimli aritmetik dizi olmadan boyanamaz. Bu değerler literatürdeki
 araştırma sonuçlarıyla birebir uyuşur — yani motor onları **aynı yöntemle
 yeniden üretti** (W(2,5)=178 ilk kez 1978'de belirlenmiştir).
 
+## Schur sayıları S(r)  ·  *bu oturumda hesaplandı*
+
+`{1..n}`, `r` renge, hiçbir renk sınıfında `x + y = z` olmadan (her sınıf
+**sum-free**) bölünebilir mi? `S(r)` = bölünebilen en büyük `n`.
+
+| Sayı | Bilinen değer | Motorun sonucu | Süre |
+|---|---|---|---|
+| S(2) | 4 | n=4 `sat`, **n=5 `unsat`** ✓ | ~5 ms |
+| S(3) | 13 | n=13 `sat`, **n=14 `unsat`** ✓ | ~0.3 sn |
+| S(4) | 44 | n=44 **`sat`** → S(4) ≥ 44 doğrulandı | ~25 sn |
+
+S(2) ve S(3) **tam** yeniden üretildi (her iki yön = değerin kesin ispatı). S(4)
+için alt sınır (S(4) ≥ 44) doğrulandı; üst sınır (n=45 `unsat`) bu ortamda ~1.5
+dk'da tamamlanmadı → duvar. **S(5)=160** bilinen ama devasa (Heule 2017, ~2 PB
+ispat). **S(6) hâlâ AÇIK.**
+
 ## Dürüst sınır (compute wall)
 
 - Bu ortamda pratik sınır **~W(2,5)** (n≈178, ~1 dk).
@@ -49,8 +65,9 @@ yeniden üretti** (W(2,5)=178 ilk kez 1978'de belirlenmiştir).
 ## Sonuç
 
 MathHead açık bir problemi **çözmedi** — çözülenler süper-hesap gerektirdi. Ama
-araştırma düzeyi değerleri (W(2,3..5)) aynı yöntemle **doğrulanabilir biçimde
-yeniden üretti** ve duvarın tam olarak nerede başladığını şeffafça gösterdi.
+araştırma düzeyi değerleri (W(2,3..5) ve Schur S(2..3), S(4)≥44) aynı yöntemle
+**doğrulanabilir biçimde yeniden üretti** ve duvarın tam olarak nerede
+başladığını şeffafça gösterdi.
 Track B'nin tezi budur: *yöntem gerçek; ölçek arttıkça hesap sınırı devreye
 girer.* Ölçeği büyütmek (daha güçlü çözücü, paralellik, küme) mühendislik işidir
 — yöntem değişmez.

@@ -1429,6 +1429,27 @@ def solve_cnf(clauses: list[list[int]], solver: str = "cadical",
                                       "max_conflicts": max_conflicts, "backend": backend}))
 
 
+@mcp.tool()
+def entail_batch(premises: list[str], conclusions: list[str]) -> dict[str, Any]:
+    """Check MANY conclusions against SHARED premises via INCREMENTAL solving (Z3 push/pop) (K1).
+
+    The premises + theory setup are asserted once and reused per conclusion (faster than N
+    separate `entailment` calls; the per-conclusion verdict is identical). Returns `results`,
+    one `{index, conclusion, status, reason_code, witness?}` per conclusion.
+    """
+    return asdict(route("entail_batch", {"premises": premises, "conclusions": conclusions}))
+
+
+@mcp.tool()
+def cache_stats() -> dict[str, Any]:
+    """Deterministic-memoization cache statistics: hits, misses, hit-rate, size (K1 observability).
+
+    Because every primitive is deterministic, pure compute operations are memoized safely (a
+    hit returns the identical result). This reports how effective that cache is.
+    """
+    return asdict(route("cache_stats", {}))
+
+
 def main() -> None:
     """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")

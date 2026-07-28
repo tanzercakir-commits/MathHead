@@ -663,3 +663,18 @@ A dedicated CDCL backend (CaDiCaL via the **optional** `python-sat`) for large C
 proof on unsat) and larger ones return an honest `BACKEND_UNAVAILABLE`. For a checkable UNSAT
 certificate use `prove_unsat`/`check_unsat_proof`. (Kissat / portfolio-parallel are out of
 scope — no package here.)
+
+---
+
+## Performance (K1 — incremental + memoization)
+
+| Tool | Signature | Result |
+|---|---|---|
+| `entail_batch` | `entail_batch(premises, conclusions)` | `results`: one verdict per conclusion |
+| `cache_stats` | `cache_stats()` | memoization hits / misses / hit-rate / size |
+
+`entail_batch` checks many conclusions against SHARED premises with incremental Z3 push/pop — the
+premises + theory setup are asserted once, and each conclusion's verdict is identical to a
+standalone `entailment` call. `cache_stats` reports the deterministic memoization cache (pure
+compute operations are cached safely because their results are deterministic — a hit returns the
+identical result).

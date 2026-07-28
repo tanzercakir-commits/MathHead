@@ -6,6 +6,12 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Performance — incremental solving + memoization (`entail_batch`, `cache_stats`):** ROADMAP K1
+  — Track K begins. `entail_batch` checks many conclusions against shared premises via Z3 push/pop
+  (premises asserted once; verdicts identical to `check_entailment`). Deterministic memoization
+  (`mathhead/cache.py`) on the hot pure compute functions — safe because verdicts are deterministic,
+  so a hit returns the identical result; `cache_stats` reports hits/misses/hit-rate. MCP (**166
+  tools**) + CLI (`entail-batch`/`cache-stats`) + 9 tests. ADR-0029. **1148 tests green.**
 - **Track J hardening (`tests/test_j_track_hardening.py`, 10):** ROADMAP J4 — **TRACK J DONE**.
   Property tests: prove_unsat's verdict matches brute-force truth and its DRUP proof round-trips
   through the independent checker; the stdlib DPLL (J2) and CaDiCaL (J3) AGREE on random CNFs;

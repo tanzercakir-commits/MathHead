@@ -77,6 +77,13 @@ def _emit(result: Any, as_json: bool) -> int:
         if "satisfied_weight" in data and "total_weight" in data:
             print(f"maxsat        : {data['satisfied_weight']}/{data['total_weight']} weight "
                   f"(satisfied soft: {data.get('satisfied')})")
+        if isinstance(data.get("results"), list) and "reason_code" in data:
+            print(f"batch         : {len(data['results'])} conclusions")
+            for r in data["results"]:
+                print(f"  [{r.get('index')}] {r.get('status'):8s} {r.get('conclusion')}")
+        if isinstance(data.get("stats"), dict):
+            for k, v in data["stats"].items():
+                print(f"  {k:10s}: {v}")
     if status in ("error", "refuted"):
         return 1
     if status == "unknown":
@@ -221,6 +228,12 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver", default="cadical", help="cadical|glucose|minisat (default cadical)")
     p.add_argument("--max-conflicts", type=int, default=100_000)
     p.add_argument("--backend", default="auto", help="auto|pysat|builtin")
+
+    p = sub.add_parser("entail-batch", help="incrementally check many conclusions vs shared premises")
+    p.add_argument("-p", "--premise", action="append", default=[], metavar="PREMISE")
+    p.add_argument("-c", "--conclusion", action="append", default=[], required=True, metavar="CONCLUSION")
+
+    sub.add_parser("cache-stats", help="deterministic memoization cache statistics")
 
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
@@ -817,6 +830,8 @@ _DISPATCH = {
                                     {"clauses": json.loads(a.clauses), "proof": json.loads(a.proof)}),
     "solve-cnf": lambda a: ("solve_cnf", {"clauses": json.loads(a.clauses), "solver": a.solver,
                                           "max_conflicts": a.max_conflicts, "backend": a.backend}),
+    "entail-batch": lambda a: ("entail_batch", {"premises": a.premise, "conclusions": a.conclusion}),
+    "cache-stats": lambda a: ("cache_stats", {}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

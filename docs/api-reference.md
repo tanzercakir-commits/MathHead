@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **164 tools**.
+Total **166 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -661,3 +661,11 @@ Independently verify a DRUP UNSAT `proof` for a CNF (bring your own proof from a
 ### `solve_cnf(clauses, solver='cadical', max_conflicts=100000, backend='auto')`
 
 Solve a CNF at SCALE with a high-performance CDCL backend (CaDiCaL via python-sat) (J3).
+
+### `entail_batch(premises, conclusions)`
+
+Check MANY conclusions against SHARED premises via INCREMENTAL solving (Z3 push/pop) (K1).
+
+### `cache_stats()`
+
+Deterministic-memoization cache statistics: hits, misses, hit-rate, size (K1 observability).

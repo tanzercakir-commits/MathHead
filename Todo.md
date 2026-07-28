@@ -124,7 +124,12 @@
 
 ### 🎉 TRACK J DONE — Frontier (164 tools, 1135 tests). Next: **K** (final track → v1.0).
 
-- [ ] then: K (full list in ROADMAP)
+### Track K — Holistic Performance & Hardening (in progress)
+
+- [x] **K1** performance — entail_batch (incremental push/pop) + deterministic memoization cache ✅ (1148 tests, 166 tools)
+- [ ] **K2** coverage & fuzzing — parsers, grammar spec
+- [ ] **K3** observability — metrics/logs, resource limits
+- [ ] **K4** v1.0 freeze — contract check, release notes, 0.2.0 → 1.0.0
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

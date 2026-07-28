@@ -21,6 +21,7 @@ from mathhead.core.inequality import (
     prove_nonnegative,
 )
 from mathhead.core.logic import (
+    BatchResult,
     MaxSatResult,
     ModelSet,
     OptimizeResult,
@@ -28,12 +29,14 @@ from mathhead.core.logic import (
     check_consistency,
     check_entailment,
     classify,
+    entail_batch,
     enumerate_models,
     equivalent,
     find_model,
     max_satisfy,
     optimize,
 )
+from mathhead.cache import CacheStats, cache_stats_result
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.core.induction import InductionResult, prove_by_induction
 from mathhead.core.modal import ModalResult, check_modal
@@ -76,7 +79,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
-    | DratResult | SolveResult
+    | DratResult | SolveResult | BatchResult | CacheStats
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -502,5 +505,11 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "solve_cnf":
         return solve_cnf(payload["clauses"], payload.get("solver", "cadical"),
                          payload.get("max_conflicts", 100_000), payload.get("backend", "auto"))
+
+    # --- Performance (K1: incremental solving + cache observability) ---
+    if task == "entail_batch":
+        return entail_batch(payload["premises"], payload["conclusions"], **_opts(payload))
+    if task == "cache_stats":
+        return cache_stats_result()
 
     raise ValueError(f"unknown task: {task!r}")

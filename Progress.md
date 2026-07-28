@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-07-28 — K1 · performance: incremental solving + memoization (Track K begins)
+
+**Done — 2 new tools (166 total):**
+
+- `entail_batch(premises, conclusions)` (core/logic.py): INCREMENTAL solving. The premises and
+  theory setup are asserted ONCE; each conclusion is checked inside a Z3 `push`/`pop` scope. The
+  per-conclusion verdict is identical to calling `check_entailment` individually (verified in
+  tests) — but the shared context is reused.
+- Deterministic MEMOIZATION (`mathhead/cache.py`): a bounded-LRU `@memoize` on the hot, pure,
+  hashable-argument compute functions (simplify/solve/differentiate/integrate/limit/series/
+  is_prime/factorize). Because every primitive is deterministic (PRINCIPLES 1), a cache hit
+  returns the IDENTICAL result object — determinism is strengthened, never weakened. `cache_stats`
+  exposes hits/misses/hit-rate/size (observability).
+- Wired router + MCP (166 tools) + CLI (`entail-batch`/`cache-stats`) +
+  `tests/test_performance.py` (9) → **1148/1148 green**.
+
+**Verified:** the incremental batch verdicts match individual `check_entailment` calls
+(propositional and the classical syllogism, incl. the invalid case's counterexample);
+memoization is transparent (same result; a hit returns the identical object); unhashable
+arguments are never cached.
+
+**Decision:** ADR-0029 (memoization is safe *because* the engine is deterministic; incremental
+entailment reuses the shared context via push/pop).
+
+**Next:** K2 — coverage & fuzzing (parsers, grammar spec).
+
 ## 2026-07-28 — J4 [S] · Track J hardening → TRACK J DONE 🎉
 
 **Done**

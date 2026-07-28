@@ -446,6 +446,28 @@
 
 ---
 
+## ADR-0029 — Performance: memoization is safe because verdicts are deterministic; incremental entailment
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP K1 wants caching and incremental solving without disturbing the frozen
+  contract or the determinism guarantee.
+- **Decision:** Two additions. (1) `mathhead/cache.py` — a bounded-LRU `@memoize` applied ONLY to
+  pure, hashable-argument compute functions. Determinism (PRINCIPLES 1) makes this safe: a hit
+  returns the IDENTICAL cached result object, so a cached answer is indistinguishable from a fresh
+  one (unhashable arguments bypass the cache; `cache_stats`/`reset_cache` give observability and
+  test isolation). (2) `core/logic.entail_batch` — checks many conclusions against shared premises
+  by asserting the premises ONCE and testing each conclusion in a Z3 `push`/`pop` scope; the
+  per-conclusion verdict is identical to `check_entailment`, only the context is reused.
+- **Consequences:** Repeated identical compute calls are served from memory with byte-identical
+  results; a batch of related entailment queries avoids re-asserting the premises. No contract
+  change (`BatchResult`/`CacheStats` are plain dataclasses carrying the standard
+  status/reason/explanation/meta). `meta.elapsed_ms` on a cached compute result reflects the
+  original computation — acceptable because the result is deterministically identical. Broader
+  router-level caching and Z3 incremental reuse across other primitives are left as future,
+  opt-in extensions.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

@@ -584,3 +584,75 @@ def classify(
     return ReasoningResult("contingent", "CONTINGENT",
                            "Contingent: true under some assignments, false under others.",
                            witness, _meta(t0, seed, timeout_ms))
+
+
+@dataclass
+class BatchResult:
+    """Output of `entail_batch`: many conclusions checked against SHARED premises using
+    incremental solving (Z3 push/pop) — the premises and theory setup are asserted once."""
+
+    status: str                              # ok | error
+    reason_code: str
+    explanation: str
+    results: list[dict[str, Any]] = field(default_factory=list)
+    meta: dict[str, Any] = field(default_factory=dict)
+
+
+def entail_batch(
+    premises: list[str],
+    conclusions: list[str],
+    *,
+    timeout_ms: int = DEFAULT_TIMEOUT_MS,
+    seed: int = DEFAULT_SEED,
+) -> BatchResult:
+    """Check each conclusion against the SHARED premises via INCREMENTAL solving.
+
+    The premises are asserted ONCE; each conclusion is tested inside a Z3 `push`/`pop`
+    scope (add ¬conclusion, check, pop). The per-conclusion verdict is identical to
+    calling `check_entailment` individually, but the shared context (premise assertions +
+    theory setup) is reused — the point of incremental solving. Returns `results`, one
+    `{index, conclusion, status, reason_code, witness?}` per conclusion.
+    """
+    t0 = time.perf_counter()
+    if not isinstance(premises, list) or not isinstance(conclusions, list) or not conclusions:
+        return BatchResult("error", "GUARDRAIL_VIOLATION",
+                           "premises must be a list and conclusions a non-empty list",
+                           meta=_meta(t0, seed, timeout_ms))
+    try:
+        validate_input([*premises, *conclusions])
+    except GuardrailError as exc:
+        return BatchResult("error", "GUARDRAIL_VIOLATION", str(exc), meta=_meta(t0, seed, timeout_ms))
+    try:
+        z3_list, symbols = translate_all([*premises, *conclusions])
+    except ParseError as exc:
+        return BatchResult("error", "PARSE_ERROR", str(exc), meta=_meta(t0, seed, timeout_ms))
+
+    prem_z = z3_list[:len(premises)]
+    concl_z = z3_list[len(premises):]
+    solver = solver_config(timeout_ms, seed)
+    for p in prem_z:
+        solver.add(p)                                    # asserted ONCE (incremental base)
+
+    results: list[dict[str, Any]] = []
+    for i, cz in enumerate(concl_z):
+        solver.push()
+        solver.add(z3.Not(cz))
+        r = solver.check()
+        if r == z3.unsat:
+            results.append({"index": i, "conclusion": conclusions[i],
+                            "status": "valid", "reason_code": "ENTAILED"})
+        elif r == z3.sat:
+            results.append({"index": i, "conclusion": conclusions[i],
+                            "status": "invalid", "reason_code": "COUNTEREXAMPLE_FOUND",
+                            "witness": _witness(solver.model(), symbols)})
+        else:
+            code = "SOLVER_TIMEOUT" if solver.reason_unknown() == "timeout" else "SOLVER_UNKNOWN"
+            results.append({"index": i, "conclusion": conclusions[i],
+                            "status": "unknown", "reason_code": code})
+        solver.pop()
+
+    valid = sum(1 for r in results if r["status"] == "valid")
+    return BatchResult("ok", "BATCH_DONE",
+                       f"Checked {len(results)} conclusions against {len(premises)} shared "
+                       f"premises via incremental push/pop: {valid} valid.",
+                       results, _meta(t0, seed, timeout_ms))

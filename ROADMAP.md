@@ -247,7 +247,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## K. Holistic Performance & Hardening (cross-cutting, at the end)
 ```
-[ ] K1 🟡 Performance — cache (memoization), incremental solving (Z3 push/pop), parallel, timeout profile
+[x] K1 🟡 Performance — entail_batch (incremental Z3 push/pop; shared premises asserted once) +
+          deterministic memoization cache (safe because verdicts are deterministic) + cache_stats
+          ✅ (1148 tests, 166 tools; ADR-0029)
 [ ] K2 🟢 Coverage & fuzzing — fuzz all parsers, grammar formal spec, 95% coverage
 [ ] K3 🟡 Observability — structured metrics/logs, resource limits, perf regression fence
 [ ] K4 🟢 Version 1.0 freeze — full contract check, API stability, release notes

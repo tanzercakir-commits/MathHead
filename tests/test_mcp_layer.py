@@ -227,6 +227,9 @@ ARGS = {
     # High-performance solver (J3)
     "solve_cnf": {"clauses": [[1, 2], [-1, 3], [-3]], "solver": "cadical",
                   "max_conflicts": 100_000, "backend": "auto"},
+    # Performance (K1)
+    "entail_batch": {"premises": ["p", "implies(p, q)"], "conclusions": ["q", "p"]},
+    "cache_stats": {},
 }
 
 

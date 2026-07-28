@@ -22,6 +22,8 @@ from typing import Any
 
 import sympy
 
+from mathhead.cache import memoize
+
 MAX_EXPRESSION_CHARS: int = 4_000
 
 # Allowed functions (ast Call -> SymPy). Whitelist; everything else is rejected.
@@ -140,6 +142,7 @@ def _error(operation: str, msg: str, t0: float, code: str = "PARSE_ERROR") -> Co
 # --------------------------------------------------------------------------- #
 # Operations
 # --------------------------------------------------------------------------- #
+@memoize
 def simplify(expression: str) -> ComputeResult:
     """Simplifies an expression algebraically."""
     t0 = time.perf_counter()
@@ -155,6 +158,7 @@ def simplify(expression: str) -> ComputeResult:
     return ComputeResult("ok", "simplify", str(result), f"'{expression}' simplified.", "OK", _meta(t0))
 
 
+@memoize
 def solve(equation: str, symbol: str) -> ComputeResult:
     """Solves an equation (e.g. 'x**2 == 4', or 'x**2 - 4' assuming '=0')."""
     t0 = time.perf_counter()
@@ -175,6 +179,7 @@ def solve(equation: str, symbol: str) -> ComputeResult:
     )
 
 
+@memoize
 def differentiate(expression: str, symbol: str, order: int = 1) -> ComputeResult:
     """Takes the order-th derivative of the expression with respect to `symbol`."""
     t0 = time.perf_counter()
@@ -196,6 +201,7 @@ def differentiate(expression: str, symbol: str, order: int = 1) -> ComputeResult
     )
 
 
+@memoize
 def integrate(expression: str, symbol: str) -> ComputeResult:
     """Takes the indefinite integral of the expression w.r.t. `symbol` (+C not shown).
 
@@ -229,6 +235,7 @@ def _parse_point(point: str, syms: dict[str, Any]) -> Any:
     return _parse(point, syms)
 
 
+@memoize
 def limit(expression: str, symbol: str, point: str = "0", direction: str = "both") -> ComputeResult:
     """Limit of the expression as `symbol` -> `point`. direction: both / + / - (one-sided).
 
@@ -253,6 +260,7 @@ def limit(expression: str, symbol: str, point: str = "0", direction: str = "both
                          f"lim {symbol}→{point} '{expression}' = {result}.", "OK", _meta(t0))
 
 
+@memoize
 def series(expression: str, symbol: str, point: str = "0", order: int = 6) -> ComputeResult:
     """Taylor/series expansion of the expression around `symbol` = `point` to order `order`."""
     t0 = time.perf_counter()
@@ -584,6 +592,7 @@ def lcm(a: Any, b: Any) -> ComputeResult:
     return ComputeResult("ok", "lcm", result, f"lcm({A}, {B}) = {result}.", "OK", _meta(t0))
 
 
+@memoize
 def is_prime(n: Any) -> ComputeResult:
     """Is `n` prime? (deterministic primality test — SymPy `isprime`)."""
     t0 = time.perf_counter()
@@ -596,6 +605,7 @@ def is_prime(n: Any) -> ComputeResult:
                          f"{N} {'is prime' if result else 'is not prime'}.", "OK", _meta(t0))
 
 
+@memoize
 def factorize(n: Any) -> ComputeResult:
     """Factorizes `n` into primes. Returns: `[{prime, exponent}, ...]` (ascending)."""
     t0 = time.perf_counter()

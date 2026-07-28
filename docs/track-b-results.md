@@ -54,6 +54,25 @@ için alt sınır (S(4) ≥ 44) doğrulandı; üst sınır (n=45 `unsat`) bu ort
 dk'da tamamlanmadı → duvar. **S(5)=160** bilinen ama devasa (Heule 2017, ~2 PB
 ispat). **S(6) hâlâ AÇIK.**
 
+## Optimizasyon denemesi: simetri kırma (symmetry breaking)
+
+Duvarı ileri itmek için renk-permütasyon simetrisini kıran kısıtlar denendi
+(2-renk: 1. eleman sabit; r-renk: lex-leader). `sat`/`unsat` **değişmez**
+(doğruluk korunur — teste kilitli). Ama etkisi **karışık** çıktı:
+
+| Vaka | Simetrisiz | Simetrili | Sonuç |
+|---|---|---|---|
+| S(3) n=14 (unsat) | ~0.23 sn | ~0.0 sn | hızlandı |
+| W(2,5) n=178 (unsat, 2-renk) | ~61 sn | ~65 sn | değişmedi (faktör 2) |
+| S(4) n=44 (sat, 4-renk) | ~35 sn | ~48 sn | **yavaşladı** (ek yük) |
+
+**Dürüst sonuç:** Naif renk-simetri kırma sihirli değnek değil — küçük/UNSAT
+vakalarında yardımcı, ama SAT vakalarında eklediği kısıt yük getirip zarar
+verebilir. Bu yüzden varsayılan **kapalı** (opsiyonel `symmetry_break` flag'i
+olarak kaldı, doğruluğu testle güvence altında). Gerçek duvarı (S(4)=45, W(2,6))
+aşmak araştırma düzeyi SAT teknikleri (streamlining, özel çözücüler, paralellik)
+ister — bu, *yöntemin* değil *ölçeğin/mühendisliğin* işidir.
+
 ## Dürüst sınır (compute wall)
 
 - Bu ortamda pratik sınır **~W(2,5)** (n≈178, ~1 dk).

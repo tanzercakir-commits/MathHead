@@ -104,3 +104,10 @@ def test_schur_produced_coloring_is_sum_free():
 def test_schur_guardrail():
     assert schur_number_coloring(10, 1).status == "error"      # colors<2
     assert schur_number_coloring(9999, 3).status == "error"    # n çok büyük
+
+
+def test_symmetry_break_preserves_result():
+    # Simetri kırma bir OPTİMİZASYON; sat/unsat sonucunu DEĞİŞTİRMEMELİ.
+    assert schur_number_coloring(13, 3, symmetry_break=True).status == "sat"
+    assert schur_number_coloring(14, 3, symmetry_break=True).status == "unsat"
+    assert van_der_waerden_coloring(35, 4, symmetry_break=True).status == "unsat"

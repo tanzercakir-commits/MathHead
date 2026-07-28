@@ -49,6 +49,31 @@ def _unknown(solver: z3.Solver, t0: float, seed: int, timeout_ms: int, extra: di
     )
 
 
+def _break_color_symmetry(solver: z3.Solver, cmap: dict, n: int, colors: int) -> None:
+    """Renk-permütasyon simetrisini kırar.
+
+    Renkler birbiriyle takas edilebilir olduğundan, her boyamanın (colors!) tane
+    eş kopyası var. Bunları eleyince `sat`/`unsat` sonucu DEĞİŞMEZ (bir çözüm
+    varsa, simetrik olanı da vardır) ama arama uzayı küçülür → daha hızlı.
+
+    * 2-renk: 1. elemanın rengi sabitlenir (faktör 2).
+    * r-renk: renkler "ilk görülme sırasına" göre 0,1,2,… kullanılmaya zorlanır
+      (lex-leader; faktör r!).
+    """
+    if n < 1:
+        return
+    if colors == 2:
+        solver.add(cmap[1])  # 1. eleman = renk A
+        return
+    solver.add(cmap[1] == 0)
+    prev_max = z3.IntVal(0)
+    for i in range(2, n + 1):
+        solver.add(cmap[i] <= prev_max + 1)   # yeni renk ancak sıradaki indeks olabilir
+        mi = z3.Int(f"__cmax_{i}")
+        solver.add(mi == z3.If(cmap[i] > prev_max, cmap[i], prev_max))
+        prev_max = mi
+
+
 def pythagorean_triples(n: int) -> list[tuple[int, int, int]]:
     """{1..n} içindeki tüm Pythagoras üçlülerini (a² + b² = c², a≤b) döndürür."""
     triples = []
@@ -164,7 +189,8 @@ def arithmetic_progressions(n: int, k: int) -> list[tuple[int, ...]]:
 
 
 def van_der_waerden_coloring(
-    n: int, k: int, colors: int = 2, *, timeout_ms: int = 20_000, seed: int = 42
+    n: int, k: int, colors: int = 2, *, timeout_ms: int = 20_000, seed: int = 42,
+    symmetry_break: bool = False,
 ) -> ReasoningResult:
     """{1..n}, `colors` renge, **tek renkli k-terimli aritmetik dizi olmadan** boyanabilir mi?
 
@@ -198,7 +224,10 @@ def van_der_waerden_coloring(
         for ap in aps:
             solver.add(z3.Or(*[c[ap[j]] != c[ap[j + 1]] for j in range(len(ap) - 1)]))
 
-    extra = {"n": n, "k": k, "colors": colors, "arithmetic_progressions": len(aps)}
+    if symmetry_break:
+        _break_color_symmetry(solver, c, n, colors)
+    extra = {"n": n, "k": k, "colors": colors, "arithmetic_progressions": len(aps),
+             "symmetry_break": symmetry_break}
     result = solver.check()
     if result == z3.sat:
         model = solver.model()
@@ -226,7 +255,8 @@ def van_der_waerden_coloring(
 
 
 def schur_number_coloring(
-    n: int, colors: int, *, timeout_ms: int = 20_000, seed: int = 42
+    n: int, colors: int, *, timeout_ms: int = 20_000, seed: int = 42,
+    symmetry_break: bool = False,
 ) -> ReasoningResult:
     """{1..n}, `colors` renge, hiçbir renk sınıfında `x + y = z` (aynı renk) olmadan
     boyanabilir mi? (yani her renk sınıfı **sum-free** mi; x=y'ye izin verilir).
@@ -267,7 +297,9 @@ def schur_number_coloring(
                 solver.add(z3.Or(c[x] != c[y], c[y] != c[z]))
                 triples += 1
 
-    extra = {"n": n, "colors": colors, "sum_triples": triples}
+    if symmetry_break:
+        _break_color_symmetry(solver, c, n, colors)
+    extra = {"n": n, "colors": colors, "sum_triples": triples, "symmetry_break": symmetry_break}
     result = solver.check()
     if result == z3.sat:
         model = solver.model()

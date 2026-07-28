@@ -6,6 +6,19 @@
 
 ---
 
+## 2026-07-28 — Optimizasyon denemesi · simetri kırma (dürüst: karışık sonuç)
+
+**Yapıldı**
+
+- `frontier`'a renk-simetri kırma eklendi (opsiyonel `symmetry_break`; doğruluk
+  teste kilitli). Ölçüm: küçük/UNSAT'ta hızlandırdı; **SAT'ta yavaşlattı**
+  (S(4)=44: 35s → 48s); W(2,5) 2-renkte değişmedi (faktör 2).
+- **Dürüst sonuç:** naif simetri kırma duvarı (S(4)=45, W(2,6)) AŞMADI →
+  varsayılan **kapalı**. Gerçek duvar araştırma-düzeyi SAT teknikleri ister.
+  Detay: `docs/track-b-results.md`.
+
+**Sıradaki (gelecek oturumlar):** ürünleşme (PyPI); farklı hızlandırma teknikleri.
+
 ## 2026-07-28 — Track B · Schur sayıları (bilinen değerler yeniden üretildi)
 
 **Yapıldı**

@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **168 tools**.
+Total **171 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -677,3 +677,15 @@ Structured engine metrics (K3 observability): call counts, status distribution, 
 ### `resource_limits()`
 
 The engine's ACTIVE resource fences (K3): statement/expression/depth caps, default timeout &
+
+### `list_capabilities()`
+
+List the capability PACKS (core / logic / symbolic / numerical / frontier / observability).
+
+### `describe_tool(name)`
+
+Full metadata for one tool (description, input schema, pack, stability) — even if the
+
+### `recommend_tool(query, limit=5)`
+
+Suggest the best-matching tool(s) for a natural-language task (name + why + how to enable).

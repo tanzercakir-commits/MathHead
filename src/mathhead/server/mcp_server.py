@@ -14,6 +14,8 @@ shape match docs/mcp-api.md exactly (ADR-0004: frozen early).
 """
 from __future__ import annotations
 
+import os
+import sys
 from dataclasses import asdict
 from typing import Any
 
@@ -24,6 +26,7 @@ except ImportError as exc:  # guardrail: a clear message if the dependency is mi
         "MCP SDK not found. Install: pip install 'mcp[cli]'  (see pyproject.toml)"
     ) from exc
 
+from mathhead import profiles as _profiles
 from mathhead.router import route
 
 mcp = FastMCP("MathHead")
@@ -1469,8 +1472,49 @@ def resource_limits() -> dict[str, Any]:
     return asdict(route("resource_limits", {}))
 
 
+# ----------------- Capability triage (L3 — navigate the surface) ---------- #
+@mcp.tool()
+def list_capabilities() -> dict[str, Any]:
+    """List the capability PACKS (core / logic / symbolic / numerical / frontier / observability).
+
+    The default server profile exposes the `core` pack (the verification differentiator, ~20
+    tools). Set `MATHHEAD_PROFILE=full` (or e.g. `core,symbolic`) to expose more. Always available.
+    """
+    return asdict(route("list_capabilities", {}))
+
+
+@mcp.tool()
+def describe_tool(name: str) -> dict[str, Any]:
+    """Full metadata for one tool (description, input schema, pack, stability) — even if the
+    current profile has it hidden, so you know which pack to enable. Always available."""
+    return asdict(route("describe_tool", {"name": name}))
+
+
+@mcp.tool()
+def recommend_tool(query: str, limit: int = 5) -> dict[str, Any]:
+    """Suggest the best-matching tool(s) for a natural-language task (name + why + how to enable).
+
+    A navigation aid over tool names/descriptions — not a solver. Always available.
+    """
+    return asdict(route("recommend_tool", {"query": query, "limit": limit}))
+
+
+# Snapshot the FULL catalog before any profile filtering (triage tools always see everything).
+_profiles.snapshot_catalog(mcp)
+
+
 def main() -> None:
-    """Starts the server over stdio (for local MCP clients)."""
+    """Start the server over stdio, exposing the tools in the selected profile.
+
+    `MATHHEAD_PROFILE` (default `core`) selects capability packs — `core` (verification only),
+    `full`/`all` (every tool), or a comma list like `core,symbolic,frontier`. The triage tools
+    (`list_capabilities`/`describe_tool`/`recommend_tool`) are always exposed so an AI can
+    discover and enable the rest.
+    """
+    packs = _profiles.select_packs(os.environ.get("MATHHEAD_PROFILE", "core"))
+    kept = _profiles.apply_profile(mcp, packs)
+    print(f"MathHead MCP: profile packs={sorted(packs)} → {len(kept)} tools exposed "
+          f"(MATHHEAD_PROFILE=full for all)", file=sys.stderr)
     mcp.run(transport="stdio")
 
 

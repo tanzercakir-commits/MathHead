@@ -47,10 +47,13 @@ Newest status is always at the **top** of `Progress.md`. A new session reads, in
 
 ## Continuing the roadmap (the working agreement)
 
-**ROADMAP COMPLETE — all tracks A–K are done** (v1.0.0, API frozen; the engine exposes
-**168 MCP tools** with the full test suite green — see `Progress.md` for the live count).
-The tracks below are kept for historical context; remaining work is **productization**
-(PyPI/release/tutorials — on the user, see `RELEASING.md`):
+**Tracks A–K are done** (v1.0.x, MCP contract frozen). The active work is **Track L —
+release hardening & product focus**, an external-review response that adds *no new math*
+(honesty, CI credibility, contract upgrade, surface focus, security, validation); L0–L3 are
+done, L4–L5 remain. The engine exposes **171 MCP tools** with the full test suite green — see
+`Progress.md` for the live count and `ROADMAP.md` for the L checklist. Beyond Track L, the
+remaining work is **productization** (PyPI/release/tutorials — on the user, see `RELEASING.md`).
+The tracks below are kept for historical context:
 
 - **H — Logic & Proof Depth:** induction proofs (Z3 can't do this natively — needs
   special handling), SMT theories (arrays, bit-vectors, strings), deeper proof

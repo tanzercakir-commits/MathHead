@@ -6,6 +6,19 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added (Track L)
 
+- **Tool profiles + capability packs + triage (L3).** A server now reads `MATHHEAD_PROFILE`
+  (default **`core`** ≈ the ~20-tool verification surface; `full`/`all` = every tool; or a comma
+  list like `core,symbolic`) and, at startup only, exposes just the selected packs. Every tool is
+  grouped into one of six **capability packs** (core / logic / symbolic / numerical / frontier /
+  observability), derived from the L2 stability tier + category. Three **triage tools** —
+  `list_capabilities`, `describe_tool`, `recommend_tool` — are exposed under *every* profile, over a
+  catalog snapshotted *before* filtering, so an AI can always discover (and learn how to enable)
+  hidden tools. New `mathhead/profiles.py`; **additive** (nothing removed from the frozen contract —
+  filtering is a startup presentation choice). Unknown/empty profile → `core`, never an empty server.
+  README rewritten problem-first (3 verification scenarios, a tool-profiles table, a "where not to
+  trust it" certainty+limits section; the Python catalog now points to `docs/api-reference.md`).
+  **171 MCP tools** (the 3 triage tools are new). ADR-0033.
+
 - **Result `certainty` (epistemic strength) + tool `stability`, machine-readable contract (L2).**
   Every result now carries `meta.certainty` — `formal_proof` / `independent_certificate` /
   `solver_verified` / `bounded_check` / `symbolic_result` / `numerical_check` / `unknown` / `error` /

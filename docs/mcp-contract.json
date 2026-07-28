@@ -32,7 +32,7 @@
     "experimental",
     "internal"
   ],
-  "tool_count": 168,
+  "tool_count": 171,
   "tools": {
     "anova_oneway": {
       "description": "One-way ANOVA across ≥2 groups → `{f_statistic, df_between, df_within, p_value}`.",
@@ -947,6 +947,23 @@
         "type": "object"
       },
       "stability": "experimental"
+    },
+    "describe_tool": {
+      "description": "Full metadata for one tool (description, input schema, pack, stability) — even if the",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "describe_toolArguments",
+        "type": "object"
+      },
+      "stability": "internal"
     },
     "determinant": {
       "description": "Determinant of a square matrix. Cells may be numeric or symbolic.",
@@ -2357,6 +2374,15 @@
       },
       "stability": "experimental"
     },
+    "list_capabilities": {
+      "description": "List the capability PACKS (core / logic / symbolic / numerical / frontier / observability).",
+      "input_schema": {
+        "properties": {},
+        "title": "list_capabilitiesArguments",
+        "type": "object"
+      },
+      "stability": "internal"
+    },
     "lu_decomposition": {
       "description": "LU decomposition: A = P·L·U. Returns: `L`, `U` matrices + `perm` (row swaps).",
       "input_schema": {
@@ -3366,6 +3392,28 @@
         "type": "object"
       },
       "stability": "experimental"
+    },
+    "recommend_tool": {
+      "description": "Suggest the best-matching tool(s) for a natural-language task (name + why + how to enable).",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 5,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "recommend_toolArguments",
+        "type": "object"
+      },
+      "stability": "internal"
     },
     "residue": {
       "description": "Residue Res(f, z₀) of `expression` at the pole `point` (may be complex, e.g. `I`).",

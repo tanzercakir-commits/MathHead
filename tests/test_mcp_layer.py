@@ -233,6 +233,10 @@ ARGS = {
     # Observability (K3)
     "engine_metrics": {},
     "resource_limits": {},
+    # Capability triage (L3)
+    "list_capabilities": {},
+    "describe_tool": {"name": "verify_equality"},
+    "recommend_tool": {"query": "check if two expressions are equal", "limit": 5},
 }
 
 

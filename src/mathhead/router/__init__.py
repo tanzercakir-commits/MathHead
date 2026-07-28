@@ -38,6 +38,14 @@ from mathhead.core.logic import (
 )
 from mathhead.cache import CacheStats, cache_stats_result
 from mathhead.certainty import annotate as _annotate_certainty
+from mathhead.profiles import (
+    CapabilitiesResult,
+    RecommendResult,
+    ToolInfoResult,
+    describe_tool,
+    list_capabilities,
+    recommend_tool,
+)
 from mathhead.observability import (
     LimitsResult,
     MetricsResult,
@@ -88,6 +96,7 @@ def _dispatch(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
     | DratResult | SolveResult | BatchResult | CacheStats | MetricsResult | LimitsResult
+    | CapabilitiesResult | ToolInfoResult | RecommendResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -525,6 +534,14 @@ def _dispatch(task: str, payload: dict[str, Any]) -> (
         return metrics_result()
     if task == "resource_limits":
         return limits_result()
+
+    # --- Capability triage (L3) ---
+    if task == "list_capabilities":
+        return list_capabilities()
+    if task == "describe_tool":
+        return describe_tool(payload["name"])
+    if task == "recommend_tool":
+        return recommend_tool(payload["query"], payload.get("limit", 5))
 
     raise ValueError(f"unknown task: {task!r}")
 

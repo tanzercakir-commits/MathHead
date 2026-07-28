@@ -287,8 +287,10 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
           solver_verified/bounded_check/symbolic_result/numerical_check/…) + per-tool meta.stability
           (stable/provisional/experimental/internal) + docs/mcp-contract.json (machine-readable, code=docs)
           ✅ (1246 tests, additive; ADR-0032)
-[ ] L3 🟡 Surface focus — default core profile (15–25 verification tools) + capability packs +
-          list_capabilities/describe_tool/recommend_tool; README rewrite (problem-first, 3 scenarios, limits)
+[x] L3 🟡 Surface focus — default `core` profile (~20 verification tools) via MATHHEAD_PROFILE +
+          6 capability packs + always-on triage (list_capabilities/describe_tool/recommend_tool);
+          profile-aware live MCP test; README rewrite (problem-first, 3 scenarios, profiles, limits)
+          ✅ (1261 tests, 171 tools, additive; ADR-0033)
 [ ] L4 🟢 Security/policy — SECURITY.md + CONTRIBUTING.md + threat model; strengthen MCP e2e tests
           (per-tool schema, malformed payload, no-stdout-leak, shutdown); document the timeout model honestly
 [ ] L5 🟢 External validation — 20-real-LLM-error catch-rate benchmark + tool-selection accuracy harness

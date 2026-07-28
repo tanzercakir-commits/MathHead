@@ -6,6 +6,36 @@
 
 ---
 
+## 2026-07-28 — L3 · surface focus (default `core` profile + capability packs + triage)
+
+The external review's #3: 171 tools is too many for an LLM to pick from well. The contract is
+frozen, so we *present* a smaller default instead of removing anything.
+
+**Done — new `mathhead/profiles.py` (additive, no new math):**
+- **6 capability packs** — core / logic / symbolic / numerical / frontier / observability —
+  derived from the L2 stability tier + category (no hand-maintained second list; `pack_of`
+  computes it).
+- **`MATHHEAD_PROFILE`** env var read at server startup: default **`core`** (~20-tool
+  verification surface), `full`/`all` (every tool), or a comma list (`core,symbolic`). Unknown/
+  empty → `core`, never an empty server. Filtering is **startup-only** (never mid-session) via
+  `_tool_manager.remove_tool`; printed to **stderr** so the stdio MCP protocol on stdout is
+  untouched.
+- **3 always-on triage tools** — `list_capabilities`, `describe_tool`, `recommend_tool` — in an
+  `ALWAYS` set exposed under *every* profile. The full catalog is snapshotted at import *before*
+  filtering, so triage can describe (and tell an AI how to enable) tools the active profile hides.
+  Added to `certainty._INTERNAL` so they annotate as stability=internal / certainty=not_applicable.
+- Router wired: 3 new route handlers; `route` still annotates every result (triage included).
+- `tests/test_profiles.py` (8) + `tests/test_mcp_live.py` rewritten **profile-aware** (full
+  profile exercises every layer end-to-end; core profile asserts the curated surface + triage
+  present + `simplify` hidden).
+- **README rewrite** (problem-first): 3 verification scenarios (domain trap / incomplete solution /
+  independent certificate), Tool-profiles table, a "where *not* to trust it" certainty+limits
+  section; the giant Python catalog → a pointer to `docs/api-reference.md`.
+- Regenerated `docs/api-reference.md` + `docs/mcp-contract.json` → **171 tools**. Full suite
+  **1261/1261 green**, ruff clean. ADR-0033.
+
+---
+
 ## 2026-07-28 — L2 · contract upgrade (certainty + stability + machine-readable schema)
 
 The on-thesis phase — makes the engine's honesty machine-readable.

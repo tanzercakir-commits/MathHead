@@ -43,7 +43,8 @@ _PROVISIONAL = {  # solid but newer logic/proof surface
     "check_bitvector", "check_uninterpreted", "check_arrays", "check_strings",
     "eliminate_quantifiers", "check_modal", "solve_cnf",
 }
-_INTERNAL = {"cache_stats", "engine_metrics", "resource_limits"}
+_INTERNAL = {"cache_stats", "engine_metrics", "resource_limits",
+             "list_capabilities", "describe_tool", "recommend_tool"}
 # everything else (compute CAS, numerical, frontier, NL) = experimental
 
 

@@ -539,6 +539,32 @@
 
 ---
 
+## ADR-0033 — Capability packs + a default `core` profile, with always-on triage (surface focus)
+
+- **Status:** Accepted · 2026-07-28 (Track L / L3)
+- **Context:** The external review's #3 concern: 171 tools is a large surface for an LLM to choose
+  from — it hurts tool-selection accuracy and inflates the client's context. But the breadth is
+  genuinely useful and the MCP contract is frozen, so we cannot *remove* tools. We needed a way to
+  present a small, on-thesis default without losing discoverability of the rest, and without a
+  breaking change.
+- **Decision:** `mathhead/profiles.py` groups every tool into one of six **capability packs** (core /
+  logic / symbolic / numerical / frontier / observability), derived from the L2 stability tier + the
+  tool's category (no hand-maintained duplicate list). A server reads `MATHHEAD_PROFILE` (default
+  `core` ≈ the ~20-tool verification surface; `full`/`all` = everything; or a comma list like
+  `core,symbolic`) and, **only at startup**, removes the tools whose pack isn't selected. Three
+  **triage tools** — `list_capabilities`, `describe_tool`, `recommend_tool` — are in an `ALWAYS` set
+  exposed under *every* profile, and the full catalog is snapshotted at import *before* filtering, so
+  triage can describe (and tell an AI how to enable) tools the active profile has hidden. An unknown
+  or empty profile falls back to `core` — never to an empty server.
+- **Consequences:** The default MCP client sees a focused, high-signal verification toolset instead
+  of 171 options, which is the product's thesis; power users opt into more with one env var. Nothing
+  is removed from the contract — filtering is a *presentation* choice at startup, fully additive, and
+  discovery is structurally guaranteed by the always-on triage tools. Profile filtering is startup-only
+  (never mid-session) so a live server's surface is stable. The catalog snapshot means triage stays
+  truthful about the whole engine regardless of the active profile.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

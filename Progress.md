@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — v1 · çekirdek çalışır (aynı oturum)
+
+**Yapıldı**
+
+- `guardrails`: `validate_input` (boyut/derinlik/sözdizimi) + `solver_config`
+  (sabit seed + timeout → determinizm).
+- `core/translate`: Python `ast` tabanlı, beyaz-listeli parser → Z3; sort
+  çıkarımı (Bool/Int); doğrusallık çiti (var*var reddi); zincirli karşılaştırma.
+- `core/logic`: `check_entailment` (¬sonuç UNSAT + karşıörnek), `check_consistency`
+  (sat/unsat + **unsat core**), `find_model`. İzlenebilir `meta`.
+- `router.route` 3 ilkeli bağlar; `mcp_server` → router → core.
+- Testler: best/worst + **determinizm (×50)** + guardrail → **17/17 yeşil**.
+- Canlı MCP: 3 araç kayıtlı (`entailment`/`consistency`/`model`), JSON çıktı temiz.
+- Yeni karar: ADR-0009 (ast-tabanlı parser + karar-verilebilir v1 parçası).
+
+**Karar:** v1 dili bilinçle **karar verilebilir** (Presburger + önermeler);
+Real/∀∃/nonlinear v1.1+'a ertelendi. Dış sözleşme (ReasoningResult, MCP imzaları)
+DEĞİŞMEDİ.
+
+**Doğrulandı:** `pytest` 17/17; z3 5.0.0; uçtan uca route → Z3 → JSON.
+
+**Sıradaki:** T9 (explanation zenginleştir) / v1.1 (Real + nicelik belirteçleri).
+
 ## 2026-07-28 — v0.1 · vizyon düzeltmesi (aynı oturum)
 
 **Değişti**

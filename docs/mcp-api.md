@@ -37,36 +37,35 @@
 
 ---
 
-## Girdi grameri (v1 parçası)
+## Girdi grameri (v1)
 
-v1 yalnızca aşağıdaki parçayı (fragment) kabul eder; gerisi `error` ile
-reddedilir (whitelist — ADR-0007).
+Girdi **Python ifade sözdizimi** ile yazılır; motorun ayrıştırıcısı (`ast`
+tabanlı, beyaz-listeli — ADR-0009) yalnızca aşağıdakine izin verir, gerisini net
+reddeder. Ayrıştırmayı Python yaptığı için **operatör önceliği ve parantez**
+beklendiği gibi çalışır.
 
-```
-expr        := iff
-iff         := implies ( "iff" implies )*
-implies     := disj ( "implies" disj )*
-disj        := conj ( "or" conj )*
-conj        := neg ( "and" neg )*
-neg         := "not" neg | atom
-atom        := bool_var | comparison | "(" expr ")"
-comparison  := term ( "<" | "<=" | "=" | ">=" | ">" ) term
-term        := factor ( ("+" | "-") factor )*
-factor      := coeff "*" var | var | number        ; DOĞRUSAL: var*var YASAK
-var         := IDENT        ; sayısal değişken (Int/Real teorisi)
-bool_var    := IDENT        ; Boolean değişken
-number      := INTEGER | REAL
-```
+| Kategori | İzin verilenler | Not |
+|---|---|---|
+| Boolean bağlaç | `and`, `or`, `not` | Python anahtar sözcükleri |
+| Boolean fonksiyon | `implies(a, b)`, `iff(a, b)`, `xor(a, b)` | her biri tam 2 argüman |
+| Karşılaştırma | `<`, `<=`, `==`, `!=`, `>=`, `>` | zincir destekli: `1 < x < 5` |
+| Aritmetik | `+`, `-`, `*` | **doğrusal**: `değişken*değişken` yasak |
+| Değişken | `Bool` veya `Int` | sort **bağlamdan** çıkarılır (aşağıda) |
+| Sabit | tam sayı, `True`, `False` | Real yok (v1.1) |
 
-Fonksiyon/yordam çağrısı gösterimi de kabul edilir: `implies(p, q)`, `not(p)`,
-`and(p, q)` — sunucu için daha kolay. İki gösterim de aynı AST'ye çevrilir.
+**Sort çıkarımı (tür):** bir ismin Boolean mı Int mi olduğu kullanımından
+belirlenir — karşılaştırma/aritmetik içinde geçen → `Int`; bağlaç/fonksiyon
+içinde ya da yalın atom → `Bool`. Bir isim **aynı problemde** hem Bool hem Int
+kullanılırsa motor `error` (`PARSE_ERROR`) döner — sessiz varsayım yok
+(PRINCIPLES #2).
 
-> **Açık tasarım kararı (T2'de kesinleşir):** bir `IDENT`'in Boolean mı sayısal mı
-> olduğu, kullanım bağlamından çıkarılır (karşılaştırmada geçen → sayısal; atom
-> olarak geçen → Boolean). Belirsizlik varsa motor **reddeder** (sessiz varsayım
-> yok — PRINCIPLES #2).
+**v1'de YOK (bilerek):** Real sayılar, `∀`/`∃` nicelik belirteçleri, doğrusal
+olmayan çarpım. Bunlar v1.1+ hedefi (Plan yol haritası). Neden dar? Bu parça
+**karar verilebilir** (decidable: önermeler + doğrusal tam sayı / Presburger),
+yani motor neredeyse her zaman kesin `valid/invalid/sat/unsat` verir.
 
-**Nicelik belirteçleri (∀/∃):** v1'de **yok**, v1.1 hedefi (Plan yol haritası).
+Örnek geçerli ifadeler: `p`, `not(p)`, `implies(p, q)`, `p and (q or not(r))`,
+`x > 2`, `1 < x < 5`, `2*x + 3 <= y`, `iff(p, q)`.
 
 ---
 
@@ -88,6 +87,8 @@ Fonksiyon/yordam çağrısı gösterimi de kabul edilir: `implies(p, q)`, `not(p
 | `COUNTEREXAMPLE_FOUND` | entailment geçersiz, karşıörnek var |
 | `CONSISTENT` | ifadeler tutarlı (sat) |
 | `CONTRADICTION` | ifadeler çelişkili (unsat) |
+| `MODEL_FOUND` | find_model: model bulundu (sat) |
+| `NO_MODEL` | find_model: model yok (unsat) |
 | `SOLVER_TIMEOUT` | zaman aşımı → unknown |
 | `SOLVER_UNKNOWN` | çözücü karar veremedi → unknown |
 | `PARSE_ERROR` | gramer ihlali → error |

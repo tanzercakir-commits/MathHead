@@ -1,46 +1,41 @@
 # MathHead — Todo
 
 > **Bu dosyanın işi:** ŞU AN yapılacaklar ve öncelikler. Sürekli değişir.
-> Hedef mimari `Plan.md`'de sabit durur; oraya bakınca "nereye gidiyoruz"
-> her zaman elinin altında olur.
+> Hedef mimari `Plan.md`'de sabit durur.
 >
 > İşaretler: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti
 
 ---
 
-## Aktif hedef: **v1 — Akıl Yürütme Denetçisi**
+## Aktif hedef: **v1 — Akıl Yürütme Denetçisi** → ÇEKİRDEK TAMAM ✅
 
-### P0 — Zemin (çekirdek çalışsın)
+### P0 — Zemin (çekirdek)
 
-- [ ] **T1** `guardrails`: `validate_input` + `solver_config` (sabit tohum + zaman aşımı + tek iş parçacığı) — `src/mathhead/guardrails/__init__.py`
-- [ ] **T2** `translate`: gramer + `parse` + `to_z3` (önerme mantığı + doğrusal aritmetik) — `src/mathhead/core/translate.py`
-- [ ] **T3** `logic.check_entailment`: "negasyonun UNSAT'lığı" yöntemi + karşıörnek — `src/mathhead/core/logic.py`
-- [ ] **T4** `logic.check_consistency`: SAT + `unsat core`
-- [ ] **T5** `logic.find_model`: okunur model çıktısı
+- [x] **T1** `guardrails`: `validate_input` + `solver_config` (sabit tohum + timeout)
+- [x] **T2** `translate`: Python `ast` → Z3, sort çıkarımı, doğrusallık çiti
+- [x] **T3** `check_entailment` (¬sonuç UNSAT + karşıörnek)
+- [x] **T4** `check_consistency` (sat/unsat + `unsat core`)
+- [x] **T5** `find_model`
 
-### P1 — Uçtan uca bağla
+### P1 — Uçtan uca
 
-- [ ] **T6** `router.route`: 3 ilkeli bağla (v1 tek çözücü: Z3)
-- [ ] **T7** `tests`: `test_logic` içindeki `xfail` işaretini kaldır, best/worst senaryoları yeşile al; **determinizm testi** ekle (aynı girdi ×100 → aynı çıktı)
-- [ ] **T8** `server`: gerçek MCP istemcisiyle (Claude) uçtan uca en az 3 soru denemesi
+- [x] **T6** `router.route` (3 ilkel) + `server → router`
+- [x] **T7** testler: best/worst + **determinizm (×50)** + guardrail → **17/17 yeşil**
+- [~] **T8** gerçek MCP istemcisi (Claude): araçlar in-process doğrulandı; canlı
+  `stdio` bağlantısı senin tarafında (`claude mcp add ...`) — README'de tarif var
 
-### P2 — Cila
+### P2 — Cila / sıradaki
 
-- [ ] **T9** `explanation` alanını zenginleştir (neden valid/invalid — insan-okur gerekçe)
-- [ ] **T10** golden senaryolar (`tests/fixtures/`) + `README` hızlı başlangıç kes-yapıştır
-
----
-
-## Backlog (v1 sonrası — olgunlaşınca Plan yol haritasına taşınır)
-
-- ∀/∃ nicelik belirteçleri ve daha zengin FOL parçası (v1.1)
-- `compute/` SymPy katmanı: `solve`, `simplify`, türev/integral (v2)
-- İspat üretimi + AI ispatını doğrulama (v3)
+- [ ] **T9** `explanation`'ı zenginleştir (invalid'de karşıörneği cümleye göm)
+- [ ] **T10** golden senaryolar (`tests/fixtures/*.json`)
+- [ ] **T11** v1.1: Real sayılar + `∀`/`∃` nicelik belirteçleri
+- [ ] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral
 
 ---
 
-## Bu oturumda biten (v0)
+## Bu oturumda biten
 
-- [x] Repo iskeleti + import edilebilir stub'lar
-- [x] Dönüş sözleşmesi (`ReasoningResult`) donduruldu
-- [x] `Plan` / `Todo` / `Progress` / `PRINCIPLES` / `DECISIONS` + `docs/`
+- [x] v0: iskelet + tasarım dosyaları
+- [x] v1 çekirdeği **çalışır** (gerçek Z3): 3 ilkel, unsat core, karşıörnek, meta
+- [x] MCP uçtan uca (3 araç kayıtlı, JSON temiz), 17/17 test yeşil
+- [x] Repo GitHub'da; CI (Actions) kurulu

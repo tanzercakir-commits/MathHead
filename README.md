@@ -15,13 +15,34 @@ gövdeleri v1'de doldurulacak. Yol için `Todo.md`, hedef için `Plan.md`.
 ## Hızlı başlangıç
 
 ```bash
-git clone <repo> && cd mathhead
+git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
 mathhead-server        # MCP sunucusunu stdio ile başlat
-pytest -q              # testler (v0: smoke geçer, logic spec xfail)
+pytest -q              # testler → 17/17 yeşil
 ```
+
+## Kullanım (v1)
+
+Python'dan:
+
+```python
+from mathhead.core import check_entailment, check_consistency, find_model
+
+check_entailment(["p", "implies(p, q)"], "q")   # -> status="valid"
+check_entailment(["x > 0"], "x > 5")             # -> "invalid", witness={"x": 1}
+check_consistency(["p", "not(p)"])               # -> "unsat" + unsat core
+find_model(["x > 2", "x < 5"])                    # -> "sat", witness={"x": 3}
+```
+
+MCP istemcisine (ör. Claude Code) bağlamak:
+
+```bash
+claude mcp add mathhead -- mathhead-server
+```
+
+Girdi dili (gramer) ve araç sözleşmesi: `docs/mcp-api.md`.
 
 ## Yapı
 

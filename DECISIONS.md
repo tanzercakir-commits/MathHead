@@ -98,6 +98,20 @@
   doğrulanabilir sertifika ile geçerli. Sertifika üretimi/arama ileride yeni ADR
   ile mimariye eklenecek.
 
+## ADR-0009 — Girdi ayrıştırma: elle parser yerine Python `ast` + beyaz liste
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** v1 bir girdi diline ihtiyaç duydu. Elle lexer/grammar yazmak zaman
+  alır ve hata/saldırı yüzeyi geniştir.
+- **Karar:** Girdiyi Python ifade sözdizimiyle al, `ast.parse(mode="eval")` ile
+  ayrıştır, düğümleri **beyaz liste** ile süz. İzinli: `and/or/not`,
+  `implies/iff/xor`, `+ - *` (doğrusal), karşılaştırmalar, `Int`/`Bool`. Sort
+  bağlamdan çıkarılır; çelişki → `PARSE_ERROR`.
+- **Sonuçlar:** Olgun ayrıştırıcı; öncelik/parantez bedava; saldırı yüzeyi
+  beyaz listeyle dar. Bedeli: dil "Python'umsu" (`==`, `!=`; implies/iff fonksiyon
+  biçiminde). v1 parçası **karar verilebilir** seçildi (Presburger + önermeler)
+  → çoğunlukla kesin sonuç, az "unknown".
+
 ---
 
 <!-- Yeni karar şablonu:

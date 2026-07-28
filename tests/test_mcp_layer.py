@@ -172,6 +172,13 @@ ARGS = {
     "critical_points": {"expression": "x**2 - y**2", "variables": ["x", "y"]},
     "lagrange_multipliers": {"objective": "x*y", "constraints": ["x+y-10"], "variables": ["x", "y"]},
     "check_convexity": {"expression": "x**2 + y**2", "variables": ["x", "y"]},
+    # numerical methods
+    "find_root_newton": {"expression": "x**2 - 2", "symbol": "x", "x0": 1.5},
+    "find_root_bisection": {"expression": "x**2 - 2", "symbol": "x", "a": 1, "b": 2},
+    "find_root_secant": {"expression": "x**2 - 2", "symbol": "x", "x0": 1, "x1": 2},
+    "numerical_integrate": {"expression": "x**2", "symbol": "x", "lower": 0, "upper": 3,
+                            "method": "simpson", "intervals": 100},
+    "interpolate": {"points": [[0, 1], [1, 3], [2, 7]], "at": 3},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

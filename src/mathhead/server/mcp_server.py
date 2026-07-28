@@ -1044,6 +1044,51 @@ def check_convexity(expression: str, variables: list[str]) -> dict[str, Any]:
     return asdict(route("check_convexity", {"expression": expression, "variables": variables}))
 
 
+# ------------------------------ Numerical methods ------------------------- #
+@mcp.tool()
+def find_root_newton(expression: str, symbol: str, x0: float,
+                     tolerance: float = 1e-12, max_iter: int = 100) -> dict[str, Any]:
+    """Newton's method for a root from `x0` → `{root, iterations, residual, converged}`.
+
+    Deterministic (fixed mpmath precision). Non-convergence is flagged honestly (`converged:false`).
+    """
+    return asdict(route("find_root_newton", {"expression": expression, "symbol": symbol, "x0": x0,
+                                             "tolerance": tolerance, "max_iter": max_iter}))
+
+
+@mcp.tool()
+def find_root_bisection(expression: str, symbol: str, a: float, b: float,
+                        tolerance: float = 1e-12, max_iter: int = 200) -> dict[str, Any]:
+    """Bisection for a root in [a, b]. Requires a SIGN CHANGE f(a)·f(b) < 0 (else honest error)."""
+    return asdict(route("find_root_bisection", {"expression": expression, "symbol": symbol,
+                                                "a": a, "b": b, "tolerance": tolerance,
+                                                "max_iter": max_iter}))
+
+
+@mcp.tool()
+def find_root_secant(expression: str, symbol: str, x0: float, x1: float,
+                     tolerance: float = 1e-12, max_iter: int = 100) -> dict[str, Any]:
+    """Secant method for a root from two starting points (no derivative needed)."""
+    return asdict(route("find_root_secant", {"expression": expression, "symbol": symbol,
+                                             "x0": x0, "x1": x1, "tolerance": tolerance,
+                                             "max_iter": max_iter}))
+
+
+@mcp.tool()
+def numerical_integrate(expression: str, symbol: str, lower: float, upper: float,
+                        method: str = "simpson", intervals: int = 100) -> dict[str, Any]:
+    """Numerical integral over [lower, upper] via composite `simpson` or `trapezoid`. E.g. x² on [0,3] → 9."""
+    return asdict(route("numerical_integrate", {"expression": expression, "symbol": symbol,
+                                                "lower": lower, "upper": upper, "method": method,
+                                                "intervals": intervals}))
+
+
+@mcp.tool()
+def interpolate(points: list, at: float | None = None) -> dict[str, Any]:
+    """Lagrange polynomial through `points` ([x,y] list). E.g. (0,1),(1,3),(2,7) → `x**2 + x + 1`."""
+    return asdict(route("interpolate", {"points": points, "at": at}))
+
+
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""

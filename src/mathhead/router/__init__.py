@@ -382,6 +382,25 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "check_convexity":
         return compute.check_convexity(payload["expression"], payload["variables"])
 
+    # --- Numerical methods (root-finding, quadrature, interpolation) ---
+    if task == "find_root_newton":
+        return compute.find_root_newton(payload["expression"], payload["symbol"], payload["x0"],
+                                        payload.get("tolerance", 1e-12), payload.get("max_iter", 100))
+    if task == "find_root_bisection":
+        return compute.find_root_bisection(payload["expression"], payload["symbol"], payload["a"],
+                                           payload["b"], payload.get("tolerance", 1e-12),
+                                           payload.get("max_iter", 200))
+    if task == "find_root_secant":
+        return compute.find_root_secant(payload["expression"], payload["symbol"], payload["x0"],
+                                        payload["x1"], payload.get("tolerance", 1e-12),
+                                        payload.get("max_iter", 100))
+    if task == "numerical_integrate":
+        return compute.numerical_integrate(payload["expression"], payload["symbol"], payload["lower"],
+                                           payload["upper"], payload.get("method", "simpson"),
+                                           payload.get("intervals", 100))
+    if task == "interpolate":
+        return compute.interpolate(payload["points"], payload.get("at"))
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

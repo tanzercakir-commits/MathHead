@@ -607,6 +607,35 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("expression", metavar="EXPRESSION")
     p.add_argument("--vars", required=True, metavar="X,Y")
 
+    p = sub.add_parser("newton", help="Newton root-finding from x0")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("x0", type=float)
+
+    p = sub.add_parser("bisection", help="bisection root in [a,b] (needs a sign change)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("a", type=float)
+    p.add_argument("b", type=float)
+
+    p = sub.add_parser("secant", help="secant root from x0, x1")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("x0", type=float)
+    p.add_argument("x1", type=float)
+
+    p = sub.add_parser("num-integrate", help="numerical integral (--method simpson|trapezoid)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("lower", type=float)
+    p.add_argument("upper", type=float)
+    p.add_argument("--method", default="simpson", choices=["simpson", "trapezoid"])
+    p.add_argument("--intervals", type=int, default=100)
+
+    p = sub.add_parser("interpolate", help="Lagrange interpolation (--points JSON, --at)")
+    p.add_argument("--points", required=True, metavar="JSON", help="e.g. '[[0,1],[1,3],[2,7]]'")
+    p.add_argument("--at", type=float)
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -853,6 +882,17 @@ _DISPATCH = {
     "convexity": lambda a: ("check_convexity",
                             {"expression": a.expression,
                              "variables": [v.strip() for v in a.vars.split(",")]}),
+    "newton": lambda a: ("find_root_newton",
+                         {"expression": a.expression, "symbol": a.symbol, "x0": a.x0}),
+    "bisection": lambda a: ("find_root_bisection",
+                            {"expression": a.expression, "symbol": a.symbol, "a": a.a, "b": a.b}),
+    "secant": lambda a: ("find_root_secant",
+                         {"expression": a.expression, "symbol": a.symbol, "x0": a.x0, "x1": a.x1}),
+    "num-integrate": lambda a: ("numerical_integrate",
+                                {"expression": a.expression, "symbol": a.symbol, "lower": a.lower,
+                                 "upper": a.upper, "method": a.method, "intervals": a.intervals}),
+    "interpolate": lambda a: ("interpolate",
+                              {"points": json.loads(a.points), "at": a.at}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

@@ -2930,6 +2930,203 @@ def check_convexity(expression: str, variables: list[str]) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# G1 — root-finding & numerical analysis: Newton / bisection / secant,
+# Simpson/trapezoid quadrature, Lagrange interpolation. Numerical work runs at fixed
+# mpmath precision (deterministic; ADR-0019) and results are rounded. Non-convergence
+# is reported HONESTLY (a `converged` flag + residual), not hidden.
+# --------------------------------------------------------------------------- #
+def _single_var(expression: str, symbol: str) -> tuple[Any, Any]:
+    """Parses a single-variable expression; rejects extra free symbols."""
+    syms: dict[str, Any] = {}
+    expr = _parse(expression, syms)
+    var = _symbol(symbol, syms)
+    extra = sorted((s for s in expr.free_symbols if s != var), key=str)
+    if extra:
+        raise ComputeError(f"the expression has extra symbol(s): {', '.join(map(str, extra))}")
+    return expr, var
+
+
+def find_root_newton(expression: str, symbol: str, x0: float,
+                     tolerance: float = 1e-12, max_iter: int = 100) -> ComputeResult:
+    """Newton's method for a root of `expression` from `x0`. Returns `{root, iterations, residual, converged}`."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        expr, var = _single_var(expression, symbol)
+    except ComputeError as exc:
+        return _error("find_root_newton", str(exc), t0)
+    f = sympy.lambdify(var, expr, "mpmath")
+    df = sympy.lambdify(var, sympy.diff(expr, var), "mpmath")
+    try:
+        with mp.workdps(30):
+            x = mp.mpf(str(x0))
+            tol = mp.mpf(str(tolerance))
+            it = 0
+            fx = f(x)
+            for it in range(1, int(max_iter) + 1):
+                if abs(fx) < tol:
+                    break
+                dfx = df(x)
+                if dfx == 0:
+                    return _error("find_root_newton", f"derivative is 0 at x={_rnd(x, 12)} (Newton stalls)",
+                                  t0, "COMPUTE_FAILED")
+                x = x - fx / dfx
+                fx = f(x)
+            converged = bool(abs(fx) < tol)
+            result = {"root": _rnd(x, 12), "iterations": it,
+                      "residual": _rnd(abs(fx), 15), "converged": converged}
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        return _error("find_root_newton", f"numerical failure: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "find_root_newton", result,
+                         f"root ≈ {result['root']} in {result['iterations']} iteration(s)"
+                         f"{'' if result['converged'] else ' (NOT converged)'}.", "OK", _meta(t0))
+
+
+def find_root_bisection(expression: str, symbol: str, a: float, b: float,
+                        tolerance: float = 1e-12, max_iter: int = 200) -> ComputeResult:
+    """Bisection for a root in [a, b]. Requires a SIGN CHANGE: f(a)·f(b) < 0."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        expr, var = _single_var(expression, symbol)
+    except ComputeError as exc:
+        return _error("find_root_bisection", str(exc), t0)
+    f = sympy.lambdify(var, expr, "mpmath")
+    try:
+        with mp.workdps(30):
+            lo, hi = mp.mpf(str(a)), mp.mpf(str(b))
+            tol = mp.mpf(str(tolerance))
+            flo, fhi = f(lo), f(hi)
+            if flo * fhi > 0:
+                return _error("find_root_bisection",
+                              "no sign change: f(a) and f(b) must have opposite signs",
+                              t0, "COMPUTE_FAILED")
+            it = 0
+            mid = (lo + hi) / 2
+            for it in range(1, int(max_iter) + 1):
+                mid = (lo + hi) / 2
+                fmid = f(mid)
+                if abs(fmid) < tol or (hi - lo) / 2 < tol:
+                    break
+                if flo * fmid < 0:
+                    hi = mid
+                else:
+                    lo, flo = mid, fmid
+            result = {"root": _rnd(mid, 12), "iterations": it, "residual": _rnd(abs(f(mid)), 15)}
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        return _error("find_root_bisection", f"numerical failure: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "find_root_bisection", result,
+                         f"root ≈ {result['root']} in {result['iterations']} iteration(s).",
+                         "OK", _meta(t0))
+
+
+def find_root_secant(expression: str, symbol: str, x0: float, x1: float,
+                     tolerance: float = 1e-12, max_iter: int = 100) -> ComputeResult:
+    """Secant method for a root from two starting points x0, x1 (no derivative needed)."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        expr, var = _single_var(expression, symbol)
+    except ComputeError as exc:
+        return _error("find_root_secant", str(exc), t0)
+    f = sympy.lambdify(var, expr, "mpmath")
+    try:
+        with mp.workdps(30):
+            p0, p1 = mp.mpf(str(x0)), mp.mpf(str(x1))
+            tol = mp.mpf(str(tolerance))
+            f0, f1 = f(p0), f(p1)
+            it = 0
+            for it in range(1, int(max_iter) + 1):
+                if abs(f1) < tol:
+                    break
+                if f1 - f0 == 0:
+                    return _error("find_root_secant", "secant denominator is 0 (method stalls)",
+                                  t0, "COMPUTE_FAILED")
+                p2 = p1 - f1 * (p1 - p0) / (f1 - f0)
+                p0, f0, p1 = p1, f1, p2
+                f1 = f(p1)
+            converged = bool(abs(f1) < tol)
+            result = {"root": _rnd(p1, 12), "iterations": it,
+                      "residual": _rnd(abs(f1), 15), "converged": converged}
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        return _error("find_root_secant", f"numerical failure: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "find_root_secant", result,
+                         f"root ≈ {result['root']} in {result['iterations']} iteration(s)"
+                         f"{'' if result['converged'] else ' (NOT converged)'}.", "OK", _meta(t0))
+
+
+def numerical_integrate(expression: str, symbol: str, lower: float, upper: float,
+                        method: str = "simpson", intervals: int = 100) -> ComputeResult:
+    """Numerical integral over [lower, upper] via `simpson` or `trapezoid` (composite)."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        expr, var = _single_var(expression, symbol)
+        m = str(method).strip().lower()
+        if m not in ("simpson", "trapezoid"):
+            raise ComputeError("method must be 'simpson' or 'trapezoid'")
+        n = int(intervals)
+        if n < 2:
+            raise ComputeError("intervals must be >= 2")
+        if m == "simpson" and n % 2 == 1:
+            n += 1                                  # Simpson needs an even count
+    except ComputeError as exc:
+        return _error("numerical_integrate", str(exc), t0)
+    f = sympy.lambdify(var, expr, "mpmath")
+    try:
+        with mp.workdps(30):
+            a, b = mp.mpf(str(lower)), mp.mpf(str(upper))
+            h = (b - a) / n
+            if m == "trapezoid":
+                total = (f(a) + f(b)) / 2 + sum(f(a + k * h) for k in range(1, n))
+                val = total * h
+            else:
+                odd = sum(f(a + (2 * k - 1) * h) for k in range(1, n // 2 + 1))
+                even = sum(f(a + 2 * k * h) for k in range(1, n // 2))
+                val = (f(a) + f(b) + 4 * odd + 2 * even) * h / 3
+            result = {"value": _rnd(val, 12), "method": m, "intervals": n}
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        return _error("numerical_integrate", f"numerical failure: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "numerical_integrate", result,
+                         f"∫ ≈ {result['value']} ({m}, {n} intervals).", "OK", _meta(t0))
+
+
+def interpolate(points: list, at: float | None = None) -> ComputeResult:
+    """Lagrange polynomial interpolation through `points` (list of `[x, y]`).
+
+    Returns the interpolating polynomial; if `at` is given, also its value there.
+    """
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(points, list) or len(points) < 2:
+            raise ComputeError("provide at least 2 points [x, y]")
+        pts = []
+        xs = set()
+        for p in points:
+            if not isinstance(p, list) or len(p) != 2:
+                raise ComputeError(f"each point must be [x, y]: {p!r}")
+            px, py = sympy.Rational(str(p[0])), sympy.Rational(str(p[1]))
+            if px in xs:
+                raise ComputeError(f"duplicate x-value {px} (interpolation nodes must be distinct)")
+            xs.add(px)
+            pts.append((px, py))
+    except (ComputeError, ValueError, TypeError) as exc:
+        return _error("interpolate", str(exc), t0)
+    xsym = sympy.Symbol("x")
+    try:
+        poly = sympy.expand(sympy.interpolate(pts, xsym))
+    except Exception as exc:  # noqa: BLE001
+        return _error("interpolate", f"could not interpolate: {exc}", t0, "COMPUTE_FAILED")
+    result: dict[str, Any] = {"polynomial": str(poly)}
+    if at is not None:
+        result["value"] = str(sympy.simplify(poly.subs(xsym, sympy.Rational(str(at)))))
+    return ComputeResult("ok", "interpolate", result,
+                         f"interpolating polynomial: {result['polynomial']}"
+                         + (f"; value at {at} = {result['value']}" if at is not None else ""),
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

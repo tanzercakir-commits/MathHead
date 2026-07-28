@@ -282,6 +282,13 @@ multipliers + objective value), `check_convexity(expression, variables)` (Hessia
 `convex`/`concave`/`neither`/`undetermined`). Variables are treated as real. (Linear/integer LP over
 reals/ints is the existing `optimize` tool via Z3.)
 
+**Numerical methods (G1):** `find_root_newton(expression, symbol, x0, ...)`,
+`find_root_bisection(expression, symbol, a, b, ...)` (needs a sign change),
+`find_root_secant(expression, symbol, x0, x1, ...)`, `numerical_integrate(expression, symbol, lower,
+upper, method="simpson", intervals=100)` (Simpson/trapezoid), `interpolate(points, at=None)`
+(Lagrange). Numerical work runs at fixed mpmath precision → DETERMINISTIC; non-convergence is
+flagged (`converged:false`), not hidden.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

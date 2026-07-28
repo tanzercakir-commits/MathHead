@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **137 tools**.
+Total **142 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -509,6 +509,26 @@ Equality-constrained optimization via Lagrange multipliers (∇f = Σλᵢ∇g�
 ### `check_convexity(expression, variables)`
 
 Global convexity via the Hessian: `convex` / `concave` / `neither` / `undetermined` (honest).
+
+### `find_root_newton(expression, symbol, x0, tolerance=1e-12, max_iter=100)`
+
+Newton's method for a root from `x0` → `{root, iterations, residual, converged}`.
+
+### `find_root_bisection(expression, symbol, a, b, tolerance=1e-12, max_iter=200)`
+
+Bisection for a root in [a, b]. Requires a SIGN CHANGE f(a)·f(b) < 0 (else honest error).
+
+### `find_root_secant(expression, symbol, x0, x1, tolerance=1e-12, max_iter=100)`
+
+Secant method for a root from two starting points (no derivative needed).
+
+### `numerical_integrate(expression, symbol, lower, upper, method='simpson', intervals=100)`
+
+Numerical integral over [lower, upper] via composite `simpson` or `trapezoid`. E.g. x² on [0,3] → 9.
+
+### `interpolate(points, at=None)`
+
+Lagrange polynomial through `points` ([x,y] list). E.g. (0,1),(1,3),(2,7) → `x**2 + x + 1`.
 
 ### `mean(data)`
 

@@ -96,7 +96,11 @@
 
 ### 🎉 TRACK F DONE — Probability, Statistics & Optimization (137 tools, 905 tests). Next: **G → H → J → K**.
 
-- [ ] then: G → H → J → K (full list in ROADMAP)
+### Track G — Numerical Methods (in progress)
+
+- [x] **G1** root & numerical analysis — newton/bisection/secant, num-integrate, interpolate ✅ (929 tests, 142 tools)
+- [ ] **G2** numerical linalg & ODE · **G3** precision bridge · **G4** [S]
+- [ ] then: H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

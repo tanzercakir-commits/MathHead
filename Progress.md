@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — G1 · root-finding & numerical analysis (Track G begins)
+
+**Done — 5 new compute tools (142 total):**
+
+- `find_root_newton`, `find_root_bisection` (needs a sign change), `find_root_secant`,
+  `numerical_integrate` (composite Simpson/trapezoid), `interpolate` (Lagrange polynomial).
+- **Deterministic numerics:** all numerical work runs inside `mpmath.workdps(30)` (fixed
+  precision, no global side effects) and results are rounded — same input → same output
+  (ADR-0019 holds even for iterative methods). Non-convergence is flagged (`converged:false`),
+  never hidden.
+- Wired router + MCP (142 tools) + CLI (`newton`/`bisection`/`secant`/`num-integrate`/
+  `interpolate`) + `tests/test_numerical.py` (14) → **929/929 green**.
+
+**Verified:** Newton & bisection & secant all find √2; Newton finds the Dottie number
+(cos x = x → 0.739085); Simpson is exact on x² over [0,3] = 9; trapezoid of sin over [0,π] ≈ 2;
+Lagrange interpolation of (0,1),(1,3),(2,7) = x²+x+1, value at 3 = 13, and recovers a known line.
+
+**Honest walls:** bisection refuses without a sign change; an expression with extra free
+symbols is rejected; non-convergence is surfaced, not papered over.
+
+**Next:** G2 — numerical linear algebra & ODE (numerical eigenvalues, condition number, RK4).
+
 ## 2026-07-28 — F4 [S] · probability/stats hardening → TRACK F DONE 🎉
 
 **Done**

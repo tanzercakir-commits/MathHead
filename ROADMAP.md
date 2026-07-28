@@ -177,7 +177,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## G. Numerical Methods
 ```
-[ ] G1 🟢 Root & numerical analysis — Newton/bisection/secant, quadrature (Simpson/Gauss), interpolation
+[x] G1 🟢 Root & numerical analysis — find_root_newton/bisection/secant, numerical_integrate
+          (Simpson/trapezoid), interpolate (Lagrange) ✅ (142 tools; deterministic via mpmath)
 [ ] G2 🟡 Numerical linear algebra & ODE — numerical eigenvalue/solution, condition number, Runge-Kutta (RK4)
 [ ] G3 🟡 Precision bridge — arbitrary precision (mpmath), symbolic↔numeric cross-validation, error bound
 [ ] G4 [S] Hardening

@@ -289,3 +289,109 @@ def solve_system(equations: list[str], symbols: list[str]) -> ComputeResult:
         return _error("solve_system", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "solve_system", result,
                          f"{len(result)} çözüm bulundu.", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# Lineer cebir (matris) — SymPy Matrix. Girdi: list[list[str]], her hücre
+# yine ast-whitelist ile süzülür (sembolik hücre serbest: [["a","b"],["c","d"]]).
+# --------------------------------------------------------------------------- #
+def _parse_matrix(matrix: list[list[str]], syms: dict[str, Any]) -> Any:
+    """list[list[str]] -> sympy.Matrix. Dikdörtgen + boş-değil doğrulanır."""
+    if not isinstance(matrix, list) or not matrix:
+        raise ComputeError("matris boş olamaz")
+    rows = []
+    width: int | None = None
+    for row in matrix:
+        if not isinstance(row, list) or not row:
+            raise ComputeError("her satır boş olmayan bir liste olmalı")
+        if width is None:
+            width = len(row)
+        elif len(row) != width:
+            raise ComputeError("tüm satırlar aynı uzunlukta olmalı (dikdörtgen)")
+        rows.append([_parse(str(cell), syms) for cell in row])
+    return sympy.Matrix(rows)
+
+
+def determinant(matrix: list[list[str]]) -> ComputeResult:
+    """Kare bir matrisin determinantı (sembolik hücreler serbest)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("determinant için kare matris gerekir")
+    except ComputeError as exc:
+        return _error("determinant", str(exc), t0)
+    try:
+        result = sympy.simplify(M.det())
+    except Exception as exc:  # noqa: BLE001
+        return _error("determinant", f"determinant hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "determinant", str(result),
+                         f"det = {result}.", "OK", _meta(t0))
+
+
+def matrix_inverse(matrix: list[list[str]]) -> ComputeResult:
+    """Kare bir matrisin tersi (A⁻¹). Tekil (det=0) ise DÜRÜSTÇE hata döner."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("ters için kare matris gerekir")
+    except ComputeError as exc:
+        return _error("matrix_inverse", str(exc), t0)
+    try:
+        det = sympy.simplify(M.det())
+        if det == 0:
+            return _error("matrix_inverse",
+                          "matris tersinir değil (tekil/singular, det = 0)",
+                          t0, "COMPUTE_FAILED")
+        inv = M.inv()
+        result = [[str(sympy.simplify(inv[i, j])) for j in range(inv.cols)]
+                  for i in range(inv.rows)]
+    except Exception as exc:  # noqa: BLE001
+        return _error("matrix_inverse", f"ters alınamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "matrix_inverse", result,
+                         "A⁻¹ hesaplandı.", "OK", _meta(t0))
+
+
+def eigenvalues(matrix: list[list[str]]) -> ComputeResult:
+    """Kare bir matrisin özdeğerleri (eigenvalue) + cebirsel katlılık (multiplicity).
+
+    Dönüş: `[{"value": ..., "multiplicity": n}, ...]` — str'e göre sıralı
+    (determinizm; ADR-0019). Karmaşık/irrasyonel değerler tam formda döner.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("özdeğer için kare matris gerekir")
+    except ComputeError as exc:
+        return _error("eigenvalues", str(exc), t0)
+    try:
+        ev = M.eigenvals()  # {değer: katlılık}
+        result = sorted(
+            ({"value": str(val), "multiplicity": int(mult)} for val, mult in ev.items()),
+            key=lambda d: d["value"],
+        )
+    except Exception as exc:  # noqa: BLE001
+        return _error("eigenvalues", f"özdeğerler hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "eigenvalues", result,
+                         f"{len(result)} farklı özdeğer.", "OK", _meta(t0))
+
+
+def matrix_rank(matrix: list[list[str]]) -> ComputeResult:
+    """Bir matrisin rankı (doğrusal bağımsız satır/sütun sayısı). Kare olması şart değil."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("matrix_rank", str(exc), t0)
+    try:
+        result = int(M.rank())
+    except Exception as exc:  # noqa: BLE001
+        return _error("matrix_rank", f"rank hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "matrix_rank", result,
+                         f"rank = {result} ({M.rows}×{M.cols} matris).", "OK", _meta(t0))

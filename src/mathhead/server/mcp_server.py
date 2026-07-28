@@ -175,6 +175,41 @@ def solve_system(equations: list[str], symbols: list[str]) -> dict[str, Any]:
     return asdict(route("solve_system", {"equations": equations, "symbols": symbols}))
 
 
+# -------------------------- Lineer cebir (matris) ------------------------- #
+@mcp.tool()
+def determinant(matrix: list[list[str]]) -> dict[str, Any]:
+    """Kare bir matrisin determinantı. Hücreler sayısal veya sembolik olabilir.
+
+    Ör: [["1","2"],["3","4"]] → "-2"; [["a","b"],["c","d"]] → "a*d - b*c".
+    """
+    return asdict(route("determinant", {"matrix": matrix}))
+
+
+@mcp.tool()
+def matrix_inverse(matrix: list[list[str]]) -> dict[str, Any]:
+    """Kare bir matrisin tersi (A⁻¹). Tekil (singular, det=0) ise DÜRÜSTÇE hata.
+
+    Dönüş: `result` = ters matris (satır listeleri). Tersinir değilse status=error.
+    """
+    return asdict(route("matrix_inverse", {"matrix": matrix}))
+
+
+@mcp.tool()
+def eigenvalues(matrix: list[list[str]]) -> dict[str, Any]:
+    """Kare bir matrisin özdeğerleri (eigenvalue) + cebirsel katlılık (multiplicity).
+
+    Dönüş: `result` = [{"value": ..., "multiplicity": n}, ...]. Karmaşık/irrasyonel
+    değerler tam formda döner (ör. "I", "sqrt(2)"); değer str'e göre sıralı.
+    """
+    return asdict(route("eigenvalues", {"matrix": matrix}))
+
+
+@mcp.tool()
+def matrix_rank(matrix: list[list[str]]) -> dict[str, Any]:
+    """Bir matrisin rankı (doğrusal bağımsız satır/sütun sayısı). Kare olması şart değil."""
+    return asdict(route("matrix_rank", {"matrix": matrix}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

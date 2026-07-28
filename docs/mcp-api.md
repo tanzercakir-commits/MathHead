@@ -208,6 +208,24 @@ mertebeden Taylor açılımı döndürür (`removeO`). `solve_system` **çözüm
 listesi** döner: boş liste = çözüm yok (dürüst), birden çok sözlük = birden çok
 çözüm (doğrusal olmayan sistemler dahil), serbest değişken parametrik görünür.
 
+### Lineer cebir (matris)
+
+Girdi **`list[list[str]]`** (satır listeleri); her hücre yine ast-whitelist ile
+süzülür, sembolik olabilir. CLI'da MATLAB-tarzı dizgi: `"1,2;3,4"`.
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `determinant` | `determinant(matrix)` | `[["1","2"],["3","4"]]` → `"-2"`; `[["a","b"],["c","d"]]` → `"a*d - b*c"` |
+| `matrix_inverse` | `matrix_inverse(matrix)` | `[["1","2"],["3","4"]]` → `[["-2","1"],["3/2","-1/2"]]` |
+| `eigenvalues` | `eigenvalues(matrix)` | `[["2","0"],["0","3"]]` → `[{"value":"2","multiplicity":1},{"value":"3","multiplicity":1}]` |
+| `matrix_rank` | `matrix_rank(matrix)` | `[["1","2"],["2","4"]]` → `1` |
+
+`determinant`/`matrix_inverse`/`eigenvalues` **kare** matris ister (değilse
+`PARSE_ERROR`). **Dürüstlük:** tekil (singular, det=0) matriste `matrix_inverse`
+uydurmaz, `COMPUTE_FAILED` döner; `eigenvalues` karmaşık/irrasyonel değerleri tam
+formda (`"I"`, `"sqrt(2)"`) ve cebirsel katlılığı açıkça verir, `value`'ya göre
+sıralı (determinizm — ADR-0019). `matrix_rank` kare olmayan matriste de çalışır.
+
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
 `COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).

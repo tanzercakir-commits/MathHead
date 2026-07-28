@@ -49,6 +49,12 @@ limit("sin(x)/x", "x", "0")                       # -> "1"
 limit("1/x", "x", "oo")                           # -> "0"
 series("exp(x)", "x", "0", 5)                     # -> "x**4/24 + x**3/6 + x**2/2 + x + 1"
 solve_system(["x + y == 10", "x - y == 2"], ["x", "y"])   # -> [{"x": "6", "y": "4"}]
+
+from mathhead.compute import determinant, matrix_inverse, eigenvalues   # v2+ (lineer cebir)
+determinant([["a", "b"], ["c", "d"]])             # -> "a*d - b*c" (sembolik)
+matrix_inverse([["1", "2"], ["3", "4"]])          # -> [["-2","1"],["3/2","-1/2"]]
+matrix_inverse([["1", "2"], ["2", "4"]])          # -> error: tersinir değil (dürüst)
+eigenvalues([["2", "0"], ["0", "3"]])             # -> [{"value":"2",...},{"value":"3",...}]
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -71,6 +77,8 @@ mathhead solve "x**2 == 4" x                              # -> ['-2', '2']
 mathhead limit "sin(x)/x" x --point 0                     # -> 1
 mathhead solve-system --eq "x + y == 10" --eq "x - y == 2" \
                       --sym x --sym y                     # -> [{'x':'6','y':'4'}]
+mathhead det "1,2;3,4"                                    # -> -2
+mathhead eigenvals "2,0;0,3"                              # -> özdeğerler + katlılık
 mathhead pigeonhole 4                                     # -> unsat (ispat)
 mathhead --json consistent "x > 2" "x < 5"                # ham JSON
 ```
@@ -95,7 +103,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 20 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 24 araç)
 └── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
 ```
 

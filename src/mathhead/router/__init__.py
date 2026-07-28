@@ -88,6 +88,14 @@ def route(task: str, payload: dict[str, Any]) -> (
                               payload.get("point", "0"), payload.get("order", 6))
     if task == "solve_system":
         return compute.solve_system(payload["equations"], payload["symbols"])
+    if task == "determinant":
+        return compute.determinant(payload["matrix"])
+    if task == "matrix_inverse":
+        return compute.matrix_inverse(payload["matrix"])
+    if task == "eigenvalues":
+        return compute.eigenvalues(payload["matrix"])
+    if task == "matrix_rank":
+        return compute.matrix_rank(payload["matrix"])
 
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":

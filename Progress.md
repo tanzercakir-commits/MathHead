@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-28 — lineer cebir / matris (det / inverse / eigenvalues / rank)
+
+**Yapıldı**
+
+- Hesap katmanına matris çekirdeği: `determinant`, `matrix_inverse`,
+  `eigenvalues` (+ cebirsel katlılık), `matrix_rank`. Girdi `list[list[str]]`,
+  her hücre ast-whitelist ile süzülür → sembolik hücre serbest.
+- Uçtan uca: `router` (4 yeni görev) + MCP (**24 araç — dört yeni**) + CLI
+  (`det`/`inverse`/`eigenvals`/`rank`, MATLAB-tarzı `"1,2;3,4"` dizgisi) +
+  `tests/test_matrix.py` (18 test) → **146/146 yeşil**. Docs güncel.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `det[[a,b],[c,d]] = a*d - b*c` (sembolik çalışıyor); `inv[[1,2],[3,4]] =
+  [[-2,1],[3/2,-1/2]]`; döndürme matrisinin özdeğerleri `±i` (karmaşık, tam form);
+  kusurlu (defective) matriste tek özdeğer **katlılık 2** (gizlenmez).
+- **Dürüstlük:** tekil matris (`[[1,2],[2,4]]`, det=0) → ters uydurulmaz,
+  `COMPUTE_FAILED` + "tersinir değil" mesajı. Kare-değil determinant → reddedilir.
+- Güvenlik değişmezi korundu: hücrede `__import__` → reddedilir.
+- Determinizm: özdeğerler `value`'ya göre sıralı → çağrılar arası kararlı (ADR-0019).
+
+**Sıradaki (gelecek oturum):** matris çarpımı + `Ax=b` (lineer sistem matris
+formu) + özvektör (eigenvector); ya da ispat/mantık tarafını derinleştirme.
+(Ürün/PyPI akşam kullanıcıda.)
+
 ## 2026-07-28 — kalkülüs & sistemler (limit / series / solve_system)
 
 **Yapıldı**

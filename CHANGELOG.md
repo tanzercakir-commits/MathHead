@@ -6,6 +6,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Lineer cebir / matris (`determinant`, `matrix_inverse`, `eigenvalues`,
+  `matrix_rank`):** SymPy `Matrix` üstünde. Girdi `list[list[str]]` (hücreler
+  sembolik olabilir → `det[[a,b],[c,d]] = a*d - b*c`). **Dürüstlük:** tekil
+  (singular) matriste ters uydurulmaz, `COMPUTE_FAILED`; özdeğerler karmaşık/
+  irrasyonel değerleri tam formda + cebirsel katlılıkla verir (sıralı →
+  deterministik). MCP araçları (**24 araç**) + `mathhead det/inverse/eigenvals/
+  rank` CLI (`"1,2;3,4"` dizgisi). +18 test (`tests/test_matrix.py`).
 - **Kalkülüs & sistemler (`limit`, `series`, `solve_system`):** hesap katmanı
   (SymPy) genişledi. `limit` — sonlu/sonsuz nokta + tek yön (`+`/`-`);
   `series` — bir nokta etrafında Taylor açılımı (`order`. mertebe); `solve_system`

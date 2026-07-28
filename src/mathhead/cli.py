@@ -18,6 +18,9 @@ gider — CLI ince bir kabuktur.
     mathhead limit "1/x" x --point oo
     mathhead series "exp(x)" x --order 5
     mathhead solve-system --eq "x + y == 10" --eq "x - y == 2" --sym x --sym y
+    mathhead det "1,2;3,4"
+    mathhead inverse "1,2;3,4"
+    mathhead eigenvals "2,0;0,3"
     mathhead pigeonhole 4
     mathhead pythagorean 30
 
@@ -72,6 +75,14 @@ def _emit(result: Any, as_json: bool) -> int:
     if status == "unknown":
         return 2
     return 0
+
+
+def _matrix(s: str) -> list[list[str]]:
+    """MATLAB-tarzı matris dizgisi -> list[list[str]]. Satır ';', hücre ',' ile.
+
+    Ör: "1,2;3,4" -> [["1","2"],["3","4"]]. Hücreler sembolik de olabilir ("a,b;c,d").
+    """
+    return [[cell.strip() for cell in row.split(",")] for row in s.split(";")]
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -150,6 +161,18 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--eq", action="append", default=[], metavar="DENKLEM", help="bir denklem (tekrarlanabilir)")
     p.add_argument("--sym", action="append", default=[], metavar="DEĞİŞKEN", help="bir değişken (tekrarlanabilir)")
 
+    p = sub.add_parser("det", help="determinant (matris: '1,2;3,4')")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("inverse", help="matris tersi A⁻¹ (tekilse dürüst hata)")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("eigenvals", help="özdeğerler + katlılık")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("rank", help="matris rankı (kare olması şart değil)")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -188,6 +211,10 @@ _DISPATCH = {
     "series": lambda a: ("series", {"expression": a.expression, "symbol": a.symbol,
                                     "point": a.point, "order": a.order}),
     "solve-system": lambda a: ("solve_system", {"equations": a.eq, "symbols": a.sym}),
+    "det": lambda a: ("determinant", {"matrix": _matrix(a.matrix)}),
+    "inverse": lambda a: ("matrix_inverse", {"matrix": _matrix(a.matrix)}),
+    "eigenvals": lambda a: ("eigenvalues", {"matrix": _matrix(a.matrix)}),
+    "rank": lambda a: ("matrix_rank", {"matrix": _matrix(a.matrix)}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

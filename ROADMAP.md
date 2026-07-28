@@ -119,6 +119,93 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
 
 ---
 
+# ÖNERİLEN — TÜM MOTOR GELİŞTİRMELERİ (D–K, onay bekliyor)
+
+> Kullanıcı onayıyla aktifleşir; sırasını kullanıcı belirler. Ürünleştirme (PyPI/
+> release) hariç — o kullanıcıda. Zorluk: 🟢 hızlı (SymPy/Z3 hazır) · 🟡 orta ·
+> 🔴 zor/frontier. **[S]** = arada sağlamlaştırma.
+
+## D. Analiz & Dönüşümler
+```
+[ ] D1 🟢 Vektör kalkülüs — divergence/curl/Laplacian, çizgi & yüzey integrali,
+          Green/Stokes/Gauss teoremleri
+[ ] D2 🟢 İntegral dönüşümleri — Laplace & ters, Fourier & ters, Z-dönüşümü
+[ ] D3 🟡 Diferansiyel denklemler II — ODE sistemleri, yüksek mertebe, sınır değer;
+          temel PDE (ısı/dalga, ayrık değişkenler)   ↳ 🔴 PDE genel çözüm sınırlı
+[ ] D4 🟡 Karmaşık analiz — rezidü, kontur integrali, Laurent serisi, karmaşık değerlendirme
+[ ] D5 [S] Sağlamlaştırma — analiz özdeşlik property'leri (∇×∇f=0, ∇·(∇×F)=0) + sayısal kontrol
+```
+
+## E. Cebir & Ayrık Yapılar
+```
+[ ] E1 🟡 Soyut cebir — permütasyon grupları (mertebe/altgrup/üreteç/Cayley), halka/cisim temel
+[ ] E2 🟢 Lineer cebir III — SVD, QR, Cholesky, Gram-Schmidt, en küçük kareler,
+          pseudo-inverse, matris üsteli (exp), Jordan formu, karakteristik/minimal polinom
+[ ] E3 🟡 Graf teorisi — en kısa yol, bağlantılılık, eşleme (matching), max-flow/min-cut,
+          MST, izomorfizm
+[ ] E4 🟡 Sayı teorisi II — sürekli kesirler, karesel kalıntı, ilkel kök, Pell, Euler φ / Möbius
+[ ] E5 🟡 Kombinatorik II — üreteç fonksiyonları, içerme-dışlama, Catalan/Bell/Stirling, Polya
+[ ] E6 [S] Sağlamlaştırma
+```
+
+## F. Olasılık, İstatistik & Optimizasyon
+```
+[ ] F1 🟡 Olasılık II — koşullu & Bayes, ortak/marjinal dağılım, kovaryans, Markov zinciri
+[ ] F2 🟡 Çıkarımsal istatistik — hipotez testi (z/t/χ²/ANOVA), güven aralığı, p-değeri, regresyon
+[ ] F3 🟡 Optimizasyon II — doğrusal programlama (simpleks), tamsayı programlama,
+          Lagrange çarpanları, KKT/konveks
+[ ] F4 [S] Sağlamlaştırma
+```
+
+## G. Sayısal Yöntemler
+```
+[ ] G1 🟢 Kök & sayısal analiz — Newton/bisection/secant, quadrature (Simpson/Gauss), interpolasyon
+[ ] G2 🟡 Sayısal lineer cebir & ODE — sayısal eigenvalue/çözüm, koşul sayısı, Runge-Kutta (RK4)
+[ ] G3 🟡 Kesinlik köprüsü — arbitrary precision (mpmath), sembolik↔sayısal çapraz doğrulama, hata sınırı
+[ ] G4 [S] Sağlamlaştırma
+```
+
+## H. Mantık & İspat Derinliği
+```
+[ ] H1 🔴 Tümevarım ispatları — matematiksel tümevarım (temel+adım; Z3 native yapamaz, özel işleme)
+[ ] H2 🟡 SMT teorileri — diziler (arrays), bit-vektörler, dizeler (strings), yorumsuz fonksiyonlar
+[ ] H3 🟡 İspat üretimi II — daha çok teori için adım adım türetim; quantifier elimination
+[ ] H4 🔴 Modal/temporal mantık — K/S4/LTL temel (opsiyonel/frontier, dikkatli kapsam)
+[ ] H5 [S] Sağlamlaştırma
+```
+
+## I. Doğrulama Katmanı II (Track C devamı — ÖNE GEÇİREN)
+```
+[ ] I1 🟢 Yeni iddia türleri — verify_limit / verify_derivative / verify_integral /
+          verify_series / verify_matrix_identity
+[ ] I2 🔴 Doğal dil → formal (NL→formal) + GERİ-çeviri doğrulaması (round-trip; "2. duvar"a doğrudan)
+[ ] I3 🟡 Tam türetim ispat denetimi — çok adımlı çözümde her adımın gerekçesini denetle (kural bazlı)
+[ ] I4 🟡 Sertifika genişletme (C2 devamı) — matris / sayı teorisi / olasılık sertifikaları (stdlib)
+[ ] I5 [S] Sağlamlaştırma
+```
+
+## J. Frontier — Track B genişletme
+```
+[ ] J1 🟡 Yeni indirgemeler — Ramsey (küçük), Latin kareler, Sudoku, N-vezir, Hamilton, TSP (karar)
+[ ] J2 🔴 Doğrulanabilir UNSAT sertifikası (DRAT/LRAT) — Aşama 10 duvarı; DIMACS + drat-trim
+[ ] J3 🟡 Yüksek-performans çözücü — CaDiCaL/Kissat entegrasyonu (ölçek), paralel çözme
+[ ] J4 [S] Sağlamlaştırma
+```
+
+## K. Bütünsel Performans & Sağlamlaştırma (enine kesen, sonda)
+```
+[ ] K1 🟡 Performans — önbellek (memoization), artımlı çözme (Z3 push/pop), paralel, timeout profili
+[ ] K2 🟢 Kapsam & fuzzing — tüm ayrıştırıcı fuzz'ı, gramer formal spec, coverage %95
+[ ] K3 🟡 Gözlemlenebilirlik — yapılandırılmış metrik/log, kaynak limitleri, perf regresyon çiti
+[ ] K4 🟢 Sürüm 1.0 dondurma — tam sözleşme denetimi, API stabilitesi, sürüm notları
+```
+
+**Ölçek (dürüst):** ~37 aşama. Çok oturumluk iş; parça parça onaylanabilir.
+**Önerilen sıra (değer-öncelikli):** I (öne geçiren) → D → E → F → G → H → J → K;
+ama sıra tamamen sende. Onay/başka sıra/kapsam daraltma — hepsi olur.
+
+---
+
 ## Nerede kaldık?
 
 En güncel durum daima `Progress.md`'nin en üstünde. Yeni oturum önce onu ve bu

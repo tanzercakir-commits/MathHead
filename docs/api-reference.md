@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **76 tools**.
+Total **81 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -249,6 +249,26 @@ Dᵤf — directional derivative ∇f·û along the NORMALIZED `direction` (same
 ### `line_integral(field, variables, parametrization, param, lower, upper)`
 
 ∫_C F·dr — line integral of a vector field along a curve parametrized by `param`.
+
+### `laplace_transform(expression, t_var='t', s_var='s')`
+
+Laplace transform ℒ{f(t)}(s) = ∫₀^∞ f(t)·e^(−st) dt. e.g. `t` → `s**(-2)`, `sin(t)` → `1/(s**2+1)`.
+
+### `inverse_laplace_transform(expression, s_var='s', t_var='t')`
+
+Inverse Laplace transform ℒ⁻¹{F(s)}(t). Unilateral → a `Heaviside(t)` factor is expected.
+
+### `fourier_transform(expression, x_var='x', k_var='k')`
+
+Fourier transform (SymPy convention ∫ f(x)·e^(−2πi·k·x) dx). e.g. `exp(-x**2)` → `sqrt(pi)*exp(-pi**2*k**2)`.
+
+### `inverse_fourier_transform(expression, k_var='k', x_var='x')`
+
+Inverse Fourier transform ℱ⁻¹{F(k)}(x) (inverse of `fourier_transform`).
+
+### `z_transform(expression, n_var='n', z_var='z')`
+
+Unilateral Z-transform Z{x[n]}(z) = Σ_{n≥0} x[n]·z^(−n) — closed form + ROC.
 
 ### `definite_integral(expression, symbol, lower, upper)`
 

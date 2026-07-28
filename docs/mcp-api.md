@@ -216,6 +216,12 @@ variables)` (∇×F, 3-D only), `laplacian(expression, variables)` (∇²f),
 `directional_derivative(expression, variables, direction)` (∇f·û, normalized),
 `line_integral(field, variables, parametrization, param, lower, upper)` (∫_C F·dr).
 
+**Integral transforms (D2):** `laplace_transform(expression, t_var="t", s_var="s")`,
+`inverse_laplace_transform(...)`, `fourier_transform(expression, x_var="x", k_var="k")`,
+`inverse_fourier_transform(...)`, `z_transform(expression, n_var="n", z_var="z")` (unilateral,
+returns the closed form + ROC). Each returns `error`/`COMPUTE_FAILED` when SymPy finds no closed
+form — an unevaluated transform object is never passed off as an answer.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

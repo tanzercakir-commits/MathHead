@@ -556,6 +556,51 @@ def line_integral(field: list[str], variables: list[str], parametrization: list[
 
 
 @mcp.tool()
+def laplace_transform(expression: str, t_var: str = "t", s_var: str = "s") -> dict[str, Any]:
+    """Laplace transform ℒ{f(t)}(s) = ∫₀^∞ f(t)·e^(−st) dt. e.g. `t` → `s**(-2)`, `sin(t)` → `1/(s**2+1)`.
+
+    Honest: if SymPy finds no closed form it returns `error`/`COMPUTE_FAILED`, not an
+    unevaluated transform object.
+    """
+    return asdict(route("laplace_transform",
+                        {"expression": expression, "t_var": t_var, "s_var": s_var}))
+
+
+@mcp.tool()
+def inverse_laplace_transform(expression: str, s_var: str = "s", t_var: str = "t") -> dict[str, Any]:
+    """Inverse Laplace transform ℒ⁻¹{F(s)}(t). Unilateral → a `Heaviside(t)` factor is expected.
+
+    e.g. `1/s**2` → `t*Heaviside(t)`, `1/(s-a)` → `exp(a*t)*Heaviside(t)`.
+    """
+    return asdict(route("inverse_laplace_transform",
+                        {"expression": expression, "s_var": s_var, "t_var": t_var}))
+
+
+@mcp.tool()
+def fourier_transform(expression: str, x_var: str = "x", k_var: str = "k") -> dict[str, Any]:
+    """Fourier transform (SymPy convention ∫ f(x)·e^(−2πi·k·x) dx). e.g. `exp(-x**2)` → `sqrt(pi)*exp(-pi**2*k**2)`."""
+    return asdict(route("fourier_transform",
+                        {"expression": expression, "x_var": x_var, "k_var": k_var}))
+
+
+@mcp.tool()
+def inverse_fourier_transform(expression: str, k_var: str = "k", x_var: str = "x") -> dict[str, Any]:
+    """Inverse Fourier transform ℱ⁻¹{F(k)}(x) (inverse of `fourier_transform`)."""
+    return asdict(route("inverse_fourier_transform",
+                        {"expression": expression, "k_var": k_var, "x_var": x_var}))
+
+
+@mcp.tool()
+def z_transform(expression: str, n_var: str = "n", z_var: str = "z") -> dict[str, Any]:
+    """Unilateral Z-transform Z{x[n]}(z) = Σ_{n≥0} x[n]·z^(−n) — closed form + ROC.
+
+    e.g. `1` → `z/(z-1)`, `a**n` → `z/(z-a)`. Honest `COMPUTE_FAILED` if no closed form.
+    """
+    return asdict(route("z_transform",
+                        {"expression": expression, "n_var": n_var, "z_var": z_var}))
+
+
+@mcp.tool()
 def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> dict[str, Any]:
     """Definite integral ∫ₐᵇ f dx. Bounds may be infinite ("oo"/"-oo")."""
     return asdict(route("definite_integral", {"expression": expression, "symbol": symbol,

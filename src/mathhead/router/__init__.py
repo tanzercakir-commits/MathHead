@@ -216,6 +216,21 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.line_integral(payload["field"], payload["variables"],
                                      payload["parametrization"], payload["param"],
                                      payload["lower"], payload["upper"])
+    if task == "laplace_transform":
+        return compute.laplace_transform(payload["expression"],
+                                         payload.get("t_var", "t"), payload.get("s_var", "s"))
+    if task == "inverse_laplace_transform":
+        return compute.inverse_laplace_transform(payload["expression"],
+                                                 payload.get("s_var", "s"), payload.get("t_var", "t"))
+    if task == "fourier_transform":
+        return compute.fourier_transform(payload["expression"],
+                                         payload.get("x_var", "x"), payload.get("k_var", "k"))
+    if task == "inverse_fourier_transform":
+        return compute.inverse_fourier_transform(payload["expression"],
+                                                 payload.get("k_var", "k"), payload.get("x_var", "x"))
+    if task == "z_transform":
+        return compute.z_transform(payload["expression"],
+                                   payload.get("n_var", "n"), payload.get("z_var", "z"))
     if task == "definite_integral":
         return compute.definite_integral(payload["expression"], payload["symbol"],
                                          payload["lower"], payload["upper"])

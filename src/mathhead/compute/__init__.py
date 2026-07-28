@@ -1010,6 +1010,126 @@ def line_integral(field: list[str], variables: list[str], parametrization: list[
                          f"∫_C F·dr = {result} ({param}: {lower}..{upper}).", "OK", _meta(t0))
 
 
+# --------------------------------------------------------------------------- #
+# D2 — integral transforms: Laplace & inverse, Fourier & inverse, Z-transform.
+# Each honestly reports COMPUTE_FAILED when SymPy cannot find a closed form (the
+# unevaluated *Transform(...) / Sum(...) object is not passed off as an answer).
+# --------------------------------------------------------------------------- #
+def laplace_transform(expression: str, t_var: str = "t", s_var: str = "s") -> ComputeResult:
+    """Laplace transform ℒ{f(t)}(s) = ∫₀^∞ f(t)·e^(−st) dt."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        t = _symbol(t_var, syms)
+        s = _symbol(s_var, syms)
+    except ComputeError as exc:
+        return _error("laplace_transform", str(exc), t0)
+    try:
+        result = str(sympy.laplace_transform(expr, t, s, noconds=True))
+    except Exception as exc:  # noqa: BLE001
+        return _error("laplace_transform", f"could not transform: {exc}", t0, "COMPUTE_FAILED")
+    if "LaplaceTransform(" in result:
+        return _error("laplace_transform",
+                      f"no closed-form Laplace transform found (result: {result}).",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "laplace_transform", result,
+                         f"ℒ{{f}}({s_var}) = {result}.", "OK", _meta(t0))
+
+
+def inverse_laplace_transform(expression: str, s_var: str = "s", t_var: str = "t") -> ComputeResult:
+    """Inverse Laplace transform ℒ⁻¹{F(s)}(t) (unilateral → Heaviside factor is expected)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        s = _symbol(s_var, syms)
+        t = _symbol(t_var, syms)
+    except ComputeError as exc:
+        return _error("inverse_laplace_transform", str(exc), t0)
+    try:
+        result = str(sympy.inverse_laplace_transform(expr, s, t))
+    except Exception as exc:  # noqa: BLE001
+        return _error("inverse_laplace_transform", f"could not transform: {exc}", t0, "COMPUTE_FAILED")
+    if "InverseLaplaceTransform(" in result:
+        return _error("inverse_laplace_transform",
+                      f"no closed-form inverse found (result: {result}).", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "inverse_laplace_transform", result,
+                         f"ℒ⁻¹{{F}}({t_var}) = {result}.", "OK", _meta(t0))
+
+
+def fourier_transform(expression: str, x_var: str = "x", k_var: str = "k") -> ComputeResult:
+    """Fourier transform (SymPy convention: ∫ f(x)·e^(−2πi·k·x) dx)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        x = _symbol(x_var, syms)
+        k = _symbol(k_var, syms)
+    except ComputeError as exc:
+        return _error("fourier_transform", str(exc), t0)
+    try:
+        result = str(sympy.fourier_transform(expr, x, k))
+    except Exception as exc:  # noqa: BLE001
+        return _error("fourier_transform", f"could not transform: {exc}", t0, "COMPUTE_FAILED")
+    if "FourierTransform(" in result:
+        return _error("fourier_transform",
+                      f"no closed-form Fourier transform found (result: {result}).",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "fourier_transform", result,
+                         f"ℱ{{f}}({k_var}) = {result}.", "OK", _meta(t0))
+
+
+def inverse_fourier_transform(expression: str, k_var: str = "k", x_var: str = "x") -> ComputeResult:
+    """Inverse Fourier transform ℱ⁻¹{F(k)}(x)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        k = _symbol(k_var, syms)
+        x = _symbol(x_var, syms)
+    except ComputeError as exc:
+        return _error("inverse_fourier_transform", str(exc), t0)
+    try:
+        result = str(sympy.inverse_fourier_transform(expr, k, x))
+    except Exception as exc:  # noqa: BLE001
+        return _error("inverse_fourier_transform", f"could not transform: {exc}", t0, "COMPUTE_FAILED")
+    if "InverseFourierTransform(" in result:
+        return _error("inverse_fourier_transform",
+                      f"no closed-form inverse found (result: {result}).", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "inverse_fourier_transform", result,
+                         f"ℱ⁻¹{{F}}({x_var}) = {result}.", "OK", _meta(t0))
+
+
+def z_transform(expression: str, n_var: str = "n", z_var: str = "z") -> ComputeResult:
+    """Unilateral Z-transform Z{x[n]}(z) = Σ_{n≥0} x[n]·z^(−n) (closed form + ROC)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        n = _symbol(n_var, syms)
+        z = _symbol(z_var, syms)
+    except ComputeError as exc:
+        return _error("z_transform", str(exc), t0)
+    roc = None
+    try:
+        raw = sympy.summation(expr * z ** (-n), (n, 0, sympy.oo))
+        if isinstance(raw, sympy.Piecewise) and raw.args:
+            first = raw.args[0]
+            result = str(sympy.simplify(first.expr))
+            roc = first.cond
+        else:
+            result = str(sympy.simplify(raw))
+    except Exception as exc:  # noqa: BLE001
+        return _error("z_transform", f"could not transform: {exc}", t0, "COMPUTE_FAILED")
+    if "Sum(" in result:
+        return _error("z_transform",
+                      f"no closed-form Z-transform found (result: {result}).", t0, "COMPUTE_FAILED")
+    note = f" (ROC: {roc})" if roc is not None else ""
+    return ComputeResult("ok", "z_transform", result,
+                         f"Z{{x[{n_var}]}}({z_var}) = {result}{note}.", "OK", _meta(t0))
+
+
 def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> ComputeResult:
     """Definite integral ∫ₐᵇ f dx. Bounds may be infinite ("oo"/"-oo")."""
     t0 = time.perf_counter()

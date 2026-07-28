@@ -334,6 +334,31 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--lower", required=True, metavar="LOWER")
     p.add_argument("--upper", required=True, metavar="UPPER")
 
+    p = sub.add_parser("laplace", help="Laplace transform ℒ{f(t)}(s)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--t", default="t", metavar="T", help="time variable")
+    p.add_argument("--s", default="s", metavar="S", help="frequency variable")
+
+    p = sub.add_parser("inv-laplace", help="inverse Laplace ℒ⁻¹{F(s)}(t)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--s", default="s", metavar="S")
+    p.add_argument("--t", default="t", metavar="T")
+
+    p = sub.add_parser("fourier", help="Fourier transform ℱ{f(x)}(k)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--x", default="x", metavar="X")
+    p.add_argument("--k", default="k", metavar="K")
+
+    p = sub.add_parser("inv-fourier", help="inverse Fourier ℱ⁻¹{F(k)}(x)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--k", default="k", metavar="K")
+    p.add_argument("--x", default="x", metavar="X")
+
+    p = sub.add_parser("z-transform", help="Z-transform Z{x[n]}(z)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--n", default="n", metavar="N")
+    p.add_argument("--z", default="z", metavar="Z")
+
     p = sub.add_parser("defint", help="definite integral ∫[a,b] f dx")
     p.add_argument("expression", metavar="EXPRESSION"); p.add_argument("symbol", metavar="VARIABLE")
     p.add_argument("lower", metavar="LOWER"); p.add_argument("upper", metavar="UPPER")
@@ -487,6 +512,16 @@ _DISPATCH = {
                                  "variables": [v.strip() for v in a.vars.split(",")],
                                  "parametrization": a.r, "param": a.param,
                                  "lower": a.lower, "upper": a.upper}),
+    "laplace": lambda a: ("laplace_transform",
+                          {"expression": a.expression, "t_var": a.t, "s_var": a.s}),
+    "inv-laplace": lambda a: ("inverse_laplace_transform",
+                              {"expression": a.expression, "s_var": a.s, "t_var": a.t}),
+    "fourier": lambda a: ("fourier_transform",
+                          {"expression": a.expression, "x_var": a.x, "k_var": a.k}),
+    "inv-fourier": lambda a: ("inverse_fourier_transform",
+                              {"expression": a.expression, "k_var": a.k, "x_var": a.x}),
+    "z-transform": lambda a: ("z_transform",
+                              {"expression": a.expression, "n_var": a.n, "z_var": a.z}),
     "defint": lambda a: ("definite_integral", {"expression": a.expression, "symbol": a.symbol,
                                                "lower": a.lower, "upper": a.upper}),
     "sum": lambda a: ("summation", {"expression": a.expression, "index": a.index,

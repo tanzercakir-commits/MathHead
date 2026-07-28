@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — D2 · integral transforms (Laplace / Fourier / Z)
+
+**Done — 5 new compute tools (81 total):**
+
+- `laplace_transform` (ℒ{f(t)}(s)) + `inverse_laplace_transform` (ℒ⁻¹, Heaviside factor),
+  `fourier_transform` (ℱ) + `inverse_fourier_transform` (ℱ⁻¹), `z_transform` (unilateral
+  Z, closed form + ROC extracted from SymPy's Piecewise).
+- Wired router + MCP (81 tools) + CLI (`laplace`/`inv-laplace`/`fourier`/`inv-fourier`/
+  `z-transform`) + `tests/test_transforms.py` (14) → **614/614 green**.
+
+**Verified (transform pairs + round-trips):** ℒ{t}=1/s², ℒ{sin t}=1/(s²+1),
+ℒ⁻¹{1/s²}=t·H(t); ℒ{e^{3t}}→1/(s−3)→back to e^{3t}; ℱ{e^{−x²}}=√π·e^{−π²k²} and its
+inverse round-trips; Z{1}=z/(z−1), Z{aⁿ}=z/(z−a), Z{n}=z/(z−1)².
+
+**Honesty:** when SymPy cannot find a closed form (e.g. ℒ{1/t}), the tool returns
+`error`/`COMPUTE_FAILED` — it never passes off an unevaluated `LaplaceTransform(...)` /
+`Sum(...)` object as the answer.
+
+**Next:** D3 — differential equations II (ODE systems, higher order, BVP; basic PDE).
+
 ## 2026-07-28 — D1 · vector calculus (Track D begins)
 
 **Context:** Started Track D (Analysis & Transforms). D1 = the vector-calculus

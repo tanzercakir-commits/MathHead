@@ -34,7 +34,8 @@
 - [x] **T14** v2+: lineer cebir (matris) — determinant / eigenvalue / inverse / rank ✅
 - [x] **T15** v2+: lineer cebir II — matmul / Ax=b / eigenvector / rref / nullspace / LU ✅
       (ROADMAP Aşama 1 · 161 test · 30 araç)
-- [ ] **T16** ROADMAP Aşama 2 [S]: determinizm denetimi + property genişletme + parser fuzz
+- [x] **T16** ROADMAP Aşama 2 [S]: determinizm + property (det/Ax=b/simplify) + fuzz ✅ (169 test)
+- [ ] **T17** ROADMAP Aşama 3: sayı teorisi (gcd/lcm, asal, factorize, modüler ters/CRT, Diophantine)
 
 ---
 

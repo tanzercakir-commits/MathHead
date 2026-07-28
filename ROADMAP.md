@@ -39,9 +39,9 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        rref/boş uzay (nullspace), LU ayrıştırma
        ↳ dürüst duvar: tekil/tutarsız sistemleri açıkça raporla ✅
 
-[ ] Aşama 2 · [S] Sağlamlaştırma-1
-    └─ tüm `compute` için determinizm denetimi + property test (hypothesis)
-       genişletme + parser fuzz'lama (güvenlik: beyaz-liste sızıntısı yok mu)
+[x] Aşama 2 · [S] Sağlamlaştırma-1  (bitti — 169 test)
+    └─ `compute` determinizm denetimi + property test (hypothesis: det çarpımsal/
+       transpoz, Ax=b roundtrip, simplify idempotent) + parser fuzz ✅
 
 [ ] Aşama 3 · Sayı teorisi (number theory)
     └─ gcd/lcm, asal test (isprime), çarpanlara ayırma (factorint),

@@ -48,6 +48,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Değişti / sağlamlaştırma
 
+- **Sağlamlaştırma-1 (ROADMAP Aşama 2) — hesap katmanı property testleri:**
+  `tests/test_compute_properties.py`. Matematiksel değişmezler çapraz kontrol:
+  `det(A·B)=det(A)·det(B)`, `det(Aᵀ)=det(A)`, `Ax=b` roundtrip (b=Ax → x geri),
+  `simplify` idempotent. **Parser fuzz** (güvenlik): rastgele/kötücül metin ve
+  düzensiz matrislerde çökme yok, yalnız `ok|error`. Determinizm denetimi
+  (det/rank/özdeğer/simplify) 3 tohumda kararlı.
 - **Property-based testler (`hypothesis`):** rastgele formüllerde değişmezler
   (çökme yok, araçlar tutarlı, türetici sağlam). Test bir zayıflık yakaladı →
   **determinizm garantisi kesinleştirildi**: *verdict* deterministik, *tanık* bir

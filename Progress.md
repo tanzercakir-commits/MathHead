@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — Aşama 2 [S] · sağlamlaştırma-1 (property + determinizm + fuzz)
+
+**Yapıldı**
+
+- `tests/test_compute_properties.py` (8 property testi): hesap katmanı için
+  matematiksel değişmezler + parser fuzz + determinizm denetimi.
+- Değişmezler: `det(A·B)=det(A)·det(B)`, `det(Aᵀ)=det(A)`, `Ax=b` roundtrip,
+  `simplify` idempotent. Fuzz: rastgele/kötücül metin & düzensiz matris → çökme
+  yok, yalnız `ok|error`. → **169/169 yeşil**, 3 hypothesis tohumunda kararlı.
+
+**Doğrulandı**
+
+- Güvenlik değişmezi property testiyle de doğrulandı: beyaz-liste dışı hiçbir
+  girdi kod çalıştırmıyor / exception sızdırmıyor.
+- Yeni araç/CLI yok (bilinçli — bu bir sağlamlaştırma aşaması). API yüzeyi sabit.
+
+**Sıradaki:** Aşama 3 — sayı teorisi (gcd/lcm, asal, factorize, modüler ters/CRT,
+Diophantine).
+
 ## 2026-07-28 — Aşama 1 · lineer cebiri tamamla (matmul/Ax=b/eigvec/rref/nullspace/LU)
 
 **Yapıldı**

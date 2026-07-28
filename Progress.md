@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-28 — optimizasyon (Z3 Optimize / MaxSMT)
+
+**Yapıldı**
+
+- `logic.optimize` + `OptimizeResult` + `translate.translate_objective`: kısıtlar
+  altında sayısal amacı max/min (`z3.Optimize`). Router + MCP (**14. araç**) + CLI
+  (`mathhead optimize`) + testler → **90/90 yeşil**.
+- Dürüst kenar durumlar: `unbounded` (sınırsız), `unsat` (infeasible), açık-sınır
+  (ε — supremum/infimum tam ulaşılamaz).
+- Yeni karar: ADR-0017.
+
+**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
+(ürün/yayın akşam, sende).
+
 ## 2026-07-28 — model numaralandırma (all-SAT)
 
 **Yapıldı**

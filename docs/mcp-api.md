@@ -53,6 +53,15 @@ doğal tümdengelim; kurulamazsa Z3 kararı korunur, adımsız). `invalid` ise
 `exhaustive` — `True` = tümü bulundu (unsat'a ulaşıldı); `False` = sınıra
 ulaşıldı, sonsuz alanda (sınırsız Int/Real) daha fazlası olabilir.
 
+### 6) `optimize(constraints: list[str], objective: str, sense = "max") -> OptimizeResult`
+
+Kısıtları sağlayıp sayısal `objective`'i en büyük/küçük (`sense`: `max`/`min`)
+yapan çözümü bulur (Z3 Optimize — *optimization modulo theories*). Dönüş:
+`status` ∈ {`optimal`, `unbounded`, `unsat`, `unknown`, `error`},
+`objective_value`, `witness` (optimumu sağlayan atama), `sense`. Sınırsız
+(`unbounded`), uygun-çözüm-yok (`unsat`) ve açık-sınır (supremum/infimum, ε ile
+tam ulaşılamaz) durumları dürüstçe raporlanır.
+
 ---
 
 ## Girdi grameri (v1.2)

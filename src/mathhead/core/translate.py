@@ -276,6 +276,24 @@ def translate_all(expressions: list[str]) -> tuple[list[Any], dict[str, Any]]:
     return z3_exprs, tr.symbols
 
 
+def translate_objective(constraints: list[str], objective: str) -> tuple[list[Any], Any, dict[str, Any]]:
+    """Kısıtları (bool) ve bir amaç ifadesini (SAYISAL) ortak bağlamda çevirir.
+
+    Optimizasyon için: amaçtaki değişkenler kısıtlardakilerle aynı Z3 sabitleri
+    olmalı. Returns: (kısıt_z3_listesi, amaç_z3, semboller).
+    """
+    c_trees = [parse(c) for c in constraints]
+    o_tree = parse(objective)
+    has_real = any(_has_float(t) for t in [*c_trees, o_tree])
+    tr = _Translator(has_real)
+    for tree in c_trees:
+        tr.infer(tree.body, "bool", [])
+    tr.infer(o_tree.body, "num", [])            # amaç sayısaldır
+    c_z3 = [tr.build(tree.body, []) for tree in c_trees]
+    o_z3 = tr.build(o_tree.body, [])
+    return c_z3, o_z3, tr.symbols
+
+
 def to_z3(expression: str, symbols: dict[str, Any] | None = None, sorts: dict | None = None) -> Any:
     """Tek bir ifadeyi Z3'e çevirir (geri uyumluluk sarmalayıcısı)."""
     exprs, syms = translate_all([expression])

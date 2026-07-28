@@ -17,11 +17,13 @@ from mathhead import compute, frontier
 from mathhead.compute import ComputeResult
 from mathhead.core.logic import (
     ModelSet,
+    OptimizeResult,
     ReasoningResult,
     check_consistency,
     check_entailment,
     enumerate_models,
     find_model,
+    optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
 
@@ -36,7 +38,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
     return opts
 
 
-def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult | ProofResult | ModelSet:
+def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult:
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
     Mantık görevleri (Z3): entailment, consistency, find_model.
@@ -53,6 +55,9 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
         return prove_entailment(payload["premises"], payload["conclusion"], **_opts(payload))
     if task == "enumerate":
         return enumerate_models(payload["statements"], limit=payload.get("limit", 10), **_opts(payload))
+    if task == "optimize":
+        return optimize(payload["constraints"], payload["objective"],
+                        payload.get("sense", "max"), **_opts(payload))
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

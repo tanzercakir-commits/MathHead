@@ -79,6 +79,16 @@ def enumerate_models(statements: list[str], limit: int = 10) -> dict[str, Any]:
     return asdict(route("enumerate", {"statements": statements, "limit": limit}))
 
 
+@mcp.tool()
+def optimize(constraints: list[str], objective: str, sense: str = "max") -> dict[str, Any]:
+    """Kısıtları sağlayıp sayısal `objective`'i en büyük/küçük (`sense`) yapan çözümü bul.
+
+    Dönüş: status ∈ {optimal, unbounded, unsat, unknown, error}; optimal ise
+    `objective_value` + `witness` (optimumu sağlayan atama). (Z3 Optimize çekirdeği.)
+    """
+    return asdict(route("optimize", {"constraints": constraints, "objective": objective, "sense": sense}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

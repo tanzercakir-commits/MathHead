@@ -16,6 +16,9 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
   farklı modeli (all-SAT, bloklama-cümlesi) döndürür; `exhaustive` bayrağıyla
   "tümü mü, sınır mı" dürüstçe belirtilir. MCP aracı (13 araç) + `mathhead
   enumerate` CLI.
+- **Optimizasyon (`optimize`):** kısıtlar altında sayısal bir amacı en büyük/
+  küçük yapan çözümü bulur (Z3 Optimize / MaxSMT). `unbounded` / `unsat` /
+  açık-sınır dürüstçe raporlanır. MCP aracı (14 araç) + `mathhead optimize` CLI.
 
 ## [0.1.0] — 2026-07-28
 

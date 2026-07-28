@@ -204,6 +204,17 @@
   Hâlâ yok: aritmetik türetim, bazı içiçe/karışık nicelik desenleri → Z3 kararı
   korunur.
 
+## ADR-0017 — Optimizasyon: Z3 Optimize (optimization modulo theories)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Kısıtları sağlayan HERHANGİ bir çözüm değil, bir amacı en iyileyen
+  çözüm gerektiğinde (planlama / kaynak dağıtımı vb.) SAT yetmez.
+- **Karar:** `logic.optimize` — `z3.Optimize` çekirdeği; kısıtlar (bool) + sayısal
+  amaç ortak bağlamda çevrilir (`translate.translate_objective`). max/min.
+- **Sonuçlar:** Lineer amaç/kısıtlarda optimal + tanık döner. Dürüst kenar
+  durumlar ayrı ayrı raporlanır: `unbounded` (sınırsız), `unsat` (uygun çözüm
+  yok), açık-sınır (supremum/infimum ε ile, tam ulaşılamaz).
+
 ---
 
 <!-- Yeni karar şablonu:

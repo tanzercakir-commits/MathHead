@@ -45,6 +45,7 @@
 - [x] **v1.2**: yüklemler + bireyler (klasik silogizm çalışır) → 51/51 yeşil
 - [x] **CLI**: `mathhead` terminal aracı (11 komut + --json)
 - [x] **v3 ispat üretimi** (adım adım ND: MP/MT/DS/∀/∃/RAA) + **model numaralandırma** → 84/84
+- [x] **optimizasyon** (Z3 Optimize / MaxSMT): kısıt altında amacı en iyile → 90/90
 - [x] **Track B / van der Waerden**: W(2,3..5) bilinen değerleri yeniden üretildi (dürüst) → 61/61
 - [x] **Track B / Schur**: S(2)=4, S(3)=13 yeniden üretildi; S(4)≥44 (dürüst duvar) → 65/65
 - [x] **v3 / ispat üretimi**: minimal çekirdek + doğal tümdengelim (silogizm adım adım) → 72/72

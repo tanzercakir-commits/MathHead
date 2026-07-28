@@ -23,7 +23,7 @@ from typing import Any
 
 import z3
 
-from mathhead.core.translate import ParseError, translate_all
+from mathhead.core.translate import ParseError, translate_all, translate_objective
 from mathhead.guardrails import GuardrailError, solver_config, validate_input
 
 DEFAULT_TIMEOUT_MS: int = 5_000
@@ -310,3 +310,101 @@ def enumerate_models(
     return ModelSet("sat", "MODELS_FOUND",
                     f"{limit} model bulundu (sınıra ulaşıldı; daha fazlası olabilir).",
                     models, limit, False, _meta(t0, seed, timeout_ms))
+
+
+@dataclass
+class OptimizeResult:
+    """`optimize` çıktısı: kısıtlar altında bir amacı en iyileyen çözüm."""
+
+    status: str                              # optimal|unbounded|unsat|unknown|error
+    reason_code: str
+    explanation: str
+    objective_value: Any = None              # optimal amaç değeri
+    sense: str = ""                          # "max" | "min"
+    witness: dict[str, Any] | None = None    # optimumu sağlayan atama
+    meta: dict[str, Any] = field(default_factory=dict)
+
+
+def _opt_value(val: Any) -> Any:
+    try:
+        if z3.is_int_value(val):
+            return val.as_long()
+        if z3.is_rational_value(val):
+            return float(val.as_fraction())
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def optimize(
+    constraints: list[str],
+    objective: str,
+    sense: str = "max",
+    *,
+    timeout_ms: int = DEFAULT_TIMEOUT_MS,
+    seed: int = DEFAULT_SEED,
+) -> OptimizeResult:
+    """Kısıtları sağlayıp `objective` sayısal amacını en büyük/küçük yapan çözümü bul.
+
+    sense: "max"/"maximize" veya "min"/"minimize". Z3 Optimize (optimization
+    modulo theories) çekirdeği. `unbounded` (sınırsız), `unsat` (uygun çözüm yok),
+    `unknown` durumları dürüstçe raporlanır.
+    """
+    t0 = time.perf_counter()
+    s = sense.lower()
+    if s in ("max", "maximize"):
+        is_max = True
+    elif s in ("min", "minimize"):
+        is_max = False
+    else:
+        return OptimizeResult("error", "GUARDRAIL_VIOLATION",
+                              "sense 'max' veya 'min' olmalı", meta=_meta(t0, seed, timeout_ms))
+    if not isinstance(objective, str) or not objective.strip():
+        return OptimizeResult("error", "GUARDRAIL_VIOLATION",
+                              "amaç (objective) boş olamaz", meta=_meta(t0, seed, timeout_ms))
+    try:
+        validate_input(constraints)
+    except GuardrailError as exc:
+        return OptimizeResult("error", "GUARDRAIL_VIOLATION", str(exc), meta=_meta(t0, seed, timeout_ms))
+    try:
+        c_z3, o_z3, symbols = translate_objective(constraints, objective)
+    except ParseError as exc:
+        return OptimizeResult("error", "PARSE_ERROR", str(exc), meta=_meta(t0, seed, timeout_ms))
+
+    opt = z3.Optimize()
+    try:
+        opt.set("timeout", int(timeout_ms))
+    except Exception:  # noqa: BLE001
+        pass
+    for c in c_z3:
+        opt.add(c)
+    handle = opt.maximize(o_z3) if is_max else opt.minimize(o_z3)
+    sense_str = "max" if is_max else "min"
+
+    result = opt.check()
+    if result == z3.unsat:
+        return OptimizeResult("unsat", "INFEASIBLE",
+                              "Kısıtlar birlikte sağlanamıyor; uygun çözüm yok.",
+                              sense=sense_str, meta=_meta(t0, seed, timeout_ms))
+    if result != z3.sat:
+        return OptimizeResult("unknown", "SOLVER_UNKNOWN",
+                              f"Çözücü karar veremedi ({opt.reason_unknown()}).",
+                              sense=sense_str, meta=_meta(t0, seed, timeout_ms))
+
+    value = handle.value()
+    py = _opt_value(value)
+    if py is None:
+        text = str(value)
+        if "oo" in text or "*oo" in text:
+            return OptimizeResult("unbounded", "UNBOUNDED",
+                                  f"Amaç {'üstten' if is_max else 'alttan'} sınırsız (optimum yok).",
+                                  sense=sense_str, meta=_meta(t0, seed, timeout_ms))
+        return OptimizeResult("optimal", "OPEN_BOUND",
+                              f"En iyi değer {'supremum' if is_max else 'infimum'} = {text} "
+                              f"(açık sınır; tam ulaşılamaz).",
+                              objective_value=text, witness=_witness(opt.model(), symbols),
+                              sense=sense_str, meta=_meta(t0, seed, timeout_ms))
+    return OptimizeResult("optimal", "OPTIMAL",
+                          f"En iyi ({sense_str}) '{objective}' = {py}.",
+                          objective_value=py, witness=_witness(opt.model(), symbols),
+                          sense=sense_str, meta=_meta(t0, seed, timeout_ms))

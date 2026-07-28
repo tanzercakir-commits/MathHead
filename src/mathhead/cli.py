@@ -58,6 +58,8 @@ def _emit(result: Any, as_json: bool) -> int:
             print(f"modeller : {data['count']} ({ex})")
             for i, mdl in enumerate(data["models"], 1):
                 print(f"  #{i}: {mdl}")
+        if "objective_value" in data and "sense" in data:
+            print(f"amaç[{data['sense']}] : {data.get('objective_value')}")
     if status == "error":
         return 1
     if status == "unknown":
@@ -91,6 +93,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("enumerate", help="tüm/çoklu modelleri numaralandır")
     p.add_argument("statements", nargs="+", metavar="İFADE")
     p.add_argument("--limit", type=int, default=10)
+
+    p = sub.add_parser("optimize", help="kısıtlar altında bir amacı en iyile (max/min)")
+    p.add_argument("objective", metavar="AMAÇ")
+    p.add_argument("constraints", nargs="*", metavar="KISIT")
+    p.add_argument("--min", action="store_true", help="min (varsayılan: max)")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -132,6 +139,8 @@ _DISPATCH = {
     "model": lambda a: ("find_model", {"statements": a.statements}),
     "prove": lambda a: ("prove", {"premises": a.premise, "conclusion": a.conclusion}),
     "enumerate": lambda a: ("enumerate", {"statements": a.statements, "limit": a.limit}),
+    "optimize": lambda a: ("optimize", {"constraints": a.constraints, "objective": a.objective,
+                                        "sense": "min" if a.min else "max"}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

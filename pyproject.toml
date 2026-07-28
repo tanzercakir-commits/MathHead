@@ -1,0 +1,41 @@
+[project]
+name = "mathhead"
+version = "0.0.1"
+description = "AI'ın MCP üzerinden kullanabileceği, first-order logic temelli, deterministik matematik akıl yürütme ve ispat motoru."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "tanzercakir" }]
+
+# Mimari karar: tek bir "FOL motoru" yazmak yerine kanıtlanmış çözücüleri
+# orkestre ediyoruz (bkz. DECISIONS.md ADR-0001/0002).
+dependencies = [
+    "z3-solver>=4.13",   # SMT çözücü (FOL + teoriler) -> mantık çekirdeği (v1)
+    "sympy>=1.12",       # CAS (sembolik hesap) -> hesaplama katmanı (v2+)
+    "mcp[cli]>=1.10",    # Model Context Protocol sunucu SDK'sı (FastMCP)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",   # worst-case (zaman aşımı) testleri için guardrail
+    "ruff>=0.6",             # lint (statik guardrail)
+]
+
+[project.scripts]
+mathhead-server = "mathhead.server.mcp_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mathhead"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 30            # hiçbir test 30 sn'yi geçemez (non-determinizm/hang guardrail)
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

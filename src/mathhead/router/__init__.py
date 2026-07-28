@@ -62,5 +62,9 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))
     if task == "pigeonhole":
         return frontier.pigeonhole(payload["n"], **_opts(payload))
+    if task == "van_der_waerden":
+        return frontier.van_der_waerden_coloring(
+            payload["n"], payload["k"], payload.get("colors", 2), **_opts(payload)
+        )
 
     raise ValueError(f"bilinmeyen görev: {task!r}")

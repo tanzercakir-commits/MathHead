@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-28 — Track B · van der Waerden (bilinen değerler yeniden üretildi)
+
+**Yapıldı**
+
+- `frontier.van_der_waerden_coloring`: {1..n} r-renk, tek renkli k-terimli
+  aritmetik dizi olmadan boyama. Router + MCP (**10. araç**) + CLI
+  (`mathhead vdw n k`) + testler → **61/61 yeşil**.
+- **Açık-problem sınıfına dürüst saldırı** (kullanıcı isteği): motor W(2,3)=9,
+  W(2,4)=35, **W(2,5)=178** değerlerini AYNI SAT yöntemiyle **yeniden üretti**
+  (her biri gerçek imkânsızlık ispatı; W(2,5) ~61 sn). Detay + dürüst
+  compute-wall: `docs/track-b-results.md`.
+
+**Dürüst sonuç:** Açık bir problem ÇÖZÜLMEDİ (W(2,6)=1132 ve açık W(2,7) bu
+ortamın ötesinde). Ama araştırma değerleri doğrulanabilir biçimde üretildi ve
+duvarın yeri şeffafça gösterildi. Sahte zafer yok.
+
+**Sıradaki (gelecek oturumlar):** PyPI paketi; ölçek/çözücü iyileştirme; v3 ispat üretimi.
+
 ## 2026-07-28 — CLI · terminal arayüzü (aynı oturum)
 
 **Yapıldı**

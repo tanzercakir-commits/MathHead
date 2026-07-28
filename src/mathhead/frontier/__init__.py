@@ -151,3 +151,75 @@ def pigeonhole(n: int, *, timeout_ms: int = 10_000, seed: int = 42) -> Reasoning
             None, _meta(t0, seed, timeout_ms, extra),
         )
     return _unknown(solver, t0, seed, timeout_ms, extra)
+
+
+def arithmetic_progressions(n: int, k: int) -> list[tuple[int, ...]]:
+    """{1..n} içindeki tüm k-terimli aritmetik dizileri döndürür."""
+    aps: list[tuple[int, ...]] = []
+    for a in range(1, n + 1):
+        max_d = (n - a) // (k - 1) if k > 1 else 0
+        for d in range(1, max_d + 1):
+            aps.append(tuple(a + i * d for i in range(k)))
+    return aps
+
+
+def van_der_waerden_coloring(
+    n: int, k: int, colors: int = 2, *, timeout_ms: int = 20_000, seed: int = 42
+) -> ReasoningResult:
+    """{1..n}, `colors` renge, **tek renkli k-terimli aritmetik dizi olmadan** boyanabilir mi?
+
+    Bu, van der Waerden sayısı W(colors, k)'nın SAT ile hesaplanmasının çekirdeğidir:
+    W(r,k) = boyamanın imkânsız hale geldiği en küçük n. `sat` -> boyama var (n < W);
+    `unsat` -> imkânsız (n ≥ W, ispat); `unknown` -> ölçek çözücüyü aştı.
+
+    DÜRÜSTLÜK: Bilinen W değerleri bu YÖNTEMLE hesaplandı (aynı kod). Büyük/açık
+    değerler (ör. W(2,7)) devasa hesap ister; motor orada dürüstçe `unknown` döner.
+    """
+    t0 = time.perf_counter()
+    if not all(isinstance(x, int) for x in (n, k, colors)):
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION", "n, k, colors tam sayı olmalı",
+                               None, _meta(t0, seed, timeout_ms))
+    if k < 2 or colors < 2 or colors > 6 or n < 1 or n > 5000:
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "k≥2, colors 2..6, 1≤n≤5000 olmalı",
+                               None, _meta(t0, seed, timeout_ms))
+
+    aps = arithmetic_progressions(n, k)
+    solver = solver_config(timeout_ms, seed)
+    if colors == 2:
+        c = {i: z3.Bool(f"c_{i}") for i in range(1, n + 1)}
+        for ap in aps:
+            solver.add(z3.Or(*[z3.Not(c[i]) for i in ap]))  # hepsi renk-A değil
+            solver.add(z3.Or(*[c[i] for i in ap]))          # hepsi renk-B değil
+    else:
+        c = {i: z3.Int(f"c_{i}") for i in range(1, n + 1)}
+        for i in range(1, n + 1):
+            solver.add(c[i] >= 0, c[i] < colors)
+        for ap in aps:
+            solver.add(z3.Or(*[c[ap[j]] != c[ap[j + 1]] for j in range(len(ap) - 1)]))
+
+    extra = {"n": n, "k": k, "colors": colors, "arithmetic_progressions": len(aps)}
+    result = solver.check()
+    if result == z3.sat:
+        model = solver.model()
+        if colors == 2:
+            coloring = {i: ("A" if z3.is_true(model.eval(c[i], model_completion=True)) else "B")
+                        for i in range(1, n + 1)}
+        else:
+            coloring = {i: model.eval(c[i], model_completion=True).as_long()
+                        for i in range(1, n + 1)}
+        witness = {"coloring": coloring} if n <= 60 else {"note": f"{n} sayı boyandı (özet gizlendi)"}
+        return ReasoningResult(
+            "sat", "COLORING_FOUND",
+            f"{{1..{n}}}, {colors} renge tek renkli {k}-terimli aritmetik dizi olmadan "
+            f"boyanabilir → W({colors},{k}) > {n}.",
+            witness, _meta(t0, seed, timeout_ms, extra),
+        )
+    if result == z3.unsat:
+        return ReasoningResult(
+            "unsat", "NO_COLORING",
+            f"{{1..{n}}} böyle boyanAMAZ — tek renkli {k}-terimli aritmetik dizi kaçınılmaz "
+            f"→ W({colors},{k}) ≤ {n} (imkânsızlık ispatlandı).",
+            {"note": "imkânsızlık ispatı"}, _meta(t0, seed, timeout_ms, extra),
+        )
+    return _unknown(solver, t0, seed, timeout_ms, extra)

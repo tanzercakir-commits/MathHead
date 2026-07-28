@@ -94,6 +94,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("pythagorean", help="{1..n} Pythagoras-boyaması (Track B)")
     p.add_argument("n", type=int)
 
+    p = sub.add_parser("vdw", help="van der Waerden boyaması W(colors,k) (Track B)")
+    p.add_argument("n", type=int)
+    p.add_argument("k", type=int)
+    p.add_argument("--colors", type=int, default=2)
+
     return parser
 
 
@@ -107,6 +112,7 @@ _DISPATCH = {
     "integrate": lambda a: ("integrate", {"expression": a.expression, "symbol": a.symbol}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
+    "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),
 }
 
 

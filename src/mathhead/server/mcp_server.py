@@ -101,6 +101,16 @@ def pigeonhole(n: int) -> dict[str, Any]:
     return asdict(route("pigeonhole", {"n": n}))
 
 
+@mcp.tool()
+def van_der_waerden(n: int, k: int, colors: int = 2) -> dict[str, Any]:
+    """{1..n}'i `colors` renge, tek renkli k-terimli aritmetik dizi olmadan boyamayı dener.
+
+    van der Waerden sayısı W(colors,k) hesabının çekirdeği: `unsat` -> n ≥ W (ispat).
+    Bilinen W değerleri bu yöntemle hesaplandı; büyük/açık değerler `unknown` döner.
+    """
+    return asdict(route("van_der_waerden", {"n": n, "k": k, "colors": colors}))
+
+
 def main() -> None:
     """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
     mcp.run(transport="stdio")

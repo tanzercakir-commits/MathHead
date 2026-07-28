@@ -172,6 +172,10 @@ Girdi programatik (sayı `n`); çıktı ortak `ReasoningResult`.
 |---|---|---|
 | `pythagorean_coloring` | `pythagorean_coloring(n)` | `sat` (boyama) / `unsat` (imkânsız) |
 | `pigeonhole` | `pigeonhole(n)` | `unsat` = güvercin yuvası ilkesi ispatı |
+| `van_der_waerden` | `van_der_waerden(n, k, colors=2)` | `unsat` = n ≥ W(colors,k) (ispat) |
+
+Motorun fiilen ispatladığı/yeniden ürettiği sonuçlar (dürüst kayıt, bilinen vs
+açık ayrımı): `docs/track-b-results.md`.
 
 **Dürüstlük:** Küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
 (Boolean Pythagorean n=7825 sınırı ~200 TB ispat; burada küçük n anında çözülür).

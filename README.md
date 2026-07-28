@@ -34,6 +34,11 @@ check_entailment(["p", "implies(p, q)"], "q")   # -> status="valid"
 check_entailment(["x > 0"], "x > 5")             # -> "invalid", witness={"x": 1}
 check_consistency(["p", "not(p)"])               # -> "unsat" + unsat core
 find_model(["x > 2", "x < 5"])                    # -> "sat", witness={"x": 3}
+
+from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
+solve("x**2 == 4", "x")                           # -> ["-2", "2"]
+differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
+integrate("2*x", "x")                             # -> "x**2"
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:

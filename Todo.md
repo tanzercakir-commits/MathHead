@@ -29,7 +29,7 @@
 - [ ] **T9** `explanation`'ı zenginleştir (invalid'de karşıörneği cümleye göm)
 - [ ] **T10** golden senaryolar (`tests/fixtures/*.json`)
 - [x] **T11** v1.1: Real sayılar + `∀`/`∃` nicelik belirteçleri ✅
-- [ ] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral
+- [x] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral ✅
 
 ---
 
@@ -40,3 +40,4 @@
 - [x] MCP uçtan uca (3 araç kayıtlı, JSON temiz), 17/17 test yeşil
 - [x] Repo GitHub'da; CI (Actions) kurulu
 - [x] **v1.1**: nicelik belirteçleri (∀/∃) + Real → 25/25 test yeşil
+- [x] **v2**: hesap katmanı (SymPy) — solve/simplify/türev/integral → 37/37 test yeşil

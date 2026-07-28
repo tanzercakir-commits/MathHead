@@ -126,6 +126,18 @@
   motor asla yanlış cevap üretmez). Int/Real karışımı ve yüklem sembolleri
   sonraki sürümlere.
 
+## ADR-0011 — Hesap katmanı: SymPy + ast-whitelist (mantıktan ayrı)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** v2, "problem çözme" için sembolik hesap (çöz/sadeleştir/türev/
+  integral) istedi. Bu, mantık/ispat (Z3) ile aynı iş değil.
+- **Karar:** Ayrı `compute/` katmanı, **SymPy** ile. Girdi yine Python `ast` +
+  beyaz liste ile süzülür (`sympify`/`eval` güvensizliği KULLANILMAZ). Ayrı
+  `ComputeResult` sözleşmesi. Router aynı; yalnızca yeni görev adları eklendi.
+- **Sonuçlar:** Her iş doğru araca gider (mantık→Z3, hesap→SymPy). Güvenlik
+  beyaz-listeyle korunur (ör. `__import__` reddedilir). SymPy kapalı formda
+  çözemezse dürüstçe değerlendirilmemiş sonuç döner.
+
 ---
 
 <!-- Yeni karar şablonu:

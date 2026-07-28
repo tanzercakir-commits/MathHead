@@ -59,6 +59,31 @@ def model(statements: list[str]) -> dict[str, Any]:
     return asdict(route("find_model", {"statements": statements}))
 
 
+# --------------------------- Hesap (SymPy) -------------------------------- #
+@mcp.tool()
+def simplify(expression: str) -> dict[str, Any]:
+    """Bir cebirsel ifadeyi sadeleştirir (ör. 'sin(x)**2 + cos(x)**2' -> '1')."""
+    return asdict(route("simplify", {"expression": expression}))
+
+
+@mcp.tool()
+def solve(equation: str, symbol: str) -> dict[str, Any]:
+    """Bir denklemi bir değişken için çözer (ör. 'x**2 == 4', symbol='x')."""
+    return asdict(route("solve", {"equation": equation, "symbol": symbol}))
+
+
+@mcp.tool()
+def differentiate(expression: str, symbol: str, order: int = 1) -> dict[str, Any]:
+    """İfadenin `symbol`'e göre `order`. mertebeden türevini alır."""
+    return asdict(route("differentiate", {"expression": expression, "symbol": symbol, "order": order}))
+
+
+@mcp.tool()
+def integrate(expression: str, symbol: str) -> dict[str, Any]:
+    """İfadenin `symbol`'e göre belirsiz integralini alır (+C)."""
+    return asdict(route("integrate", {"expression": expression, "symbol": symbol}))
+
+
 def main() -> None:
     """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
     mcp.run(transport="stdio")

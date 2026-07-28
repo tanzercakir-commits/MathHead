@@ -131,3 +131,30 @@ gizlenmez, birinci sınıf raporlanır (soundness: motor asla yanlış cevap ür
   "witness": { "x": 1 },
   "meta": { "engine": "z3", "elapsed_ms": 2, "seed": 42 } }
 ```
+
+---
+
+## Hesap araçları (v2 — SymPy)
+
+Mantık araçlarından ayrı; sembolik **hesap** (ispat değil). Girdi yine
+ast-whitelist ile süzülür (`sympify`/`eval` yok). Burada `*`, `/`, `**` (üs) ve
+doğrusal olmayan ifadeler **serbesttir**.
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `simplify` | `simplify(expression)` | `sin(x)**2 + cos(x)**2` → `1` |
+| `solve` | `solve(equation, symbol)` | `x**2 == 4`, `x` → `["-2","2"]` |
+| `differentiate` | `differentiate(expression, symbol, order=1)` | `x**3+2*x`, `x` → `3*x**2 + 2` |
+| `integrate` | `integrate(expression, symbol)` | `2*x`, `x` → `x**2` (+C) |
+
+**İzinli:** `+ - * / **`, tekli `-`, semboller, sayı (tam/ondalık), fonksiyonlar
+`sin cos tan asin acos atan sinh cosh tanh exp log sqrt Abs`. `solve` girdisi
+`a == b` (Eq) veya `=0` varsayımıyla düz ifade olabilir.
+
+**Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
+(metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
+`COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).
+
+**Dürüstlük:** SymPy kapalı formda çözemezse (ör. `∫ exp(x**2) dx`) sonucu
+gizlemez; değerlendirilmemiş/özel-fonksiyonlu tam ifadeyi (`erfi(...)` gibi)
+döner.

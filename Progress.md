@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-07-28 — v2 · hesap katmanı (SymPy) (aynı oturum)
+
+**Yapıldı**
+
+- `compute/`: ast-whitelist → SymPy çevirici (`sympify`/`eval` YOK — güvenlik).
+- 4 işlem: `simplify`, `solve`, `differentiate`, `integrate` + `ComputeResult`.
+- `router` compute görevlerini yönlendiriyor; MCP'ye 4 yeni araç (toplam **7**).
+- Testler: hesap + güvenlik (`__import__` / bilinmeyen fonksiyon reddi) →
+  **37/37 yeşil**.
+- Yeni karar: ADR-0011.
+
+**Karar:** Hesap, mantıktan ayrı katman; girdi yine beyaz-liste. SymPy kapalı
+formda çözemezse dürüstçe değerlendirilmemiş sonuç. Dış sözleşme (mevcut araçlar)
+DEĞİŞMEDİ.
+
+**Sıradaki:** Track B tohumu (kombinatoryal problemi SAT'a indirgeme) / T9.
+
 ## 2026-07-28 — v1.1 · nicelik belirteçleri + Real (aynı oturum)
 
 **Yapıldı**

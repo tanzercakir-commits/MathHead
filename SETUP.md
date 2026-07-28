@@ -46,9 +46,10 @@ Newest status is always at the **top** of `Progress.md`. A new session reads, in
 
 ## Continuing the roadmap (the working agreement)
 
-Tracks **I, D, E, F, G are complete**; the engine currently exposes ~148 MCP tools
-with the full test suite green (see `Progress.md` for the live count). The remaining
-tracks, in the recommended order, are **H → J → K** (full detail in `ROADMAP.md`):
+**ROADMAP COMPLETE — all tracks A–K are done** (v1.0.0, API frozen; the engine exposes
+**168 MCP tools** with the full test suite green — see `Progress.md` for the live count).
+The tracks below are kept for historical context; remaining work is **productization**
+(PyPI/release/tutorials — on the user, see `RELEASING.md`):
 
 - **H — Logic & Proof Depth:** induction proofs (Z3 can't do this natively — needs
   special handling), SMT theories (arrays, bit-vectors, strings), deeper proof

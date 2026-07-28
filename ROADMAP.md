@@ -256,12 +256,18 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
             (a mechanical follow-up); deliberately not padded with trivial tests (integrity over the number)
 [x] K3 🟡 Observability — engine_metrics (structured per-tool metrics via a route @observe decorator) +
           resource_limits (introspectable guardrails) + a perf regression fence ✅ (1236 tests, 168 tools; ADR-0030)
-[ ] K4 🟢 Version 1.0 freeze — full contract check, API stability, release notes
+[x] K4 🟢 Version 1.0 freeze — API frozen & stable (ADR-0004), release notes, classifier
+          Production/Stable, version 0.2.0 → 1.0.0; tests/test_release.py fences it ✅ (1240 tests, 168 tools)
 ```
 
-**Scale (honest):** ~37 phases. A multi-session effort; approvable piece by piece.
-**Suggested order (value-first):** I (differentiating) → D → E → F → G → H → J → K;
-but the order is entirely yours. Approval / a different order / narrowing scope — all fine.
+### 🎉 TRACK K DONE — Holistic Performance & Hardening (perf, coverage/fuzz, observability, v1.0 freeze)
+
+### 🎉🎉 ROADMAP COMPLETE — Tracks A–K done. Engine: **168 MCP tools, 1240 tests, v1.0.0** (API frozen).
+
+**Scale (honest):** ~37 phases delivered across a multi-session effort. Determinism in verdict +
+honesty about every wall (undecidable fragments, absent external tools, bounded model checking)
+held throughout. Remaining work is **productization** (PyPI publish, GitHub release, tutorials —
+on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-branch coverage → 95%).
 
 ---
 

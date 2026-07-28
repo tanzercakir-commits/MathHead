@@ -4,6 +4,22 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [1.0.0] - 2026-07-28
+
+**v1.0 — API freeze.** The external contract — the MCP tool signatures and the shared
+`status` / `reason_code` / `explanation` / `meta` result (ADR-0004) — is frozen and stable.
+**168 MCP tools**, **1236 tests green**, deterministic verdicts with honest walls throughout.
+Roadmap Tracks A–K are complete: the logic kernel, compute/CAS, the verification layer,
+analysis & transforms, algebra & discrete structures, probability/statistics/optimization,
+numerical methods, **logic & proof depth** (induction, SMT theories, quantifier elimination,
+modal logic), the **frontier** (new reductions + a verifiable UNSAT certificate that closed the
+Phase-10 wall + a high-performance CaDiCaL backend), and **holistic performance /
+observability / hardening**. Where something cannot be done (undecidable fragments, external
+tools absent, bounded model checking), the engine says so plainly rather than fabricating a
+result.
+
 ### Fixed
 
 - **SMT-theory parsers raised `IndexError` on wrong-arity `implies`/`iff`:** `implies(p)` (one

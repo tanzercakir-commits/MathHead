@@ -34,4 +34,5 @@ mathhead entail -p "p" -p "implies(p, q)" -c "q"
 ## Version bump
 
 Bump the version in `pyproject.toml` and `src/mathhead/__init__.py`,
-add an entry to `CHANGELOG.md`, and tag it: `git tag v0.1.0 && git push --tags`.
+add an entry to `CHANGELOG.md`, and tag it: `git tag v1.0.0 && git push --tags`.
+(`tests/test_release.py` fences the two versions in sync.)

@@ -11,11 +11,14 @@ AI (e.g. Claude) can invoke over **MCP**.
 
 ## Status
 
-**Working engine.** Logic core (Z3) + compute/calculus/linear algebra/number
-theory/combinatorics/probability (SymPy) + Track B (SAT reduction) +
-**verification layer** (audits AI reasoning): **60+ MCP tools**, a CLI, and a
-comprehensive test suite. The phased roadmap is in `ROADMAP.md`; the next work
-item is in `Todo.md`.
+**v1.0 — API frozen and stable.** The logic core (Z3) + compute/calculus/linear
+algebra/number theory/combinatorics/probability (SymPy) + the **verification layer**
+(audits AI reasoning) + **logic & proof depth** (induction, SMT theories — bit-vectors/
+arrays/strings/EUF, quantifier elimination, modal logic) + the **frontier** (SAT
+reductions, a verifiable **UNSAT certificate**, a high-performance CaDiCaL backend) +
+holistic performance/observability: **168 MCP tools**, a CLI, and **1236 tests green**.
+Every result is deterministic in verdict and honest about its walls. The full history is
+in `CHANGELOG.md`, the phased plan in `ROADMAP.md` (Tracks A–K complete).
 
 ## Quick start
 
@@ -166,7 +169,7 @@ mathhead/
 │   ├── compute/         · symbolic compute (SymPy)                       [v2+]
 │   ├── router/          · routing
 │   ├── guardrails/      · fence: validation, timeout, determinism
-│   └── server/          · MCP server (FastMCP, 70 tools)
+│   └── server/          · MCP server (FastMCP, 168 tools)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 ├── benchmarks/          · LLM-trap set + harness (100% catch, Track C4)
 └── tests/               · comprehensive test suite + fixtures/golden.json (regression fence)

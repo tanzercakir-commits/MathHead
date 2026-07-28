@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-07-28 — K4 · v1.0 freeze → ROADMAP COMPLETE 🎉🎉
+
+**Done — version 0.2.0 → 1.0.0:**
+
+- **API freeze.** The external contract (MCP tool signatures + shared status/reason_code/
+  explanation/meta, ADR-0004) is declared frozen and stable. `tests/test_release.py` (4) fences
+  version consistency (pyproject ⋈ __init__ == 1.0.0), the CHANGELOG 1.0.0 entry, and that every
+  registered MCP tool has a description + a valid object schema at the v1.0 surface size (168).
+- **Release notes.** CHANGELOG [Unreleased] → [1.0.0] with a track-by-track summary; classifier
+  Alpha → Production/Stable; README status → v1.0 (168 tools, 1236 tests); RELEASING tag → v1.0.0.
+- Full suite **1240/1240 green**, 168 MCP tools.
+
+**Milestone:** ROADMAP COMPLETE. Tracks A–K done — logic kernel, compute/CAS, the verification
+layer (the judge of AI reasoning), analysis & transforms, algebra & discrete, probability/stats/
+optimization, numerical methods, logic & proof depth (induction/SMT/QE/modal), the frontier
+(reductions + a verifiable UNSAT certificate + a high-performance solver), and holistic
+performance/observability/hardening. Determinism in verdict + honesty about every wall held
+throughout.
+
+**Productization (on the user):** PyPI publish + GitHub release + tutorial (see `RELEASING.md`).
+
 ## 2026-07-28 — K3 · observability (metrics, resource limits, perf fence)
 
 **Done — 2 new tools (168 total), new `mathhead/observability.py`:**

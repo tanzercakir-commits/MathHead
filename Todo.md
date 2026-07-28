@@ -129,7 +129,9 @@
 - [x] **K1** performance — entail_batch (incremental push/pop) + deterministic memoization cache ✅ (1148 tests, 166 tools)
 - [x] **K2** coverage & fuzzing — fuzzers (found+fixed a real SMT-parser bug) + grammar spec; 86→88% (honest re 95%) ✅ (1227 tests)
 - [x] **K3** observability — engine_metrics + resource_limits (route @observe) + perf fence ✅ (1236 tests, 168 tools)
-- [ ] **K4** v1.0 freeze — contract check, release notes, 0.2.0 → 1.0.0
+- [x] **K4** v1.0 freeze — API frozen, release notes, classifier Production/Stable, 0.2.0 → 1.0.0 ✅ (1240 tests, 168 tools)
+
+### 🎉🎉 ROADMAP COMPLETE — Tracks A–K done. Engine: **168 MCP tools, 1240 tests, v1.0.0** (API frozen).
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

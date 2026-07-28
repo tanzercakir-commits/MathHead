@@ -1,6 +1,6 @@
 [project]
 name = "mathhead"
-version = "0.2.0"
+version = "1.0.0"
 description = "A deterministic, first-order-logic-based math reasoning and proof engine that AI can use over MCP."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -9,7 +9,7 @@ authors = [{ name = "tanzercakir" }]
 keywords = ["logic", "first-order-logic", "theorem-proving", "smt", "z3", "sympy",
             "mcp", "reasoning", "sat", "van-der-waerden", "schur"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",

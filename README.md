@@ -128,6 +128,7 @@ mathhead/
 ├── docs/
 │   ├── architecture.md  · katman şeması (Mermaid) + istek yaşam döngüsü
 │   ├── mcp-api.md        · net MCP protokol & araç tanımları + gramer
+│   ├── api-reference.md  · TÜM araçların otomatik referansı (kod=doküman)
 │   ├── error-taxonomy.md · tüm status/reason_code kanonik listesi
 │   └── glossary.md       · terimler (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/
@@ -136,7 +137,7 @@ mathhead/
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
 │   └── server/          · MCP sunucusu (FastMCP, 54 araç)
-├── scripts/             · benchmark.py (performans taban çizgisi)
+├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```
 

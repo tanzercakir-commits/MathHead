@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — Aşama 8 [S] · sağlamlaştırma-3 (coverage + API ref + benchmark çiti)
+
+**Yapıldı**
+
+- **Kapsam:** `pytest-cov` + `[tool.coverage]` (branch). `tests/test_mcp_layer.py`
+  (55): 54 MCP aracını uçtan uca (in-process) çağırır + kayıtlı kümeyle senkron
+  tutar (yeni araç eklenince kırılır). Kapsam **%85 → %87**; `mcp_server.py`
+  %67→%97, `router` %82→%98.
+- **Otomatik API referansı:** `scripts/gen_api_reference.py` MCP'ye kayıtlı
+  araçlardan `docs/api-reference.md` (54 araç) üretir; `test_api_reference.py`
+  güncelliği zorlar (tek doğruluk kaynağı = kayıtlı araçlar).
+- **Benchmark çiti:** katastrofik yavaşlama için cömert 10 sn üst sınır testi
+  (zamanlama titrekliği değil, O(2^n)/hang yakalar). → **330/330 yeşil**.
+
+**Doğrulandı**
+
+- Betimsel kapsam artışı gerçek: MCP sarmalayıcıları artık uçtan uca test ediliyor
+  (router'a doğru bağlı). Kalan açık satırlar çoğunlukla ender hata dalları.
+- API referansı deterministik üretiliyor (kayıt sırası); doküman = kod.
+
+**Sıradaki:** Aşama 9 — eşitsizlik ispatı & nonlineer (Z3 NRA + SOS).
+
 ## 2026-07-28 — Aşama 7 · olasılık & istatistik (mean/var/std/median + distribution)
 
 **Yapıldı**

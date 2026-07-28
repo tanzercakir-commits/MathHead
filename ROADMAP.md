@@ -65,9 +65,9 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     └─ betimsel (mean/var/std/median) + 7 adlandırılmış dağılım (E/Var/std +
        cdf/pmf, sembolik) ✅
 
-[ ] Aşama 8 · [S] Sağlamlaştırma-3
-    └─ kapsam (coverage) raporu + benchmark regresyon çiti +
-       dokümantasyon konsolidasyonu (üretilmiş API referansı)
+[x] Aşama 8 · [S] Sağlamlaştırma-3  (bitti — 330 test, kapsam %87)
+    └─ coverage (pytest-cov + MCP katman testi %85→%87) + benchmark çiti +
+       otomatik API referansı (docs/api-reference.md, kod=doküman) ✅
 
 [ ] Aşama 9 · Eşitsizlik ispatı & nonlineer
     └─ Z3 nonlinear real (NRA) + kareler toplamı (SOS) ile eşitsizlik kanıtı

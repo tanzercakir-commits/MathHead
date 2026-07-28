@@ -33,6 +33,7 @@ dependencies = [
 dev = [
     "pytest>=8.0",
     "pytest-timeout>=2.3",   # worst-case (zaman aşımı) testleri için guardrail
+    "pytest-cov>=5.0",       # kapsam (coverage) raporu
     "ruff>=0.6",             # lint (statik guardrail)
     "hypothesis>=6.0",       # property-based (özellik temelli) testler
 ]
@@ -56,6 +57,14 @@ packages = ["src/mathhead"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 30            # hiçbir test 30 sn'yi geçemez (non-determinizm/hang guardrail)
+
+[tool.coverage.run]
+source = ["src/mathhead"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
 
 [tool.ruff]
 line-length = 100

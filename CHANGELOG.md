@@ -72,6 +72,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Değişti / sağlamlaştırma
 
+- **Sağlamlaştırma-3 (ROADMAP Aşama 8):** (1) **Kapsam (coverage)** — `pytest-cov`
+  + `[tool.coverage]`; MCP katman testi (`tests/test_mcp_layer.py`, 54 aracı uçtan
+  uca çağırır + kayıtla senkron tutar) → kapsam %85→**%87** (mcp_server %67→%97).
+  (2) **Otomatik API referansı** — `scripts/gen_api_reference.py` MCP'ye kayıtlı
+  araçlardan `docs/api-reference.md` üretir; `tests/test_api_reference.py` güncel
+  kalmasını zorlar. (3) **Benchmark regresyon çiti** — katastrofik yavaşlama için
+  cömert (10 sn) üst sınır testi.
 - **Sağlamlaştırma-2 (ROADMAP Aşama 5):** (1) **Hata taksonomisi** birleştirildi
   → `docs/error-taxonomy.md` (tüm `status`/`reason_code` kanonik listesi) +
   `tests/test_taxonomy.py` bunu zorlar (belgesiz kod sızarsa kırılır). (2) **Golden

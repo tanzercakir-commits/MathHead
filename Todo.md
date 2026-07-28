@@ -40,7 +40,8 @@
 - [x] **T19** ROADMAP Aşama 5 [S]: taksonomi + golden fixtures + benchmark ✅ (242 test)
 - [x] **T20** ROADMAP Aşama 6: çok değişkenli analiz ✅ (258 test, 49 araç, ODE dahil)
 - [x] **T21** ROADMAP Aşama 7: olasılık & istatistik ✅ (273 test, 54 araç, 7 dağılım)
-- [ ] **T22** ROADMAP Aşama 8 [S]: coverage + benchmark regresyon çiti + doküman konsolidasyonu
+- [x] **T22** ROADMAP Aşama 8 [S]: coverage %87 + benchmark çiti + otomatik API ref ✅ (330 test)
+- [ ] **T23** ROADMAP Aşama 9: eşitsizlik ispatı & nonlineer (Z3 NRA + kareler toplamı/SOS)
 
 ---
 

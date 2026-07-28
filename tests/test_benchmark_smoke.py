@@ -17,3 +17,15 @@ def test_bench_runs_and_reports():
     for r in rows:
         assert r["status"] not in (None, "error"), f"{r['label']}: {r['status']}"
         assert r["median_ms"] >= 0
+
+
+# Katastrofik yavaşlama çiti: eşik BİLEREK cömert (10 sn) — normal işlemler
+# <50ms; amaç zamanlama titrekliği değil, kazayla eklenen O(2^n)/sonsuz döngü gibi
+# felaket regresyonları yakalamak. İnce zamanlama için: scripts/benchmark.py.
+_CEILING_MS = 10_000.0
+
+
+def test_no_catastrophic_slowdown():
+    for r in benchmark.bench(n=1):
+        assert r["median_ms"] < _CEILING_MS, \
+            f"{r['label']} çok yavaş: {r['median_ms']} ms (çit {_CEILING_MS} ms)"

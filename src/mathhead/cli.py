@@ -193,6 +193,28 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("lu", help="LU ayrıştırma (A = P·L·U)")
     p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
 
+    p = sub.add_parser("gcd", help="en büyük ortak bölen")
+    p.add_argument("a"); p.add_argument("b")
+
+    p = sub.add_parser("lcm", help="en küçük ortak kat")
+    p.add_argument("a"); p.add_argument("b")
+
+    p = sub.add_parser("isprime", help="asallık testi")
+    p.add_argument("n")
+
+    p = sub.add_parser("factorize", help="asal çarpanlara ayır")
+    p.add_argument("n")
+
+    p = sub.add_parser("modinv", help="modüler ters a^-1 (mod m)")
+    p.add_argument("a"); p.add_argument("m")
+
+    p = sub.add_parser("crt", help="Çin Kalan Teoremi (virgüllü listeler)")
+    p.add_argument("--moduli", required=True, metavar="M", help="ör. '3,5,7'")
+    p.add_argument("--residues", required=True, metavar="R", help="ör. '2,3,2'")
+
+    p = sub.add_parser("diophantine", help="a·x + b·y = c (tam sayı çözüm)")
+    p.add_argument("a"); p.add_argument("b"); p.add_argument("c")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -242,6 +264,14 @@ _DISPATCH = {
     "rref": lambda a: ("rref", {"matrix": _matrix(a.matrix)}),
     "nullspace": lambda a: ("nullspace", {"matrix": _matrix(a.matrix)}),
     "lu": lambda a: ("lu_decomposition", {"matrix": _matrix(a.matrix)}),
+    "gcd": lambda a: ("gcd", {"a": a.a, "b": a.b}),
+    "lcm": lambda a: ("lcm", {"a": a.a, "b": a.b}),
+    "isprime": lambda a: ("is_prime", {"n": a.n}),
+    "factorize": lambda a: ("factorize", {"n": a.n}),
+    "modinv": lambda a: ("modular_inverse", {"a": a.a, "m": a.m}),
+    "crt": lambda a: ("chinese_remainder", {"moduli": [c.strip() for c in a.moduli.split(",")],
+                                            "residues": [c.strip() for c in a.residues.split(",")]}),
+    "diophantine": lambda a: ("linear_diophantine", {"a": a.a, "b": a.b, "c": a.c}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

@@ -43,10 +43,10 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     └─ `compute` determinizm denetimi + property test (hypothesis: det çarpımsal/
        transpoz, Ax=b roundtrip, simplify idempotent) + parser fuzz ✅
 
-[ ] Aşama 3 · Sayı teorisi (number theory)
+[x] Aşama 3 · Sayı teorisi (number theory)  (bitti — 187 test, 37 araç)
     └─ gcd/lcm, asal test (isprime), çarpanlara ayırma (factorint),
-       modüler ters + CRT (Çin kalan teoremi), doğrusal Diophantine
-       ↳ dürüst duvar: büyük çarpanlara ayırma pratikte zor → timeout/unknown
+       modüler ters + CRT (Çin kalan teoremi), doğrusal Diophantine ✅
+       ↳ dürüst: ters yok / CRT bağdaşmaz → hata; Diophantine çözümsüz → boş
 
 [ ] Aşama 4 · Kombinatorik & ayrık
     └─ permütasyon/kombinasyon, binom, bölüntü (partition),

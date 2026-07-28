@@ -237,6 +237,26 @@ cebirsel katlılığı açıkça verir, `value`/`eigenvalue`'ya göre sıralı (
 `nullspace` kare olmayan matriste de çalışır; `nullspace` boş liste = trivial
 (yalnız sıfır).
 
+### Sayı teorisi (number theory)
+
+Tam sayılar üzerinde. Girdi ast-whitelist ile süzülür (`"2**10"` serbest); sonuç
+tam sayı değilse `PARSE_ERROR`.
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `gcd` | `gcd(a, b)` | `48, 36` → `12` |
+| `lcm` | `lcm(a, b)` | `4, 6` → `12` |
+| `is_prime` | `is_prime(n)` | `97` → `true`; `91` → `false` |
+| `factorize` | `factorize(n)` | `360` → `[{"prime":2,"exponent":3},{"prime":3,"exponent":2},{"prime":5,"exponent":1}]` |
+| `modular_inverse` | `modular_inverse(a, m)` | `3, 11` → `4` |
+| `chinese_remainder` | `chinese_remainder(moduli, residues)` | `[3,5,7],[2,3,2]` → `{"x":23,"modulus":105}` |
+| `linear_diophantine` | `linear_diophantine(a, b, c)` | `3,6,9` → `[{"x":"3 - 2*t_0","y":"t_0"}]` |
+
+**Dürüstlük:** `modular_inverse` ters yoksa (gcd(a,m)≠1) uydurmaz, `COMPUTE_FAILED`;
+`chinese_remainder` moduller bağdaşmazsa hata; `linear_diophantine` tam sayı çözüm
+yoksa (gcd(a,b) ∤ c) **boş liste** döner; `factorize(1)` = `[]` (asal çarpan yok).
+Diophantine çözümü parametriktir (parametre `t_0`).
+
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|
 `COMPUTE_FAILED`), `meta` (`engine=sympy`, `sympy_version`, `elapsed_ms`).

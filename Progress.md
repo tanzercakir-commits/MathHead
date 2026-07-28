@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-07-28 — Aşama 3 · sayı teorisi (gcd/lcm/asal/factorize/modinv/CRT/Diophantine)
+
+**Yapıldı**
+
+- 7 yeni işlem: `gcd`, `lcm`, `is_prime`, `factorize`, `modular_inverse`,
+  `chinese_remainder` (CRT), `linear_diophantine`. Girdi güvenli tam sayı
+  (`_parse_int`: ast-whitelist + tam sayı denetimi; "2**10" serbest, sembol yok).
+- Uçtan uca: router (7 görev) + MCP (**37 araç**) + CLI (`gcd/lcm/isprime/
+  factorize/modinv/crt/diophantine`) + `tests/test_numbertheory.py` (18) →
+  **187/187 yeşil**. Docs güncel.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `factorize(360)=2³·3²·5`; `is_prime(91)=False` (7·13); `CRT([3,5,7],[2,3,2])→23
+  (mod 105)`; `Diophantine 3x+6y=9 → (3-2t₀, t₀)`.
+- Dürüstlük: `modular_inverse(4,8)` → ters yok (gcd≠1); CRT `[4,6],[1,2]` →
+  bağdaşmaz; `Diophantine 2x+4y=5` → boş liste (gcd(2,4)∤5); `factorize(1)=[]`.
+
+**Sıradaki:** Aşama 4 — kombinatorik & ayrık (permütasyon/kombinasyon, binom,
+partition, recurrence).
+
 ## 2026-07-28 — Aşama 2 [S] · sağlamlaştırma-1 (property + determinizm + fuzz)
 
 **Yapıldı**

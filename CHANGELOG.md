@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Sayı teorisi (`gcd`, `lcm`, `is_prime`, `factorize`, `modular_inverse`,
+  `chinese_remainder`, `linear_diophantine`):** Aşama 3. Tam sayılarda GCD/LCM,
+  deterministik asallık, asal çarpanlara ayırma, modüler ters, Çin Kalan Teoremi
+  (CRT), doğrusal Diophantine. **Dürüstlük:** modüler ters yoksa / CRT bağdaşmazsa
+  hata; Diophantine tam sayı çözüm yoksa boş liste. MCP (**37 araç**) + CLI
+  (`gcd/lcm/isprime/factorize/modinv/crt/diophantine`). +18 test.
 - **Lineer cebir II (`matrix_multiply`, `matrix_solve`, `eigenvectors`, `rref`,
   `nullspace`, `lu_decomposition`):** Aşama 1 — lineer cebir tamamlandı. `Ax=b`
   matris formunda (tutarsız → boş, sonsuz → parametrik, dürüst); matris çarpımı

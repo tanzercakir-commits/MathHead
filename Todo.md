@@ -35,7 +35,8 @@
 - [x] **T15** v2+: lineer cebir II — matmul / Ax=b / eigenvector / rref / nullspace / LU ✅
       (ROADMAP Aşama 1 · 161 test · 30 araç)
 - [x] **T16** ROADMAP Aşama 2 [S]: determinizm + property (det/Ax=b/simplify) + fuzz ✅ (169 test)
-- [ ] **T17** ROADMAP Aşama 3: sayı teorisi (gcd/lcm, asal, factorize, modüler ters/CRT, Diophantine)
+- [x] **T17** ROADMAP Aşama 3: sayı teorisi ✅ (187 test, 37 araç)
+- [ ] **T18** ROADMAP Aşama 4: kombinatorik & ayrık (permütasyon/kombinasyon, binom, partition, recurrence)
 
 ---
 

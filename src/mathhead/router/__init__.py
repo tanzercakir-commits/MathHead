@@ -109,6 +109,22 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "lu_decomposition":
         return compute.lu_decomposition(payload["matrix"])
 
+    # --- Sayı teorisi (number theory) ---
+    if task == "gcd":
+        return compute.gcd(payload["a"], payload["b"])
+    if task == "lcm":
+        return compute.lcm(payload["a"], payload["b"])
+    if task == "is_prime":
+        return compute.is_prime(payload["n"])
+    if task == "factorize":
+        return compute.factorize(payload["n"])
+    if task == "modular_inverse":
+        return compute.modular_inverse(payload["a"], payload["m"])
+    if task == "chinese_remainder":
+        return compute.chinese_remainder(payload["moduli"], payload["residues"])
+    if task == "linear_diophantine":
+        return compute.linear_diophantine(payload["a"], payload["b"], payload["c"])
+
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))

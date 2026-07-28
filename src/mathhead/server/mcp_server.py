@@ -250,6 +250,55 @@ def lu_decomposition(matrix: list[list[str]]) -> dict[str, Any]:
     return asdict(route("lu_decomposition", {"matrix": matrix}))
 
 
+# ---------------------------- Sayı teorisi -------------------------------- #
+@mcp.tool()
+def gcd(a: str, b: str) -> dict[str, Any]:
+    """İki tam sayının en büyük ortak böleni (GCD)."""
+    return asdict(route("gcd", {"a": a, "b": b}))
+
+
+@mcp.tool()
+def lcm(a: str, b: str) -> dict[str, Any]:
+    """İki tam sayının en küçük ortak katı (LCM)."""
+    return asdict(route("lcm", {"a": a, "b": b}))
+
+
+@mcp.tool()
+def is_prime(n: str) -> dict[str, Any]:
+    """`n` asal mı? (deterministik asallık testi). Dönüş: `result` = true/false."""
+    return asdict(route("is_prime", {"n": n}))
+
+
+@mcp.tool()
+def factorize(n: str) -> dict[str, Any]:
+    """`n`'i asal çarpanlarına ayırır. Dönüş: `[{"prime":p,"exponent":e}, ...]` (artan)."""
+    return asdict(route("factorize", {"n": n}))
+
+
+@mcp.tool()
+def modular_inverse(a: str, m: str) -> dict[str, Any]:
+    """`a`'nın `m` modülünde çarpımsal tersi. Yoksa (gcd(a,m)≠1) dürüst hata."""
+    return asdict(route("modular_inverse", {"a": a, "m": m}))
+
+
+@mcp.tool()
+def chinese_remainder(moduli: list[str], residues: list[str]) -> dict[str, Any]:
+    """Çin Kalan Teoremi (CRT): x ≡ residues[i] (mod moduli[i]). Bağdaşmazsa dürüst hata.
+
+    Dönüş: `result` = {"x": ..., "modulus": ...} (en küçük negatif-olmayan çözüm).
+    """
+    return asdict(route("chinese_remainder", {"moduli": moduli, "residues": residues}))
+
+
+@mcp.tool()
+def linear_diophantine(a: str, b: str, c: str) -> dict[str, Any]:
+    """`a·x + b·y = c` denklemini TAM SAYILARDA çözer (parametre `t_0`).
+
+    Boş liste = tam sayı çözüm yok (gcd(a,b) ∤ c) — dürüst.
+    """
+    return asdict(route("linear_diophantine", {"a": a, "b": b, "c": c}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

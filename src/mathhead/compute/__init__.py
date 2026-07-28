@@ -537,3 +537,142 @@ def lu_decomposition(matrix: list[list[str]]) -> ComputeResult:
         return _error("lu_decomposition", f"LU ayrıştırılamadı: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "lu_decomposition", result,
                          "A = P·L·U ayrıştırması.", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# Sayı teorisi (number theory) — TAM SAYILAR üzerinde. Girdi yine ast-whitelist
+# ile süzülür (ör. "2**10" serbest); sonuç tam sayı değilse reddedilir.
+# --------------------------------------------------------------------------- #
+def _parse_int(value: Any, name: str = "değer") -> int:
+    """Girdiyi güvenle tam sayıya çevirir. Sembol / tam-olmayan reddedilir."""
+    syms: dict[str, Any] = {}
+    expr = _parse(str(value), syms)
+    if syms:
+        raise ComputeError(f"{name} tam sayı olmalı (sembol içeremez)")
+    val = sympy.simplify(expr)
+    if not getattr(val, "is_Integer", False):
+        raise ComputeError(f"{name} tam sayı olmalı")
+    return int(val)
+
+
+def gcd(a: Any, b: Any) -> ComputeResult:
+    """İki tam sayının en büyük ortak böleni (greatest common divisor)."""
+    t0 = time.perf_counter()
+    try:
+        A, B = _parse_int(a, "a"), _parse_int(b, "b")
+    except ComputeError as exc:
+        return _error("gcd", str(exc), t0)
+    result = int(sympy.igcd(A, B))
+    return ComputeResult("ok", "gcd", result, f"gcd({A}, {B}) = {result}.", "OK", _meta(t0))
+
+
+def lcm(a: Any, b: Any) -> ComputeResult:
+    """İki tam sayının en küçük ortak katı (least common multiple)."""
+    t0 = time.perf_counter()
+    try:
+        A, B = _parse_int(a, "a"), _parse_int(b, "b")
+    except ComputeError as exc:
+        return _error("lcm", str(exc), t0)
+    result = int(sympy.ilcm(A, B))
+    return ComputeResult("ok", "lcm", result, f"lcm({A}, {B}) = {result}.", "OK", _meta(t0))
+
+
+def is_prime(n: Any) -> ComputeResult:
+    """`n` asal mı? (deterministik asallık testi — SymPy `isprime`)."""
+    t0 = time.perf_counter()
+    try:
+        N = _parse_int(n, "n")
+    except ComputeError as exc:
+        return _error("is_prime", str(exc), t0)
+    result = bool(sympy.isprime(N))
+    return ComputeResult("ok", "is_prime", result,
+                         f"{N} {'asaldır' if result else 'asal değildir'}.", "OK", _meta(t0))
+
+
+def factorize(n: Any) -> ComputeResult:
+    """`n`'i asal çarpanlarına ayırır. Dönüş: `[{prime, exponent}, ...]` (artan)."""
+    t0 = time.perf_counter()
+    try:
+        N = _parse_int(n, "n")
+        if N < 1:
+            raise ComputeError("pozitif tam sayı gerekir (n ≥ 1)")
+    except ComputeError as exc:
+        return _error("factorize", str(exc), t0)
+    try:
+        fac = sympy.factorint(N)
+        result = [{"prime": int(p), "exponent": int(e)} for p, e in sorted(fac.items())]
+    except Exception as exc:  # noqa: BLE001
+        return _error("factorize", f"çarpanlara ayrılamadı: {exc}", t0, "COMPUTE_FAILED")
+    pretty = " · ".join(f"{d['prime']}^{d['exponent']}" if d["exponent"] > 1 else str(d["prime"])
+                        for d in result) or "1 (asal çarpan yok)"
+    return ComputeResult("ok", "factorize", result, f"{N} = {pretty}.", "OK", _meta(t0))
+
+
+def modular_inverse(a: Any, m: Any) -> ComputeResult:
+    """`a`'nın `m` modülünde çarpımsal tersi. Yoksa (gcd(a,m)≠1) DÜRÜSTÇE hata."""
+    t0 = time.perf_counter()
+    try:
+        A, M = _parse_int(a, "a"), _parse_int(m, "m")
+        if M < 2:
+            raise ComputeError("modül m ≥ 2 olmalı")
+    except ComputeError as exc:
+        return _error("modular_inverse", str(exc), t0)
+    try:
+        result = int(sympy.mod_inverse(A, M))
+    except ValueError:
+        return _error("modular_inverse",
+                      f"{A}'nın mod {M} tersi yok (gcd(a, m) ≠ 1)", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "modular_inverse", result,
+                         f"{A}⁻¹ ≡ {result} (mod {M}).", "OK", _meta(t0))
+
+
+def chinese_remainder(moduli: list[Any], residues: list[Any]) -> ComputeResult:
+    """Çin Kalan Teoremi (CRT): x ≡ residues[i] (mod moduli[i]) sistemini çözer.
+
+    Dönüş: `{"x": ..., "modulus": ...}` (en küçük negatif-olmayan çözüm + bileşik
+    modül). Sistem çözümsüzse (moduller bağdaşmaz) DÜRÜSTÇE hata.
+    """
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(moduli, list) or not isinstance(residues, list):
+            raise ComputeError("moduli ve residues liste olmalı")
+        if len(moduli) != len(residues) or not moduli:
+            raise ComputeError("moduli ve residues eşit ve boş olmayan uzunlukta olmalı")
+        mods = [_parse_int(x, "modül") for x in moduli]
+        res = [_parse_int(x, "kalan") for x in residues]
+    except ComputeError as exc:
+        return _error("chinese_remainder", str(exc), t0)
+    from sympy.ntheory.modular import crt as _crt
+    out = _crt(mods, res)
+    if out is None:
+        return _error("chinese_remainder",
+                      "çözüm yok (moduller bağdaşmıyor)", t0, "COMPUTE_FAILED")
+    x, mod = int(out[0]), int(out[1])
+    return ComputeResult("ok", "chinese_remainder", {"x": x, "modulus": mod},
+                         f"x ≡ {x} (mod {mod}).", "OK", _meta(t0))
+
+
+def linear_diophantine(a: Any, b: Any, c: Any) -> ComputeResult:
+    """Doğrusal Diophantine denklemi `a·x + b·y = c`'yi TAM SAYILARDA çözer.
+
+    Dönüş: parametrik çözüm(ler) `[{"x": ..., "y": ...}]` (parametre `t_0`).
+    Boş liste = tam sayı çözüm yok (gcd(a,b) ∤ c) — dürüst.
+    """
+    t0 = time.perf_counter()
+    try:
+        A, B, C = _parse_int(a, "a"), _parse_int(b, "b"), _parse_int(c, "c")
+        if A == 0 and B == 0:
+            raise ComputeError("a ve b aynı anda 0 olamaz")
+    except ComputeError as exc:
+        return _error("linear_diophantine", str(exc), t0)
+    try:
+        x, y = sympy.symbols("x y")
+        sols = sympy.diophantine(A * x + B * y - C)
+        result = [{"x": str(t[0]), "y": str(t[1])} for t in sols]
+    except Exception as exc:  # noqa: BLE001
+        return _error("linear_diophantine", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
+    if not result:
+        return ComputeResult("ok", "linear_diophantine", [],
+                             f"tam sayı çözüm yok (gcd({A},{B}) ∤ {C}).", "OK", _meta(t0))
+    return ComputeResult("ok", "linear_diophantine", result,
+                         f"{A}x + {B}y = {C} parametrik çözüm.", "OK", _meta(t0))

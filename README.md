@@ -61,6 +61,13 @@ matrix_multiply([["1","2"],["3","4"]], [["5","6"],["7","8"]])  # -> [["19","22"]
 matrix_solve([["1","1"],["1","-1"]], ["10","2"]) # -> [{"x0":"6","x1":"4"}]  (Ax=b)
 matrix_solve([["1","1"],["1","1"]], ["1","2"])   # -> []  (tutarsız → çözüm yok, dürüst)
 nullspace([["1","2"],["2","4"]])                  # -> [["-2","1"]]  (boş uzay tabanı)
+
+from mathhead.compute import gcd, factorize, modular_inverse, chinese_remainder  # v2+ (sayı teorisi)
+gcd(48, 36)                                       # -> 12
+factorize(360)                                    # -> 2^3 · 3^2 · 5
+modular_inverse(3, 11)                            # -> 4  (3·4 ≡ 1 mod 11)
+modular_inverse(4, 8)                             # -> error: ters yok (gcd≠1, dürüst)
+chinese_remainder([3,5,7], [2,3,2])               # -> {"x": 23, "modulus": 105}
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -109,7 +116,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 30 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 37 araç)
 └── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
 ```
 

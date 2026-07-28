@@ -169,8 +169,11 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           confidence_interval, linear_regression ✅ (134 tools; p-values via mpmath, deterministic)
 [x] F3 🟡 Optimization II — critical_points (Hessian-classified), lagrange_multipliers,
           check_convexity ✅ (137 tools). Linear/integer LP already covered by Z3 `optimize`.
-[ ] F4 [S] Hardening
+[x] F4 [S] Hardening — invariants as properties: Bayes ∈ [0,1], Markov fixed-point, Cov(X,X)=Var,
+          correlation=±1 (linear), Lagrange constraint satisfaction, sum-of-squares convexity ✅ (905 tests)
 ```
+
+### 🎉 TRACK F DONE — Probability, Statistics & Optimization (prob II, inferential stats, symbolic optimization)
 
 ## G. Numerical Methods
 ```

@@ -92,7 +92,10 @@
 - [x] **F1** probability II — bayes/covariance/correlation/markov-stationary/markov-step/marginal ✅ (850 tests, 128 tools)
 - [x] **F2** inferential statistics — t/z/chi²/ANOVA, confidence-interval, regression ✅ (877 tests, 134 tools)
 - [x] **F3** optimization II — critical_points/lagrange_multipliers/check_convexity (symbolic) ✅ (896 tests, 137 tools)
-- [ ] **F4** [S] probability/stats hardening
+- [x] **F4** [S] probability/stats hardening — invariants as properties ✅ (905 tests)
+
+### 🎉 TRACK F DONE — Probability, Statistics & Optimization (137 tools, 905 tests). Next: **G → H → J → K**.
+
 - [ ] then: G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

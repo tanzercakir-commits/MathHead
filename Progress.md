@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — F4 [S] · probability/stats hardening → TRACK F DONE 🎉
+
+**Done**
+
+- New `tests/test_probability_hardening.py` (9): the property tests ARE the defining facts.
+  Tests only — no new tools.
+- **Invariants proven on random input:** a Bayes posterior ∈ [0,1]; uninformative evidence
+  (likelihood = false-alarm) leaves the prior unchanged; a Markov stationary π is a FIXED POINT
+  of P (one more step changes nothing) and sums to 1; Cov(X,X) = Var(X); correlation = 1 for
+  positively-linear data; a χ² p-value ∈ [0,1]; a Lagrange point satisfies its constraint;
+  a positive-weighted sum of squares is convex.
+- **Determinism** spot checks. **905/905 green.**
+
+**Milestone:** Track F (Probability, Statistics & Optimization) COMPLETE — probability II (F1),
+inferential statistics (F2), symbolic optimization (F3), all hardened (F4). p-values are
+numerical-but-deterministic (mpmath); everything else stays exact.
+
+**Next:** Track G (Numerical Methods) — roadmap order G → H → J → K.
+
 ## 2026-07-28 — F3 · optimization II (symbolic)
 
 **Done — 3 new compute tools (137 total):**

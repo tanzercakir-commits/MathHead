@@ -111,7 +111,9 @@
 - [x] **H2** SMT theories — check_bitvector/uninterpreted/arrays/strings (BV/EUF/arrays/strings) ✅ (1023 tests, 153 tools)
 - [x] **H3** proof generation II — eliminate_quantifiers (Z3 qe, Presburger LIA/LRA) ✅ (1034 tests, 154 tools)
 - [x] **H4** modal logic — check_modal (K/T/D/B/S4/S5, bounded Kripke MC; LTL deferred) ✅ (1048 tests, 155 tools)
-- [ ] **H5** [S] Track H hardening
+- [x] **H5** [S] Track H hardening — theorems-as-properties + independent Kripke countermodel check ✅ (1064 tests)
+
+### 🎉 TRACK H DONE — Logic & Proof Depth (155 tools, 1064 tests). Next: **J → K**.
 
 - [ ] then: J → K (full list in ROADMAP)
 

@@ -6,6 +6,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Track H hardening (`tests/test_h_track_hardening.py`, 16):** ROADMAP H5 — **TRACK H
+  DONE**. Theorems as properties (proved induction theorems verified numerically to n=100k;
+  BV identities incl. De Morgan checked on random values; EUF/array/string axioms; the QE
+  divisibility correspondence) + INDEPENDENT modal countermodel verification (each Kripke
+  countermodel re-checked by a pure-Python semantics, engine-independent) + modal duality +
+  determinism. Tests only. **1064 tests green.** Track H (H1–H5): induction, SMT theories,
+  quantifier elimination, modal logic — 149→155 tools.
 - **Modal logic (`check_modal`):** ROADMAP H4. Propositional modal-logic validity in the
   normal systems K/T/D/B/S4/S5 by bounded Kripke model checking (`box`=□, `dia`=◇). New
   `core/modal.py`. A countermodel is a definitive refutation (`invalid`, with the frame +

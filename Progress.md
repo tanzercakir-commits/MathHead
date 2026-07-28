@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-07-28 — H5 [S] · Track H hardening → TRACK H DONE 🎉
+
+**Done**
+
+- New `tests/test_h_track_hardening.py` (16): the property tests ARE the guarantees.
+  Tests only — no new tools.
+- **Theorems as properties.** A PROVED induction theorem must hold on concrete integers
+  (n(n+1) even, n³−n div 3, n²≥n, a binomial identity) — checked by hypothesis over n up to
+  100k, and the tool proves each. BV identities (xor-cancel, De Morgan, shift-double) are
+  proved AND verified on random 8-bit values; EUF congruence, the array McCarthy axiom, and
+  string length-of-concat are proved (the last also checked on random strings).
+- **QE correspondence.** ∃y. x=k·y eliminates to a modular condition; the math it encodes
+  (∃y. x=k·y ⟺ k∣x) is confirmed by hypothesis; QE output is deterministic.
+- **Independent countermodel verification.** Every modal countermodel (T/4/5 axioms in the
+  systems that lack the needed frame property) is re-evaluated by a pure-Python Kripke
+  semantics — INDEPENDENT of Z3 — and confirmed to falsify the formula at the reported world.
+  Modal duality (□p⟺¬◇¬p) is validated; verdicts are deterministic.
+- **1064/1064 green.**
+
+**Milestone:** Track H (Logic & Proof Depth) COMPLETE — induction (H1), SMT theories (H2),
+quantifier elimination (H3), modal logic (H4), all hardened (H5). Everything stays
+deterministic in verdict (ADR-0019) and honest about its walls (base/step failure,
+QE_INCOMPLETE, bounded modal validity).
+
+**Next:** Track J (Frontier) — roadmap order J → K.
+
 ## 2026-07-28 — H4 · modal logic (K/T/D/B/S4/S5)
 
 **Done — 1 new logic tool (155 total):**

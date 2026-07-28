@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-28 — v1.0.1 · CI fix (pin mcp < 2)
+
+**Fixed:** CI was red on a CLEAN install — the `mcp[cli]>=1.10` dependency was UNPINNED, and the
+just-released **`mcp` 2.0** REMOVED `mcp.server.fastmcp.FastMCP`. A fresh `pip install -e ".[dev]"`
+(exactly what CI runs) pulled `mcp` 2.0.0 → importing `server/mcp_server.py` raised `SystemExit` →
+the whole pytest collection crashed. Local runs passed only because the session already had `mcp`
+1.x installed. NOT caused by the H/J/K work — a latent unpinned-dependency fragility surfaced by
+mcp's breaking release.
+
+**Diagnosis:** reproduced CI exactly in a fresh venv (`pip install -e ".[dev]"` → `mcp` 2.0.0 →
+`SystemExit: MCP SDK not found` at collection). **Fix:** pin `mcp[cli]>=1.10,<2`; re-verified in a
+clean venv (`mcp` 1.29.0, **1240/1240 green**). Version 1.0.0 → 1.0.1; `test_release.py` version
+checks made dynamic. `mcp` 2.x migration tracked as a follow-up.
+
 ## 2026-07-28 — K4 · v1.0 freeze → ROADMAP COMPLETE 🎉🎉
 
 **Done — version 0.2.0 → 1.0.0:**

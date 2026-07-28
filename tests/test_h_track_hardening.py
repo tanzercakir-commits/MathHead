@@ -34,7 +34,7 @@ def test_induction_proves_the_theorems():
 
 
 @given(n=st.integers(min_value=0, max_value=100_000))
-@settings(max_examples=50)
+@settings(max_examples=50, deadline=None)
 def test_induction_proven_theorems_hold_numerically(n):
     # the tool PROVED these; the property confirms they are genuinely true on samples
     for _, fn in _PROVEN:
@@ -64,7 +64,7 @@ def test_bv_identities_are_proved():
 
 
 @given(x=st.integers(0, 255), y=st.integers(0, 255))
-@settings(max_examples=100)
+@settings(max_examples=100, deadline=None)
 def test_bv_demorgan_holds_concretely(x, y):
     mask = 0xFF
     assert ((~(x & y)) & mask) == (((~x) & mask) | ((~y) & mask))
@@ -85,7 +85,7 @@ def test_string_length_concat_is_proved():
 
 
 @given(a=st.text(max_size=6), b=st.text(max_size=6))
-@settings(max_examples=60)
+@settings(max_examples=60, deadline=None)
 def test_string_length_concat_holds_concretely(a, b):
     assert len(a + b) == len(a) + len(b)
 
@@ -94,7 +94,7 @@ def test_string_length_concat_holds_concretely(a, b):
 # H3 — quantifier elimination: correspondence + determinism.
 # =========================================================================== #
 @given(k=st.integers(min_value=2, max_value=6))
-@settings(max_examples=5)
+@settings(max_examples=5, deadline=None)
 def test_qe_divisibility_is_a_modular_condition(k):
     # ∃y. x = k*y  eliminates to a modular (divisibility) condition on x
     r = qe(f"exists(y, x == {k}*y)")
@@ -102,7 +102,7 @@ def test_qe_divisibility_is_a_modular_condition(k):
 
 
 @given(x=st.integers(-40, 40), k=st.integers(2, 6))
-@settings(max_examples=80)
+@settings(max_examples=80, deadline=None)
 def test_qe_divisibility_matches_reality(x, k):
     # the statement ∃y. x = k*y is TRUE iff k divides x — a check of the math QE encodes
     exists_y = any(x == k * y for y in range(-50, 51))

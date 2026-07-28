@@ -1,6 +1,6 @@
 [project]
 name = "mathhead"
-version = "1.0.0"
+version = "1.0.1"
 description = "A deterministic, first-order-logic-based math reasoning and proof engine that AI can use over MCP."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,7 +26,9 @@ classifiers = [
 dependencies = [
     "z3-solver>=4.13",   # SMT solver (FOL + theories) -> logic core (v1)
     "sympy>=1.12",       # CAS (symbolic computation) -> compute layer (v2+)
-    "mcp[cli]>=1.10",    # Model Context Protocol server SDK (FastMCP)
+    "mcp[cli]>=1.10,<2",  # Model Context Protocol server SDK (FastMCP). Pin <2: mcp 2.0
+                          # removed mcp.server.fastmcp.FastMCP (a breaking change); the v1.0
+                          # engine targets the 1.x FastMCP API. mcp-2.x migration is a follow-up.
 ]
 
 [project.optional-dependencies]

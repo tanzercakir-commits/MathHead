@@ -18,4 +18,4 @@ Layers (see docs/architecture.md):
     guardrails/ -> the fence: input validation, timeouts, determinism settings
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"

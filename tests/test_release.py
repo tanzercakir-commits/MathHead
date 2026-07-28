@@ -19,8 +19,9 @@ _ROOT = Path(__file__).resolve().parent.parent
 _FROZEN_TOOL_COUNT = 168
 
 
-def test_version_is_1_0_0():
-    assert __version__ == "1.0.0"
+def test_version_is_stable_v1():
+    # the stable v1 line (API frozen); patch releases stay on major 1
+    assert __version__.split(".")[0] == "1"
 
 
 def test_pyproject_version_matches_package():
@@ -29,8 +30,9 @@ def test_pyproject_version_matches_package():
 
 
 def test_changelog_records_the_release():
+    # the CHANGELOG must document the CURRENT version
     text = (_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert "## [1.0.0]" in text
+    assert f"## [{__version__}]" in text
 
 
 def test_frozen_tool_surface_conforms():

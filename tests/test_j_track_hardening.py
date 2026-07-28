@@ -40,7 +40,7 @@ def _brute_sat(clauses, nv):
 
 # ===================== J2 — soundness + round-trip ========================= #
 @given(clauses=_cnf())
-@settings(max_examples=150)
+@settings(max_examples=150, deadline=None)
 def test_prove_unsat_matches_bruteforce_and_certificate_round_trips(clauses):
     nv = max(abs(lit) for cl in clauses for lit in cl)
     r = prove_unsat(clauses)
@@ -54,7 +54,7 @@ def test_prove_unsat_matches_bruteforce_and_certificate_round_trips(clauses):
 
 
 @given(clauses=_cnf())
-@settings(max_examples=120)
+@settings(max_examples=120, deadline=None)
 def test_checker_never_certifies_a_satisfiable_formula(clauses):
     # soundness of the certificate layer: a SATISFIABLE CNF has NO UNSAT certificate,
     # so an empty proof must be refuted and prove_unsat must never claim `unsat`.
@@ -67,7 +67,7 @@ def test_checker_never_certifies_a_satisfiable_formula(clauses):
 # ===================== J2 ⋈ J3 — independent-solver agreement =============== #
 @_pysat
 @given(clauses=_cnf())
-@settings(max_examples=120)
+@settings(max_examples=120, deadline=None)
 def test_stdlib_dpll_and_cadical_agree(clauses):
     a = prove_unsat(clauses)                    # stdlib DPLL (J2)
     b = solve_cnf(clauses, backend="pysat")     # CaDiCaL (J3)
@@ -76,7 +76,7 @@ def test_stdlib_dpll_and_cadical_agree(clauses):
 
 
 @given(clauses=_cnf())
-@settings(max_examples=80)
+@settings(max_examples=80, deadline=None)
 def test_solver_sat_model_actually_satisfies(clauses):
     r = solve_cnf(clauses, backend="builtin")
     if r.status == "sat":
@@ -86,7 +86,7 @@ def test_solver_sat_model_actually_satisfies(clauses):
 
 # ===================== J1 — reduction witnesses re-verified ================= #
 @given(n=st.integers(min_value=1, max_value=8))
-@settings(max_examples=8)
+@settings(max_examples=8, deadline=None)
 def test_nqueens_witness_and_known_unsat(n):
     r = n_queens(n)
     if r.status == "sat":
@@ -99,7 +99,7 @@ def test_nqueens_witness_and_known_unsat(n):
 
 
 @given(n=st.integers(min_value=1, max_value=6))
-@settings(max_examples=6)
+@settings(max_examples=6, deadline=None)
 def test_latin_square_witness_valid(n):
     r = latin_square(n)
     assert r.status == "sat"

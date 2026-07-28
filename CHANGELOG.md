@@ -6,6 +6,18 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 _Nothing yet._
 
+## [1.0.1] - 2026-07-28
+
+### Fixed
+
+- **CI red on a clean install: `mcp` dependency was unpinned and `mcp` 2.0 is a breaking
+  release.** A fresh `pip install -e ".[dev]"` (as CI does) resolved to `mcp` 2.0.0, which
+  REMOVED `mcp.server.fastmcp.FastMCP`; importing `server/mcp_server.py` then raised
+  `SystemExit` and crashed the whole test collection. Local runs passed only because the
+  session already had `mcp` 1.x installed. Pinned `mcp[cli]>=1.10,<2` so the compatible 1.x
+  API is used (the v1.0 engine targets the 1.x FastMCP); `mcp` 2.x migration is a tracked
+  follow-up. Reproduced the fix in a clean venv: `mcp` 1.29.0, **1240 tests green**.
+
 ## [1.0.0] - 2026-07-28
 
 **v1.0 — API freeze.** The external contract — the MCP tool signatures and the shared

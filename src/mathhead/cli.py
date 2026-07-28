@@ -60,6 +60,9 @@ def _emit(result: Any, as_json: bool) -> int:
                 print(f"  #{i}: {mdl}")
         if "objective_value" in data and "sense" in data:
             print(f"amaç[{data['sense']}] : {data.get('objective_value')}")
+        if "satisfied_weight" in data and "total_weight" in data:
+            print(f"maxsat   : {data['satisfied_weight']}/{data['total_weight']} ağırlık "
+                  f"(sağlanan soft: {data.get('satisfied')})")
     if status == "error":
         return 1
     if status == "unknown":
@@ -98,6 +101,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("objective", metavar="AMAÇ")
     p.add_argument("constraints", nargs="*", metavar="KISIT")
     p.add_argument("--min", action="store_true", help="min (varsayılan: max)")
+
+    p = sub.add_parser("maxsat", help="hard kısıtlar + en çok soft kısıtı sağla (MaxSAT)")
+    p.add_argument("--hard", action="append", default=[], metavar="KISIT")
+    p.add_argument("--soft", action="append", default=[], metavar="KISIT")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -141,6 +148,7 @@ _DISPATCH = {
     "enumerate": lambda a: ("enumerate", {"statements": a.statements, "limit": a.limit}),
     "optimize": lambda a: ("optimize", {"constraints": a.constraints, "objective": a.objective,
                                         "sense": "min" if a.min else "max"}),
+    "maxsat": lambda a: ("maxsat", {"hard": a.hard, "soft": a.soft}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

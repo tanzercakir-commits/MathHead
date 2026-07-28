@@ -215,6 +215,17 @@
   durumlar ayrı ayrı raporlanır: `unbounded` (sınırsız), `unsat` (uygun çözüm
   yok), açık-sınır (supremum/infimum ε ile, tam ulaşılamaz).
 
+## ADR-0018 — MaxSAT: yumuşak/ağırlıklı kısıtlar (z3.Optimize.add_soft)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Gerçek problemler çoğu zaman aşırı-kısıtlı/çelişkili — hepsini
+  sağlamak imkânsız; "en çoğunu (ya da en yüksek ağırlıklıyı) sağla" gerekir.
+- **Karar:** `logic.max_satisfy` — `z3.Optimize.add_soft`. Zorunlu (hard)
+  kısıtlar `add`, tercih edilen (soft) kısıtlar `add_soft(w)`. Sağlanan soft'lar
+  modelde değerlendirilip raporlanır.
+- **Sonuçlar:** Ağırlıklı MaxSAT çalışır (ağır kısıt tercih edilir). `hard`
+  sağlanamazsa `unsat`. Optimize (ADR-0017) ile aynı aileden farklı bir soru.
+
 ---
 
 <!-- Yeni karar şablonu:

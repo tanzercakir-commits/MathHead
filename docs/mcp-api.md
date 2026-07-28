@@ -62,6 +62,13 @@ yapan çözümü bulur (Z3 Optimize — *optimization modulo theories*). Dönü�
 (`unbounded`), uygun-çözüm-yok (`unsat`) ve açık-sınır (supremum/infimum, ε ile
 tam ulaşılamaz) durumları dürüstçe raporlanır.
 
+### 7) `max_satisfy(hard: list[str], soft: list[str], weights=None) -> MaxSatResult`
+
+Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağlar
+(MaxSAT). Aşırı-kısıtlı / çelişen isteklerde "hepsi değil, en iyisi". Dönüş:
+`status`; optimal ise `satisfied` / `unsatisfied` (soft indeksleri),
+`satisfied_weight` / `total_weight`, `witness`. `hard` sağlanamazsa `unsat`.
+
 ---
 
 ## Girdi grameri (v1.2)

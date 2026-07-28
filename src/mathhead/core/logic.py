@@ -408,3 +408,89 @@ def optimize(
                           f"En iyi ({sense_str}) '{objective}' = {py}.",
                           objective_value=py, witness=_witness(opt.model(), symbols),
                           sense=sense_str, meta=_meta(t0, seed, timeout_ms))
+
+
+@dataclass
+class MaxSatResult:
+    """`max_satisfy` çıktısı: zorunlu kısıtları sağlayıp EN ÇOK (ağırlıklı) yumuşak
+    kısıtı sağlayan çözüm (MaxSAT)."""
+
+    status: str                              # optimal|unsat|unknown|error
+    reason_code: str
+    explanation: str
+    satisfied: list[int] = field(default_factory=list)     # sağlanan soft indeksleri
+    unsatisfied: list[int] = field(default_factory=list)   # sağlanamayan soft indeksleri
+    satisfied_weight: Any = 0
+    total_weight: Any = 0
+    witness: dict[str, Any] | None = None
+    meta: dict[str, Any] = field(default_factory=dict)
+
+
+def max_satisfy(
+    hard: list[str],
+    soft: list[str],
+    weights: list[int] | None = None,
+    *,
+    timeout_ms: int = DEFAULT_TIMEOUT_MS,
+    seed: int = DEFAULT_SEED,
+) -> MaxSatResult:
+    """Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağla.
+
+    Aşırı-kısıtlı/çelişen isteklerde "hepsini değil, en iyisini" bulur (MaxSAT).
+    `weights` verilmezse her soft kısıt 1 ağırlıkta. `hard` sağlanamıyorsa `unsat`.
+    """
+    t0 = time.perf_counter()
+    if not isinstance(hard, list) or not isinstance(soft, list) or len(soft) == 0:
+        return MaxSatResult("error", "GUARDRAIL_VIOLATION",
+                            "hard liste, soft en az bir öğeli liste olmalı",
+                            meta=_meta(t0, seed, timeout_ms))
+    if weights is None:
+        weights = [1] * len(soft)
+    elif (not isinstance(weights, list) or len(weights) != len(soft)
+          or not all(isinstance(w, int) and w > 0 for w in weights)):
+        return MaxSatResult("error", "GUARDRAIL_VIOLATION",
+                            "weights, soft ile aynı uzunlukta pozitif tam sayılar olmalı",
+                            meta=_meta(t0, seed, timeout_ms))
+    try:
+        validate_input([*hard, *soft])
+    except GuardrailError as exc:
+        return MaxSatResult("error", "GUARDRAIL_VIOLATION", str(exc), meta=_meta(t0, seed, timeout_ms))
+    try:
+        z3_list, symbols = translate_all([*hard, *soft])
+    except ParseError as exc:
+        return MaxSatResult("error", "PARSE_ERROR", str(exc), meta=_meta(t0, seed, timeout_ms))
+
+    hard_z, soft_z = z3_list[:len(hard)], z3_list[len(hard):]
+    opt = z3.Optimize()
+    try:
+        opt.set("timeout", int(timeout_ms))
+    except Exception:  # noqa: BLE001
+        pass
+    for h in hard_z:
+        opt.add(h)
+    for expr, weight in zip(soft_z, weights):
+        opt.add_soft(expr, weight)
+
+    result = opt.check()
+    if result == z3.unsat:
+        return MaxSatResult("unsat", "HARD_INFEASIBLE",
+                            "Zorunlu (hard) kısıtlar birlikte sağlanamıyor; çözüm yok.",
+                            total_weight=sum(weights), meta=_meta(t0, seed, timeout_ms))
+    if result != z3.sat:
+        return MaxSatResult("unknown", "SOLVER_UNKNOWN",
+                            f"Çözücü karar veremedi ({opt.reason_unknown()}).",
+                            total_weight=sum(weights), meta=_meta(t0, seed, timeout_ms))
+
+    model = opt.model()
+    satisfied = [i for i, expr in enumerate(soft_z)
+                 if z3.is_true(model.eval(expr, model_completion=True))]
+    sat_set = set(satisfied)
+    unsatisfied = [i for i in range(len(soft)) if i not in sat_set]
+    sat_w = sum(weights[i] for i in satisfied)
+    total_w = sum(weights)
+    return MaxSatResult(
+        "optimal", "OPTIMAL",
+        f"{len(satisfied)}/{len(soft)} yumuşak kısıt sağlandı (ağırlık {sat_w}/{total_w}).",
+        satisfied, unsatisfied, sat_w, total_w, _witness(model, symbols),
+        _meta(t0, seed, timeout_ms),
+    )

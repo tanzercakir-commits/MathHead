@@ -16,6 +16,7 @@ from typing import Any
 from mathhead import compute, frontier
 from mathhead.compute import ComputeResult
 from mathhead.core.logic import (
+    MaxSatResult,
     ModelSet,
     OptimizeResult,
     ReasoningResult,
@@ -23,6 +24,7 @@ from mathhead.core.logic import (
     check_entailment,
     enumerate_models,
     find_model,
+    max_satisfy,
     optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
@@ -38,7 +40,9 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
     return opts
 
 
-def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult:
+def route(task: str, payload: dict[str, Any]) -> (
+    ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
+):
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
     Mantık görevleri (Z3): entailment, consistency, find_model.
@@ -58,6 +62,8 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
     if task == "optimize":
         return optimize(payload["constraints"], payload["objective"],
                         payload.get("sense", "max"), **_opts(payload))
+    if task == "maxsat":
+        return max_satisfy(payload["hard"], payload["soft"], payload.get("weights"), **_opts(payload))
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

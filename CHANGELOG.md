@@ -19,6 +19,9 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 - **Optimizasyon (`optimize`):** kısıtlar altında sayısal bir amacı en büyük/
   küçük yapan çözümü bulur (Z3 Optimize / MaxSMT). `unbounded` / `unsat` /
   açık-sınır dürüstçe raporlanır. MCP aracı (14 araç) + `mathhead optimize` CLI.
+- **MaxSAT (`max_satisfy`):** zorunlu (hard) kısıtları sağlayıp en çok (ağırlıklı)
+  yumuşak (soft) kısıtı sağlar — aşırı-kısıtlı / çelişen isteklerin çözümü. MCP
+  aracı (15 araç) + `mathhead maxsat` CLI.
 
 ## [0.1.0] — 2026-07-28
 

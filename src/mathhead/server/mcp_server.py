@@ -89,6 +89,17 @@ def optimize(constraints: list[str], objective: str, sense: str = "max") -> dict
     return asdict(route("optimize", {"constraints": constraints, "objective": objective, "sense": sense}))
 
 
+@mcp.tool()
+def max_satisfy(hard: list[str], soft: list[str], weights: list[int] | None = None) -> dict[str, Any]:
+    """Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağla (MaxSAT).
+
+    Aşırı-kısıtlı/çelişen isteklerde "hepsi değil, en iyisi". Dönüş: `status`;
+    optimal ise `satisfied`/`unsatisfied` (soft indeksleri), `satisfied_weight` /
+    `total_weight`, `witness`. `hard` sağlanamazsa `unsat`.
+    """
+    return asdict(route("maxsat", {"hard": hard, "soft": soft, "weights": weights}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

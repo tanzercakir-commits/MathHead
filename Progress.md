@@ -6,6 +6,19 @@
 
 ---
 
+## 2026-07-28 — MaxSAT (yumuşak/ağırlıklı kısıtlar)
+
+**Yapıldı**
+
+- `logic.max_satisfy` + `MaxSatResult`: zorunlu (hard) kısıtları sağlayıp EN ÇOK
+  (ağırlıklı) yumuşak (soft) kısıtı sağla (`z3.Optimize.add_soft`). Router + MCP
+  (**15. araç**) + CLI (`mathhead maxsat`) + testler → **96/96 yeşil**.
+- Ağırlıklı seçim doğrulandı (ağır kısıt tercih edilir); `hard` sağlanamazsa unsat.
+- Yeni karar: ADR-0018.
+
+**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
+(ürün/yayın akşam, sende).
+
 ## 2026-07-28 — optimizasyon (Z3 Optimize / MaxSMT)
 
 **Yapıldı**

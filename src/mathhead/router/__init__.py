@@ -35,6 +35,12 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
+from mathhead.core.verify import (
+    VerifyResult,
+    verify_equality,
+    verify_solution,
+    verify_steps,
+)
 
 __all__ = ["route"]
 
@@ -49,6 +55,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
+    | VerifyResult
 ):
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
@@ -81,6 +88,14 @@ def route(task: str, payload: dict[str, Any]) -> (
         return prove_nonnegative(payload["expression"], payload.get("assumptions"), **_opts(payload))
     if task == "find_real_solution":
         return find_real_solution(payload["constraints"], **_opts(payload))
+
+    # --- Doğrulama katmanı (AI muhakeme denetçisi) ---
+    if task == "verify_equality":
+        return verify_equality(payload["left"], payload["right"])
+    if task == "verify_solution":
+        return verify_solution(payload["equation"], payload["symbol"], payload["claimed"])
+    if task == "verify_steps":
+        return verify_steps(payload["steps"])
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

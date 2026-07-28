@@ -4,7 +4,17 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ## [Yayınlanmamış]
 
-_(sıradaki değişiklikler buraya)_
+### Eklendi
+
+- **Doğrulama katmanı — AI muhakeme denetçisi (`verify_equality`,
+  `verify_solution`, `verify_steps`):** ROADMAP Track C1 — "öne geçiren yön".
+  MathHead'i "başka bir CAS"tan **AI iddialarının bağımsız yargıcı**na çevirir.
+  `verify_equality` denkliği **ve tanım-kümesi ayrışmasını** (domain tuzağı,
+  `(x²-1)/(x-1)` vs `x+1` → x=1 uyarısı) yakalar; `verify_solution` doğruluk **ve
+  TAMLIĞI** denetler (eksik/yanlış kök); `verify_steps` adım zincirinde ilk hatayı
+  bulur. Yeni modül `core/verify.py` + `VerifyResult`. MCP (**62 araç**) + CLI
+  (`verify-eq/verify-solution/verify-steps`) + 15 test. 10 yeni reason_code
+  (taksonomiye işlendi).
 
 ## [0.2.0] — 2026-07-28
 

@@ -47,7 +47,14 @@
 
 ### 🎉 ROADMAP Aşama 1–11 TAMAM — motor 24→59 araç, 146→417 test, kapsam %87
 
-**Sıradaki (kullanıcıda):** ürünleştirme — PyPI yayını (0.2.0), GitHub release, tutorial.
+### Track C — öne geçiren yön (doğrulama katmanı)
+
+- [x] **C1** çekirdek doğrulayıcı: verify_equality/solution/steps ✅ (438 test, 62 araç)
+- [ ] **C2** bağımsız sertifika (Z3/SymPy'siz checker her verdict'i doğrular)
+- [ ] **C3** çapraz denetim (Z3 ⋈ SymPy mutabakatı)
+- [ ] **C4** benchmark (LLM-tuzak seti + ölçülü üstünlük + regresyon çiti)
+
+**Ürünleştirme (kullanıcıda, acelesi yok):** PyPI (0.2.0), release, tutorial.
 
 ---
 

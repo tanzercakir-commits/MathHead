@@ -12,9 +12,9 @@ AI'ın (ör. Claude) **MCP** üzerinden çağırabileceği, first-order logic te
 ## Durum
 
 **Çalışır motor.** Mantık çekirdeği (Z3) + hesap/kalkülüs/lineer cebir/sayı
-teorisi/kombinatorik/olasılık (SymPy) + Track B (SAT indirgeme): **50+ MCP aracı**,
-CLI ve kapsamlı test paketi. Aşamalı yol haritası `ROADMAP.md`'de; sıradaki iş
-`Todo.md`'de.
+teorisi/kombinatorik/olasılık (SymPy) + Track B (SAT indirgeme) + **doğrulama
+katmanı** (AI muhakemesini denetler): **60+ MCP aracı**, CLI ve kapsamlı test
+paketi. Aşamalı yol haritası `ROADMAP.md`'de; sıradaki iş `Todo.md`'de.
 
 ## Hızlı başlangıç
 
@@ -44,6 +44,11 @@ find_model(["x > 2", "x < 5"])                    # -> "sat", witness={"x": 3}
 from mathhead.core.inequality import prove_inequality   # v2+ (Z3 NRA, nonlineer)
 prove_inequality("x**2 + y**2 >= 2*x*y")          # -> "valid"  (AM-GM, ispat)
 prove_inequality("x**2 >= x")                     # -> "invalid", witness={"x": 0.5}
+
+from mathhead.core.verify import verify_equality, verify_solution  # DOĞRULAMA (AI denetçisi)
+verify_equality("(x**2-1)/(x-1)", "x+1")          # -> valid, AMA domain uyarısı (x=1 tanımsız!)
+verify_solution("x**2==4", "x", ["2"])            # -> invalid: EKSİK (-2 kaçtı)
+verify_solution("x**2==4", "x", ["2","-2"])       # -> valid: doğru + tam
 
 from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
@@ -142,7 +147,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 59 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 62 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```

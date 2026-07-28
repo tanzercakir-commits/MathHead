@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-07-28 — Track C1 · DOĞRULAMA KATMANI (öne geçiren yön — AI muhakeme denetçisi)
+
+**Yön kararı:** Kullanıcı "bizi öne geçiren şeye odaklan" dedi → seçim: ham hesapta
+değil **güven**de öne geçmek. Ürünü "başka bir CAS"tan AI iddialarının bağımsız
+*yargıcı*na çeviren doğrulama katmanı (ROADMAP Track C).
+
+**Yapıldı**
+
+- Yeni modül `core/verify.py` + `VerifyResult`: `verify_equality`,
+  `verify_solution`, `verify_steps`.
+- Uçtan uca: router (3) + MCP (**62 araç**) + CLI (`verify-eq/verify-solution/
+  verify-steps`) + `tests/test_verify.py` (15) → **438/438 yeşil**. 10 yeni
+  reason_code taksonomiye + api-reference'a işlendi.
+
+**Doğrulandı (öne geçiren özellikler = naif kontrolün kaçırdıkları)**
+
+- **DOMAIN tuzağı:** `(x²-1)/(x-1)` vs `x+1` → `EQUAL_ON_COMMON_DOMAIN` + `x=1`
+  ayrışma uyarısı (sembolik "eşit" ama x=1'de tanımsız — yakalandı).
+- **TAMLIK:** `x²=4, {2}` → `SOLUTION_INCOMPLETE` (-2 kaçtı); `{2,3}` →
+  `SOLUTION_INCORRECT` (3 yanlış); `x+sin(x)=0, {0}` → `COMPLETENESS_UNKNOWN`
+  (değer doğru ama tümü doğrulanamaz — dürüst).
+- **ADIM:** `(x+1)²=x²+1` → `STEP_INVALID` ilk geçişte + karşıörnek x=1.
+
+**Sıradaki (Track C):** C2 bağımsız sertifika · C3 çapraz denetim (Z3⋈SymPy) ·
+C4 benchmark. Kullanıcı yönü onayladı ("amaçtan sapmayalım").
+
 ## 2026-07-28 — Aşama 11 [S] · büyük sağlamlaştırma + RC (SON AŞAMA — 1–11 TAMAM 🎉)
 
 **Yapıldı**

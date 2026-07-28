@@ -27,6 +27,10 @@ ALLOWED_REASON = frozenset({
     "COUNTEREXAMPLE_FOUND", "NO_MODEL", "PROVEN_IMPOSSIBLE", "NO_COLORING",
     "INFEASIBLE", "HARD_INFEASIBLE", "PARSE_ERROR", "COMPUTE_FAILED",
     "GUARDRAIL_VIOLATION", "SOLVER_TIMEOUT", "SOLVER_UNKNOWN", "UNEXPECTED_SAT",
+    # doğrulama katmanı (Track C)
+    "EQUAL", "NOT_EQUAL", "EQUAL_ON_COMMON_DOMAIN", "UNDECIDED",
+    "SOLUTION_VERIFIED", "SOLUTION_INCOMPLETE", "SOLUTION_INCORRECT",
+    "COMPLETENESS_UNKNOWN", "STEPS_VALID", "STEP_INVALID",
 })
 
 _ERROR_STATUS = {"error"}
@@ -88,6 +92,13 @@ CALLS = [
     ("graph_coloring", {"edges": [[1, 2], [2, 3], [1, 3]], "colors": 2}),   # unsat
     ("subset_sum", {"numbers": [3, 4, 2], "target": 9}),
     ("subset_sum", {"numbers": [3, 4, 2], "target": 100}),                  # unsat
+    # doğrulama katmanı (Track C) — valid/invalid/unknown yolları
+    ("verify_equality", {"left": "sin(x)**2 + cos(x)**2", "right": "1"}),
+    ("verify_equality", {"left": "(x**2-1)/(x-1)", "right": "x+1"}),        # domain caveat
+    ("verify_equality", {"left": "2*x", "right": "3*x"}),                   # not equal
+    ("verify_solution", {"equation": "x**2==4", "symbol": "x", "claimed": ["2"]}),  # incomplete
+    ("verify_solution", {"equation": "x + sin(x) == 0", "symbol": "x", "claimed": ["0"]}),  # unknown
+    ("verify_steps", {"steps": ["(x+1)**2", "x**2 + 1"]}),                  # step invalid
 ]
 
 

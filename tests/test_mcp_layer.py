@@ -34,6 +34,10 @@ ARGS = {
     "prove_inequality": {"goal": "x**2 + y**2 >= 2*x*y", "assumptions": None},
     "prove_nonnegative": {"expression": "x**2 - 2*x + 1", "assumptions": None},
     "find_real_solution": {"constraints": ["x**2 + y**2 == 1", "x == y"]},
+    # doğrulama katmanı (Track C)
+    "verify_equality": {"left": "sin(x)**2 + cos(x)**2", "right": "1"},
+    "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
+    "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
     # hesap
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},

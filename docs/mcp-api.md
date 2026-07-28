@@ -339,6 +339,34 @@ karşılaştırma değilse ya da üs değişkense (nonpolinom) `GUARDRAIL_VIOLAT
 
 ---
 
+## Doğrulama katmanı (AI muhakeme denetçisi) — öne geçiren yön
+
+MathHead'i "başka bir CAS"tan **AI muhakemesinin yargıcı**na çeviren katman.
+AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı verir.
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `verify_equality` | `verify_equality(left, right)` | `(x**2-1)/(x-1)` vs `x+1` → `EQUAL_ON_COMMON_DOMAIN` (x=1 uyarısı) |
+| `verify_solution` | `verify_solution(equation, symbol, claimed)` | `x**2==4`, `x`, `["2"]` → `SOLUTION_INCOMPLETE` (-2 kaçtı) |
+| `verify_steps` | `verify_steps(steps)` | `["(x+1)**2","x**2+1"]` → `STEP_INVALID` (1. geçiş) |
+
+**Neden öne geçirir (naif kontrolün kaçırdıkları):**
+
+- `verify_equality` yalnız denkliği değil, **tanım kümesi ayrışmasını** da yakalar:
+  `(x²-1)/(x-1)` ile `x+1` sembolik denk görünür ama `x=1`'de tanımsız →
+  `EQUAL_ON_COMMON_DOMAIN` + `details.domain_caveat`. invalid'de somut karşıörnek.
+- `verify_solution` değerleri ikame ile denetler **ve TAMLIĞI** kontrol eder —
+  eksik kök (`SOLUTION_INCOMPLETE` + `details.missing`) veya yanlış kök
+  (`SOLUTION_INCORRECT` + `details.wrong_values`). Tamlık kapalı-formda
+  doğrulanamazsa `COMPLETENESS_UNKNOWN` (dürüst).
+- `verify_steps` bir çözümü adım adım "not verir": ilk kırılan geçişi
+  (`details.first_bad_step`, 1-tabanlı) + karşıörnek verir.
+
+Dönüş `VerifyResult`: `status` (valid|invalid|unknown|error) + `reason_code` +
+`explanation` + `details` (karşıörnek/eksik/ilk-hatalı-adım) + `meta`.
+
+---
+
 ## Track B araçları (frontier — SAT indirgeme)
 
 Zor problemleri **sağlanabilirliğe indirgeyip** çözer / imkânsızlığı ispatlar.

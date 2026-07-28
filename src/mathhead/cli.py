@@ -51,6 +51,8 @@ def _emit(result: Any, as_json: bool) -> int:
             print(f"açıklama : {data['explanation']}")
         if data.get("witness") is not None:
             print(f"tanık    : {data['witness']}")
+        if data.get("details") is not None:
+            print(f"ayrıntı  : {data['details']}")
         if data.get("result") is not None:
             print(f"sonuç    : {data['result']}")
         if data.get("used_premises") is not None:
@@ -138,6 +140,17 @@ def _build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("real-solve", help="nonlineer kısıtlara gerçel çözüm bul")
     p.add_argument("constraints", nargs="+", metavar="KISIT")
+
+    p = sub.add_parser("verify-eq", help="iki ifade denk mi (domain tuzağı dahil)")
+    p.add_argument("left", metavar="SOL"); p.add_argument("right", metavar="SAĞ")
+
+    p = sub.add_parser("verify-solution", help="çözümler doğru + tam mı")
+    p.add_argument("equation", metavar="DENKLEM"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("--claim", action="append", default=[], required=True, metavar="DEĞER",
+                   help="iddia edilen çözüm, tekrarlanabilir (negatif için --claim=-2)")
+
+    p = sub.add_parser("verify-steps", help="adım zincirinde ilk hatayı bul")
+    p.add_argument("steps", nargs="+", metavar="ADIM")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -333,6 +346,10 @@ _DISPATCH = {
     "prove-inequality": lambda a: ("prove_inequality", {"goal": a.goal, "assumptions": a.assume}),
     "prove-nonnegative": lambda a: ("prove_nonnegative", {"expression": a.expression, "assumptions": a.assume}),
     "real-solve": lambda a: ("find_real_solution", {"constraints": a.constraints}),
+    "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
+    "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
+                                                      "symbol": a.symbol, "claimed": a.claim}),
+    "verify-steps": lambda a: ("verify_steps", {"steps": a.steps}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

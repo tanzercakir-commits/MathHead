@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **59 araç**.
+Toplam **62 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -53,6 +53,18 @@ Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıt�
 ### `find_real_solution(constraints)`
 
 Doğrusal-olmayan kısıt kümesini GERÇEL sayılarda sağlayan bir nokta bulur.
+
+### `verify_equality(left, right)`
+
+İki ifade DENK mi? (AI'ın "= şuna eşittir" iddiasını bağımsız denetler.)
+
+### `verify_solution(equation, symbol, claimed)`
+
+`claimed` değerleri `equation`'ın çözümü MÜ ve TAM MI? (AI'ın çözüm iddiası.)
+
+### `verify_steps(steps)`
+
+Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur.
 
 ### `simplify(expression)`
 

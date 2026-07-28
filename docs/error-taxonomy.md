@@ -63,6 +63,18 @@ BAŞARISIZLIK / KARŞITLIK (status: invalid/unsat/error/unknown)
   GUARDRAIL_VIOLATION    · çit ihlali (mantık girdisi: sözdizimi/uzunluk/sembol)
   SOLVER_TIMEOUT         · zaman aşımı  ·  SOLVER_UNKNOWN · çözücü 'unknown'
   UNEXPECTED_SAT         · beklenmeyen sat (iç tutarlılık kontrolü)
+
+DOĞRULAMA KATMANI (Track C — AI muhakeme denetçisi)
+  EQUAL                  · ifadeler denk (valid)
+  EQUAL_ON_COMMON_DOMAIN · ortak tanım kümesinde denk, tanım kümeleri ayrışıyor (valid + uyarı)
+  NOT_EQUAL              · denk değil, karşıörnek var (invalid)
+  SOLUTION_VERIFIED      · çözümler doğru + TAM (valid)
+  SOLUTION_INCORRECT     · en az bir iddia edilen değer çözüm değil (invalid)
+  SOLUTION_INCOMPLETE    · değerler doğru ama eksik (kaçan çözüm) (invalid)
+  COMPLETENESS_UNKNOWN   · değerler tutar ama tümü doğrulanamadı (unknown)
+  STEPS_VALID            · adım zincirinin tüm geçişleri denk (valid)
+  STEP_INVALID           · ilk hatalı geçiş bulundu (invalid)
+  UNDECIDED              · denklik/geçiş kararlaştırılamadı (unknown)
 ```
 
 **Değişmez (test_taxonomy):** her araç çağrısı yalnız yukarıdaki `status` ve

@@ -95,6 +95,22 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     (motordan bağımsız; kullanıcı yapar — ajan motora yüklenir)
 ```
 
+## C. Öne geçiren yön — DOĞRULAMA KATMANI (AI muhakeme denetçisi)
+
+> **Tez:** Ham hesapta değil, **güven**de öne geçeriz. AI non-deterministik ve
+> uydurur; MathHead deterministik denetler ve bağımsız doğrulanabilir kanıt verir.
+> Ürünü "başka bir CAS"tan **"AI muhakemesinin yargıcı"**na çevirir.
+
+```
+[x] C1 · Çekirdek doğrulayıcı (öner-ve-denetle)  (bitti — 438 test, 62 araç)
+    └─ verify_equality (denklik + DOMAIN tuzağı), verify_solution (doğruluk +
+       TAMLIK), verify_steps (adım zincirinde ilk hatayı bul) ✅
+       ↳ dürüst duvar: domain ayrışması + tamlık 'unknown' açıkça raporlanır ✅
+[ ] C2 · Bağımsız sertifika — Z3/SymPy'siz küçük checker her verdict'i doğrulasın
+[ ] C3 · Çapraz denetim — Z3 ⋈ SymPy mutabakatı (iki bağımsız tanık)
+[ ] C4 · Benchmark — LLM-tuzak problem seti + ölçülü üstünlük + regresyon çiti
+```
+
 ---
 
 ## Nerede kaldık?

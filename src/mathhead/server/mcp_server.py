@@ -150,6 +150,41 @@ def find_real_solution(constraints: list[str]) -> dict[str, Any]:
     return asdict(route("find_real_solution", {"constraints": constraints}))
 
 
+# ------------- Doğrulama katmanı (AI muhakeme denetçisi) ------------------ #
+@mcp.tool()
+def verify_equality(left: str, right: str) -> dict[str, Any]:
+    """İki ifade DENK mi? (AI'ın "= şuna eşittir" iddiasını bağımsız denetler.)
+
+    valid → denk; `EQUAL_ON_COMMON_DOMAIN` → denk AMA tanım kümeleri ayrışıyor
+    (domain tuzağı, `details.domain_caveat`). invalid → `details.counterexample`.
+    unknown → karar verilemedi. Ör: `(x**2-1)/(x-1)` vs `x+1` → domain uyarısı.
+    """
+    return asdict(route("verify_equality", {"left": left, "right": right}))
+
+
+@mcp.tool()
+def verify_solution(equation: str, symbol: str, claimed: list[str]) -> dict[str, Any]:
+    """`claimed` değerleri `equation`'ın çözümü MÜ ve TAM MI? (AI'ın çözüm iddiası.)
+
+    valid → doğru + tam; invalid → `SOLUTION_INCORRECT` (yanlış değer) ya da
+    `SOLUTION_INCOMPLETE` (`details.missing` kaçan çözümler); unknown → değerler
+    tutar ama tamlık doğrulanamadı (ör. transandantal). Ör: x²=4, {2} → eksik (-2).
+    """
+    return asdict(route("verify_solution", {"equation": equation, "symbol": symbol,
+                                            "claimed": claimed}))
+
+
+@mcp.tool()
+def verify_steps(steps: list[str]) -> dict[str, Any]:
+    """Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur.
+
+    (AI'ın adım adım çözümünü "not verir".) valid → tümü denk; invalid →
+    `details.first_bad_step` (1-tabanlı) + karşıörnek. Ör: `(x+1)**2` → `x**2+1`
+    HATALI (2. adımda kırılır).
+    """
+    return asdict(route("verify_steps", {"steps": steps}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

@@ -6,6 +6,36 @@
 
 ---
 
+## 2026-07-28 — H2 · SMT theories (bit-vectors, EUF, arrays, strings)
+
+**Done — 4 new logic tools (153 total):**
+
+- New `core/smt.py` opens four more of Z3's decision theories, each with the SAME shape
+  as the kernel's entailment/consistency primitives — `check_<theory>(assumptions,
+  goal=None)`: goal → entailment (valid/invalid + witness), goal=None → consistency
+  (sat/unsat).
+  - `check_bitvector` — fixed-width BV (`& | ^ ~ << >> + - *`, (un)signed compares):
+    bit tricks, masks, overflow.
+  - `check_uninterpreted` — equality + uninterpreted functions/predicates (EUF, congruence).
+  - `check_arrays` — `select`/`store` (McCarthy axioms; array names inferred).
+  - `check_strings` — concat/`length`/`contains`/`prefixof`/`suffixof`, literals.
+- Wired router + MCP (153 tools) + CLI (`bitvector`/`uf`/`arrays`/`strings`) +
+  `tests/test_smt.py` (24) → **1023/1023 green**.
+
+**Verified (real theory theorems):** BV x^y^y==x valid, x|y≠x+y refuted with a bit-level
+counterexample, (x&(x-1))==0 finds a power of two; EUF a==b ⊨ f(a)==f(b); array
+read-over-write (same & different index); string length(x+y)==length(x)+length(y), and
+solving x+"b"=="ab" → x="a".
+
+**Determinism (ADR-0019 honored):** the VERDICT is stable; a multi-solution counterexample
+witness is an *example* (may vary among equally-valid ones) — tests assert verdict
+stability, not a pinned witness.
+
+**Decision:** ADR-0023 (extra theories as focused tools sharing ONE entailment/consistency
+driver; the kernel grammar is untouched).
+
+**Next:** H3 — proof generation II (quantifier elimination + deeper derivations).
+
 ## 2026-07-28 — H1 · induction proofs (Track H begins)
 
 **Done — 1 new proof tool (149 total):**

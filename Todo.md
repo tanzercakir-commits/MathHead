@@ -108,7 +108,7 @@
 ### Track H — Logic & Proof Depth (in progress)
 
 - [x] **H1** induction proofs — prove_by_induction (base+step via Z3, sound meta-rule) ✅ (990 tests, 149 tools)
-- [ ] **H2** SMT theories — arrays, bit-vectors, strings, uninterpreted functions
+- [x] **H2** SMT theories — check_bitvector/uninterpreted/arrays/strings (BV/EUF/arrays/strings) ✅ (1023 tests, 153 tools)
 - [ ] **H3** proof generation II — quantifier elimination + deeper derivations
 - [ ] **H4** modal/temporal logic — K/S4 basics (careful scope)
 - [ ] **H5** [S] Track H hardening

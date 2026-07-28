@@ -168,6 +168,60 @@ def prove_by_induction(claim: str, var: str = "n", start: int = 0) -> dict[str, 
     return asdict(route("prove_by_induction", {"claim": claim, "var": var, "start": start}))
 
 
+# --------------------- SMT theories (H2 — proof depth) -------------------- #
+@mcp.tool()
+def check_bitvector(assumptions: list[str], goal: str | None = None,
+                    width: int = 32, signed: bool = False) -> dict[str, Any]:
+    """Reason over fixed-width BIT-VECTORS (bit tricks, masks, overflow).
+
+    Grammar: `& | ^ ~ << >> + - *`, comparisons (unsigned unless `signed=True`),
+    `and/or/not`, `implies`/`iff`; names are `width`-bit vectors, integer literals are
+    BV constants. `goal` given → entailment (validity proof + bit-level counterexample
+    if it fails); `goal=None` → consistency. E.g. `"x ^ y ^ y == x"` → valid;
+    `"(x | y) == (x + y)"` → invalid with a counterexample.
+    """
+    return asdict(route("check_bitvector",
+                        {"assumptions": assumptions, "goal": goal, "width": width, "signed": signed}))
+
+
+@mcp.tool()
+def check_uninterpreted(assumptions: list[str], goal: str | None = None) -> dict[str, Any]:
+    """Reason with EQUALITY + UNINTERPRETED functions/predicates (EUF, congruence).
+
+    Terms are names (`a`) and applications (`f(a, b)`); atoms are `==`/`!=` and
+    predicates `P(...)`, combined with `and/or/not`/`implies`/`iff`. Congruence is
+    built in: `["a == b"]` entails `f(a) == f(b)`. `goal` → entailment; `goal=None` →
+    consistency.
+    """
+    return asdict(route("check_uninterpreted", {"assumptions": assumptions, "goal": goal}))
+
+
+@mcp.tool()
+def check_arrays(assumptions: list[str], goal: str | None = None,
+                 index_sort: str = "Int", value_sort: str = "Int") -> dict[str, Any]:
+    """Reason about ARRAYS with `select(a, i)` / `store(a, i, v)` (McCarthy axioms).
+
+    A name first used as the array argument of select/store is an array; other names
+    are scalars of `value_sort` ('Int'/'Real'). E.g. `select(store(a, i, v), i) == v`
+    is entailed. `goal` → entailment; `goal=None` → consistency.
+    """
+    return asdict(route("check_arrays", {"assumptions": assumptions, "goal": goal,
+                                         "index_sort": index_sort, "value_sort": value_sort}))
+
+
+@mcp.tool()
+def check_strings(assumptions: list[str], goal: str | None = None) -> dict[str, Any]:
+    """Reason about STRINGS/sequences (concat, length, contains, prefix/suffix).
+
+    Terms: string variables, `"literals"`, `+`/`concat(...)`, `length(s)`, `at(s, i)`.
+    Predicates: `contains`, `prefixof`, `suffixof`, plus `==`/`!=` and integer
+    comparisons on lengths. `goal` → entailment (e.g. `length(x + y) == length(x) +
+    length(y)` is valid); `goal=None` → consistency (e.g. `["x + \\"b\\" == \\"ab\\""]`
+    → sat with `x = "a"`).
+    """
+    return asdict(route("check_strings", {"assumptions": assumptions, "goal": goal}))
+
+
 # --------------- Verification layer (AI reasoning auditor) ---------------- #
 @mcp.tool()
 def verify_equality(left: str, right: str) -> dict[str, Any]:

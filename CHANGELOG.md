@@ -6,6 +6,14 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **SMT theories — bit-vectors, EUF, arrays, strings (`check_bitvector`,
+  `check_uninterpreted`, `check_arrays`, `check_strings`):** ROADMAP H2. Four more of Z3's
+  decision theories, each with the kernel's shape `check_<theory>(assumptions, goal=None)`
+  (goal → entailment + counterexample; goal=None → consistency). New `core/smt.py`. BV bit
+  tricks / masks / overflow with bit-level counterexamples; EUF congruence (`a==b ⊨
+  f(a)==f(b)`); array McCarthy axioms (`select`/`store`); string
+  concat/length/contains/prefix/suffix. MCP (**153 tools**) + CLI
+  (`bitvector`/`uf`/`arrays`/`strings`) + 24 tests. ADR-0023. **1023 tests green.**
 - **Mathematical induction (`prove_by_induction`):** ROADMAP H1 — Track H begins. Proves
   `∀ n ≥ start. P(n)` by induction, something Z3 CANNOT do natively (the induction schema
   is not first-order SMT). New `core/induction.py` checks the base case P(start) and the

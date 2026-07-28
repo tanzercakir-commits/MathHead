@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **149 tools**.
+Total **153 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -57,6 +57,22 @@ Finds a point in the REALS satisfying a set of nonlinear constraints.
 ### `prove_by_induction(claim, var='n', start=0)`
 
 Prove `∀ {var} ≥ {start}. {claim}` by MATHEMATICAL INDUCTION (Z3 can't do this natively).
+
+### `check_bitvector(assumptions, goal=None, width=32, signed=False)`
+
+Reason over fixed-width BIT-VECTORS (bit tricks, masks, overflow).
+
+### `check_uninterpreted(assumptions, goal=None)`
+
+Reason with EQUALITY + UNINTERPRETED functions/predicates (EUF, congruence).
+
+### `check_arrays(assumptions, goal=None, index_sort='Int', value_sort='Int')`
+
+Reason about ARRAYS with `select(a, i)` / `store(a, i, v)` (McCarthy axioms).
+
+### `check_strings(assumptions, goal=None)`
+
+Reason about STRINGS/sequences (concat, length, contains, prefix/suffix).
 
 ### `verify_equality(left, right)`
 

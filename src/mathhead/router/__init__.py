@@ -36,6 +36,12 @@ from mathhead.core.logic import (
 )
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.core.induction import InductionResult, prove_by_induction
+from mathhead.core.smt import (
+    check_arrays,
+    check_bitvector,
+    check_strings,
+    check_uninterpreted,
+)
 from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.nl import NLResult, interpret
@@ -101,6 +107,19 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "prove_by_induction":
         return prove_by_induction(payload["claim"], payload.get("var", "n"),
                                   payload.get("start", 0), **_opts(payload))
+
+    # --- SMT theories (H2: bit-vectors, EUF, arrays, strings) ---
+    if task == "check_bitvector":
+        return check_bitvector(payload["assumptions"], payload.get("goal"),
+                               payload.get("width", 32), payload.get("signed", False), **_opts(payload))
+    if task == "check_uninterpreted":
+        return check_uninterpreted(payload["assumptions"], payload.get("goal"), **_opts(payload))
+    if task == "check_arrays":
+        return check_arrays(payload["assumptions"], payload.get("goal"),
+                            payload.get("index_sort", "Int"), payload.get("value_sort", "Int"),
+                            **_opts(payload))
+    if task == "check_strings":
+        return check_strings(payload["assumptions"], payload.get("goal"), **_opts(payload))
 
     # --- Verification layer (AI reasoning auditor) ---
     if task == "verify_equality":

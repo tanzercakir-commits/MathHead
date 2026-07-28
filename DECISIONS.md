@@ -304,6 +304,29 @@
 
 ---
 
+## ADR-0023 — Extra SMT theories as focused tools over one entailment/consistency driver
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP H2 asks for bit-vectors, arrays, strings and uninterpreted
+  functions. The kernel grammar (`core/translate.py`) is deliberately linear and
+  single-sorted; bolting four new sorts (BV width, arrays, sequences, an abstract sort)
+  onto it would risk the frozen contract and the existing tests.
+- **Decision:** Add `core/smt.py` as a SEPARATE surface. Each theory is a small,
+  self-contained parser feeding Z3's corresponding theory, and all four expose the
+  identical shape `check_<theory>(assumptions, goal=None)` routed through ONE driver
+  (`_decide`): `goal` → entailment (⋀assumptions ∧ ¬goal UNSAT → valid; SAT → invalid +
+  witness), `goal=None` → consistency. They return the shared `ReasoningResult`, so the
+  external contract (ADR-0004) is untouched.
+- **Consequences:** Real theory theorems are checkable — BV identities with bit-level
+  counterexamples, EUF congruence, McCarthy array axioms, string concat/length. The kernel
+  grammar is unchanged and existing tools are unaffected. Determinism follows ADR-0019
+  (stable verdict; a multi-solution witness is an example — tests assert verdict stability,
+  not a pinned witness). Sort clashes and unexpected symbols are honest `PARSE_ERROR`s
+  (Wall #2). Scope is intentionally minimal per theory; richer fragments can be added later
+  without touching the driver.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

@@ -159,6 +159,24 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--var", default="n", help="induction variable (default n)")
     p.add_argument("--start", type=int, default=0, help="base value (default 0)")
 
+    p = sub.add_parser("bitvector", help="reason over fixed-width bit-vectors (SMT BV)")
+    p.add_argument("--assume", action="append", default=[], metavar="CONSTRAINT")
+    p.add_argument("--goal", default=None, metavar="CLAIM")
+    p.add_argument("--width", type=int, default=32); p.add_argument("--signed", action="store_true")
+
+    p = sub.add_parser("uf", help="equality + uninterpreted functions (EUF)")
+    p.add_argument("--assume", action="append", default=[], metavar="ASSUMPTION")
+    p.add_argument("--goal", default=None, metavar="GOAL")
+
+    p = sub.add_parser("arrays", help="arrays with select/store (McCarthy axioms)")
+    p.add_argument("--assume", action="append", default=[], metavar="ASSUMPTION")
+    p.add_argument("--goal", default=None, metavar="GOAL")
+    p.add_argument("--index-sort", default="Int"); p.add_argument("--value-sort", default="Int")
+
+    p = sub.add_parser("strings", help="string/sequence theory (concat/length/contains)")
+    p.add_argument("--assume", action="append", default=[], metavar="ASSUMPTION")
+    p.add_argument("--goal", default=None, metavar="GOAL")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -733,6 +751,12 @@ _DISPATCH = {
     "prove-nonnegative": lambda a: ("prove_nonnegative", {"expression": a.expression, "assumptions": a.assume}),
     "real-solve": lambda a: ("find_real_solution", {"constraints": a.constraints}),
     "induction": lambda a: ("prove_by_induction", {"claim": a.claim, "var": a.var, "start": a.start}),
+    "bitvector": lambda a: ("check_bitvector", {"assumptions": a.assume, "goal": a.goal,
+                                                "width": a.width, "signed": a.signed}),
+    "uf": lambda a: ("check_uninterpreted", {"assumptions": a.assume, "goal": a.goal}),
+    "arrays": lambda a: ("check_arrays", {"assumptions": a.assume, "goal": a.goal,
+                                          "index_sort": a.index_sort, "value_sort": a.value_sort}),
+    "strings": lambda a: ("check_strings", {"assumptions": a.assume, "goal": a.goal}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

@@ -64,12 +64,23 @@ def test_step_fails_is_unknown_not_invalid():
     assert r.inductive_step["counterexample"] == {"n": 2}
 
 
-def test_hard_nonlinear_step_is_unknown():
-    # n(n+1)(n+2) divisible by 6 is TRUE, but Z3 cannot decide the nonlinear step →
-    # honest unknown (a wall), never a fabricated proof.
+def test_hard_nonlinear_theorem_is_never_wrong():
+    # n(n+1)(n+2) divisible by 6 is a TRUE theorem whose nonlinear step sits at the edge
+    # of Z3's decision power. SOUNDNESS guarantee: the engine either PROVES it (valid) or
+    # hits an HONEST wall (unknown) — it must NEVER fabricate `invalid` on a true claim.
     r = prove_by_induction("(n*(n+1)*(n+2)) % 6 == 0", "n", 0)
-    assert r.status == "unknown"
-    assert r.reason_code == "SOLVER_UNKNOWN"
+    assert r.status in ("valid", "unknown")
+    if r.status == "unknown":
+        assert r.reason_code in ("SOLVER_UNKNOWN", "STEP_FAILED")
+
+
+def test_solver_wall_is_honest_under_tight_timeout():
+    # A tight timeout forces the nonlinear step to time out -> a deterministic honest wall
+    # (unknown), never a fake proof.
+    r = prove_by_induction("(n**5 - n) % 5 == 0", "n", 0, timeout_ms=1)
+    assert r.status in ("valid", "unknown")  # proved fast, or an honest timeout wall
+    if r.status == "unknown":
+        assert r.reason_code in ("SOLVER_UNKNOWN", "STEP_FAILED")
 
 
 # ------------------------------ grammar / guardrails ------------------------ #

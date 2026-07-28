@@ -461,6 +461,30 @@ claim may still be true) or Z3 could not decide the nonlinear step (`SOLVER_UNKN
 
 ---
 
+## SMT theories (H — bit-vectors, EUF, arrays, strings)
+
+Four more of Z3's decision theories, each with the same shape as the logic kernel:
+`check_<theory>(assumptions, goal=None)` — `goal` given → **entailment**
+(assumptions ⊨ goal; `valid`/`invalid` + a counterexample witness), `goal=None` →
+**consistency** (`sat` + model / `unsat`).
+
+| Tool | Signature | Example |
+|---|---|---|
+| `check_bitvector` | `check_bitvector(assumptions, goal=None, width=32, signed=False)` | `x ^ y ^ y == x` → `valid` |
+| `check_uninterpreted` | `check_uninterpreted(assumptions, goal=None)` | `["a == b"] ⊨ f(a) == f(b)` → `valid` |
+| `check_arrays` | `check_arrays(assumptions, goal=None, index_sort="Int", value_sort="Int")` | `select(store(a,i,v),i) == v` → `valid` |
+| `check_strings` | `check_strings(assumptions, goal=None)` | `length(x + y) == length(x) + length(y)` → `valid` |
+
+Grammar per theory: **BV** `& | ^ ~ << >> + - *` with (un)signed comparisons; **EUF**
+`name`/`f(...)` terms, `==`/`!=`, predicates `P(...)`; **arrays** `select(a,i)` /
+`store(a,i,v)` (a name first used as the array argument is an array); **strings**
+`+`/`concat`, `length`, `at`, and predicates `contains`/`prefixof`/`suffixof`. All share
+`and`/`or`/`not`/`implies`/`iff` and return `ReasoningResult`. **Honesty:** an unexpected
+symbol or a sort clash is a clean `PARSE_ERROR`; `unknown` stays first-class. Per ADR-0019
+the verdict is deterministic; a counterexample witness is one valid example.
+
+---
+
 ## Verification layer (AI reasoning auditor) — the direction that pulls ahead
 
 The layer that turns MathHead from "just another CAS" into **a judge of AI

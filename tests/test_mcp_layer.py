@@ -201,6 +201,11 @@ ARGS = {
     "subset_sum": {"numbers": [3, 34, 4, 12, 5, 2], "target": 9},
     # Induction (H1)
     "prove_by_induction": {"claim": "n**2 >= n", "var": "n", "start": 0},
+    # SMT theories (H2)
+    "check_bitvector": {"assumptions": [], "goal": "x ^ y ^ y == x", "width": 8, "signed": False},
+    "check_uninterpreted": {"assumptions": ["a == b"], "goal": "f(a) == f(b)"},
+    "check_arrays": {"assumptions": [], "goal": "select(store(a, i, v), i) == v"},
+    "check_strings": {"assumptions": [], "goal": "length(x + y) == length(x) + length(y)"},
 }
 
 

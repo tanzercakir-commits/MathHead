@@ -194,7 +194,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] H1 🔴 Induction proofs — prove_by_induction: base+step checked by Z3, induction principle
           as a SOUND meta-rule (Z3 can't do this natively) ✅ (990 tests, 149 tools; ADR-0022)
           ↳ honest walls: base-fail → invalid; step-fail/solver-unknown → unknown (never a fake proof)
-[ ] H2 🟡 SMT theories — arrays, bit-vectors, strings, uninterpreted functions
+[x] H2 🟡 SMT theories — check_bitvector / check_uninterpreted / check_arrays / check_strings
+          (BV bit-tricks, EUF congruence, McCarthy arrays, string theory); unified
+          assumptions⊨goal / consistency shape ✅ (1023 tests, 153 tools; ADR-0023)
 [ ] H3 🟡 Proof generation II — step-by-step derivation for more theories; quantifier elimination
 [ ] H4 🔴 Modal/temporal logic — K/S4/LTL basics (optional/frontier, careful scope)
 [ ] H5 [S] Hardening

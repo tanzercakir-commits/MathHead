@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — D5 [S] · analysis hardening → TRACK D DONE 🎉
+
+**Done**
+
+- New `tests/test_analysis_hardening.py` (8): property-based (hypothesis) + a numerical
+  cross-check + determinism/fuzz across Track D. Tests only — no new tools.
+- **Identities proven on random fields:** ∇×(∇f) ≡ 0, ∇·(∇×F) ≡ 0, and ∇²f = ∇·(∇f)
+  — the last one checked with MathHead's OWN `verify_equality` (dogfooding the verifier).
+- **Numerical cross-check:** ∇×(∇f) evaluated at sample points is ~0 (independent of
+  symbolic simplification). **Round-trip:** ℱ then ℱ⁻¹ recovers the Gaussian family.
+  **Complex:** `complex_parts` matches the (a+bi)(c+di) product formula for random ints.
+- **Safety:** transforms/residue/laplacian never crash on random junk. **664/664 green.**
+
+**Milestone:** Track D (Analysis & Transforms) COMPLETE — vector calculus (D1), integral
+transforms (D2), differential equations II (D3), complex analysis (D4), all hardened (D5).
+Engine grew 71→89 tools; the compute grammar gained the constants π, e, I (ADR-0021).
+
+**Next:** Track E (Algebra & Discrete Structures) — roadmap order E → F → G → H → J → K.
+
 ## 2026-07-28 — D4 · complex analysis (residue / contour / Laurent / re-im)
 
 **Done — 4 new compute tools (89 total):**

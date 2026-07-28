@@ -137,8 +137,11 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           🔴 general PDE (heat/wave separation) beyond pdsolve → honest COMPUTE_FAILED
 [x] D4 🟡 Complex analysis — residue / contour_integral (residue theorem) / laurent_series /
           complex_parts ✅ (89 tools; +I imaginary-unit constant, ADR-0021 extended)
-[ ] D5 [S] Hardening — analysis identity properties (∇×∇f=0, ∇·(∇×F)=0) + numerical check
+[x] D5 [S] Hardening — analysis identity properties (∇×∇f=0, ∇·(∇×F)=0, ∇²f=∇·∇f via the
+          verifier) + numerical cross-check + transform round-trips ✅ (664 tests)
 ```
+
+### 🎉 TRACK D DONE — Analysis & Transforms (vector calculus, transforms, diff-eq II, complex)
 
 ## E. Algebra & Discrete Structures
 ```

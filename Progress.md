@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-07-28 — E5 · combinatorics II
+
+**Done — 6 new compute tools (122 total):**
+
+- `catalan_number`, `bell_number`, `stirling_number` (first/second kind), `derangements`
+  (!n, the inclusion-exclusion classic), `generating_function_coefficient` ([xⁿ] of a GF's
+  series), `necklace_count` (distinct necklaces under rotation — Burnside/Pólya).
+- Wired router + MCP (122 tools) + CLI (`catalan`/`bell`/`stirling`/`derangements`/
+  `gf-coeff`/`necklaces`) + `tests/test_combinatorics2.py` (14) → **809/809 green**.
+
+**Verified:** C₅=42, B₅=52; S(5,2) second=15, first=50; !4=9, !0=1; [x⁶] of the Fibonacci
+GF 1/(1−x−x²) = 13 (=F₇) and [x³](1+x)⁵ = 10 (=C(5,3), a GF↔binomial cross-check);
+necklaces(4,2)=6, necklaces(6,3)=130.
+
+**Next:** E6 [S] — algebra/discrete hardening (Lagrange's theorem, Euler-φ identities, etc.) → closes Track E.
+
 ## 2026-07-28 — E4 · number theory II
 
 **Done — 7 new compute tools (116 total):**

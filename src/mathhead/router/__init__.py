@@ -330,6 +330,21 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "pell_solution":
         return compute.pell_solution(payload["n"])
 
+    # --- Combinatorics II ---
+    if task == "catalan_number":
+        return compute.catalan_number(payload["n"])
+    if task == "bell_number":
+        return compute.bell_number(payload["n"])
+    if task == "stirling_number":
+        return compute.stirling_number(payload["n"], payload["k"], payload.get("kind", "second"))
+    if task == "derangements":
+        return compute.derangements(payload["n"])
+    if task == "generating_function_coefficient":
+        return compute.generating_function_coefficient(payload["expression"], payload["symbol"],
+                                                       payload["n"])
+    if task == "necklace_count":
+        return compute.necklace_count(payload["n"], payload["colors"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

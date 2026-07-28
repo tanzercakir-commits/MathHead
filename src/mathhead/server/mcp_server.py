@@ -897,6 +897,44 @@ def pell_solution(n: int) -> dict[str, Any]:
     return asdict(route("pell_solution", {"n": n}))
 
 
+# --------------------------- Combinatorics II ----------------------------- #
+@mcp.tool()
+def catalan_number(n: int) -> dict[str, Any]:
+    """The n-th Catalan number Cₙ. E.g. C₅ = 42 (balanced parentheses, binary trees, …)."""
+    return asdict(route("catalan_number", {"n": n}))
+
+
+@mcp.tool()
+def bell_number(n: int) -> dict[str, Any]:
+    """The n-th Bell number Bₙ — partitions of an n-element set. E.g. B₅ = 52."""
+    return asdict(route("bell_number", {"n": n}))
+
+
+@mcp.tool()
+def stirling_number(n: int, k: int, kind: str = "second") -> dict[str, Any]:
+    """Stirling number of the `first` (cycles) or `second` (blocks) kind. E.g. S(5,2) 2nd = 15."""
+    return asdict(route("stirling_number", {"n": n, "k": k, "kind": kind}))
+
+
+@mcp.tool()
+def derangements(n: int) -> dict[str, Any]:
+    """Derangement count !n (permutations with no fixed point; inclusion-exclusion). E.g. !4 = 9."""
+    return asdict(route("derangements", {"n": n}))
+
+
+@mcp.tool()
+def generating_function_coefficient(expression: str, symbol: str, n: int) -> dict[str, Any]:
+    """Coefficient of `symbol`ⁿ in a generating function's series. E.g. `1/(1-x-x**2)` at 6 → 13 (F₇)."""
+    return asdict(route("generating_function_coefficient",
+                        {"expression": expression, "symbol": symbol, "n": n}))
+
+
+@mcp.tool()
+def necklace_count(n: int, colors: int) -> dict[str, Any]:
+    """Distinct necklaces of `n` beads in `colors` colors under rotation (Burnside/Pólya). n=4,c=2 → 6."""
+    return asdict(route("necklace_count", {"n": n, "colors": colors}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

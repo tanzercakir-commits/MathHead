@@ -520,6 +520,29 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("pell", help="fundamental Pell solution x²-n·y²=1")
     p.add_argument("n", type=int)
 
+    p = sub.add_parser("catalan", help="n-th Catalan number")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("bell", help="n-th Bell number")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("stirling", help="Stirling number (--kind first|second)")
+    p.add_argument("n", type=int)
+    p.add_argument("k", type=int)
+    p.add_argument("--kind", default="second", choices=["first", "second"])
+
+    p = sub.add_parser("derangements", help="derangement count !n")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("gf-coeff", help="coefficient of x^n in a generating function")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("necklaces", help="distinct necklaces (n beads, colors) under rotation")
+    p.add_argument("n", type=int)
+    p.add_argument("colors", type=int)
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -735,6 +758,13 @@ _DISPATCH = {
     "quad-residue": lambda a: ("quadratic_residue", {"a": a.a, "n": a.n}),
     "primitive-root": lambda a: ("primitive_root", {"n": a.n}),
     "pell": lambda a: ("pell_solution", {"n": a.n}),
+    "catalan": lambda a: ("catalan_number", {"n": a.n}),
+    "bell": lambda a: ("bell_number", {"n": a.n}),
+    "stirling": lambda a: ("stirling_number", {"n": a.n, "k": a.k, "kind": a.kind}),
+    "derangements": lambda a: ("derangements", {"n": a.n}),
+    "gf-coeff": lambda a: ("generating_function_coefficient",
+                           {"expression": a.expression, "symbol": a.symbol, "n": a.n}),
+    "necklaces": lambda a: ("necklace_count", {"n": a.n, "colors": a.colors}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

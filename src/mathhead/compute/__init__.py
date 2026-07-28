@@ -2270,6 +2270,115 @@ def pell_solution(n: Any) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# E5 — combinatorics II: Catalan / Bell / Stirling numbers, derangements
+# (inclusion-exclusion), generating-function coefficient extraction, and necklace
+# counting (Burnside/Pólya). SymPy-backed; exact integers.
+# --------------------------------------------------------------------------- #
+def catalan_number(n: Any) -> ComputeResult:
+    """The n-th Catalan number Cₙ = (2n)! / ((n+1)!·n!). E.g. C₅ = 42."""
+    t0 = time.perf_counter()
+    try:
+        v = _intarg(n, "n")
+        if v < 0:
+            raise ComputeError("n must be >= 0")
+    except ComputeError as exc:
+        return _error("catalan_number", str(exc), t0)
+    result = int(sympy.catalan(v))
+    return ComputeResult("ok", "catalan_number", result, f"C_{v} = {result}.", "OK", _meta(t0))
+
+
+def bell_number(n: Any) -> ComputeResult:
+    """The n-th Bell number Bₙ — the number of partitions of an n-element set. E.g. B₅ = 52."""
+    t0 = time.perf_counter()
+    try:
+        v = _intarg(n, "n")
+        if v < 0:
+            raise ComputeError("n must be >= 0")
+    except ComputeError as exc:
+        return _error("bell_number", str(exc), t0)
+    result = int(sympy.bell(v))
+    return ComputeResult("ok", "bell_number", result, f"B_{v} = {result}.", "OK", _meta(t0))
+
+
+def stirling_number(n: Any, k: Any, kind: str = "second") -> ComputeResult:
+    """Stirling number of the `first` (cycles) or `second` (blocks) kind. E.g. S(5,2) 2nd = 15."""
+    t0 = time.perf_counter()
+    from sympy.functions.combinatorial.numbers import stirling
+    try:
+        nv, kv = _intarg(n, "n"), _intarg(k, "k")
+        if nv < 0 or kv < 0:
+            raise ComputeError("n and k must be >= 0")
+        which = str(kind).strip().lower()
+        if which not in ("first", "second"):
+            raise ComputeError("kind must be 'first' or 'second'")
+    except ComputeError as exc:
+        return _error("stirling_number", str(exc), t0)
+    result = int(stirling(nv, kv, kind=1 if which == "first" else 2))
+    return ComputeResult("ok", "stirling_number", result,
+                         f"Stirling {which} kind S({nv},{kv}) = {result}.", "OK", _meta(t0))
+
+
+def derangements(n: Any) -> ComputeResult:
+    """The number of derangements !n (permutations with no fixed point). E.g. !4 = 9.
+
+    A classic inclusion-exclusion result: !n = n!·Σ_{k=0}^{n} (−1)ᵏ/k!.
+    """
+    t0 = time.perf_counter()
+    try:
+        v = _intarg(n, "n")
+        if v < 0:
+            raise ComputeError("n must be >= 0")
+    except ComputeError as exc:
+        return _error("derangements", str(exc), t0)
+    result = int(sympy.subfactorial(v))
+    return ComputeResult("ok", "derangements", result, f"!{v} = {result}.", "OK", _meta(t0))
+
+
+def generating_function_coefficient(expression: str, symbol: str, n: Any) -> ComputeResult:
+    """Extracts the coefficient of `symbol`ⁿ in the (Maclaurin) series of a generating function.
+
+    E.g. `1/(1 - x - x**2)` (the Fibonacci GF) at n=6 → 13 (= F₇).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        nv = _intarg(n, "n")
+        if nv < 0:
+            raise ComputeError("n must be >= 0")
+        expr = _parse(expression, syms)
+        var = _symbol(symbol, syms)
+    except ComputeError as exc:
+        return _error("generating_function_coefficient", str(exc), t0)
+    try:
+        coeff = expr.series(var, 0, nv + 1).removeO().coeff(var, nv)
+        result = str(sympy.simplify(coeff))
+    except Exception as exc:  # noqa: BLE001
+        return _error("generating_function_coefficient", f"could not expand: {exc}",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "generating_function_coefficient", result,
+                         f"[{symbol}^{nv}] = {result}.", "OK", _meta(t0))
+
+
+def necklace_count(n: Any, colors: Any) -> ComputeResult:
+    """Distinct necklaces of `n` beads in `colors` colors under ROTATION (Burnside/Pólya).
+
+    Formula: (1/n)·Σ_{d | n} φ(d)·colors^(n/d). E.g. n=4, colors=2 → 6.
+    """
+    t0 = time.perf_counter()
+    try:
+        nv, kv = _intarg(n, "n"), _intarg(colors, "colors")
+        if nv < 1 or kv < 1:
+            raise ComputeError("n and colors must be >= 1")
+    except ComputeError as exc:
+        return _error("necklace_count", str(exc), t0)
+    total = sum(int(sympy.totient(d)) * kv ** (nv // d) for d in sympy.divisors(nv))
+    result = total // nv
+    return ComputeResult("ok", "necklace_count", result,
+                         f"{result} distinct necklace(s) of {nv} beads in {kv} colors (under rotation).",
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

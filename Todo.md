@@ -82,7 +82,8 @@
 - [x] **E2** linear algebra III — SVD/QR/Cholesky/Gram-Schmidt/pinv/exp/Jordan/charpoly/least-squares ✅ (723 tests, 103 tools)
 - [x] **E3** graph theory — shortest_path/components/MST/max_flow/matching/isomorphism (stdlib) ✅ (751 tests, 109 tools)
 - [x] **E4** number theory II — totient/mobius/continued-fraction/quad-residue/primitive-root/Pell ✅ (782 tests, 116 tools)
-- [ ] **E5** combinatorics II · **E6** [S]
+- [x] **E5** combinatorics II — catalan/bell/stirling/derangements/GF-coeff/necklaces ✅ (809 tests, 122 tools)
+- [ ] **E6** [S] algebra/discrete hardening
 - [ ] then: F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

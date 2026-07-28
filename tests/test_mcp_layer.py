@@ -147,6 +147,13 @@ ARGS = {
     "quadratic_residue": {"a": 2, "n": 7},
     "primitive_root": {"n": 7},
     "pell_solution": {"n": 13},
+    # combinatorics II
+    "catalan_number": {"n": 5},
+    "bell_number": {"n": 5},
+    "stirling_number": {"n": 5, "k": 2, "kind": "second"},
+    "derangements": {"n": 4},
+    "generating_function_coefficient": {"expression": "1/(1 - x - x**2)", "symbol": "x", "n": 6},
+    "necklace_count": {"n": 4, "colors": 2},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

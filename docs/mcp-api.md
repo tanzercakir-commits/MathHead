@@ -258,6 +258,11 @@ denominator)` (→ term list), `continued_fraction_sqrt(n)` (→ `{a0, period}`)
 n)` (→ `{is_residue, jacobi_symbol}`), `primitive_root(n)` (smallest, or `null` if none — honest),
 `pell_solution(n)` (fundamental x²−n·y²=1, or `null` for a perfect square).
 
+**Combinatorics II (E5):** `catalan_number(n)`, `bell_number(n)`, `stirling_number(n, k,
+kind="second")` (`first`/`second`), `derangements(n)` (!n, inclusion-exclusion),
+`generating_function_coefficient(expression, symbol, n)` ([xⁿ] of a GF's series), `necklace_count(n,
+colors)` (distinct necklaces under rotation — Burnside/Pólya).
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

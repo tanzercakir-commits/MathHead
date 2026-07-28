@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **116 tools**.
+Total **122 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -425,6 +425,30 @@ Smallest primitive root mod `n` (generator of the units), or `null` when none ex
 ### `pell_solution(n)`
 
 Fundamental solution of the Pell equation x² − n·y² = 1 → `{x, y}`. E.g. n=13 → `{x:649, y:180}`.
+
+### `catalan_number(n)`
+
+The n-th Catalan number Cₙ. E.g. C₅ = 42 (balanced parentheses, binary trees, …).
+
+### `bell_number(n)`
+
+The n-th Bell number Bₙ — partitions of an n-element set. E.g. B₅ = 52.
+
+### `stirling_number(n, k, kind='second')`
+
+Stirling number of the `first` (cycles) or `second` (blocks) kind. E.g. S(5,2) 2nd = 15.
+
+### `derangements(n)`
+
+Derangement count !n (permutations with no fixed point; inclusion-exclusion). E.g. !4 = 9.
+
+### `generating_function_coefficient(expression, symbol, n)`
+
+Coefficient of `symbol`ⁿ in a generating function's series. E.g. `1/(1-x-x**2)` at 6 → 13 (F₇).
+
+### `necklace_count(n, colors)`
+
+Distinct necklaces of `n` beads in `colors` colors under rotation (Burnside/Pólya). n=4,c=2 → 6.
 
 ### `mean(data)`
 

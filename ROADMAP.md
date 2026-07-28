@@ -153,7 +153,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           maximum_matching, is_isomorphic ✅ (109 tools; PURE STDLIB, deterministic, no networkx)
 [x] E4 🟡 Number theory II — euler_totient, mobius, continued_fraction (+√n periodic),
           quadratic_residue, primitive_root, pell_solution ✅ (116 tools)
-[ ] E5 🟡 Combinatorics II — generating functions, inclusion-exclusion, Catalan/Bell/Stirling, Polya
+[x] E5 🟡 Combinatorics II — catalan/bell/stirling, derangements (incl-excl),
+          generating_function_coefficient, necklace_count (Burnside/Pólya) ✅ (122 tools)
 [ ] E6 [S] Hardening
 ```
 

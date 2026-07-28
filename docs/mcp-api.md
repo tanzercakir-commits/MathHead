@@ -158,3 +158,19 @@ doğrusal olmayan ifadeler **serbesttir**.
 **Dürüstlük:** SymPy kapalı formda çözemezse (ör. `∫ exp(x**2) dx`) sonucu
 gizlemez; değerlendirilmemiş/özel-fonksiyonlu tam ifadeyi (`erfi(...)` gibi)
 döner.
+
+---
+
+## Track B araçları (frontier — SAT indirgeme)
+
+Zor problemleri **sağlanabilirliğe indirgeyip** çözer / imkânsızlığı ispatlar.
+Girdi programatik (sayı `n`); çıktı ortak `ReasoningResult`.
+
+| Araç | İmza | Sonuç |
+|---|---|---|
+| `pythagorean_coloring` | `pythagorean_coloring(n)` | `sat` (boyama) / `unsat` (imkânsız) |
+| `pigeonhole` | `pigeonhole(n)` | `unsat` = güvercin yuvası ilkesi ispatı |
+
+**Dürüstlük:** Küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
+(Boolean Pythagorean n=7825 sınırı ~200 TB ispat; burada küçük n anında çözülür).
+Büyük ölçek `unknown`/`error` döner — gizlenmez.

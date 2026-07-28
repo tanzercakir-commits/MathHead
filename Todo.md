@@ -41,3 +41,4 @@
 - [x] Repo GitHub'da; CI (Actions) kurulu
 - [x] **v1.1**: nicelik belirteçleri (∀/∃) + Real → 25/25 test yeşil
 - [x] **v2**: hesap katmanı (SymPy) — solve/simplify/türev/integral → 37/37 test yeşil
+- [x] **Track B tohumu**: problem→SAT indirgeme (Pythagorean + pigeonhole) → 42/42 yeşil

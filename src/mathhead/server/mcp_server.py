@@ -84,6 +84,23 @@ def integrate(expression: str, symbol: str) -> dict[str, Any]:
     return asdict(route("integrate", {"expression": expression, "symbol": symbol}))
 
 
+# ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
+@mcp.tool()
+def pythagorean_coloring(n: int) -> dict[str, Any]:
+    """{1..n}'i 2 renge, tek renkli Pythagoras üçlüsü olmadan boyamayı dener.
+
+    Track B gösterimi: sat -> boyama bulundu; unsat -> imkânsızlık ispatı.
+    (2016'da n=7825'i çözen ~200 TB'lık ispatın aynı kodlaması; küçük ölçek.)
+    """
+    return asdict(route("pythagorean_coloring", {"n": n}))
+
+
+@mcp.tool()
+def pigeonhole(n: int) -> dict[str, Any]:
+    """`n+1` güvercinin `n` kutuya sığamayacağını ispatlar (güvercin yuvası ilkesi)."""
+    return asdict(route("pigeonhole", {"n": n}))
+
+
 def main() -> None:
     """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
     mcp.run(transport="stdio")

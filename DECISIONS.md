@@ -138,6 +138,19 @@
   beyaz-listeyle korunur (ör. `__import__` reddedilir). SymPy kapalı formda
   çözemezse dürüstçe değerlendirilmemiş sonuç döner.
 
+## ADR-0012 — Track B tohumu: programatik indirgeme (frontier/)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Track B vizyonunu (zor/açık problemlere saldırı) somut ve çalışır
+  göstermek gerekiyordu. Kullanıcı girdi dili bunun için uygun değil (problem
+  kodlaması programatik olmalı).
+- **Karar:** Ayrı `frontier/` katmanı; problemleri doğrudan Z3'e kodlar
+  (Boolean Pythagorean renklendirme, güvercin yuvası). Çıktı yine ortak
+  `ReasoningResult`. İki MCP aracı eklendi.
+- **Sonuçlar:** "Problemi satisfiability'e indirgeme" yöntemi çalışır halde.
+  DÜRÜSTLÜK: küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
+  (n=7825 sınırı ~200 TB; biz küçük n). Guardrail: büyük n → unknown/error.
+
 ---
 
 <!-- Yeni karar şablonu:

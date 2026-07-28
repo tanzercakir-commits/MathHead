@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mathhead import compute
+from mathhead import compute, frontier
 from mathhead.compute import ComputeResult
 from mathhead.core.logic import (
     ReasoningResult,
@@ -56,5 +56,11 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
         return compute.differentiate(payload["expression"], payload["symbol"], payload.get("order", 1))
     if task == "integrate":
         return compute.integrate(payload["expression"], payload["symbol"])
+
+    # --- Frontier / Track B (programatik indirgeme -> Z3) ---
+    if task == "pythagorean_coloring":
+        return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))
+    if task == "pigeonhole":
+        return frontier.pigeonhole(payload["n"], **_opts(payload))
 
     raise ValueError(f"bilinmeyen görev: {task!r}")

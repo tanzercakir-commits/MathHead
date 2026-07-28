@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-07-28 — v2.1 · Track B tohumu (aynı oturum)
+
+**Yapıldı**
+
+- `frontier/`: problemi SAT'a indirgeme demoları — Boolean Pythagorean
+  renklendirme + güvercin yuvası (pigeonhole) imkânsızlık ispatı.
+- 2 MCP aracı (toplam **9**). Testler: üretilen boyamanın **bağımsız doğrulaması**
+  (tek renkli üçlü yok) + PHP ispatı → **42/42 yeşil**.
+- Yeni karar: ADR-0012.
+
+**Karar:** Track B "yöntem"i çalışır (indirgeme → Z3). Dürüstlük: küçük ölçek;
+ünlü sonuçların kendisi değil, aynı yöntem. Dış sözleşme DEĞİŞMEDİ.
+
+**Sıradaki:** ölçek/CDCL sınırları, daha çok indirgeme (graph coloring, Schur),
+veya v1.2 (yüklem sembolleri).
+
 ## 2026-07-28 — v2 · hesap katmanı (SymPy) (aynı oturum)
 
 **Yapıldı**

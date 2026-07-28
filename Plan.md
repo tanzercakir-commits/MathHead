@@ -142,6 +142,7 @@ v1.1 Nicelik belirteçleri ..... ∀/∃ ve daha zengin FOL parçası
 v2  Hesap katmanı (SymPy) ..... solve/simplify/türev/integral; router genişler
 v3  Track B başlar ........... ispat üretimi/doğrulama; açık problemi
                                  satisfiability'e indirgeyip çözücüyle çözme
+                                 [TOHUM EKLENDİ: frontier/ — Pythagorean + PHP]
 v4+ "Motor ailesi" ............ aynı iskelet üzerine Fizik/Kimya motorları
 ```
 

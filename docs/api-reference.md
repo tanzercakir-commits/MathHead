@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **63 araç**.
+Toplam **64 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -69,6 +69,10 @@ Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur
 ### `cross_check(left, right)`
 
 `left = right` iddiasını Z3 VE SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
+
+### `check_certificate(certificate)`
+
+Bir sonucu ÜRETEN motordan (Z3/SymPy) BAĞIMSIZ, yalnız stdlib ile doğrular.
 
 ### `simplify(expression)`
 

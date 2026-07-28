@@ -36,6 +36,10 @@ Optimizasyon — optimize / maxsat
 
 Hesap — compute (SymPy)
   ok                 · hesap başarılı
+
+Bağımsız sertifika — check_certificate (Track C2, stdlib)
+  verified           · sertifika bağımsız denetimi geçti
+  refuted            · sertifika tutmuyor (üretilen sonuç YANLIŞ)
 ```
 
 ## `reason_code` — neden?
@@ -82,6 +86,10 @@ DOĞRULAMA KATMANI (Track C — AI muhakeme denetçisi)
   ENGINES_DISAGREE       · motorlar çelişiyor — ince konu/domain bayrağı (unknown)
   SINGLE_ENGINE          · yalnız bir motor karar verdi (valid/invalid, düşük güven)
   CROSS_UNDECIDED        · hiçbir motor karar veremedi (unknown)
+
+BAĞIMSIZ SERTİFİKA (Track C2 — stdlib checker)
+  CERTIFICATE_VALID      · sertifika bağımsız doğrulandı (verified)
+  CERTIFICATE_INVALID    · sertifika çürütüldü (refuted)
 ```
 
 **Değişmez (test_taxonomy):** her araç çağrısı yalnız yukarıdaki `status` ve

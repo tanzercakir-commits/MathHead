@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — Track C2 · BAĞIMSIZ SERTİFİKA denetleyicisi ("bize güvenme")
+
+**Yapıldı**
+
+- Yeni `mathhead/certificate.py` (bilerek `core` DIŞINDA) + `check_certificate`:
+  bir sonucu ÜRETEN motordan bağımsız, yalnız **stdlib** (`ast`+`fractions`) ile
+  yeniden doğrular → `verified`/`refuted`. Mümkünse tam (Fraction), aksi halde
+  sayısal (float+tolerans, `exact=false`, dürüst).
+- Uçtan uca: router (1) + MCP (**64 araç**) + CLI (`check-certificate`, JSON) +
+  `tests/test_certificate.py` (13) + yeni statü `verified/refuted` + 2 reason_code.
+  → **461/461 yeşil**.
+
+**Öne geçiren (kanıt)**
+
+- **BAĞIMSIZLIK ALT-SÜREÇLE KANITLANDI:** `import mathhead.certificate` sonrası
+  `z3`/`sympy` `sys.modules`'te YOK. Checker gerçekten motordan bağımsız.
+- Uçtan uca döngü: Z3 subset_sum çözer → tanık bağımsız checker'da `verified`.
+  Türler tam aritmetikle: `x²-x @ ½ = -¼ < 0` (eşitsizlik karşıörneği), `2x≠3x @1`.
+- Dürüstlük: transandantal (`sin(x)@0`) → sayısal, `exact=false`; kötücül → red.
+
+**Sıradaki (Track C):** C4 benchmark (LLM-tuzak seti + ölçülü üstünlük). SON C.
+
 ## 2026-07-28 — Track C3 · çapraz denetim (Z3 ⋈ SymPy) + determinizm düzeltmesi
 
 **Yapıldı**

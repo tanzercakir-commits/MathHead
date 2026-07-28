@@ -18,6 +18,7 @@ ALLOWED_STATUS = frozenset({
     "equivalent", "not_equivalent",
     "optimal", "unbounded",
     "ok",
+    "verified", "refuted",          # bağımsız sertifika denetleyicisi (Track C2)
 })
 
 ALLOWED_REASON = frozenset({
@@ -34,6 +35,8 @@ ALLOWED_REASON = frozenset({
     # çapraz denetim (Track C3)
     "CONSENSUS_EQUAL", "CONSENSUS_NOT_EQUAL", "ENGINES_DISAGREE",
     "SINGLE_ENGINE", "CROSS_UNDECIDED",
+    # bağımsız sertifika (Track C2)
+    "CERTIFICATE_VALID", "CERTIFICATE_INVALID",
 })
 
 _ERROR_STATUS = {"error"}
@@ -105,6 +108,11 @@ CALLS = [
     ("cross_check", {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"}),       # consensus
     ("cross_check", {"left": "(x**2-1)/(x-1)", "right": "x+1"}),            # disagree (domain)
     ("cross_check", {"left": "sin(x)**2 + cos(x)**2", "right": "1"}),       # single engine
+    ("check_certificate", {"certificate": {"kind": "subset_sum", "numbers": [3, 4, 2],
+                                           "target": 9, "indices": [0, 1, 2]}}),   # verified
+    ("check_certificate", {"certificate": {"kind": "solution", "expression": "x**2 - 4",
+                                           "symbol": "x", "value": "3"}}),         # refuted
+    ("check_certificate", {"certificate": {"kind": "foo"}}),                # error
 ]
 
 

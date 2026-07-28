@@ -15,7 +15,7 @@ from mathhead.server import mcp_server as m
 _VALID_STATUS = {
     "valid", "invalid", "sat", "unsat", "unknown", "error", "ok",
     "tautology", "contradiction", "contingent", "equivalent", "not_equivalent",
-    "optimal", "unbounded",
+    "optimal", "unbounded", "verified", "refuted",
 }
 
 # Her araç için temsili argümanlar (MCP imzasına göre kwargs).
@@ -39,6 +39,8 @@ ARGS = {
     "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
     "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
     "cross_check": {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"},
+    "check_certificate": {"certificate": {"kind": "subset_sum", "numbers": [3, 4, 2],
+                                          "target": 9, "indices": [0, 1, 2]}},
     # hesap
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},

@@ -197,6 +197,18 @@ def cross_check(left: str, right: str) -> dict[str, Any]:
     return asdict(route("cross_check", {"left": left, "right": right}))
 
 
+@mcp.tool()
+def check_certificate(certificate: dict[str, Any]) -> dict[str, Any]:
+    """Bir sonucu ÜRETEN motordan (Z3/SymPy) BAĞIMSIZ, yalnız stdlib ile doğrular.
+
+    "Bize güvenme, checker'ı çalıştır." status: `verified` (tutuyor) / `refuted`
+    (sonuç YANLIŞ) / `error`. Türler: `subset_sum`, `graph_coloring`, `solution`,
+    `not_equal`, `inequality_counterexample`. Aritmetik mümkünse tam (Fraction),
+    değilse sayısal (float+tolerans, `exact=false`).
+    """
+    return asdict(route("check_certificate", {"certificate": certificate}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

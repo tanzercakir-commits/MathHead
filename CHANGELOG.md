@@ -6,6 +6,14 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Bağımsız sertifika denetleyicisi (`check_certificate`):** ROADMAP Track C2.
+  Bir sonucu, onu ÜRETEN motordan (Z3/SymPy) **BAĞIMSIZ**, yalnız Python stdlib
+  (`ast`+`fractions`, mümkünse tam aritmetik) ile yeniden doğrular →
+  `verified`/`refuted`. Yeni `mathhead/certificate.py` **z3/sympy'yi fiilen import
+  etmez** (alt-süreç testiyle kanıtlı — "bize güvenme, checker'ı çalıştır"). Türler:
+  `subset_sum`, `graph_coloring`, `solution`, `not_equal`, `inequality_counterexample`.
+  MCP (**64 araç**) + CLI (`check-certificate`) + 13 test. Yeni statü:
+  `verified`/`refuted` (taksonomiye işlendi).
 - **Çapraz denetim — Z3 ⋈ SymPy (`cross_check`):** ROADMAP Track C3. Bir denklik
   iddiasını **iki bağımsız motorla** doğrular; mutabakat şart. `CONSENSUS_EQUAL/
   _NOT_EQUAL` (yüksek güven), `ENGINES_DISAGREE` (çelişki → domain/ince konu

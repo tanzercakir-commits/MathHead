@@ -35,6 +35,7 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
+from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.verify import (
     VerifyResult,
@@ -56,7 +57,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
-    | VerifyResult
+    | VerifyResult | CertificateResult
 ):
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
@@ -99,6 +100,8 @@ def route(task: str, payload: dict[str, Any]) -> (
         return verify_steps(payload["steps"])
     if task == "cross_check":
         return cross_check(payload["left"], payload["right"])
+    if task == "check_certificate":
+        return check_certificate(payload["certificate"])
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

@@ -50,7 +50,7 @@
 ### Track C — öne geçiren yön (doğrulama katmanı)
 
 - [x] **C1** çekirdek doğrulayıcı: verify_equality/solution/steps ✅ (438 test, 62 araç)
-- [ ] **C2** bağımsız sertifika (Z3/SymPy'siz checker her verdict'i doğrular)
+- [x] **C2** bağımsız sertifika (stdlib checker, z3/sympy'siz — kanıtlı) ✅
 - [x] **C3** çapraz denetim (Z3 ⋈ SymPy) ✅ (447 test, 63 araç, +determinizm fix ADR-0020)
 - [ ] **C4** benchmark (LLM-tuzak seti + ölçülü üstünlük + regresyon çiti)
 

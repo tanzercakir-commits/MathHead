@@ -54,6 +54,10 @@ from mathhead.core.crosscheck import cross_check  # ÇAPRAZ DENETİM (Z3 ⋈ Sym
 cross_check("(x+1)**2", "x**2 + 2*x + 1")         # -> CONSENSUS_EQUAL (iki motor anlaşıyor)
 cross_check("(x**2-1)/(x-1)", "x+1")              # -> ENGINES_DISAGREE (domain tuzağı bayrağı!)
 
+from mathhead.certificate import check_certificate  # BAĞIMSIZ checker (z3/sympy YOK)
+check_certificate({"kind":"subset_sum","numbers":[3,4,2],"target":9,"indices":[0,1,2]})  # verified
+check_certificate({"kind":"solution","expression":"x**2 - 4","symbol":"x","value":"3"})  # refuted
+
 from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
 differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
@@ -147,11 +151,12 @@ mathhead/
 │   ├── error-taxonomy.md · tüm status/reason_code kanonik listesi
 │   └── glossary.md       · terimler (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/
-│   ├── core/            · mantık çekirdeği (Z3) — logic.py, translate.py  [v1]
+│   ├── core/            · mantık (Z3) + doğrulama (verify/crosscheck/inequality)
+│   ├── certificate.py  · BAĞIMSIZ sertifika checker (yalnız stdlib, z3/sympy YOK)
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 63 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 64 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```

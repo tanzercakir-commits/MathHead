@@ -53,6 +53,9 @@ def _emit(result: Any, as_json: bool) -> int:
             print(f"tanık    : {data['witness']}")
         if data.get("details") is not None:
             print(f"ayrıntı  : {data['details']}")
+        if "verified" in data:
+            exact = "tam" if data.get("exact") else "sayısal"
+            print(f"doğrulama: {data['verified']} ({exact})")
         if data.get("result") is not None:
             print(f"sonuç    : {data['result']}")
         if data.get("used_premises") is not None:
@@ -72,7 +75,7 @@ def _emit(result: Any, as_json: bool) -> int:
         if "satisfied_weight" in data and "total_weight" in data:
             print(f"maxsat   : {data['satisfied_weight']}/{data['total_weight']} ağırlık "
                   f"(sağlanan soft: {data.get('satisfied')})")
-    if status == "error":
+    if status in ("error", "refuted"):
         return 1
     if status == "unknown":
         return 2
@@ -154,6 +157,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("cross-check", help="iddiayı Z3 + SymPy ile çapraz doğrula")
     p.add_argument("left", metavar="SOL"); p.add_argument("right", metavar="SAĞ")
+
+    p = sub.add_parser("check-certificate", help="sertifikayı bağımsız (stdlib) doğrula")
+    p.add_argument("certificate", metavar="JSON", help="sertifika JSON'u (ör. '{\"kind\":\"subset_sum\",...}')")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -354,6 +360,7 @@ _DISPATCH = {
                                                       "symbol": a.symbol, "claimed": a.claim}),
     "verify-steps": lambda a: ("verify_steps", {"steps": a.steps}),
     "cross-check": lambda a: ("cross_check", {"left": a.left, "right": a.right}),
+    "check-certificate": lambda a: ("check_certificate", {"certificate": json.loads(a.certificate)}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

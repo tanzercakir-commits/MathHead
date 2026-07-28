@@ -239,8 +239,11 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           (scale); sat model independently verified; conflict-bounded → honest unknown; stdlib
           fallback + BACKEND_UNAVAILABLE wall ✅ (1125 tests, 164 tools; ADR-0028)
           ↳ honest walls: Kissat has no pip/apt package here; portfolio/parallel not wrapped (scope)
-[ ] J4 [S] Hardening
+[x] J4 [S] Hardening — solver soundness vs brute force + DRUP round-trip + stdlib-DPLL⋈CaDiCaL
+          agreement + orthogonal reduction-witness verification ✅ (1135 tests)
 ```
+
+### 🎉 TRACK J DONE — Frontier (new reductions, verifiable UNSAT certificate, HP solver — 164 tools, 1135 tests)
 
 ## K. Holistic Performance & Hardening (cross-cutting, at the end)
 ```

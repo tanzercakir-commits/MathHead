@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-28 — J4 [S] · Track J hardening → TRACK J DONE 🎉
+
+**Done**
+
+- New `tests/test_j_track_hardening.py` (10): the property tests ARE the guarantees.
+  Tests only — no new tools.
+- **Solver soundness + certificate round-trip.** On random small CNFs, `prove_unsat`'s verdict
+  matches brute-force truth (never `unsat` on a satisfiable formula), and every UNSAT proof it
+  emits is re-verified by the INDEPENDENT `check_unsat_proof` (round-trip). The certificate layer
+  never certifies a satisfiable formula.
+- **Two independent solvers AGREE.** The stdlib DPLL (J2) and CaDiCaL (J3) return the same
+  sat/unsat verdict on random CNFs — an engine-independent cross-check.
+- **Reduction witnesses re-verified.** N-queens placements (and the known unsat at n=2,3), Latin
+  squares, Hamiltonian cycles on n-cycles, a TSP tour within budget, and **R(3,3)=6** are all
+  re-checked orthogonally to each tool's own verification, on hypothesis-generated inputs.
+- **Determinism** across the track. **1135/1135 green.**
+
+**Milestone:** Track J (Frontier) COMPLETE — new reductions (J1), a verifiable UNSAT certificate
+that closed the Phase-10 wall (J2), a high-performance CaDiCaL backend (J3), all hardened (J4).
+Positive witnesses stay independently checkable; external-tool scope limits (Kissat, portfolio)
+are stated honestly.
+
+**Next:** Track K (Holistic Performance & Hardening) — the final, cross-cutting track (K → v1.0).
+
 ## 2026-07-28 — J3 · high-performance solver (CaDiCaL via python-sat)
 
 **Done — 1 new tool (164 total), new `mathhead/hpsolver.py`:**

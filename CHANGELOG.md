@@ -6,6 +6,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Track J hardening (`tests/test_j_track_hardening.py`, 10):** ROADMAP J4 — **TRACK J DONE**.
+  Property tests: prove_unsat's verdict matches brute-force truth and its DRUP proof round-trips
+  through the independent checker; the stdlib DPLL (J2) and CaDiCaL (J3) AGREE on random CNFs;
+  the certificate layer never certifies a satisfiable formula; every reduction witness
+  (N-queens, Latin, Hamiltonian, TSP, R(3,3)=6) is re-verified orthogonally. Tests only.
+  **1135 tests green.** Track J (J1–J4): new reductions, verifiable UNSAT certificate,
+  high-performance solver — 155→164 tools.
 - **High-performance CNF solver (`solve_cnf`):** ROADMAP J3. A dedicated CDCL backend
   (CaDiCaL/Glucose/MiniSat via the OPTIONAL `python-sat`) for large CNF at scale. New
   `mathhead/hpsolver.py`. The `sat` model is INDEPENDENTLY verified in pure Python

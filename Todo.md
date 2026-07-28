@@ -136,7 +136,7 @@
 ### Track L — Release Hardening & Product Focus (external-review response, NO new math)
 
 - [x] **L0** honesty — Production/Stable→Beta, doc de-contradiction, version vocabulary, MCP-as-contract ✅ (1241 tests; ADR-0031)
-- [ ] **L1** release credibility — CI matrix + wheel build + install-from-wheel + smoke + trusted publishing
+- [x] **L1** release credibility — CI matrix (3.10-3.12 × 3 OS) + ruff gate + wheel/smoke + constraints + trusted publishing ✅ (1241 tests)
 - [ ] **L2** contract upgrade — certainty field + per-tool stability + JSON Schema artifact
 - [ ] **L3** surface focus — core profile + capability packs + README rewrite
 - [ ] **L4** security/policy — SECURITY/CONTRIBUTING + threat model + stronger MCP tests

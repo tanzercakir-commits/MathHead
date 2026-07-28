@@ -17,6 +17,7 @@ git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
 #    high-performance-solver tests run; the runtime backend is the optional `[solvers]`
 #    extra (the engine works without it — solve_cnf falls back / walls honestly).
 pip install -e ".[dev]" --break-system-packages
+# Exact tested backend set (reproducibility, ADR-0031):  pip install -e ".[dev,solvers]" -c constraints.txt
 
 # 3. Verify everything is green
 python -m pytest -q

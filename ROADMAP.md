@@ -279,9 +279,10 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
 ```
 [x] L0 🟢 Honesty — Production/Stable→Beta, doc de-contradiction (v2+/empty-in-v1 removed), single
           version vocabulary, MCP-as-contract / Python-internal boundary, repositioning ✅ (1241 tests; ADR-0031)
-[ ] L1 🟡 Release credibility — CI matrix (3.10–3.12 × Ubuntu/macOS/Windows), wheel/sdist + twine check,
-          install-from-built-wheel, CLI + mcp-server stdio smoke, optional-solver with/without, dependency
-          upper bounds + constraints/lock (backend versions in meta), coverage gate, trusted publishing (PyPI OIDC)
+[x] L1 🟡 Release credibility — CI matrix (3.10–3.12 × Ubuntu/macOS/Windows) + ruff gate + wheel/sdist +
+          twine check + install-from-built-wheel + CLI/MCP smoke + test-solvers(coverage gate) +
+          reproducible(constraints.txt) jobs; dep upper bounds (z3<6, sympy<2, mcp<2); trusted publishing
+          (release.yml, PyPI OIDC) ✅ (1241 tests; build/smoke reproduced locally)
 [ ] L2 🟡 Contract upgrade — `certainty` (epistemic strength) field on results, per-tool stability metadata
           (stable/provisional/experimental/internal), machine-readable JSON Schema contract artifact
 [ ] L3 🟡 Surface focus — default core profile (15–25 verification tools) + capability packs +

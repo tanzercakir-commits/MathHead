@@ -6,6 +6,16 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Changed (Track L — external-review response, honesty/product-focus; no new math)
 
+- **Release credibility CI (L1).** `.github/workflows/ci.yml` is now a matrix — Python
+  3.10/3.11/3.12 × Ubuntu/macOS/Windows (core+dev) with a `ruff check` gate — plus a Linux
+  `test-solvers` job (optional CaDiCaL backend + `--cov-fail-under=85` coverage gate), a
+  `reproducible` job (install the pinned `constraints.txt`), and a `build` job (wheel/sdist +
+  `twine check` + install-from-built-wheel + CLI/MCP smoke). Dependency discipline: upper bounds
+  `z3-solver<6` / `sympy<2` / `mcp<2` + a `constraints.txt` lock of the tested backend set;
+  `python-sat` is `[solvers]`-only (no Windows/macOS wheels). New `.github/workflows/release.yml`:
+  tag-triggered PyPI **trusted publishing** (OIDC, no stored token); `RELEASING.md` rewritten.
+  `ruff check .` is clean repo-wide (E702 config-ignored for the compact CLI style).
+
 - **Maturity label corrected `Production/Stable` → `Beta` (L0).** The MCP contract is frozen
   (SemVer 1.0.x), but release maturity (no PyPI, single-OS/Python CI) and the extended surface are
   not yet proven — so the classifier is honestly `4 - Beta`. Framing is now **stable core**

@@ -1,0 +1,9 @@
+# constraints.txt — the tested backend set (ADR-0031: reproducibility is version-relative).
+# Reproduce a known-good run exactly:  pip install -e . -c constraints.txt
+# (or add [solvers] for the optional CaDiCaL backend). Update when the tested set moves.
+
+z3-solver==5.0.0.0
+sympy==1.14.0
+mpmath==1.3.0
+mcp==1.27.0
+python-sat==1.9.dev7

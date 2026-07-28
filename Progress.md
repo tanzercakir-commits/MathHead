@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-07-28 — L1 · release credibility (CI matrix, wheel build, trusted publishing)
+
+**Done:**
+- **CI matrix:** Python 3.10/3.11/3.12 × Ubuntu/macOS/Windows (core+dev), each with `ruff check` +
+  `pytest`. Plus dedicated jobs: `test-solvers` (Linux, optional CaDiCaL backend + coverage gate),
+  `reproducible` (install the pinned `constraints.txt`), and `build` (wheel/sdist + `twine check` +
+  install-from-built-wheel + `mathhead --version`/CLI/MCP-server smoke).
+- **Dependency discipline (#8):** upper bounds `z3-solver<6`, `sympy<2`, `mcp<2`; a `constraints.txt`
+  lock of the tested backend set (the reproducibility unit, ADR-0031). `python-sat` moved out of
+  `[dev]` → `[solvers]` only (it has NO Windows/macOS wheels), so the matrix installs cleanly everywhere.
+- **Lint gate:** `ruff check .` is now clean repo-wide (E702 = the compact CLI `stmt; stmt` style is
+  config-ignored; one stray unused import removed) → a real gate.
+- **Trusted publishing:** `release.yml` (tag-triggered) builds on a clean runner and publishes to PyPI
+  via OIDC — no stored token. `RELEASING.md` rewritten (one-time PyPI/GitHub setup + tag flow).
+- **Coverage gate:** `fail_under = 85` (enforced in the solvers job).
+
+**Verified locally (reproducing CI jobs):** wheel/sdist build + `twine check` (both PASSED) +
+install-from-built-wheel + smoke all pass (168 tools, CLI valid, server registers tools);
+clean-venv `[dev,solvers]` suite green; `ruff check .` clean; constraints install works.
+
+**Honest note:** the actual macOS/Windows × 3.10/3.12 legs run on GitHub Actions — I verified every
+job's *steps* locally on Linux, but a platform-specific test surprise (if any) surfaces on the first
+matrix run and is a real finding to fix (that is the point of the matrix).
+
+**Next:** L2 — contract upgrade (certainty field, per-tool stability, JSON Schema).
+
 ## 2026-07-28 — L0 · honesty fixes (status, doc de-contradiction, API boundary) — Track L begins
 
 Track L = external-review response: **release hardening + product focus, NO new math** (the

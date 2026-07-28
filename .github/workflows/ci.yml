@@ -4,17 +4,84 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
+  # Cross-platform / cross-Python matrix — CORE + dev only (no optional solvers,
+  # which have no Windows/macOS wheels). Proves the engine installs and passes
+  # everywhere the project claims to support (Python 3.10–3.12 × 3 OSes).
   test:
+    name: test (py${{ matrix.python }} · ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (core + dev)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Test
+        run: pytest -q
+
+  # Linux job WITH the optional high-performance backend — exercises the J3 pysat
+  # path (skipped elsewhere) and enforces the coverage gate on the full surface.
+  test-solvers:
+    name: test + optional solvers + coverage (ubuntu · py3.11)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install
+      - name: Install (dev + solvers)
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Run tests
-        run: pytest -q
+          pip install -e ".[dev,solvers]"
+      - name: Test with coverage gate
+        run: pytest -q --cov=mathhead --cov-report=term-missing
+
+  # Reproducibility check — install the exact tested backend set (constraints.txt).
+  reproducible:
+    name: reproducible install (constraints.txt)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned + test
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,solvers]" -c constraints.txt
+          pytest -q
+
+  # Package build + install-from-wheel + CLI/MCP smoke (the real product surface).
+  build:
+    name: build + install-from-wheel + smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build wheel + sdist and validate metadata
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          twine check dist/*
+      - name: Install from the built wheel (clean venv) + smoke
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install --upgrade pip
+          /tmp/smoke/bin/pip install dist/*.whl
+          /tmp/smoke/bin/mathhead --version
+          /tmp/smoke/bin/mathhead entail -p "p" -p "implies(p, q)" -c "q"
+          /tmp/smoke/bin/python -c "import asyncio; from mathhead.server.mcp_server import mcp; n=len(asyncio.run(mcp.list_tools())); print('MCP tools:', n); assert n >= 160"

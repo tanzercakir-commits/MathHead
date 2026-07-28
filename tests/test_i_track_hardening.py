@@ -11,7 +11,7 @@ import math
 
 import hypothesis.strategies as st
 import sympy
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 
 from mathhead.certificate import check_certificate as cc
 from mathhead.core.nl import interpret

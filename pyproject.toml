@@ -24,11 +24,13 @@ classifiers = [
 # Architectural decision: instead of writing a single "FOL engine" we orchestrate
 # proven solvers (see DECISIONS.md ADR-0001/0002).
 dependencies = [
-    "z3-solver>=4.13",   # SMT solver (FOL + theories) -> logic core (v1)
-    "sympy>=1.12",       # CAS (symbolic computation) -> compute layer (v2+)
-    "mcp[cli]>=1.10,<2",  # Model Context Protocol server SDK (FastMCP). Pin <2: mcp 2.0
-                          # removed mcp.server.fastmcp.FastMCP (a breaking change); the v1.0
-                          # engine targets the 1.x FastMCP API. mcp-2.x migration is a follow-up.
+    # Upper bounds guard the determinism/reproducibility claim (ADR-0031): a new MAJOR of a
+    # backend can change output formatting or behaviour. Reproduce exactly with constraints.txt.
+    "z3-solver>=4.13,<6",  # SMT solver (FOL + theories) -> logic core
+    "sympy>=1.12,<2",      # CAS (symbolic computation) -> compute layer
+    "mcp[cli]>=1.10,<2",   # Model Context Protocol server SDK (FastMCP). Pin <2: mcp 2.0
+                           # removed mcp.server.fastmcp.FastMCP (a breaking change); the engine
+                           # targets the 1.x FastMCP API. mcp-2.x migration is a follow-up.
 ]
 
 [project.optional-dependencies]
@@ -38,11 +40,13 @@ dev = [
     "pytest-cov>=5.0",       # coverage report
     "ruff>=0.6",             # lint (static guardrail)
     "hypothesis>=6.0",       # property-based tests
-    "python-sat>=0.1.8",     # J3: high-performance CDCL backend (CaDiCaL) — exercised by tests
+    # NOTE: python-sat is deliberately NOT here — it has no Windows/macOS wheels, so a
+    # cross-platform `[dev]` install must not require it. Install `[dev,solvers]` (Linux)
+    # to exercise the J3 high-performance-backend tests; elsewhere they skip cleanly.
 ]
 # Optional high-performance SAT backend (CaDiCaL/Glucose/MiniSat, bundled — no system
-# package). The engine works without it: `hpsolver.solve_cnf` falls back to the stdlib
-# DPLL for small instances and reports an honest wall for larger ones.
+# package; Linux wheels only). The engine works without it: `hpsolver.solve_cnf` falls back
+# to the stdlib DPLL for small instances and reports an honest wall for larger ones.
 solvers = [
     "python-sat>=0.1.8",
 ]
@@ -74,7 +78,13 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
+fail_under = 85          # coverage gate (L1). Run in the Linux+solvers CI job (full surface).
 
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
+# E702 (multiple statements on one line, `;`) is a deliberate, compact style in the CLI's
+# argparse blocks (`p.add_argument(...); p.add_argument(...)`). Everything else is enforced.
+ignore = ["E702"]

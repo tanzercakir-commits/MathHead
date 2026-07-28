@@ -23,6 +23,7 @@ dev = [
 ]
 
 [project.scripts]
+mathhead = "mathhead.cli:main"
 mathhead-server = "mathhead.server.mcp_server:main"
 
 [build-system]

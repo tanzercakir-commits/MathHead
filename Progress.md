@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-07-28 — CLI · terminal arayüzü (aynı oturum)
+
+**Yapıldı**
+
+- `mathhead` CLI (argparse): entail / consistent / model / simplify / solve /
+  diff / integrate / pigeonhole / pythagorean; `--json`; anlamlı çıkış kodları
+  (0 sonuç, 1 hata, 2 unknown). Aynı `router`'a bağlı ince kabuk.
+- `pyproject` script girişi (`mathhead`); README + CI rozeti. → **56/56 yeşil**.
+
+**Sıradaki (gelecek oturumlar):** PyPI paketi, fonksiyon terimleri, v3 ispat üretimi.
+
 ## 2026-07-28 — v1.2 · yüklemler + bireyler (aynı oturum)
 
 **Yapıldı**

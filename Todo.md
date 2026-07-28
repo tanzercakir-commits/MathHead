@@ -43,3 +43,4 @@
 - [x] **v2**: hesap katmanı (SymPy) — solve/simplify/türev/integral → 37/37 test yeşil
 - [x] **Track B tohumu**: problem→SAT indirgeme (Pythagorean + pigeonhole) → 42/42 yeşil
 - [x] **v1.2**: yüklemler + bireyler (klasik silogizm çalışır) → 51/51 yeşil
+- [x] **CLI**: `mathhead` terminal aracı (9 komut + --json) → 56/56 yeşil

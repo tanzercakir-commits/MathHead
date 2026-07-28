@@ -69,6 +69,16 @@ def prove(premises: list[str], conclusion: str) -> dict[str, Any]:
     return asdict(route("prove", {"premises": premises, "conclusion": conclusion}))
 
 
+@mcp.tool()
+def enumerate_models(statements: list[str], limit: int = 10) -> dict[str, Any]:
+    """İfadeleri sağlayan FARKLI modelleri (en fazla `limit`) numaralandırır.
+
+    Dönüş: `models` (liste), `count`, `exhaustive` (True = tüm modeller bulundu;
+    False = sınıra ulaşıldı, sonsuz alanda daha fazlası olabilir).
+    """
+    return asdict(route("enumerate", {"statements": statements, "limit": limit}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

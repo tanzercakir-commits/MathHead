@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-28 — model numaralandırma (all-SAT)
+
+**Yapıldı**
+
+- `logic.enumerate_models` + `ModelSet`: bir formülü sağlayan FARKLI modelleri
+  (bloklama-cümlesiyle) say. `exhaustive` bayrağı dürüst: tümü mü, sınır mı.
+- Router + MCP (**13. araç**) + CLI (`mathhead enumerate`) + testler → **84/84**.
+
+**Dürüstlük:** Sonsuz alanda (sınırsız Int/Real) `exhaustive=False` — "daha
+fazlası olabilir" açıkça belirtilir.
+
+**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
+(ürün/yayın akşam, sende).
+
 ## 2026-07-28 — v3.2 · ispat üreticisine ∃ (varoluşsal) akıl yürütme
 
 **Yapıldı**

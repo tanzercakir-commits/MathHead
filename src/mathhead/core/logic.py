@@ -241,3 +241,72 @@ def find_model(
             None, _meta(t0, seed, timeout_ms),
         )
     return _unknown(solver, t0, seed, timeout_ms)
+
+
+@dataclass
+class ModelSet:
+    """`enumerate_models` çıktısı: bir formülü sağlayan (farklı) modeller kümesi."""
+
+    status: str                              # sat|unsat|unknown|error
+    reason_code: str
+    explanation: str
+    models: list[dict[str, Any]] = field(default_factory=list)
+    count: int = 0
+    exhaustive: bool = False                 # True: TÜM modeller bulundu (unsat'a ulaşıldı)
+    meta: dict[str, Any] = field(default_factory=dict)
+
+
+def enumerate_models(
+    statements: list[str],
+    *,
+    limit: int = 10,
+    timeout_ms: int = DEFAULT_TIMEOUT_MS,
+    seed: int = DEFAULT_SEED,
+) -> ModelSet:
+    """İfadeleri sağlayan FARKLI modelleri (en fazla `limit` tane) numaralandırır.
+
+    Yöntem: çöz → modeli kaydet → o modeli **blokla** (farklı atama zorla) → tekrar.
+    `unsat`'a ulaşılırsa küme tüketildi (`exhaustive=True`, tüm modeller bulundu);
+    `limit`'e ulaşılırsa daha fazlası olabilir (sonsuz alanlarda — ör. sınırsız
+    tam sayı/Real — bu beklenir, dürüstçe belirtilir).
+    """
+    t0 = time.perf_counter()
+    if not isinstance(limit, int) or limit < 1 or limit > 1000:
+        return ModelSet("error", "GUARDRAIL_VIOLATION", "limit 1..1000 tam sayı olmalı",
+                        meta=_meta(t0, seed, timeout_ms))
+
+    err, z3_list, symbols = _prepare(statements, t0, seed, timeout_ms)
+    if err is not None:
+        return ModelSet(err.status, err.reason_code, err.explanation, meta=err.meta)
+
+    solver = solver_config(timeout_ms, seed)
+    for expr in z3_list:
+        solver.add(expr)
+    free = [const for name, const in symbols.items() if not name.startswith("__track_")]
+
+    models: list[dict[str, Any]] = []
+    while len(models) < limit:
+        result = solver.check()
+        if result == z3.unsat:
+            if models:
+                return ModelSet("sat", "ALL_MODELS_FOUND",
+                                f"{len(models)} model bulundu — tümü (başka yok).",
+                                models, len(models), True, _meta(t0, seed, timeout_ms))
+            return ModelSet("unsat", "CONTRADICTION",
+                            "İfadeler çelişkili; hiç model yok.",
+                            [], 0, True, _meta(t0, seed, timeout_ms))
+        if result != z3.sat:
+            return ModelSet("unknown", "SOLVER_UNKNOWN",
+                            f"Çözücü karar veremedi ({solver.reason_unknown()}); "
+                            f"{len(models)} model bulunmuştu.",
+                            models, len(models), False, _meta(t0, seed, timeout_ms))
+        model = solver.model()
+        models.append(_witness(model, symbols))
+        if free:
+            solver.add(z3.Or(*[c != model.eval(c, model_completion=True) for c in free]))
+        else:  # serbest değişken yok (kapalı formül) -> en çok bir model
+            solver.add(z3.BoolVal(False))
+
+    return ModelSet("sat", "MODELS_FOUND",
+                    f"{limit} model bulundu (sınıra ulaşıldı; daha fazlası olabilir).",
+                    models, limit, False, _meta(t0, seed, timeout_ms))

@@ -53,6 +53,11 @@ def _emit(result: Any, as_json: bool) -> int:
             for s in data["proof_steps"]:
                 ref = " " + str(s["refs"]) if s["refs"] else ""
                 print(f"  {s['step']}. {s['formula']}  [{s['rule']}{ref}]")
+        if "count" in data and "models" in data:
+            ex = "tümü" if data.get("exhaustive") else "kısmi (daha olabilir)"
+            print(f"modeller : {data['count']} ({ex})")
+            for i, mdl in enumerate(data["models"], 1):
+                print(f"  #{i}: {mdl}")
     if status == "error":
         return 1
     if status == "unknown":
@@ -82,6 +87,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("prove", help="entailment + adım adım ispat / minimal çekirdek")
     p.add_argument("-p", "--premise", action="append", default=[], metavar="İFADE")
     p.add_argument("-c", "--conclusion", required=True, metavar="İFADE")
+
+    p = sub.add_parser("enumerate", help="tüm/çoklu modelleri numaralandır")
+    p.add_argument("statements", nargs="+", metavar="İFADE")
+    p.add_argument("--limit", type=int, default=10)
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -122,6 +131,7 @@ _DISPATCH = {
     "consistent": lambda a: ("consistency", {"statements": a.statements}),
     "model": lambda a: ("find_model", {"statements": a.statements}),
     "prove": lambda a: ("prove", {"premises": a.premise, "conclusion": a.conclusion}),
+    "enumerate": lambda a: ("enumerate", {"statements": a.statements, "limit": a.limit}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

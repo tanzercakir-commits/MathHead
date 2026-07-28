@@ -46,6 +46,13 @@ doğal tümdengelim; kurulamazsa Z3 kararı korunur, adımsız). `invalid` ise
 `çift olumsuzlama`, `De Morgan`, `evrensel örnekleme`, `varoluşsal eleme`,
 `varoluşsal içe alma`, `çelişkiden ispat (RAA)`.
 
+### 5) `enumerate_models(statements: list[str], limit: int = 10) -> ModelSet`
+
+İfadeleri sağlayan **farklı** modelleri (en fazla `limit`) numaralandırır
+(all-SAT; bloklama-cümlesi yöntemi). Dönüş: `models` (liste), `count`,
+`exhaustive` — `True` = tümü bulundu (unsat'a ulaşıldı); `False` = sınıra
+ulaşıldı, sonsuz alanda (sınırsız Int/Real) daha fazlası olabilir.
+
 ---
 
 ## Girdi grameri (v1.2)

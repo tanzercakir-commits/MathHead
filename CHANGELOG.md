@@ -12,6 +12,10 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
   **varoluşsal eleme/giriş (∃)**; ve **çelişkiden ispat (RAA)** ile durum ayrımı
   (proof by cases). Silogizm, ∃-çıkarımı ve proof-by-cases adım adım. MCP aracı
   `prove` (12 araç) + `mathhead prove` CLI.
+- **Model numaralandırma (`enumerate_models`):** bir formülü sağlayan tüm/çoklu
+  farklı modeli (all-SAT, bloklama-cümlesi) döndürür; `exhaustive` bayrağıyla
+  "tümü mü, sınır mı" dürüstçe belirtilir. MCP aracı (13 araç) + `mathhead
+  enumerate` CLI.
 
 ## [0.1.0] — 2026-07-28
 

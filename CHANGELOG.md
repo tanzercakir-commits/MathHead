@@ -4,6 +4,18 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+### Added (Track L)
+
+- **Result `certainty` (epistemic strength) + tool `stability`, machine-readable contract (L2).**
+  Every result now carries `meta.certainty` — `formal_proof` / `independent_certificate` /
+  `solver_verified` / `bounded_check` / `symbolic_result` / `numerical_check` / `unknown` / `error` /
+  `not_applicable` — so a single `valid` no longer overclaims (the honesty the engine already
+  practiced for modal `VALID_BOUNDED`, now uniform). Every tool carries `meta.stability`
+  (stable / provisional / experimental / internal), realizing "stable core (19 verification tools) +
+  experimental extended". New `mathhead/certainty.py`; both fields are ADDITIVE (the frozen envelope
+  is untouched). New `scripts/gen_contract.py` → `docs/mcp-contract.json` (a single machine-readable
+  contract: per-tool schema + stability + the envelope + vocabularies), enforced code=docs. ADR-0032.
+
 ### Changed (Track L — external-review response, honesty/product-focus; no new math)
 
 - **Release credibility CI (L1).** `.github/workflows/ci.yml` is now a matrix — Python

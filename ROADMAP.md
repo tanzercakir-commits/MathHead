@@ -283,8 +283,10 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
           twine check + install-from-built-wheel + CLI/MCP smoke + test-solvers(coverage gate) +
           reproducible(constraints.txt) jobs; dep upper bounds (z3<6, sympy<2, mcp<2); trusted publishing
           (release.yml, PyPI OIDC) ✅ (1241 tests; build/smoke reproduced locally)
-[ ] L2 🟡 Contract upgrade — `certainty` (epistemic strength) field on results, per-tool stability metadata
-          (stable/provisional/experimental/internal), machine-readable JSON Schema contract artifact
+[x] L2 🟡 Contract upgrade — meta.certainty (epistemic strength: formal_proof/independent_certificate/
+          solver_verified/bounded_check/symbolic_result/numerical_check/…) + per-tool meta.stability
+          (stable/provisional/experimental/internal) + docs/mcp-contract.json (machine-readable, code=docs)
+          ✅ (1246 tests, additive; ADR-0032)
 [ ] L3 🟡 Surface focus — default core profile (15–25 verification tools) + capability packs +
           list_capabilities/describe_tool/recommend_tool; README rewrite (problem-first, 3 scenarios, limits)
 [ ] L4 🟢 Security/policy — SECURITY.md + CONTRIBUTING.md + threat model; strengthen MCP e2e tests

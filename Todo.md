@@ -137,7 +137,7 @@
 
 - [x] **L0** honesty — Production/Stable→Beta, doc de-contradiction, version vocabulary, MCP-as-contract ✅ (1241 tests; ADR-0031)
 - [x] **L1** release credibility — CI matrix (3.10-3.12 × 3 OS) + ruff gate + wheel/smoke + constraints + trusted publishing ✅ (1241 tests)
-- [ ] **L2** contract upgrade — certainty field + per-tool stability + JSON Schema artifact
+- [x] **L2** contract upgrade — meta.certainty (epistemic strength) + meta.stability + docs/mcp-contract.json ✅ (1246 tests; ADR-0032)
 - [ ] **L3** surface focus — core profile + capability packs + README rewrite
 - [ ] **L4** security/policy — SECURITY/CONTRIBUTING + threat model + stronger MCP tests
 - [ ] **L5** external validation — LLM-error catch-rate + tool-selection accuracy harness

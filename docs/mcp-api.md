@@ -161,6 +161,28 @@ Example valid expressions: `p`, `implies(p, q)`, `p and (q or not(r))`, `1 < x <
 
 ---
 
+## Result certainty & tool stability (`meta`)
+
+Every result carries two epistemic labels in `meta` (additive — the frozen envelope is
+unchanged; ADR-0032). A machine-readable form of the whole contract is `docs/mcp-contract.json`.
+
+**`meta.certainty`** — how strong is this "true"? (a single `valid` is not enough):
+
+| certainty | meaning |
+|---|---|
+| `formal_proof` | an explicit derivation was produced (`proof_steps`) |
+| `independent_certificate` | re-checked independently of the producing engine (stdlib checker / two-engine consensus / a witness verified in pure Python / a DRUP proof) |
+| `solver_verified` | a sound decision by Z3/SymPy (no separate certificate) |
+| `bounded_check` | true only up to a search bound (e.g. modal `VALID_BOUNDED`) |
+| `symbolic_result` | a CAS computation (correct symbolically; not a verification verdict) |
+| `numerical_check` | a numerical result within a tolerance / fixed precision |
+| `unknown` / `error` | undecided / rejected |
+| `not_applicable` | a non-mathematical tool (NL translation, observability) |
+
+**`meta.stability`** — `stable` (the verification core — the product's thesis, treated as frozen) ·
+`provisional` (newer logic/proof surface) · `experimental` (the broad compute/CAS, frontier,
+modal — may still change) · `internal` (observability/admin).
+
 ## Example (AI → MathHead)
 
 **Request**

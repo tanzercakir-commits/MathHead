@@ -1,0 +1,4455 @@
+{
+  "certainty_levels": [
+    "formal_proof",
+    "independent_certificate",
+    "solver_verified",
+    "bounded_check",
+    "symbolic_result",
+    "numerical_check",
+    "unknown",
+    "error",
+    "not_applicable"
+  ],
+  "contract_version": 1,
+  "grammar_version": "1.2",
+  "output_envelope": {
+    "description": "Every tool returns an object with at least these keys.",
+    "meta_keys": [
+      "elapsed_ms",
+      "certainty",
+      "stability"
+    ],
+    "required": [
+      "status",
+      "reason_code",
+      "explanation",
+      "meta"
+    ]
+  },
+  "stability_tiers": [
+    "stable",
+    "provisional",
+    "experimental",
+    "internal"
+  ],
+  "tool_count": 168,
+  "tools": {
+    "anova_oneway": {
+      "description": "One-way ANOVA across ≥2 groups → `{f_statistic, df_between, df_within, p_value}`.",
+      "input_schema": {
+        "properties": {
+          "groups": {
+            "items": {},
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": [
+          "groups"
+        ],
+        "title": "anova_onewayArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "bayes_theorem": {
+      "description": "Posterior P(H|E) from prior P(H), likelihood P(E|H), false-alarm P(E|¬H) → `{posterior, evidence}`.",
+      "input_schema": {
+        "properties": {
+          "false_alarm": {
+            "title": "False Alarm",
+            "type": "string"
+          },
+          "likelihood": {
+            "title": "Likelihood",
+            "type": "string"
+          },
+          "prior": {
+            "title": "Prior",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prior",
+          "likelihood",
+          "false_alarm"
+        ],
+        "title": "bayes_theoremArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "bell_number": {
+      "description": "The n-th Bell number Bₙ — partitions of an n-element set. E.g. B₅ = 52.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "bell_numberArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "cache_stats": {
+      "description": "Deterministic-memoization cache statistics: hits, misses, hit-rate, size (K1 observability).",
+      "input_schema": {
+        "properties": {},
+        "title": "cache_statsArguments",
+        "type": "object"
+      },
+      "stability": "internal"
+    },
+    "catalan_number": {
+      "description": "The n-th Catalan number Cₙ. E.g. C₅ = 42 (balanced parentheses, binary trees, …).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "catalan_numberArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "characteristic_polynomial": {
+      "description": "Characteristic polynomial det(A − λI) of a square matrix. E.g. diag(2,3) → `lambda**2 - 5*lambda + 6`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          },
+          "symbol": {
+            "default": "lambda",
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "characteristic_polynomialArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "check_arrays": {
+      "description": "Reason about ARRAYS with `select(a, i)` / `store(a, i, v)` (McCarthy axioms).",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          },
+          "index_sort": {
+            "default": "Int",
+            "title": "Index Sort",
+            "type": "string"
+          },
+          "value_sort": {
+            "default": "Int",
+            "title": "Value Sort",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assumptions"
+        ],
+        "title": "check_arraysArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "check_bitvector": {
+      "description": "Reason over fixed-width BIT-VECTORS (bit tricks, masks, overflow).",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          },
+          "signed": {
+            "default": false,
+            "title": "Signed",
+            "type": "boolean"
+          },
+          "width": {
+            "default": 32,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "assumptions"
+        ],
+        "title": "check_bitvectorArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "check_certificate": {
+      "description": "Verifies a result INDEPENDENTLY of the engine that PRODUCED it (Z3/SymPy), using stdlib only.",
+      "input_schema": {
+        "properties": {
+          "certificate": {
+            "additionalProperties": true,
+            "title": "Certificate",
+            "type": "object"
+          }
+        },
+        "required": [
+          "certificate"
+        ],
+        "title": "check_certificateArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "check_convexity": {
+      "description": "Global convexity via the Hessian: `convex` / `concave` / `neither` / `undetermined` (honest).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables"
+        ],
+        "title": "check_convexityArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "check_modal": {
+      "description": "Is a propositional MODAL formula valid in a normal system (K/T/D/B/S4/S5)?",
+      "input_schema": {
+        "properties": {
+          "formula": {
+            "title": "Formula",
+            "type": "string"
+          },
+          "max_worlds": {
+            "default": 6,
+            "title": "Max Worlds",
+            "type": "integer"
+          },
+          "system": {
+            "default": "K",
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "formula"
+        ],
+        "title": "check_modalArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "check_strings": {
+      "description": "Reason about STRINGS/sequences (concat, length, contains, prefix/suffix).",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          }
+        },
+        "required": [
+          "assumptions"
+        ],
+        "title": "check_stringsArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "check_uninterpreted": {
+      "description": "Reason with EQUALITY + UNINTERPRETED functions/predicates (EUF, congruence).",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          }
+        },
+        "required": [
+          "assumptions"
+        ],
+        "title": "check_uninterpretedArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "check_unsat_proof": {
+      "description": "Independently verify a DRUP UNSAT `proof` for a CNF (bring your own proof from any solver).",
+      "input_schema": {
+        "properties": {
+          "clauses": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Clauses",
+            "type": "array"
+          },
+          "proof": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Proof",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clauses",
+          "proof"
+        ],
+        "title": "check_unsat_proofArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "chi_square_test": {
+      "description": "χ² goodness-of-fit test → `{chi_square, df, p_value}`. E.g. [10,20,30,40] vs uniform → p≈0.0002.",
+      "input_schema": {
+        "properties": {
+          "expected": {
+            "items": {},
+            "title": "Expected",
+            "type": "array"
+          },
+          "observed": {
+            "items": {},
+            "title": "Observed",
+            "type": "array"
+          }
+        },
+        "required": [
+          "observed",
+          "expected"
+        ],
+        "title": "chi_square_testArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "chinese_remainder": {
+      "description": "Chinese Remainder Theorem (CRT): x ≡ residues[i] (mod moduli[i]). If incompatible, an honest error.",
+      "input_schema": {
+        "properties": {
+          "moduli": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Moduli",
+            "type": "array"
+          },
+          "residues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Residues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "moduli",
+          "residues"
+        ],
+        "title": "chinese_remainderArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "cholesky_decomposition": {
+      "description": "Cholesky A = L·Lᵀ (L lower-triangular) → `{L}`. Needs symmetric positive-definite (else error).",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "cholesky_decompositionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "classify": {
+      "description": "Classify a formula: tautology / contradiction / contingent.",
+      "input_schema": {
+        "properties": {
+          "formula": {
+            "title": "Formula",
+            "type": "string"
+          }
+        },
+        "required": [
+          "formula"
+        ],
+        "title": "classifyArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "classify_ode": {
+      "description": "Classifies an ODE — the applicable SymPy solution methods (e.g. `separable`, `1st_linear`).",
+      "input_schema": {
+        "properties": {
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "func": {
+            "default": "y",
+            "title": "Func",
+            "type": "string"
+          },
+          "var": {
+            "default": "x",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equation"
+        ],
+        "title": "classify_odeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "combinations": {
+      "description": "C(n,k) — the number of unordered selections of `k` from `n` objects (binomial coefficient).",
+      "input_schema": {
+        "properties": {
+          "k": {
+            "title": "K",
+            "type": "string"
+          },
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n",
+          "k"
+        ],
+        "title": "combinationsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "complex_parts": {
+      "description": "Splits a complex expression into real and imaginary parts → `{real, imag}`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "complex_partsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "condition_number": {
+      "description": "2-norm condition number κ(A) = σ_max/σ_min. Large κ ⟹ ill-conditioned; `null` if singular.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "condition_numberArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "confidence_interval": {
+      "description": "t-based confidence interval for the mean → `{mean, lower, upper, margin, confidence}`.",
+      "input_schema": {
+        "properties": {
+          "confidence": {
+            "default": 0.95,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "data": {
+            "items": {},
+            "title": "Data",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "confidence_intervalArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "connected_components": {
+      "description": "Connected components → `{count, is_connected, components}`. `nodes` adds isolated vertices.",
+      "input_schema": {
+        "properties": {
+          "directed": {
+            "default": false,
+            "title": "Directed",
+            "type": "boolean"
+          },
+          "edges": {
+            "items": {},
+            "title": "Edges",
+            "type": "array"
+          },
+          "nodes": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nodes"
+          }
+        },
+        "required": [
+          "edges"
+        ],
+        "title": "connected_componentsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "consistency": {
+      "description": "Can these statements ALL be true at once? (consistency / satisfiability)",
+      "input_schema": {
+        "properties": {
+          "statements": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Statements",
+            "type": "array"
+          }
+        },
+        "required": [
+          "statements"
+        ],
+        "title": "consistencyArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "continued_fraction": {
+      "description": "Continued-fraction terms of the rational numerator/denominator. E.g. 415/93 → `[4,2,6,7]`.",
+      "input_schema": {
+        "properties": {
+          "denominator": {
+            "default": 1,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "numerator": {
+            "title": "Numerator",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numerator"
+        ],
+        "title": "continued_fractionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "continued_fraction_sqrt": {
+      "description": "Periodic continued fraction of √n → `{a0, period}`. E.g. √23 → `{a0:4, period:[1,3,1,8]}`.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "continued_fraction_sqrtArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "contour_integral": {
+      "description": "∮_C f dz by the RESIDUE THEOREM = 2πi·Σ Res(f, pole) over the ENCLOSED `poles` you supply.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "poles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Poles",
+            "type": "array"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "poles"
+        ],
+        "title": "contour_integralArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "correlation": {
+      "description": "Pearson correlation ρ ∈ [−1, 1]. Exact; undefined (error) if a variable has zero variance.",
+      "input_schema": {
+        "properties": {
+          "x": {
+            "items": {
+              "type": "string"
+            },
+            "title": "X",
+            "type": "array"
+          },
+          "y": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Y",
+            "type": "array"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "correlationArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "covariance": {
+      "description": "Covariance Cov(X,Y) of two equal-length datasets (population; `sample` divides by n−1). Exact.",
+      "input_schema": {
+        "properties": {
+          "sample": {
+            "default": false,
+            "title": "Sample",
+            "type": "boolean"
+          },
+          "x": {
+            "items": {
+              "type": "string"
+            },
+            "title": "X",
+            "type": "array"
+          },
+          "y": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Y",
+            "type": "array"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "covarianceArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "critical_points": {
+      "description": "Unconstrained critical points (∇f = 0), each classified via the Hessian.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables"
+        ],
+        "title": "critical_pointsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "cross_check": {
+      "description": "Verifies the `left = right` claim INDEPENDENTLY with Z3 AND SymPy; seeks consensus.",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "title": "Left",
+            "type": "string"
+          },
+          "right": {
+            "title": "Right",
+            "type": "string"
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "cross_checkArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "cross_check_numeric": {
+      "description": "SYMBOLIC↔NUMERIC cross-validation of f(point): evaluate two independent ways and confirm agreement.",
+      "input_schema": {
+        "properties": {
+          "digits": {
+            "default": 25,
+            "title": "Digits",
+            "type": "integer"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "point"
+        ],
+        "title": "cross_check_numericArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "curl": {
+      "description": "∇×F — curl of a 3-D vector field. Requires exactly 3 components and 3 variables (e.g. x,y,z).",
+      "input_schema": {
+        "properties": {
+          "field": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Field",
+            "type": "array"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "field",
+          "variables"
+        ],
+        "title": "curlArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "definite_integral": {
+      "description": "Definite integral ∫ₐᵇ f dx. Bounds may be infinite (\"oo\"/\"-oo\").",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "lower",
+          "upper"
+        ],
+        "title": "definite_integralArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "derangements": {
+      "description": "Derangement count !n (permutations with no fixed point; inclusion-exclusion). E.g. !4 = 9.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "derangementsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "determinant": {
+      "description": "Determinant of a square matrix. Cells may be numeric or symbolic.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "determinantArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "differentiate": {
+      "description": "Takes the order-th derivative of the expression with respect to `symbol`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "order": {
+            "default": 1,
+            "title": "Order",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol"
+        ],
+        "title": "differentiateArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "directional_derivative": {
+      "description": "Dᵤf — directional derivative ∇f·û along the NORMALIZED `direction` (same length as variables).",
+      "input_schema": {
+        "properties": {
+          "direction": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Direction",
+            "type": "array"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables",
+          "direction"
+        ],
+        "title": "directional_derivativeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "distribution": {
+      "description": "E[X]/Var/std (symbolic/exact) properties of a named distribution.",
+      "input_schema": {
+        "properties": {
+          "at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "params": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Params",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "params"
+        ],
+        "title": "distributionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "divergence": {
+      "description": "∇·F — divergence of a vector field: Σ ∂Fᵢ/∂xᵢ (field and variables must match in length).",
+      "input_schema": {
+        "properties": {
+          "field": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Field",
+            "type": "array"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "field",
+          "variables"
+        ],
+        "title": "divergenceArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "eigenvalues": {
+      "description": "Eigenvalues of a square matrix + algebraic multiplicity.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "eigenvaluesArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "eigenvectors": {
+      "description": "Eigenvalue + algebraic multiplicity + eigenvector(s). Sorted by eigenvalue (determinism).",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "eigenvectorsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "eliminate_quantifiers": {
+      "description": "QUANTIFIER ELIMINATION: turn a quantified linear-arithmetic formula into an equivalent quantifier-free one.",
+      "input_schema": {
+        "properties": {
+          "formula": {
+            "title": "Formula",
+            "type": "string"
+          }
+        },
+        "required": [
+          "formula"
+        ],
+        "title": "eliminate_quantifiersArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "engine_metrics": {
+      "description": "Structured engine metrics (K3 observability): call counts, status distribution, per-tool latency.",
+      "input_schema": {
+        "properties": {},
+        "title": "engine_metricsArguments",
+        "type": "object"
+      },
+      "stability": "internal"
+    },
+    "entail_batch": {
+      "description": "Check MANY conclusions against SHARED premises via INCREMENTAL solving (Z3 push/pop) (K1).",
+      "input_schema": {
+        "properties": {
+          "conclusions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conclusions",
+            "type": "array"
+          },
+          "premises": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Premises",
+            "type": "array"
+          }
+        },
+        "required": [
+          "premises",
+          "conclusions"
+        ],
+        "title": "entail_batchArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "entailment": {
+      "description": "Do the premises LOGICALLY entail the conclusion? (premises ⊨ conclusion)",
+      "input_schema": {
+        "properties": {
+          "conclusion": {
+            "title": "Conclusion",
+            "type": "string"
+          },
+          "premises": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Premises",
+            "type": "array"
+          }
+        },
+        "required": [
+          "premises",
+          "conclusion"
+        ],
+        "title": "entailmentArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "enumerate_models": {
+      "description": "Enumerates the DISTINCT models satisfying the statements (at most `limit`).",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "statements": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Statements",
+            "type": "array"
+          }
+        },
+        "required": [
+          "statements"
+        ],
+        "title": "enumerate_modelsArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "equivalent": {
+      "description": "Are two expressions logically EQUIVALENT? (same truth value under every assignment)",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "string"
+          },
+          "b": {
+            "title": "B",
+            "type": "string"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ],
+        "title": "equivalentArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "euler_totient": {
+      "description": "Euler's totient φ(n) — the count of 1..n coprime to n. E.g. φ(12) = 4.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "euler_totientArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "evaluate_precision": {
+      "description": "Evaluates a CONSTANT expression to `digits` significant figures (arbitrary precision). E.g. `pi`.",
+      "input_schema": {
+        "properties": {
+          "digits": {
+            "default": 50,
+            "title": "Digits",
+            "type": "integer"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "evaluate_precisionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "factorial": {
+      "description": "n! — the product of the first `n` positive integers (0! = 1).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "factorialArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "factorize": {
+      "description": "Factorizes `n` into primes. Returns: `[{\"prime\":p,\"exponent\":e}, ...]` (ascending).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "factorizeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "find_real_solution": {
+      "description": "Finds a point in the REALS satisfying a set of nonlinear constraints.",
+      "input_schema": {
+        "properties": {
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          }
+        },
+        "required": [
+          "constraints"
+        ],
+        "title": "find_real_solutionArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "find_root_bisection": {
+      "description": "Bisection for a root in [a, b]. Requires a SIGN CHANGE f(a)·f(b) < 0 (else honest error).",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "number"
+          },
+          "b": {
+            "title": "B",
+            "type": "number"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "max_iter": {
+            "default": 200,
+            "title": "Max Iter",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "tolerance": {
+            "default": 1e-12,
+            "title": "Tolerance",
+            "type": "number"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "a",
+          "b"
+        ],
+        "title": "find_root_bisectionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "find_root_newton": {
+      "description": "Newton's method for a root from `x0` → `{root, iterations, residual, converged}`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "max_iter": {
+            "default": 100,
+            "title": "Max Iter",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "tolerance": {
+            "default": 1e-12,
+            "title": "Tolerance",
+            "type": "number"
+          },
+          "x0": {
+            "title": "X0",
+            "type": "number"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "x0"
+        ],
+        "title": "find_root_newtonArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "find_root_secant": {
+      "description": "Secant method for a root from two starting points (no derivative needed).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "max_iter": {
+            "default": 100,
+            "title": "Max Iter",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "tolerance": {
+            "default": 1e-12,
+            "title": "Tolerance",
+            "type": "number"
+          },
+          "x0": {
+            "title": "X0",
+            "type": "number"
+          },
+          "x1": {
+            "title": "X1",
+            "type": "number"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "x0",
+          "x1"
+        ],
+        "title": "find_root_secantArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "fourier_transform": {
+      "description": "Fourier transform (SymPy convention ∫ f(x)·e^(−2πi·k·x) dx). e.g. `exp(-x**2)` → `sqrt(pi)*exp(-pi**2*k**2)`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "k_var": {
+            "default": "k",
+            "title": "K Var",
+            "type": "string"
+          },
+          "x_var": {
+            "default": "x",
+            "title": "X Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "fourier_transformArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "gcd": {
+      "description": "Greatest common divisor of two integers (GCD).",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "string"
+          },
+          "b": {
+            "title": "B",
+            "type": "string"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ],
+        "title": "gcdArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "generated_group": {
+      "description": "Order (+ abelian, degree) of the permutation group generated by `generators` (array form).",
+      "input_schema": {
+        "properties": {
+          "generators": {
+            "items": {},
+            "title": "Generators",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generators"
+        ],
+        "title": "generated_groupArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "generating_function_coefficient": {
+      "description": "Coefficient of `symbol`ⁿ in a generating function's series. E.g. `1/(1-x-x**2)` at 6 → 13 (F₇).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "n"
+        ],
+        "title": "generating_function_coefficientArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "gradient": {
+      "description": "∇f — partial derivatives of `expression` w.r.t. each variable (list).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables"
+        ],
+        "title": "gradientArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "gram_schmidt": {
+      "description": "Gram-Schmidt orthogonalization of a list of vectors (orthonormal if `normalize`).",
+      "input_schema": {
+        "properties": {
+          "normalize": {
+            "default": true,
+            "title": "Normalize",
+            "type": "boolean"
+          },
+          "vectors": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Vectors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "vectors"
+        ],
+        "title": "gram_schmidtArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "graph_coloring": {
+      "description": "Colors a graph with `colors` colors (neighbors differ). NP-complete graph k-coloring.",
+      "input_schema": {
+        "properties": {
+          "colors": {
+            "title": "Colors",
+            "type": "integer"
+          },
+          "edges": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "N"
+          }
+        },
+        "required": [
+          "edges",
+          "colors"
+        ],
+        "title": "graph_coloringArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "group_order": {
+      "description": "Order (+ whether abelian) of a named group: `symmetric`/`alternating`/`cyclic`/`dihedral`.",
+      "input_schema": {
+        "properties": {
+          "degree": {
+            "title": "Degree",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "degree"
+        ],
+        "title": "group_orderArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "hamiltonian_path": {
+      "description": "Is there a Hamiltonian path (or `cycle`) visiting every vertex once? (NP-complete)",
+      "input_schema": {
+        "properties": {
+          "cycle": {
+            "default": false,
+            "title": "Cycle",
+            "type": "boolean"
+          },
+          "edges": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "edges",
+          "n"
+        ],
+        "title": "hamiltonian_pathArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "hessian": {
+      "description": "Hessian matrix — the second partial-derivative matrix of a scalar function (symmetric).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables"
+        ],
+        "title": "hessianArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "integrate": {
+      "description": "Takes the indefinite integral of the expression w.r.t. `symbol` (+C).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol"
+        ],
+        "title": "integrateArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "interpolate": {
+      "description": "Lagrange polynomial through `points` ([x,y] list). E.g. (0,1),(1,3),(2,7) → `x**2 + x + 1`.",
+      "input_schema": {
+        "properties": {
+          "at": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "At"
+          },
+          "points": {
+            "items": {},
+            "title": "Points",
+            "type": "array"
+          }
+        },
+        "required": [
+          "points"
+        ],
+        "title": "interpolateArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "interpret_natural": {
+      "description": "Turns a natural-language math expression into a FORMAL task (recognize-or-reject).",
+      "input_schema": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "interpret_naturalArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "inverse_fourier_transform": {
+      "description": "Inverse Fourier transform ℱ⁻¹{F(k)}(x) (inverse of `fourier_transform`).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "k_var": {
+            "default": "k",
+            "title": "K Var",
+            "type": "string"
+          },
+          "x_var": {
+            "default": "x",
+            "title": "X Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "inverse_fourier_transformArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "inverse_laplace_transform": {
+      "description": "Inverse Laplace transform ℒ⁻¹{F(s)}(t). Unilateral → a `Heaviside(t)` factor is expected.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "s_var": {
+            "default": "s",
+            "title": "S Var",
+            "type": "string"
+          },
+          "t_var": {
+            "default": "t",
+            "title": "T Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "inverse_laplace_transformArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "is_isomorphic": {
+      "description": "Are two undirected graphs isomorphic? Backtracking + degree pruning (≤10 nodes) → `{isomorphic, mapping}`.",
+      "input_schema": {
+        "properties": {
+          "edges1": {
+            "items": {},
+            "title": "Edges1",
+            "type": "array"
+          },
+          "edges2": {
+            "items": {},
+            "title": "Edges2",
+            "type": "array"
+          },
+          "nodes1": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nodes1"
+          },
+          "nodes2": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nodes2"
+          }
+        },
+        "required": [
+          "edges1",
+          "edges2"
+        ],
+        "title": "is_isomorphicArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "is_prime": {
+      "description": "Is `n` prime? (deterministic primality test). Returns: `result` = true/false.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "is_primeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "jacobian": {
+      "description": "Jacobian matrix — the partial-derivative matrix of a vector-valued function.",
+      "input_schema": {
+        "properties": {
+          "expressions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Expressions",
+            "type": "array"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expressions",
+          "variables"
+        ],
+        "title": "jacobianArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "joint_marginal": {
+      "description": "Marginal distribution from a joint probability table. `axis`: `row` → P(X), `col` → P(Y).",
+      "input_schema": {
+        "properties": {
+          "axis": {
+            "default": "row",
+            "title": "Axis",
+            "type": "string"
+          },
+          "joint": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Joint",
+            "type": "array"
+          }
+        },
+        "required": [
+          "joint"
+        ],
+        "title": "joint_marginalArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "jordan_form": {
+      "description": "Jordan canonical form A = P·J·P⁻¹ (J block-diagonal) → `{P, J}`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "jordan_formArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "lagrange_multipliers": {
+      "description": "Equality-constrained optimization via Lagrange multipliers (∇f = Σλᵢ∇gᵢ, gᵢ = 0).",
+      "input_schema": {
+        "properties": {
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "objective": {
+            "title": "Objective",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "objective",
+          "constraints",
+          "variables"
+        ],
+        "title": "lagrange_multipliersArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "laplace_transform": {
+      "description": "Laplace transform ℒ{f(t)}(s) = ∫₀^∞ f(t)·e^(−st) dt. e.g. `t` → `s**(-2)`, `sin(t)` → `1/(s**2+1)`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "s_var": {
+            "default": "s",
+            "title": "S Var",
+            "type": "string"
+          },
+          "t_var": {
+            "default": "t",
+            "title": "T Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "laplace_transformArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "laplacian": {
+      "description": "∇²f — Laplacian of a scalar field: Σ ∂²f/∂xᵢ². (0 ⟺ harmonic.)",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expression",
+          "variables"
+        ],
+        "title": "laplacianArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "latin_square": {
+      "description": "Complete an n×n Latin square (each symbol 1..n once per row and column).",
+      "input_schema": {
+        "properties": {
+          "givens": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Givens"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "latin_squareArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "laurent_series": {
+      "description": "Laurent series of `expression` around `point` up to `order` — includes negative powers.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "order": {
+            "default": 6,
+            "title": "Order",
+            "type": "integer"
+          },
+          "point": {
+            "default": "0",
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol"
+        ],
+        "title": "laurent_seriesArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "lcm": {
+      "description": "Least common multiple of two integers (LCM).",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "string"
+          },
+          "b": {
+            "title": "B",
+            "type": "string"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ],
+        "title": "lcmArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "least_squares": {
+      "description": "Least-squares solution of A·x ≈ b (minimizes ‖A·x − b‖) for overdetermined systems.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          },
+          "rhs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rhs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix",
+          "rhs"
+        ],
+        "title": "least_squaresArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "limit": {
+      "description": "Limit of the expression as `symbol` → `point`. direction: both | + | - (one-sided).",
+      "input_schema": {
+        "properties": {
+          "direction": {
+            "default": "both",
+            "title": "Direction",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "point": {
+            "default": "0",
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol"
+        ],
+        "title": "limitArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "line_integral": {
+      "description": "∫_C F·dr — line integral of a vector field along a curve parametrized by `param`.",
+      "input_schema": {
+        "properties": {
+          "field": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Field",
+            "type": "array"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "param": {
+            "title": "Param",
+            "type": "string"
+          },
+          "parametrization": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Parametrization",
+            "type": "array"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "field",
+          "variables",
+          "parametrization",
+          "param",
+          "lower",
+          "upper"
+        ],
+        "title": "line_integralArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "linear_diophantine": {
+      "description": "Solves the equation `a·x + b·y = c` over INTEGERS (parameter `t_0`).",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "string"
+          },
+          "b": {
+            "title": "B",
+            "type": "string"
+          },
+          "c": {
+            "title": "C",
+            "type": "string"
+          }
+        },
+        "required": [
+          "a",
+          "b",
+          "c"
+        ],
+        "title": "linear_diophantineArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "linear_regression": {
+      "description": "OLS regression y = slope·x + intercept → `{slope, intercept, r, r_squared, p_value}` (slope=0 test).",
+      "input_schema": {
+        "properties": {
+          "x": {
+            "items": {},
+            "title": "X",
+            "type": "array"
+          },
+          "y": {
+            "items": {},
+            "title": "Y",
+            "type": "array"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "linear_regressionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "lu_decomposition": {
+      "description": "LU decomposition: A = P·L·U. Returns: `L`, `U` matrices + `perm` (row swaps).",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "lu_decompositionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "markov_stationary": {
+      "description": "Stationary distribution π (π·P = π, Σπ = 1) of a row-stochastic transition matrix. Exact.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "markov_stationaryArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "markov_step": {
+      "description": "Distribution after `steps` steps: initial·Pᵏ. E.g. [1,0] on [[1/2,1/2],[1/4,3/4]], 2 → [3/8,5/8].",
+      "input_schema": {
+        "properties": {
+          "initial": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Initial",
+            "type": "array"
+          },
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          },
+          "steps": {
+            "title": "Steps",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matrix",
+          "initial",
+          "steps"
+        ],
+        "title": "markov_stepArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "matrix_exponential": {
+      "description": "Matrix exponential e^A (square). E.g. `[[0,1],[0,0]]` → `[[1,1],[0,1]]`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "matrix_exponentialArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "matrix_inverse": {
+      "description": "Inverse of a square matrix (A⁻¹). If singular (det=0), an HONEST error.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "matrix_inverseArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "matrix_multiply": {
+      "description": "Product of two matrices A·B. If inner dimensions (A columns = B rows) mismatch, an honest error.",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "A",
+            "type": "array"
+          },
+          "b": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "B",
+            "type": "array"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ],
+        "title": "matrix_multiplyArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "matrix_rank": {
+      "description": "Rank of a matrix (number of linearly independent rows/columns). Need not be square.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "matrix_rankArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "matrix_solve": {
+      "description": "Solves the linear system `A x = b` in matrix form.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          },
+          "rhs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rhs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix",
+          "rhs"
+        ],
+        "title": "matrix_solveArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "max_flow": {
+      "description": "Maximum flow source→sink (Edmonds-Karp). Directed `[u,v,capacity]`. Equals the min-cut capacity.",
+      "input_schema": {
+        "properties": {
+          "edges": {
+            "items": {},
+            "title": "Edges",
+            "type": "array"
+          },
+          "sink": {
+            "title": "Sink"
+          },
+          "source": {
+            "title": "Source"
+          }
+        },
+        "required": [
+          "edges",
+          "source",
+          "sink"
+        ],
+        "title": "max_flowArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "max_satisfy": {
+      "description": "Satisfy the mandatory (`hard`) constraints and AS MANY (weighted) `soft` constraints as possible (MaxSAT).",
+      "input_schema": {
+        "properties": {
+          "hard": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hard",
+            "type": "array"
+          },
+          "soft": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Soft",
+            "type": "array"
+          },
+          "weights": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Weights"
+          }
+        },
+        "required": [
+          "hard",
+          "soft"
+        ],
+        "title": "max_satisfyArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "maximum_matching": {
+      "description": "Maximum bipartite matching (Kuhn). `left` = the left-partition nodes → `{size, matching}`.",
+      "input_schema": {
+        "properties": {
+          "edges": {
+            "items": {},
+            "title": "Edges",
+            "type": "array"
+          },
+          "left": {
+            "items": {},
+            "title": "Left",
+            "type": "array"
+          }
+        },
+        "required": [
+          "edges",
+          "left"
+        ],
+        "title": "maximum_matchingArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "mean": {
+      "description": "Arithmetic mean of a list of numbers (exact/rational).",
+      "input_schema": {
+        "properties": {
+          "data": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "meanArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "median": {
+      "description": "Median. With an even number of observations, the mean of the middle two.",
+      "input_schema": {
+        "properties": {
+          "data": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "medianArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "minimum_spanning_tree": {
+      "description": "Minimum spanning tree/forest (Kruskal). Edges `[u,v,weight]` → `{edges, total_weight, spans_all}`.",
+      "input_schema": {
+        "properties": {
+          "edges": {
+            "items": {},
+            "title": "Edges",
+            "type": "array"
+          }
+        },
+        "required": [
+          "edges"
+        ],
+        "title": "minimum_spanning_treeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "mobius": {
+      "description": "Möbius μ(n): 0 if a squared prime divides n, else (−1)^(#distinct primes). E.g. μ(30) = −1.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "mobiusArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "model": {
+      "description": "Returns a CONCRETE example (variable assignment) satisfying the statements.",
+      "input_schema": {
+        "properties": {
+          "statements": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Statements",
+            "type": "array"
+          }
+        },
+        "required": [
+          "statements"
+        ],
+        "title": "modelArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "modular_inverse": {
+      "description": "Multiplicative inverse of `a` modulo `m`. If none (gcd(a,m)≠1), an honest error.",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "string"
+          },
+          "m": {
+            "title": "M",
+            "type": "string"
+          }
+        },
+        "required": [
+          "a",
+          "m"
+        ],
+        "title": "modular_inverseArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "n_queens": {
+      "description": "Place `n` non-attacking queens on an n×n board (N-queens, SAT reduction).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "n_queensArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "necklace_count": {
+      "description": "Distinct necklaces of `n` beads in `colors` colors under rotation (Burnside/Pólya). n=4,c=2 → 6.",
+      "input_schema": {
+        "properties": {
+          "colors": {
+            "title": "Colors",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n",
+          "colors"
+        ],
+        "title": "necklace_countArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "nullspace": {
+      "description": "A basis of the null space (kernel). Empty list = only zero (trivial).",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "nullspaceArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "numerical_eigenvalues": {
+      "description": "Numerical eigenvalues of a square matrix (mpmath). Complex ones reported as `a ± b*I`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "numerical_eigenvaluesArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "numerical_integrate": {
+      "description": "Numerical integral over [lower, upper] via composite `simpson` or `trapezoid`. E.g. x² on [0,3] → 9.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "intervals": {
+            "default": 100,
+            "title": "Intervals",
+            "type": "integer"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "number"
+          },
+          "method": {
+            "default": "simpson",
+            "title": "Method",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "number"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "lower",
+          "upper"
+        ],
+        "title": "numerical_integrateArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "optimize": {
+      "description": "Find the solution that satisfies the constraints and maximizes/minimizes (`sense`) the numeric `objective`.",
+      "input_schema": {
+        "properties": {
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "objective": {
+            "title": "Objective",
+            "type": "string"
+          },
+          "sense": {
+            "default": "max",
+            "title": "Sense",
+            "type": "string"
+          }
+        },
+        "required": [
+          "constraints",
+          "objective"
+        ],
+        "title": "optimizeArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "partition_count": {
+      "description": "p(n) — the number of ways to write `n` as a sum of positive integers.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "partition_countArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "pell_solution": {
+      "description": "Fundamental solution of the Pell equation x² − n·y² = 1 → `{x, y}`. E.g. n=13 → `{x:649, y:180}`.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "pell_solutionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "permutation_compose": {
+      "description": "Composes permutations (array form) left-to-right; returns the result array + its order.",
+      "input_schema": {
+        "properties": {
+          "permutations": {
+            "items": {},
+            "title": "Permutations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "permutations"
+        ],
+        "title": "permutation_composeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "permutation_order": {
+      "description": "Order of a permutation given in ARRAY form (0-indexed images). E.g. `[1,2,0]` → 3.",
+      "input_schema": {
+        "properties": {
+          "permutation": {
+            "items": {},
+            "title": "Permutation",
+            "type": "array"
+          }
+        },
+        "required": [
+          "permutation"
+        ],
+        "title": "permutation_orderArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "permutation_parity": {
+      "description": "Parity of a permutation (array form): `even` or `odd`. E.g. `[1,0,2]` (a transposition) → odd.",
+      "input_schema": {
+        "properties": {
+          "permutation": {
+            "items": {},
+            "title": "Permutation",
+            "type": "array"
+          }
+        },
+        "required": [
+          "permutation"
+        ],
+        "title": "permutation_parityArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "permutations": {
+      "description": "P(n,k) — the number of ordered selections of `k` from `n` objects (0 if k>n).",
+      "input_schema": {
+        "properties": {
+          "k": {
+            "title": "K",
+            "type": "string"
+          },
+          "n": {
+            "title": "N",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n",
+          "k"
+        ],
+        "title": "permutationsArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "pigeonhole": {
+      "description": "Proves that `n+1` pigeons cannot fit into `n` holes (the pigeonhole principle).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "pigeonholeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "primitive_root": {
+      "description": "Smallest primitive root mod `n` (generator of the units), or `null` when none exists (honest).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "primitive_rootArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "product": {
+      "description": "Product Π — product of `expression` for `index`=lower..upper.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "index": {
+            "title": "Index",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "index",
+          "lower",
+          "upper"
+        ],
+        "title": "productArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "prove": {
+      "description": "If the premises entail the conclusion, shows WHY — minimal core + step-by-step derivation.",
+      "input_schema": {
+        "properties": {
+          "conclusion": {
+            "title": "Conclusion",
+            "type": "string"
+          },
+          "premises": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Premises",
+            "type": "array"
+          }
+        },
+        "required": [
+          "premises",
+          "conclusion"
+        ],
+        "title": "proveArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "prove_by_induction": {
+      "description": "Prove `∀ {var} ≥ {start}. {claim}` by MATHEMATICAL INDUCTION (Z3 can't do this natively).",
+      "input_schema": {
+        "properties": {
+          "claim": {
+            "title": "Claim",
+            "type": "string"
+          },
+          "start": {
+            "default": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "var": {
+            "default": "n",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "claim"
+        ],
+        "title": "prove_by_inductionArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "prove_inequality": {
+      "description": "Does the `goal` inequality hold for ALL real values (under the assumptions)?",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Assumptions"
+          },
+          "goal": {
+            "title": "Goal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "goal"
+        ],
+        "title": "prove_inequalityArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "prove_nonnegative": {
+      "description": "Does `expression ≥ 0` hold for every real value (under the assumptions)?",
+      "input_schema": {
+        "properties": {
+          "assumptions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Assumptions"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "prove_nonnegativeArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "prove_unsat": {
+      "description": "Decide a CNF and, when UNSAT, return an INDEPENDENTLY-VERIFIED DRUP certificate (J2).",
+      "input_schema": {
+        "properties": {
+          "clauses": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Clauses",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clauses"
+        ],
+        "title": "prove_unsatArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "pseudoinverse": {
+      "description": "Moore-Penrose pseudo-inverse A⁺ (works for non-square / singular A).",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "pseudoinverseArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "pythagorean_coloring": {
+      "description": "Tries to 2-color {1..n} with no monochromatic Pythagorean triple.",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "pythagorean_coloringArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "qr_decomposition": {
+      "description": "QR decomposition A = Q·R (Q orthonormal columns, R upper-triangular) → `{Q, R}`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "qr_decompositionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "quadratic_residue": {
+      "description": "Is `a` a quadratic residue mod `n`? → `{is_residue, jacobi_symbol}` (Legendre when n is prime).",
+      "input_schema": {
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "a",
+          "n"
+        ],
+        "title": "quadratic_residueArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "ramsey_coloring": {
+      "description": "2-color the edges of K_n avoiding a red K_s and a blue K_t (Ramsey reduction).",
+      "input_schema": {
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "s": {
+            "title": "S",
+            "type": "integer"
+          },
+          "t": {
+            "title": "T",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n",
+          "s",
+          "t"
+        ],
+        "title": "ramsey_coloringArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "residue": {
+      "description": "Residue Res(f, z₀) of `expression` at the pole `point` (may be complex, e.g. `I`).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "point"
+        ],
+        "title": "residueArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "resource_limits": {
+      "description": "The engine's ACTIVE resource fences (K3): statement/expression/depth caps, default timeout &",
+      "input_schema": {
+        "properties": {},
+        "title": "resource_limitsArguments",
+        "type": "object"
+      },
+      "stability": "internal"
+    },
+    "rref": {
+      "description": "Reduced row echelon form (RREF) + pivot column indices.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "rrefArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "runge_kutta": {
+      "description": "RK4 solver for the IVP y' = f(x, y), y(x0)=y0, up to x_end → `{x_end, y_end, trajectory}`.",
+      "input_schema": {
+        "properties": {
+          "func": {
+            "default": "y",
+            "title": "Func",
+            "type": "string"
+          },
+          "rhs": {
+            "title": "Rhs",
+            "type": "string"
+          },
+          "steps": {
+            "default": 100,
+            "title": "Steps",
+            "type": "integer"
+          },
+          "var": {
+            "default": "x",
+            "title": "Var",
+            "type": "string"
+          },
+          "x0": {
+            "title": "X0",
+            "type": "number"
+          },
+          "x_end": {
+            "title": "X End",
+            "type": "number"
+          },
+          "y0": {
+            "title": "Y0",
+            "type": "number"
+          }
+        },
+        "required": [
+          "rhs",
+          "x0",
+          "y0",
+          "x_end"
+        ],
+        "title": "runge_kuttaArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "schur_number": {
+      "description": "Tries to partition {1..n} into `colors` sum-free colors (the core of the Schur number S(colors)).",
+      "input_schema": {
+        "properties": {
+          "colors": {
+            "title": "Colors",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n",
+          "colors"
+        ],
+        "title": "schur_numberArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "series": {
+      "description": "Taylor/series expansion of the expression around `symbol`=`point` to order `order`.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "order": {
+            "default": 6,
+            "title": "Order",
+            "type": "integer"
+          },
+          "point": {
+            "default": "0",
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol"
+        ],
+        "title": "seriesArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "shortest_path": {
+      "description": "Shortest path source→target. Edges `[u,v]` or `[u,v,weight]` (set `weighted`). Dijkstra/BFS.",
+      "input_schema": {
+        "properties": {
+          "directed": {
+            "default": false,
+            "title": "Directed",
+            "type": "boolean"
+          },
+          "edges": {
+            "items": {},
+            "title": "Edges",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source"
+          },
+          "target": {
+            "title": "Target"
+          },
+          "weighted": {
+            "default": false,
+            "title": "Weighted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "edges",
+          "source",
+          "target"
+        ],
+        "title": "shortest_pathArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "simplify": {
+      "description": "Simplifies an algebraic expression (e.g. 'sin(x)**2 + cos(x)**2' -> '1').",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "simplifyArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "singular_values": {
+      "description": "Singular values σᵢ of a matrix (largest first). E.g. `[[4,0],[3,-5]]` → `[2*sqrt(10), sqrt(10)]`.",
+      "input_schema": {
+        "properties": {
+          "matrix": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Matrix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "matrix"
+        ],
+        "title": "singular_valuesArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve": {
+      "description": "Solves an equation for a variable (e.g. 'x**2 == 4', symbol='x').",
+      "input_schema": {
+        "properties": {
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equation",
+          "symbol"
+        ],
+        "title": "solveArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_cnf": {
+      "description": "Solve a CNF at SCALE with a high-performance CDCL backend (CaDiCaL via python-sat) (J3).",
+      "input_schema": {
+        "properties": {
+          "backend": {
+            "default": "auto",
+            "title": "Backend",
+            "type": "string"
+          },
+          "clauses": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Clauses",
+            "type": "array"
+          },
+          "max_conflicts": {
+            "default": 100000,
+            "title": "Max Conflicts",
+            "type": "integer"
+          },
+          "solver": {
+            "default": "cadical",
+            "title": "Solver",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clauses"
+        ],
+        "title": "solve_cnfArguments",
+        "type": "object"
+      },
+      "stability": "provisional"
+    },
+    "solve_ode": {
+      "description": "Solves an ordinary differential equation (ODE). Derivative: `y'`, `y''` (prime).",
+      "input_schema": {
+        "properties": {
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "func": {
+            "default": "y",
+            "title": "Func",
+            "type": "string"
+          },
+          "var": {
+            "default": "x",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equation"
+        ],
+        "title": "solve_odeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_ode_ivp": {
+      "description": "Solves an ODE with initial/boundary conditions (IVP or BVP).",
+      "input_schema": {
+        "properties": {
+          "conditions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conditions",
+            "type": "array"
+          },
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "func": {
+            "default": "y",
+            "title": "Func",
+            "type": "string"
+          },
+          "var": {
+            "default": "x",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equation",
+          "conditions"
+        ],
+        "title": "solve_ode_ivpArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_ode_system": {
+      "description": "Solves a SYSTEM of ODEs for `functions` of one variable. Primes: `f'`, `g''`.",
+      "input_schema": {
+        "properties": {
+          "equations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Equations",
+            "type": "array"
+          },
+          "functions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Functions",
+            "type": "array"
+          },
+          "var": {
+            "default": "x",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equations",
+          "functions"
+        ],
+        "title": "solve_ode_systemArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_pde": {
+      "description": "Solves a first-order linear PDE (SymPy `pdsolve`). Partials via `D(u, x)`, `D(u, y)`.",
+      "input_schema": {
+        "properties": {
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "func": {
+            "default": "u",
+            "title": "Func",
+            "type": "string"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "equation",
+          "variables"
+        ],
+        "title": "solve_pdeArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_recurrence": {
+      "description": "Solves a linear recurrence relation to CLOSED FORM.",
+      "input_schema": {
+        "properties": {
+          "func": {
+            "default": "y",
+            "title": "Func",
+            "type": "string"
+          },
+          "initial": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Initial"
+          },
+          "recurrence": {
+            "title": "Recurrence",
+            "type": "string"
+          },
+          "var": {
+            "default": "n",
+            "title": "Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recurrence"
+        ],
+        "title": "solve_recurrenceArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "solve_system": {
+      "description": "Solves a SYSTEM of equations for multiple variables.",
+      "input_schema": {
+        "properties": {
+          "equations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Equations",
+            "type": "array"
+          },
+          "symbols": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Symbols",
+            "type": "array"
+          }
+        },
+        "required": [
+          "equations",
+          "symbols"
+        ],
+        "title": "solve_systemArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "standard_deviation": {
+      "description": "Standard deviation = √variance (the sample option is the same as variance).",
+      "input_schema": {
+        "properties": {
+          "data": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "sample": {
+            "default": false,
+            "title": "Sample",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "standard_deviationArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "stirling_number": {
+      "description": "Stirling number of the `first` (cycles) or `second` (blocks) kind. E.g. S(5,2) 2nd = 15.",
+      "input_schema": {
+        "properties": {
+          "k": {
+            "title": "K",
+            "type": "integer"
+          },
+          "kind": {
+            "default": "second",
+            "title": "Kind",
+            "type": "string"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n",
+          "k"
+        ],
+        "title": "stirling_numberArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "subset_sum": {
+      "description": "Does a subset of `numbers` sum to `target`? (NP-complete subset-sum).",
+      "input_schema": {
+        "properties": {
+          "numbers": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numbers",
+            "type": "array"
+          },
+          "target": {
+            "title": "Target",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numbers",
+          "target"
+        ],
+        "title": "subset_sumArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "sudoku_solve": {
+      "description": "Solve a 9×9 Sudoku (`givens` is a 9×9 grid, 0 = blank).",
+      "input_schema": {
+        "properties": {
+          "givens": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Givens",
+            "type": "array"
+          }
+        },
+        "required": [
+          "givens"
+        ],
+        "title": "sudoku_solveArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "summation": {
+      "description": "Summation Σ — sum of `expression` for `index`=lower..upper (may be closed form).",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "index": {
+            "title": "Index",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "index",
+          "lower",
+          "upper"
+        ],
+        "title": "summationArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "t_test": {
+      "description": "Student's t-test. One-sample vs `mu` if `sample2` is None, else two-sample (Welch).",
+      "input_schema": {
+        "properties": {
+          "mu": {
+            "default": 0,
+            "title": "Mu",
+            "type": "number"
+          },
+          "sample1": {
+            "items": {},
+            "title": "Sample1",
+            "type": "array"
+          },
+          "sample2": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sample2"
+          }
+        },
+        "required": [
+          "sample1"
+        ],
+        "title": "t_testArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "tsp_decision": {
+      "description": "Decision TSP: is there a tour visiting every city once with total length ≤ `budget`?",
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "title": "Budget",
+            "type": "integer"
+          },
+          "distances": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Distances",
+            "type": "array"
+          }
+        },
+        "required": [
+          "distances",
+          "budget"
+        ],
+        "title": "tsp_decisionArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "van_der_waerden": {
+      "description": "Tries to `colors`-color {1..n} with no monochromatic k-term arithmetic progression.",
+      "input_schema": {
+        "properties": {
+          "colors": {
+            "default": 2,
+            "title": "Colors",
+            "type": "integer"
+          },
+          "k": {
+            "title": "K",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "n",
+          "k"
+        ],
+        "title": "van_der_waerdenArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "variance": {
+      "description": "Variance. sample=True → sample (n-1); otherwise population (n).",
+      "input_schema": {
+        "properties": {
+          "data": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "sample": {
+            "default": false,
+            "title": "Sample",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "varianceArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "verify_derivation": {
+      "description": "Audits a multi-step derivation by REPLAYING each transition's cited operation.",
+      "input_schema": {
+        "properties": {
+          "operations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Operations",
+            "type": "array"
+          },
+          "steps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "steps",
+          "operations"
+        ],
+        "title": "verify_derivationArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_derivative": {
+      "description": "Is `d^order/d{symbol}^order (expression)` really `claimed`? (an AI derivative claim.)",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "order": {
+            "default": 1,
+            "title": "Order",
+            "type": "integer"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "claimed"
+        ],
+        "title": "verify_derivativeArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_equality": {
+      "description": "Are two expressions EQUIVALENT? (independently checks an AI's \"= equals this\" claim.)",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "title": "Left",
+            "type": "string"
+          },
+          "right": {
+            "title": "Right",
+            "type": "string"
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "verify_equalityArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_integral": {
+      "description": "Is `∫ expression d{symbol}` really `claimed`? (a +C constant difference is tolerated.)",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "claimed"
+        ],
+        "title": "verify_integralArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_limit": {
+      "description": "Is `lim {symbol}→{point} expression` really `claimed`? (`point`/`claimed` may be `oo`.)",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "point",
+          "claimed"
+        ],
+        "title": "verify_limitArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_matrix_identity": {
+      "description": "Are two matrices (including symbolic cells) EQUAL? Dimension/first differing cell is reported.",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Left",
+            "type": "array"
+          },
+          "right": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Right",
+            "type": "array"
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "verify_matrix_identityArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_numeric": {
+      "description": "Verifies a CLAIMED numerical value against the exact high-precision value → `{match, exact_value, absolute_error}`.",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "tolerance": {
+            "default": 1e-09,
+            "title": "Tolerance",
+            "type": "number"
+          }
+        },
+        "required": [
+          "expression",
+          "claimed"
+        ],
+        "title": "verify_numericArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "verify_series": {
+      "description": "Is the order-`order` Taylor expansion of `expression` around `{symbol}={point}` really `claimed`?",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "string"
+          },
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "order": {
+            "title": "Order",
+            "type": "integer"
+          },
+          "point": {
+            "title": "Point",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression",
+          "symbol",
+          "point",
+          "order",
+          "claimed"
+        ],
+        "title": "verify_seriesArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_solution": {
+      "description": "Are the `claimed` values solutions of `equation`, and are they COMPLETE? (an AI's solution claim.)",
+      "input_schema": {
+        "properties": {
+          "claimed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Claimed",
+            "type": "array"
+          },
+          "equation": {
+            "title": "Equation",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "equation",
+          "symbol",
+          "claimed"
+        ],
+        "title": "verify_solutionArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "verify_steps": {
+      "description": "In a chain of expressions, is each step EQUIVALENT to the previous — finds the first bad transition.",
+      "input_schema": {
+        "properties": {
+          "steps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "steps"
+        ],
+        "title": "verify_stepsArguments",
+        "type": "object"
+      },
+      "stability": "stable"
+    },
+    "z_test": {
+      "description": "One-sample z-test with KNOWN population σ → `{z_statistic, p_value}` (two-tailed).",
+      "input_schema": {
+        "properties": {
+          "mu": {
+            "title": "Mu",
+            "type": "number"
+          },
+          "sample": {
+            "items": {},
+            "title": "Sample",
+            "type": "array"
+          },
+          "sigma": {
+            "title": "Sigma",
+            "type": "number"
+          }
+        },
+        "required": [
+          "sample",
+          "mu",
+          "sigma"
+        ],
+        "title": "z_testArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    },
+    "z_transform": {
+      "description": "Unilateral Z-transform Z{x[n]}(z) = Σ_{n≥0} x[n]·z^(−n) — closed form + ROC.",
+      "input_schema": {
+        "properties": {
+          "expression": {
+            "title": "Expression",
+            "type": "string"
+          },
+          "n_var": {
+            "default": "n",
+            "title": "N Var",
+            "type": "string"
+          },
+          "z_var": {
+            "default": "z",
+            "title": "Z Var",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "z_transformArguments",
+        "type": "object"
+      },
+      "stability": "experimental"
+    }
+  }
+}

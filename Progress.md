@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-28 — L2 · contract upgrade (certainty + stability + machine-readable schema)
+
+The on-thesis phase — makes the engine's honesty machine-readable.
+
+**Done — new `mathhead/certainty.py` + `scripts/gen_contract.py` (no new math, additive):**
+- **`meta.certainty`** (epistemic strength) on every result: `formal_proof` /
+  `independent_certificate` / `solver_verified` / `bounded_check` / `symbolic_result` /
+  `numerical_check` / `unknown` / `error` / `not_applicable`. A single `valid` no longer
+  overclaims — a Z3 decision, a bounded modal check, a CAS computation, and an independently
+  re-checked certificate are now visibly different. (Modal already did this via `VALID_BOUNDED`;
+  now it's uniform.)
+- **`meta.stability`** per tool: stable / provisional / experimental / internal → "stable core
+  (**19** verification tools) + experimental extended (**131**)" made concrete (15 provisional,
+  3 internal).
+- Both injected by the router's public `route` wrapper (`_dispatch` routes; `route` annotates) —
+  **additive**, the frozen envelope is untouched (ADR-0032).
+- **Machine-readable contract:** `scripts/gen_contract.py` → `docs/mcp-contract.json` (per-tool
+  description + input schema + stability + the shared envelope + vocabularies), enforced code=docs.
+- Wired + `tests/test_contract_artifact.py` (5, incl. an all-168-tools certainty/stability invariant)
+  → **1246/1246 green**.
+
+**Decision:** ADR-0032 (certainty/stability as additive meta; a `meta` key is NOT a breaking change).
+
+**Next:** L3 — surface focus (core profile + capability packs + README rewrite).
+
 ## 2026-07-28 — L1 · release credibility (CI matrix, wheel build, trusted publishing)
 
 **Done:**

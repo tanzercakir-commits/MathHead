@@ -515,6 +515,30 @@
 
 ---
 
+## ADR-0032 — Epistemic-strength (`certainty`) + tool `stability`, carried in meta (additive)
+
+- **Status:** Accepted · 2026-07-28 (Track L / L2)
+- **Context:** The external review noted that a single `valid` conflates very different epistemic
+  strengths (a Z3 decision, a SymPy computation, a *bounded* modal check, an independently
+  re-checked certificate, a numerical check). It also asked for per-tool stability and a single
+  machine-readable contract artifact. The MCP contract is frozen, so additions must be
+  backward-compatible.
+- **Decision:** `mathhead/certainty.py` classifies every result's epistemic strength (`certainty` ∈
+  formal_proof / independent_certificate / solver_verified / bounded_check / symbolic_result /
+  numerical_check / unknown / error / not_applicable) and every tool's stability tier
+  (stable / provisional / experimental / internal). Both are injected into `meta` by the router's
+  public `route` wrapper (`_dispatch` does the routing; `route` annotates) — ADDITIVE, so the frozen
+  `status`/`reason_code`/`explanation`/`meta` envelope is untouched. `scripts/gen_contract.py` emits
+  `docs/mcp-contract.json` (per-tool description + input schema + stability, plus the envelope and
+  the vocabularies); a test enforces code = docs.
+- **Consequences:** A caller can now tell a *formal proof* from a *bounded check* from a *symbolic
+  result* without reading prose — the honesty the engine already practiced (e.g. modal
+  `VALID_BOUNDED`) is now uniform and machine-readable. Stability makes "stable core (19 verification
+  tools) + experimental extended (131)" concrete. **Adding a key to `meta` is explicitly NOT a
+  breaking change** under this contract; the frozen surface is unaffected.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

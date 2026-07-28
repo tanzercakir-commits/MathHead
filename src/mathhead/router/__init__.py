@@ -37,6 +37,7 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.cache import CacheStats, cache_stats_result
+from mathhead.certainty import annotate as _annotate_certainty
 from mathhead.observability import (
     LimitsResult,
     MetricsResult,
@@ -83,8 +84,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
     return opts
 
 
-@observe
-def route(task: str, payload: dict[str, Any]) -> (
+def _dispatch(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
     | DratResult | SolveResult | BatchResult | CacheStats | MetricsResult | LimitsResult
@@ -527,3 +527,12 @@ def route(task: str, payload: dict[str, Any]) -> (
         return limits_result()
 
     raise ValueError(f"unknown task: {task!r}")
+
+
+@observe
+def route(task: str, payload: dict[str, Any]):
+    """Public entry point: dispatch, then annotate the result with its epistemic strength
+    (`meta.certainty`) and the tool's stability tier (`meta.stability`) — additive, so the
+    frozen contract is untouched (ADR-0032). Wrapped by `observe` for metrics (K3)."""
+    result = _dispatch(task, payload)
+    return _annotate_certainty(task, result)

@@ -22,6 +22,9 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 - **MaxSAT (`max_satisfy`):** zorunlu (hard) kısıtları sağlayıp en çok (ağırlıklı)
   yumuşak (soft) kısıtı sağlar — aşırı-kısıtlı / çelişen isteklerin çözümü. MCP
   aracı (15 araç) + `mathhead maxsat` CLI.
+- **Denklik & sınıflandırma (`equivalent`, `classify`):** iki ifade mantıksal
+  denk mi (A ≡ B); bir formül totoloji / çelişki / olumsal mı. MCP (17 araç) +
+  `mathhead equiv` / `mathhead classify` CLI.
 
 ### Değişti / sağlamlaştırma
 

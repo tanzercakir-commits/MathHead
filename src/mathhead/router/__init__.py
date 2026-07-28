@@ -22,7 +22,9 @@ from mathhead.core.logic import (
     ReasoningResult,
     check_consistency,
     check_entailment,
+    classify,
     enumerate_models,
+    equivalent,
     find_model,
     max_satisfy,
     optimize,
@@ -57,6 +59,10 @@ def route(task: str, payload: dict[str, Any]) -> (
         return find_model(payload["statements"], **_opts(payload))
     if task == "prove":
         return prove_entailment(payload["premises"], payload["conclusion"], **_opts(payload))
+    if task == "equivalent":
+        return equivalent(payload["a"], payload["b"], **_opts(payload))
+    if task == "classify":
+        return classify(payload["formula"], **_opts(payload))
     if task == "enumerate":
         return enumerate_models(payload["statements"], limit=payload.get("limit", 10), **_opts(payload))
     if task == "optimize":

@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-07-28 — mantıksal denklik & sınıflandırma
+
+**Yapıldı**
+
+- `logic.equivalent` (A ≡ B; `a XOR b` UNSAT ise denk) + `logic.classify`
+  (totoloji / çelişki / olumsal). Router + MCP (**17. araç — iki yeni**) + CLI
+  (`equiv`, `classify`) + testler → **110/110 yeşil**.
+- `not_equivalent`'ta farklılaşma tanığı; `contingent`'te doğru + yanlış tanık.
+
+**Sıradaki (gelecek oturumlar):** performans; daha çok property; (ürün akşam sende).
+
 ## 2026-07-28 — sağlamlaştırma: property-based test (hypothesis)
 
 **Yapıldı**

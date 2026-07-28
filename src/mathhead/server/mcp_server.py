@@ -70,6 +70,26 @@ def prove(premises: list[str], conclusion: str) -> dict[str, Any]:
 
 
 @mcp.tool()
+def equivalent(a: str, b: str) -> dict[str, Any]:
+    """İki ifade mantıksal olarak DENK mi? (her atamada aynı doğruluk değeri)
+
+    status ∈ {equivalent, not_equivalent, unknown, error}. not_equivalent ise
+    `witness` = ikisinin farklı doğruluk değeri aldığı bir atama.
+    """
+    return asdict(route("equivalent", {"a": a, "b": b}))
+
+
+@mcp.tool()
+def classify(formula: str) -> dict[str, Any]:
+    """Bir formülü sınıflandır: totoloji / çelişki / olumsal (contingent).
+
+    status ∈ {tautology, contradiction, contingent, unknown, error}. contingent
+    ise `witness` = onu doğru-kılan ve yanlış-kılan birer atama.
+    """
+    return asdict(route("classify", {"formula": formula}))
+
+
+@mcp.tool()
 def enumerate_models(statements: list[str], limit: int = 10) -> dict[str, Any]:
     """İfadeleri sağlayan FARKLI modelleri (en fazla `limit`) numaralandırır.
 

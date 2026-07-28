@@ -93,6 +93,13 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("-p", "--premise", action="append", default=[], metavar="İFADE")
     p.add_argument("-c", "--conclusion", required=True, metavar="İFADE")
 
+    p = sub.add_parser("equiv", help="iki ifade mantıksal olarak denk mi")
+    p.add_argument("a", metavar="A")
+    p.add_argument("b", metavar="B")
+
+    p = sub.add_parser("classify", help="totoloji / çelişki / olumsal")
+    p.add_argument("formula", metavar="İFADE")
+
     p = sub.add_parser("enumerate", help="tüm/çoklu modelleri numaralandır")
     p.add_argument("statements", nargs="+", metavar="İFADE")
     p.add_argument("--limit", type=int, default=10)
@@ -145,6 +152,8 @@ _DISPATCH = {
     "consistent": lambda a: ("consistency", {"statements": a.statements}),
     "model": lambda a: ("find_model", {"statements": a.statements}),
     "prove": lambda a: ("prove", {"premises": a.premise, "conclusion": a.conclusion}),
+    "equiv": lambda a: ("equivalent", {"a": a.a, "b": a.b}),
+    "classify": lambda a: ("classify", {"formula": a.formula}),
     "enumerate": lambda a: ("enumerate", {"statements": a.statements, "limit": a.limit}),
     "optimize": lambda a: ("optimize", {"constraints": a.constraints, "objective": a.objective,
                                         "sense": "min" if a.min else "max"}),

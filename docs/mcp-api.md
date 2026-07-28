@@ -69,6 +69,18 @@ Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıt�
 `status`; optimal ise `satisfied` / `unsatisfied` (soft indeksleri),
 `satisfied_weight` / `total_weight`, `witness`. `hard` sağlanamazsa `unsat`.
 
+### 8) `equivalent(a: str, b: str) -> ReasoningResult`
+
+İki ifade mantıksal olarak DENK mi (her atamada aynı doğruluk değeri)? `status` ∈
+{`equivalent`, `not_equivalent`, `unknown`, `error`}; `not_equivalent` ise
+`witness` = ikisinin farklılaştığı bir atama.
+
+### 9) `classify(formula: str) -> ReasoningResult`
+
+Bir formülü sınıflandırır: `status` ∈ {`tautology` (her zaman doğru),
+`contradiction` (her zaman yanlış), `contingent` (bazen doğru bazen yanlış),
+`unknown`, `error`}. `contingent` ise `witness` = doğru-kılan + yanlış-kılan atama.
+
 ---
 
 ## Girdi grameri (v1.2)

@@ -511,3 +511,70 @@ def max_satisfy(
         satisfied, unsatisfied, sat_w, total_w, _witness(model, symbols),
         _meta(t0, seed, timeout_ms),
     )
+
+
+def equivalent(
+    a: str, b: str, *, timeout_ms: int = DEFAULT_TIMEOUT_MS, seed: int = DEFAULT_SEED,
+) -> ReasoningResult:
+    """İki ifade mantıksal olarak DENK mi? (her modelde aynı doğruluk değeri).
+
+    Yöntem: `a XOR b` tatmin edilemez (UNSAT) ise denk. SAT ise farklılaştıkları
+    bir atama (witness) döner.
+    """
+    t0 = time.perf_counter()
+    err, z3_list, symbols = _prepare([a, b], t0, seed, timeout_ms)
+    if err is not None:
+        return err
+    za, zb = z3_list
+    solver = solver_config(timeout_ms, seed)
+    solver.add(z3.Xor(za, zb))
+    result = solver.check()
+    if result == z3.unsat:
+        return ReasoningResult("equivalent", "EQUIVALENT",
+                               "İki ifade mantıksal olarak denk (her atamada aynı doğruluk değeri).",
+                               None, _meta(t0, seed, timeout_ms))
+    if result == z3.sat:
+        return ReasoningResult("not_equivalent", "NOT_EQUIVALENT",
+                               "Denk değil; ikisinin farklı doğruluk değeri aldığı bir atama var.",
+                               _witness(solver.model(), symbols), _meta(t0, seed, timeout_ms))
+    return _unknown(solver, t0, seed, timeout_ms)
+
+
+def classify(
+    formula: str, *, timeout_ms: int = DEFAULT_TIMEOUT_MS, seed: int = DEFAULT_SEED,
+) -> ReasoningResult:
+    """Bir formülü sınıflandır: **totoloji** (her zaman doğru), **çelişki** (her
+    zaman yanlış) ya da **olumsal** (contingent — bazen doğru bazen yanlış).
+
+    Olumsal ise witness: onu doğru-kılan ve yanlış-kılan birer atama.
+    """
+    t0 = time.perf_counter()
+    err, z3_list, symbols = _prepare([formula], t0, seed, timeout_ms)
+    if err is not None:
+        return err
+    z = z3_list[0]
+    sat_solver = solver_config(timeout_ms, seed)
+    sat_solver.add(z)
+    r_sat = sat_solver.check()                 # doğru-kılan atama var mı?
+    false_solver = solver_config(timeout_ms, seed)
+    false_solver.add(z3.Not(z))
+    r_false = false_solver.check()             # yanlış-kılan atama var mı?
+
+    if r_sat == z3.unknown or r_false == z3.unknown:
+        return ReasoningResult("unknown", "SOLVER_UNKNOWN",
+                               "Çözücü karar veremedi.", None, _meta(t0, seed, timeout_ms))
+    if r_sat == z3.unsat:
+        return ReasoningResult("contradiction", "CONTRADICTION",
+                               "Çelişki: ifade hiçbir atamada doğru değil (her zaman yanlış).",
+                               None, _meta(t0, seed, timeout_ms))
+    if r_false == z3.unsat:
+        return ReasoningResult("tautology", "TAUTOLOGY",
+                               "Totoloji: ifade her atamada doğru (her zaman doğru).",
+                               None, _meta(t0, seed, timeout_ms))
+    witness = {
+        "doğru_kılan": _witness(sat_solver.model(), symbols),
+        "yanlış_kılan": _witness(false_solver.model(), symbols),
+    }
+    return ReasoningResult("contingent", "CONTINGENT",
+                           "Olumsal: bazı atamalarda doğru, bazılarında yanlış.",
+                           witness, _meta(t0, seed, timeout_ms))

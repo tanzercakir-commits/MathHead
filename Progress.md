@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — G4 [S] · numerical hardening → TRACK G DONE 🎉
+
+**Done**
+
+- New `tests/test_numerical_hardening.py` (8): the property tests ARE the numerical guarantees.
+  Tests only — no new tools.
+- **Guarantees proven on random input:** a returned Newton root has residual < 1e-8; composite
+  Simpson is EXACT on cubics; Lagrange interpolation recovers the generating quadratic;
+  RK4 of y'=k·y matches e^{k·x}; the precision bridge is self-consistent (verify_numeric agrees
+  with evaluate_precision); symbolic and numeric paths agree for polynomials.
+- **Fuzz + determinism.** **974/974 green.**
+
+**Milestone:** Track G (Numerical Methods) COMPLETE — root-finding & quadrature (G1), numerical
+linalg & RK4 (G2), the precision bridge (G3), all hardened (G4). All numerical work is
+deterministic (fixed mpmath precision) and honest about convergence — numerics that still fit the
+engine's "reliable, auditable" mission (verify_numeric / cross_check_numeric extend the audit theme).
+
+**Next:** Track H (Logic & Proof Depth) — roadmap order H → J → K.
+
 ## 2026-07-28 — G3 · precision bridge (arbitrary precision + symbolic↔numeric)
 
 **Done — 3 new compute tools (148 total):**

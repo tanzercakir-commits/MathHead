@@ -183,8 +183,11 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           runge_kutta (RK4 IVP solver) ✅ (145 tools; deterministic via mpmath)
 [x] G3 🟡 Precision bridge — evaluate_precision (arbitrary precision), verify_numeric (numeric-claim
           verification), cross_check_numeric (symbolic↔numeric cross-validation) ✅ (148 tools)
-[ ] G4 [S] Hardening
+[x] G4 [S] Hardening — numerical guarantees as properties: root residual ≈ 0, Simpson exact on cubics,
+          interpolation recovery, RK4 vs analytic, precision-bridge self-consistency ✅ (974 tests)
 ```
+
+### 🎉 TRACK G DONE — Numerical Methods (root-finding, quadrature, numerical linalg/ODE, precision bridge)
 
 ## H. Logic & Proof Depth
 ```

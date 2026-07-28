@@ -219,12 +219,23 @@ süzülür, sembolik olabilir. CLI'da MATLAB-tarzı dizgi: `"1,2;3,4"`.
 | `matrix_inverse` | `matrix_inverse(matrix)` | `[["1","2"],["3","4"]]` → `[["-2","1"],["3/2","-1/2"]]` |
 | `eigenvalues` | `eigenvalues(matrix)` | `[["2","0"],["0","3"]]` → `[{"value":"2","multiplicity":1},{"value":"3","multiplicity":1}]` |
 | `matrix_rank` | `matrix_rank(matrix)` | `[["1","2"],["2","4"]]` → `1` |
+| `matrix_multiply` | `matrix_multiply(a, b)` | `[[1,2],[3,4]]·[[5,6],[7,8]]` → `[["19","22"],["43","50"]]` |
+| `matrix_solve` | `matrix_solve(matrix, rhs)` | `A=[[1,1],[1,-1]]`, `b=["10","2"]` → `[{"x0":"6","x1":"4"}]` |
+| `eigenvectors` | `eigenvectors(matrix)` | `[["2","0"],["0","3"]]` → `[{"eigenvalue":"2","multiplicity":1,"vectors":[["1","0"]]}, ...]` |
+| `rref` | `rref(matrix)` | → `{"rref": [...], "pivots": [0,1]}` |
+| `nullspace` | `nullspace(matrix)` | `[["1","2"],["2","4"]]` → `[["-2","1"]]` |
+| `lu_decomposition` | `lu_decomposition(matrix)` | → `{"L":[...], "U":[...], "perm":[...]}` |
 
-`determinant`/`matrix_inverse`/`eigenvalues` **kare** matris ister (değilse
-`PARSE_ERROR`). **Dürüstlük:** tekil (singular, det=0) matriste `matrix_inverse`
-uydurmaz, `COMPUTE_FAILED` döner; `eigenvalues` karmaşık/irrasyonel değerleri tam
-formda (`"I"`, `"sqrt(2)"`) ve cebirsel katlılığı açıkça verir, `value`'ya göre
-sıralı (determinizm — ADR-0019). `matrix_rank` kare olmayan matriste de çalışır.
+`determinant`/`matrix_inverse`/`eigenvalues`/`eigenvectors`/`lu_decomposition`
+**kare** matris ister (değilse `PARSE_ERROR`). **Dürüstlük:** tekil (singular,
+det=0) matriste `matrix_inverse` uydurmaz, `COMPUTE_FAILED` döner; `eigenvalues`/
+`eigenvectors` karmaşık/irrasyonel değerleri tam formda (`"I"`, `"sqrt(2)"`) ve
+cebirsel katlılığı açıkça verir, `value`/`eigenvalue`'ya göre sıralı (determinizm
+— ADR-0019). `matrix_multiply` iç boyut uyumsuzsa (`A.cols ≠ B.rows`) hata verir.
+`matrix_solve` (`Ax=b`) **çözüm sözlükleri listesi** döner: boş = çözüm yok
+(tutarsız), serbest değişken parametrik (`"3 - x1"`). `matrix_rank`/`rref`/
+`nullspace` kare olmayan matriste de çalışır; `nullspace` boş liste = trivial
+(yalnız sıfır).
 
 **Çıktı — `ComputeResult`:** `status` (`ok`|`error`), `operation`, `result`
 (metin veya kök listesi), `explanation`, `reason_code` (`OK`|`PARSE_ERROR`|

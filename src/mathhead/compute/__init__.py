@@ -395,3 +395,145 @@ def matrix_rank(matrix: list[list[str]]) -> ComputeResult:
         return _error("matrix_rank", f"rank hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "matrix_rank", result,
                          f"rank = {result} ({M.rows}×{M.cols} matris).", "OK", _meta(t0))
+
+
+def _mat_out(M: Any) -> list[list[str]]:
+    """SymPy Matrix -> list[list[str]] (hücreler sadeleştirilmiş)."""
+    return [[str(sympy.simplify(M[i, j])) for j in range(M.cols)] for i in range(M.rows)]
+
+
+def matrix_multiply(a: list[list[str]], b: list[list[str]]) -> ComputeResult:
+    """İki matrisin çarpımı A·B. İç boyutlar uyumsuzsa DÜRÜSTÇE hata."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        A = _parse_matrix(a, syms)
+        B = _parse_matrix(b, syms)
+        if A.cols != B.rows:
+            raise ComputeError(
+                f"boyut uyumsuz: A {A.rows}×{A.cols} · B {B.rows}×{B.cols} "
+                f"(A sütun = B satır olmalı)"
+            )
+    except ComputeError as exc:
+        return _error("matrix_multiply", str(exc), t0)
+    try:
+        result = _mat_out(A * B)
+    except Exception as exc:  # noqa: BLE001
+        return _error("matrix_multiply", f"çarpılamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "matrix_multiply", result,
+                         f"A·B = {A.rows}×{B.cols} matris.", "OK", _meta(t0))
+
+
+def matrix_solve(matrix: list[list[str]], rhs: list[str]) -> ComputeResult:
+    """`A x = b` doğrusal sistemini matris formunda çözer.
+
+    Dönüş: çözüm sözlükleri listesi (`x0, x1, ...`). Boş liste = **çözüm yok**
+    (tutarsız); serbest değişken parametrik görünür (dürüst).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        A = _parse_matrix(matrix, syms)
+        if not isinstance(rhs, list) or not rhs:
+            raise ComputeError("sağ taraf (b) boş olamaz")
+        if len(rhs) != A.rows:
+            raise ComputeError(
+                f"b uzunluğu A'nın satır sayısına eşit olmalı (A {A.rows}×{A.cols}, b {len(rhs)})"
+            )
+        bvec = sympy.Matrix([_parse(str(x), syms) for x in rhs])
+    except ComputeError as exc:
+        return _error("matrix_solve", str(exc), t0)
+    try:
+        xs = list(sympy.symbols(f"x0:{A.cols}"))
+        sol = sympy.linsolve((A, bvec), *xs)
+        tuples = list(sol)
+        result = [{str(xs[i]): str(tup[i]) for i in range(len(xs))} for tup in tuples]
+    except Exception as exc:  # noqa: BLE001
+        return _error("matrix_solve", f"çözülemedi: {exc}", t0, "COMPUTE_FAILED")
+    if not result:
+        return ComputeResult("ok", "matrix_solve", [],
+                             "çözüm yok (tutarsız sistem).", "OK", _meta(t0))
+    free = sorted({str(s) for tup in tuples for expr in tup for s in expr.free_symbols})
+    note = f" (serbest: {', '.join(free)} → parametrik)" if free else ""
+    return ComputeResult("ok", "matrix_solve", result,
+                         f"çözüm bulundu{note}.", "OK", _meta(t0))
+
+
+def eigenvectors(matrix: list[list[str]]) -> ComputeResult:
+    """Özdeğer + cebirsel katlılık + özvektör(ler). Özdeğere göre sıralı (determinizm)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("özvektör için kare matris gerekir")
+    except ComputeError as exc:
+        return _error("eigenvectors", str(exc), t0)
+    try:
+        data = M.eigenvects()  # [(özdeğer, katlılık, [sütun vektör(ler)])]
+        result = [
+            {
+                "eigenvalue": str(val),
+                "multiplicity": int(mult),
+                "vectors": [[str(vec[i]) for i in range(vec.rows)] for vec in vecs],
+            }
+            for val, mult, vecs in data
+        ]
+        result.sort(key=lambda d: d["eigenvalue"])
+    except Exception as exc:  # noqa: BLE001
+        return _error("eigenvectors", f"özvektörler hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "eigenvectors", result,
+                         f"{len(result)} farklı özdeğer için özvektörler.", "OK", _meta(t0))
+
+
+def rref(matrix: list[list[str]]) -> ComputeResult:
+    """İndirgenmiş satır eşelon form (reduced row echelon form) + pivot sütunları."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("rref", str(exc), t0)
+    try:
+        R, pivots = M.rref()
+        result = {"rref": _mat_out(R), "pivots": [int(p) for p in pivots]}
+    except Exception as exc:  # noqa: BLE001
+        return _error("rref", f"rref hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "rref", result,
+                         f"pivot sütunları: {result['pivots']}.", "OK", _meta(t0))
+
+
+def nullspace(matrix: list[list[str]]) -> ComputeResult:
+    """Boş uzayın (null space / kernel) bir tabanı. Boş liste = yalnız sıfır (trivial)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+    except ComputeError as exc:
+        return _error("nullspace", str(exc), t0)
+    try:
+        ns = M.nullspace()
+        result = [[str(vec[i]) for i in range(vec.rows)] for vec in ns]
+    except Exception as exc:  # noqa: BLE001
+        return _error("nullspace", f"boş uzay hesaplanamadı: {exc}", t0, "COMPUTE_FAILED")
+    note = "yalnızca sıfır vektörü (trivial)" if not result else f"{len(result)} temel vektör"
+    return ComputeResult("ok", "nullspace", result, f"boş uzay: {note}.", "OK", _meta(t0))
+
+
+def lu_decomposition(matrix: list[list[str]]) -> ComputeResult:
+    """LU ayrıştırma: A = P·L·U. Dönüş: `L`, `U` matrisleri + `perm` (satır takasları)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("LU için kare matris gerekir")
+    except ComputeError as exc:
+        return _error("lu_decomposition", str(exc), t0)
+    try:
+        L, U, perm = M.LUdecomposition()
+        result = {"L": _mat_out(L), "U": _mat_out(U), "perm": [list(p) for p in perm]}
+    except Exception as exc:  # noqa: BLE001
+        return _error("lu_decomposition", f"LU ayrıştırılamadı: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "lu_decomposition", result,
+                         "A = P·L·U ayrıştırması.", "OK", _meta(t0))

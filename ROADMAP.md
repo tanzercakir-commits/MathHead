@@ -34,10 +34,10 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     │                solve_system · det/inverse/eigenvalues/rank
     └─ Track B (SAT indirgeme): pigeonhole/pythagorean/vdW/Schur
 
-[ ] Aşama 1 · Lineer cebiri tamamla
+[x] Aşama 1 · Lineer cebiri tamamla  (bitti — 161 test, 30 araç)
     └─ matris çarpımı, Ax=b (matris formu), özvektör (eigenvector),
        rref/boş uzay (nullspace), LU ayrıştırma
-       ↳ dürüst duvar: tekil/tutarsız sistemleri açıkça raporla
+       ↳ dürüst duvar: tekil/tutarsız sistemleri açıkça raporla ✅
 
 [ ] Aşama 2 · [S] Sağlamlaştırma-1
     └─ tüm `compute` için determinizm denetimi + property test (hypothesis)

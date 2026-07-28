@@ -210,6 +210,46 @@ def matrix_rank(matrix: list[list[str]]) -> dict[str, Any]:
     return asdict(route("matrix_rank", {"matrix": matrix}))
 
 
+@mcp.tool()
+def matrix_multiply(a: list[list[str]], b: list[list[str]]) -> dict[str, Any]:
+    """İki matrisin çarpımı A·B. İç boyutlar (A sütun = B satır) uyumsuzsa dürüst hata."""
+    return asdict(route("matrix_multiply", {"a": a, "b": b}))
+
+
+@mcp.tool()
+def matrix_solve(matrix: list[list[str]], rhs: list[str]) -> dict[str, Any]:
+    """`A x = b` doğrusal sistemini matris formunda çözer.
+
+    Dönüş: `result` = çözüm sözlükleri (`x0,x1,...`). Boş = çözüm yok (tutarsız);
+    serbest değişken parametrik görünür (dürüst).
+    """
+    return asdict(route("matrix_solve", {"matrix": matrix, "rhs": rhs}))
+
+
+@mcp.tool()
+def eigenvectors(matrix: list[list[str]]) -> dict[str, Any]:
+    """Özdeğer + cebirsel katlılık + özvektör(ler). Özdeğere göre sıralı (determinizm)."""
+    return asdict(route("eigenvectors", {"matrix": matrix}))
+
+
+@mcp.tool()
+def rref(matrix: list[list[str]]) -> dict[str, Any]:
+    """İndirgenmiş satır eşelon form (RREF) + pivot sütun indeksleri."""
+    return asdict(route("rref", {"matrix": matrix}))
+
+
+@mcp.tool()
+def nullspace(matrix: list[list[str]]) -> dict[str, Any]:
+    """Boş uzayın (null space / çekirdek) bir tabanı. Boş liste = yalnız sıfır (trivial)."""
+    return asdict(route("nullspace", {"matrix": matrix}))
+
+
+@mcp.tool()
+def lu_decomposition(matrix: list[list[str]]) -> dict[str, Any]:
+    """LU ayrıştırma: A = P·L·U. Dönüş: `L`, `U` matrisleri + `perm` (satır takasları)."""
+    return asdict(route("lu_decomposition", {"matrix": matrix}))
+
+
 # ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:

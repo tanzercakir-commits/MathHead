@@ -96,6 +96,18 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.eigenvalues(payload["matrix"])
     if task == "matrix_rank":
         return compute.matrix_rank(payload["matrix"])
+    if task == "matrix_multiply":
+        return compute.matrix_multiply(payload["a"], payload["b"])
+    if task == "matrix_solve":
+        return compute.matrix_solve(payload["matrix"], payload["rhs"])
+    if task == "eigenvectors":
+        return compute.eigenvectors(payload["matrix"])
+    if task == "rref":
+        return compute.rref(payload["matrix"])
+    if task == "nullspace":
+        return compute.nullspace(payload["matrix"])
+    if task == "lu_decomposition":
+        return compute.lu_decomposition(payload["matrix"])
 
     # --- Frontier / Track B (programatik indirgeme -> Z3) ---
     if task == "pythagorean_coloring":

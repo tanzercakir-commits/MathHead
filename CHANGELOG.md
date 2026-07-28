@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Lineer cebir II (`matrix_multiply`, `matrix_solve`, `eigenvectors`, `rref`,
+  `nullspace`, `lu_decomposition`):** Aşama 1 — lineer cebir tamamlandı. `Ax=b`
+  matris formunda (tutarsız → boş, sonsuz → parametrik, dürüst); matris çarpımı
+  (boyut denetimli); özvektör; RREF + pivotlar; boş uzay (kernel) tabanı; LU
+  ayrıştırma. MCP (**30 araç**) + CLI (`matmul/matsolve/eigenvectors/rref/
+  nullspace/lu`). +15 test (`tests/test_linalg.py`).
 - **Lineer cebir / matris (`determinant`, `matrix_inverse`, `eigenvalues`,
   `matrix_rank`):** SymPy `Matrix` üstünde. Girdi `list[list[str]]` (hücreler
   sembolik olabilir → `det[[a,b],[c,d]] = a*d - b*c`). **Dürüstlük:** tekil

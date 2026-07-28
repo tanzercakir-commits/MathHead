@@ -55,6 +55,12 @@ determinant([["a", "b"], ["c", "d"]])             # -> "a*d - b*c" (sembolik)
 matrix_inverse([["1", "2"], ["3", "4"]])          # -> [["-2","1"],["3/2","-1/2"]]
 matrix_inverse([["1", "2"], ["2", "4"]])          # -> error: tersinir değil (dürüst)
 eigenvalues([["2", "0"], ["0", "3"]])             # -> [{"value":"2",...},{"value":"3",...}]
+
+from mathhead.compute import matrix_multiply, matrix_solve, nullspace   # v2+ (lineer cebir II)
+matrix_multiply([["1","2"],["3","4"]], [["5","6"],["7","8"]])  # -> [["19","22"],["43","50"]]
+matrix_solve([["1","1"],["1","-1"]], ["10","2"]) # -> [{"x0":"6","x1":"4"}]  (Ax=b)
+matrix_solve([["1","1"],["1","1"]], ["1","2"])   # -> []  (tutarsız → çözüm yok, dürüst)
+nullspace([["1","2"],["2","4"]])                  # -> [["-2","1"]]  (boş uzay tabanı)
 ```
 
 MCP istemcisine (ör. Claude Code) bağlamak:
@@ -103,7 +109,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 24 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 30 araç)
 └── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
 ```
 

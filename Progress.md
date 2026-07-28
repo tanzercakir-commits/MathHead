@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — Aşama 1 · lineer cebiri tamamla (matmul/Ax=b/eigvec/rref/nullspace/LU)
+
+**Yapıldı**
+
+- 6 yeni işlem: `matrix_multiply`, `matrix_solve` (Ax=b matris formu),
+  `eigenvectors`, `rref` (+pivotlar), `nullspace`, `lu_decomposition`.
+- Uçtan uca: router (6 görev) + MCP (**30 araç**) + CLI (`matmul`/`matsolve`/
+  `eigenvectors`/`rref`/`nullspace`/`lu`) + `tests/test_linalg.py` (15) →
+  **161/161 yeşil**. Docs güncel.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- `Ax=b`: benzersiz `{x0:6,x1:4}`; **tutarsız → boş liste** (uydurma yok);
+  **sonsuz → parametrik** `{x0: "3 - x1", x1: "x1"}` + açıklamada "parametrik".
+- matmul boyut uyumsuz (`A.cols≠B.rows`) → hata; nullspace tam-rank → trivial
+  (boş); LU → L alt/U üst üçgen. Özvektörler özdeğere göre sıralı (determinizm).
+
+**Sıradaki:** Aşama 2 [S] — determinizm denetimi + property test genişletme +
+parser fuzz. (Hedef: Aşama 11'e kadar otonom.)
+
 ## 2026-07-28 — lineer cebir / matris (det / inverse / eigenvalues / rank)
 
 **Yapıldı**

@@ -32,8 +32,9 @@
 - [x] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral ✅
 - [x] **T13** v2+: kalkülüs & sistemler — limit / series / solve_system ✅
 - [x] **T14** v2+: lineer cebir (matris) — determinant / eigenvalue / inverse / rank ✅
-- [ ] **T15** v2+: matris çarpımı + `Ax=b` (matris formu) + özvektör (eigenvector).
-  *Sıradaki tur (opsiyonel).*
+- [x] **T15** v2+: lineer cebir II — matmul / Ax=b / eigenvector / rref / nullspace / LU ✅
+      (ROADMAP Aşama 1 · 161 test · 30 araç)
+- [ ] **T16** ROADMAP Aşama 2 [S]: determinizm denetimi + property genişletme + parser fuzz
 
 ---
 

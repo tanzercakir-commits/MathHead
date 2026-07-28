@@ -173,6 +173,26 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("rank", help="matris rankı (kare olması şart değil)")
     p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
 
+    p = sub.add_parser("matmul", help="matris çarpımı A·B")
+    p.add_argument("a", metavar="A", help="satır ';', hücre ',' ile")
+    p.add_argument("b", metavar="B", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("matsolve", help="Ax=b doğrusal sistemi (matris formu)")
+    p.add_argument("matrix", metavar="A", help="katsayı matrisi")
+    p.add_argument("--b", required=True, metavar="B", help="sağ taraf vektörü, ',' ile (ör. '10,2')")
+
+    p = sub.add_parser("eigenvectors", help="özdeğer + özvektör")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("rref", help="indirgenmiş satır eşelon form + pivotlar")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("nullspace", help="boş uzay (çekirdek) tabanı")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
+    p = sub.add_parser("lu", help="LU ayrıştırma (A = P·L·U)")
+    p.add_argument("matrix", metavar="MATRİS", help="satır ';', hücre ',' ile")
+
     p = sub.add_parser("pigeonhole", help="güvercin yuvası ilkesini ispatla")
     p.add_argument("n", type=int)
 
@@ -215,6 +235,13 @@ _DISPATCH = {
     "inverse": lambda a: ("matrix_inverse", {"matrix": _matrix(a.matrix)}),
     "eigenvals": lambda a: ("eigenvalues", {"matrix": _matrix(a.matrix)}),
     "rank": lambda a: ("matrix_rank", {"matrix": _matrix(a.matrix)}),
+    "matmul": lambda a: ("matrix_multiply", {"a": _matrix(a.a), "b": _matrix(a.b)}),
+    "matsolve": lambda a: ("matrix_solve", {"matrix": _matrix(a.matrix),
+                                            "rhs": [c.strip() for c in a.b.split(",")]}),
+    "eigenvectors": lambda a: ("eigenvectors", {"matrix": _matrix(a.matrix)}),
+    "rref": lambda a: ("rref", {"matrix": _matrix(a.matrix)}),
+    "nullspace": lambda a: ("nullspace", {"matrix": _matrix(a.matrix)}),
+    "lu": lambda a: ("lu_decomposition", {"matrix": _matrix(a.matrix)}),
     "pigeonhole": lambda a: ("pigeonhole", {"n": a.n}),
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),

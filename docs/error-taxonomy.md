@@ -75,6 +75,13 @@ DOĞRULAMA KATMANI (Track C — AI muhakeme denetçisi)
   STEPS_VALID            · adım zincirinin tüm geçişleri denk (valid)
   STEP_INVALID           · ilk hatalı geçiş bulundu (invalid)
   UNDECIDED              · denklik/geçiş kararlaştırılamadı (unknown)
+
+ÇAPRAZ DENETİM (Track C3 — Z3 ⋈ SymPy)
+  CONSENSUS_EQUAL        · iki motor da 'denk' (valid, yüksek güven)
+  CONSENSUS_NOT_EQUAL    · iki motor da 'denk değil' (invalid)
+  ENGINES_DISAGREE       · motorlar çelişiyor — ince konu/domain bayrağı (unknown)
+  SINGLE_ENGINE          · yalnız bir motor karar verdi (valid/invalid, düşük güven)
+  CROSS_UNDECIDED        · hiçbir motor karar veremedi (unknown)
 ```
 
 **Değişmez (test_taxonomy):** her araç çağrısı yalnız yukarıdaki `status` ve

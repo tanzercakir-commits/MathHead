@@ -244,6 +244,26 @@
 
 ---
 
+## ADR-0020 — Denklik kararında `.equals()` yerine deterministik yol
+
+- **Durum:** Kabul · 2026-07-28
+- **Bağlam:** Doğrulama katmanı (Track C — `verify_equality`, `verify_steps`,
+  `cross_check`) iki ifadenin denkliğini SymPy `expr.equals(other)` ile kontrol
+  ediyordu. Çapraz denetim geliştirilirken görüldü ki `.equals()` **içsel olarak
+  RASTGELE sayısal örnekleme** yapıyor: `sqrt(x**2)` vs `x` çağrıdan çağrıya
+  `None`/`False` arası değişiyor. Bu, projenin çekirdek ilkesi **determinizm**e
+  (aynı girdi → aynı verdict; ADR-0019) aykırı.
+- **Karar:** `.equals()` denklik kararından ÇIKARILDI. Ortak deterministik
+  yardımcı `verify._equal_verdict`: (1) `simplify(sol − sağ) == 0` → denk;
+  (2) sabit-nokta karşıörnek taraması → değilse `not_equal` + kanıt;
+  (3) aksi halde `undecided`. Tümü deterministik.
+- **Sonuçlar:** Verdict artık kararlı (10/10 aynı) **ve daha güçlü** (not_equal
+  artık somut karşıörnek taşır). Bedel: simplify'ın çözemediği bazı denklikler
+  `undecided` döner — ama bu, "flaky doğru"dan yeğ: dürüst bilinmezlik ilkeyle
+  uyumlu. `verify_equality`/`verify_steps`/`cross_check` bu yardımcıyı paylaşır.
+
+---
+
 <!-- Yeni karar şablonu:
 ## ADR-XXXX — başlık
 - **Durum:** Öneri | Kabul | Yerini aldı (ADR-YYYY) · YYYY-AA-GG

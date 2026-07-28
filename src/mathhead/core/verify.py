@@ -97,6 +97,27 @@ def _domain_diff(left: Any, right: Any) -> list[str]:
     return sorted(out)
 
 
+def _equal_verdict(le: Any, re: Any, syms: dict[str, Any]) -> tuple[str, dict | None]:
+    """DETERMİNİSTİK denklik kararı: ('equal'|'not_equal'|'undecided', karşıörnek?).
+
+    SymPy `.equals()` KULLANILMAZ — o içsel RASTGELE örnekleme yapar (aynı girdi →
+    değişen sonuç), determinizm ilkesini (ADR-0019) ihlal ederdi. Bunun yerine:
+    (1) `simplify(sol - sağ) == 0` → denk (deterministik), (2) sabit-nokta
+    karşıörnek taraması → değilse `not_equal` + kanıt, (3) aksi halde `undecided`.
+    """
+    diff = le - re
+    try:
+        simplified = sympy.simplify(diff)
+    except Exception:                        # noqa: BLE001
+        simplified = diff
+    if simplified == 0:
+        return "equal", None
+    cx = _counterexample(simplified, syms)
+    if cx is not None:
+        return "not_equal", cx
+    return "undecided", None
+
+
 def verify_equality(left: str, right: str) -> VerifyResult:
     """`left` ile `right` matematiksel olarak DENK mi? (AI'ın "= şuna eşittir"
     iddiasını denetler.)
@@ -114,19 +135,8 @@ def verify_equality(left: str, right: str) -> VerifyResult:
     except ComputeError as exc:
         return _err("verify_equality", str(exc), t0)
 
-    verdict: Any = None
-    try:
-        verdict = left_e.equals(right_e)     # True | False | None
-    except Exception:                        # noqa: BLE001
-        verdict = None
-    if verdict is None:                      # yedek: fark sadeleşiyor mu
-        try:
-            if sympy.simplify(left_e - right_e) == 0:
-                verdict = True
-        except Exception:                    # noqa: BLE001
-            verdict = None
-
-    if verdict is True:
+    verdict, cx = _equal_verdict(left_e, right_e, syms)
+    if verdict == "equal":
         caveat = _domain_diff(left_e, right_e)
         if caveat:
             return VerifyResult(
@@ -135,8 +145,7 @@ def verify_equality(left: str, right: str) -> VerifyResult:
                 f"{', '.join(caveat)} (koşulsuz eşit DEĞİL).",
                 {"domain_caveat": caveat}, _meta(t0))
         return VerifyResult("valid", "EQUAL", "ifadeler denk (doğrulandı).", None, _meta(t0))
-    if verdict is False:
-        cx = _counterexample(left_e - right_e, syms)
+    if verdict == "not_equal":
         return VerifyResult("invalid", "NOT_EQUAL",
                             f"denk DEĞİL; karşıörnek: {cx}.", {"counterexample": cx}, _meta(t0))
     return VerifyResult("unknown", "UNDECIDED",
@@ -224,27 +233,15 @@ def verify_steps(steps: list[str]) -> VerifyResult:
 
     undecided_at = None
     for i in range(len(exprs) - 1):
-        a, b = exprs[i], exprs[i + 1]
-        verdict: Any = None
-        try:
-            verdict = a.equals(b)
-        except Exception:                    # noqa: BLE001
-            verdict = None
-        if verdict is None:
-            try:
-                if sympy.simplify(a - b) == 0:
-                    verdict = True
-            except Exception:                # noqa: BLE001
-                verdict = None
-        if verdict is False:
-            cx = _counterexample(a - b, syms)
+        verdict, cx = _equal_verdict(exprs[i], exprs[i + 1], syms)
+        if verdict == "not_equal":
             return VerifyResult(
                 "invalid", "STEP_INVALID",
                 f"{i + 1}. adımdan {i + 2}. adıma geçiş HATALI "
                 f"('{steps[i]}' ≠ '{steps[i + 1]}').",
                 {"first_bad_step": i + 1, "from": steps[i], "to": steps[i + 1],
                  "counterexample": cx}, _meta(t0))
-        if verdict is None and undecided_at is None:
+        if verdict == "undecided" and undecided_at is None:
             undecided_at = i + 1
     if undecided_at is not None:
         return VerifyResult("unknown", "UNDECIDED",

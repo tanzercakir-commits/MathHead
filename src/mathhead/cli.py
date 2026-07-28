@@ -152,6 +152,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("verify-steps", help="adım zincirinde ilk hatayı bul")
     p.add_argument("steps", nargs="+", metavar="ADIM")
 
+    p = sub.add_parser("cross-check", help="iddiayı Z3 + SymPy ile çapraz doğrula")
+    p.add_argument("left", metavar="SOL"); p.add_argument("right", metavar="SAĞ")
+
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
 
@@ -350,6 +353,7 @@ _DISPATCH = {
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),
     "verify-steps": lambda a: ("verify_steps", {"steps": a.steps}),
+    "cross-check": lambda a: ("cross_check", {"left": a.left, "right": a.right}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

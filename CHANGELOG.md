@@ -6,6 +6,11 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Çapraz denetim — Z3 ⋈ SymPy (`cross_check`):** ROADMAP Track C3. Bir denklik
+  iddiasını **iki bağımsız motorla** doğrular; mutabakat şart. `CONSENSUS_EQUAL/
+  _NOT_EQUAL` (yüksek güven), `ENGINES_DISAGREE` (çelişki → domain/ince konu
+  bayrağı — ör. `(x²-1)/(x-1)` vs `x+1`), `SINGLE_ENGINE` (yalnız biri, ör.
+  transandantalde SymPy). MCP (**63 araç**) + CLI (`cross-check`) + 7 test.
 - **Doğrulama katmanı — AI muhakeme denetçisi (`verify_equality`,
   `verify_solution`, `verify_steps`):** ROADMAP Track C1 — "öne geçiren yön".
   MathHead'i "başka bir CAS"tan **AI iddialarının bağımsız yargıcı**na çevirir.
@@ -106,6 +111,11 @@ sağlamlaştırma turu (property/fuzz, taksonomi/golden, coverage/API-ref).
 
 ### Değişti / sağlamlaştırma
 
+- **Determinizm düzeltmesi (ADR-0020):** denklik kararı SymPy `.equals()`'ten
+  arındırıldı — o içsel rastgele örnekleme yapıyordu (`sqrt(x²)` vs `x` çağrılar
+  arası değişiyordu). Ortak deterministik yardımcı `verify._equal_verdict`
+  (simplify + sabit-nokta karşıörnek); `verify_equality`/`verify_steps`/
+  `cross_check` paylaşır. Verdict artık kararlı **ve** daha güçlü (karşıörnekli).
 - **Sağlamlaştırma-3 (ROADMAP Aşama 8):** (1) **Kapsam (coverage)** — `pytest-cov`
   + `[tool.coverage]`; MCP katman testi (`tests/test_mcp_layer.py`, 54 aracı uçtan
   uca çağırır + kayıtla senkron tutar) → kapsam %85→**%87** (mcp_server %67→%97).

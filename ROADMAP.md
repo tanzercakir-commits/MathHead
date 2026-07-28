@@ -107,7 +107,8 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        TAMLIK), verify_steps (adım zincirinde ilk hatayı bul) ✅
        ↳ dürüst duvar: domain ayrışması + tamlık 'unknown' açıkça raporlanır ✅
 [ ] C2 · Bağımsız sertifika — Z3/SymPy'siz küçük checker her verdict'i doğrulasın
-[ ] C3 · Çapraz denetim — Z3 ⋈ SymPy mutabakatı (iki bağımsız tanık)
+[x] C3 · Çapraz denetim — Z3 ⋈ SymPy mutabakatı (iki bağımsız tanık)  (bitti — 447 test, 63 araç)
+    ↳ domain tuzağı → ENGINES_DISAGREE; + determinizm düzeltmesi (ADR-0020)
 [ ] C4 · Benchmark — LLM-tuzak problem seti + ölçülü üstünlük + regresyon çiti
 ```
 

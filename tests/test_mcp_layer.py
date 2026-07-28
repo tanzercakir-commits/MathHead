@@ -38,6 +38,7 @@ ARGS = {
     "verify_equality": {"left": "sin(x)**2 + cos(x)**2", "right": "1"},
     "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
     "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
+    "cross_check": {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"},
     # hesap
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},

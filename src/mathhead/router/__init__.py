@@ -35,6 +35,7 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.core.proof import ProofResult, prove_entailment
+from mathhead.core.crosscheck import cross_check
 from mathhead.core.verify import (
     VerifyResult,
     verify_equality,
@@ -96,6 +97,8 @@ def route(task: str, payload: dict[str, Any]) -> (
         return verify_solution(payload["equation"], payload["symbol"], payload["claimed"])
     if task == "verify_steps":
         return verify_steps(payload["steps"])
+    if task == "cross_check":
+        return cross_check(payload["left"], payload["right"])
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

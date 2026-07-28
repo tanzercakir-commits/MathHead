@@ -51,7 +51,7 @@
 
 - [x] **C1** çekirdek doğrulayıcı: verify_equality/solution/steps ✅ (438 test, 62 araç)
 - [ ] **C2** bağımsız sertifika (Z3/SymPy'siz checker her verdict'i doğrular)
-- [ ] **C3** çapraz denetim (Z3 ⋈ SymPy mutabakatı)
+- [x] **C3** çapraz denetim (Z3 ⋈ SymPy) ✅ (447 test, 63 araç, +determinizm fix ADR-0020)
 - [ ] **C4** benchmark (LLM-tuzak seti + ölçülü üstünlük + regresyon çiti)
 
 **Ürünleştirme (kullanıcıda, acelesi yok):** PyPI (0.2.0), release, tutorial.

@@ -185,6 +185,18 @@ def verify_steps(steps: list[str]) -> dict[str, Any]:
     return asdict(route("verify_steps", {"steps": steps}))
 
 
+@mcp.tool()
+def cross_check(left: str, right: str) -> dict[str, Any]:
+    """`left = right` iddiasını Z3 VE SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
+
+    İki bağımsız motorun anlaşması, tek-motorlu rakiplerin veremeyeceği güven
+    sinyalidir. `CONSENSUS_EQUAL`/`CONSENSUS_NOT_EQUAL` → mutabakat; `ENGINES_DISAGREE`
+    → motorlar çelişiyor (genelde domain/tanım kümesi tuzağı — insana bayrak);
+    `SINGLE_ENGINE` → yalnız biri karar verdi (ör. transandantal → yalnız SymPy).
+    """
+    return asdict(route("cross_check", {"left": left, "right": right}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

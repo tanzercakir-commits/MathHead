@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **62 araç**.
+Toplam **63 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -65,6 +65,10 @@ Doğrusal-olmayan kısıt kümesini GERÇEL sayılarda sağlayan bir nokta bulur
 ### `verify_steps(steps)`
 
 Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur.
+
+### `cross_check(left, right)`
+
+`left = right` iddiasını Z3 VE SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
 
 ### `simplify(expression)`
 

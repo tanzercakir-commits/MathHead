@@ -50,6 +50,10 @@ verify_equality("(x**2-1)/(x-1)", "x+1")          # -> valid, AMA domain uyarıs
 verify_solution("x**2==4", "x", ["2"])            # -> invalid: EKSİK (-2 kaçtı)
 verify_solution("x**2==4", "x", ["2","-2"])       # -> valid: doğru + tam
 
+from mathhead.core.crosscheck import cross_check  # ÇAPRAZ DENETİM (Z3 ⋈ SymPy)
+cross_check("(x+1)**2", "x**2 + 2*x + 1")         # -> CONSENSUS_EQUAL (iki motor anlaşıyor)
+cross_check("(x**2-1)/(x-1)", "x+1")              # -> ENGINES_DISAGREE (domain tuzağı bayrağı!)
+
 from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
 differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
@@ -147,7 +151,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 62 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 63 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```

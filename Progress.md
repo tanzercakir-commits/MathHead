@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-28 — Track C3 · çapraz denetim (Z3 ⋈ SymPy) + determinizm düzeltmesi
+
+**Yapıldı**
+
+- Yeni `core/crosscheck.py` + `cross_check`: bir denklik iddiasını Z3 ve SymPy
+  ile BAĞIMSIZ doğrular; mutabakat/anlaşmazlık/tek-motor raporlar.
+- Uçtan uca: router (1) + MCP (**63 araç**) + CLI (`cross-check`) +
+  `tests/test_crosscheck.py` (7) + 5 yeni reason_code (taksonomi). → **447/447**.
+
+**Öne geçiren (ampirik)**
+
+- Özdeşlik `(x+1)²=x²+2x+1` → **CONSENSUS_EQUAL** (iki motor anlaşıyor).
+- **Domain tuzağı** `(x²-1)/(x-1)` vs `x+1` → **ENGINES_DISAGREE** (SymPy 'equal',
+  Z3 x=1'de 'not_equal') — iki bağımsız tanık ince konuyu açığa çıkardı.
+- Transandantal `sin²+cos²=1` → **SINGLE_ENGINE** (Z3 desteklemez, dürüst).
+
+**BUG→FIX (determinizm, ADR-0020):** `.equals()` içsel rastgele örnekleme yapıyor
+(`sqrt(x²)` vs `x` çağrılar arası değişiyordu). Denklik kararı `.equals()`'ten
+arındırıldı → ortak deterministik `verify._equal_verdict` (simplify + sabit-nokta
+karşıörnek). `verify_equality`/`verify_steps`/`cross_check` paylaşır; 10/10 kararlı.
+Çekirdek ilke (determinizm) korundu ve verdict güçlendi (karşıörnekli).
+
+**Sıradaki (Track C):** C2 bağımsız sertifika · C4 benchmark.
+
 ## 2026-07-28 — Track C1 · DOĞRULAMA KATMANI (öne geçiren yön — AI muhakeme denetçisi)
 
 **Yön kararı:** Kullanıcı "bizi öne geçiren şeye odaklan" dedi → seçim: ham hesapta

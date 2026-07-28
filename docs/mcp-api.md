@@ -349,6 +349,7 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
 | `verify_equality` | `verify_equality(left, right)` | `(x**2-1)/(x-1)` vs `x+1` → `EQUAL_ON_COMMON_DOMAIN` (x=1 uyarısı) |
 | `verify_solution` | `verify_solution(equation, symbol, claimed)` | `x**2==4`, `x`, `["2"]` → `SOLUTION_INCOMPLETE` (-2 kaçtı) |
 | `verify_steps` | `verify_steps(steps)` | `["(x+1)**2","x**2+1"]` → `STEP_INVALID` (1. geçiş) |
+| `cross_check` | `cross_check(left, right)` | `(x**2-1)/(x-1)` vs `x+1` → `ENGINES_DISAGREE` (domain!) |
 
 **Neden öne geçirir (naif kontrolün kaçırdıkları):**
 
@@ -361,6 +362,11 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
   doğrulanamazsa `COMPLETENESS_UNKNOWN` (dürüst).
 - `verify_steps` bir çözümü adım adım "not verir": ilk kırılan geçişi
   (`details.first_bad_step`, 1-tabanlı) + karşıörnek verir.
+- `cross_check` bir denklik iddiasını **iki BAĞIMSIZ motorla** (Z3 + SymPy)
+  doğrular: `CONSENSUS_EQUAL`/`_NOT_EQUAL` (mutabakat, yüksek güven),
+  `ENGINES_DISAGREE` (çelişki → ince konu/domain bayrağı), `SINGLE_ENGINE`
+  (yalnız biri karar verdi, ör. transandantalde yalnız SymPy). İki bağımsız
+  tanığın anlaşması tek-motorlu rakiplerin veremeyeceği güven sinyalidir.
 
 Dönüş `VerifyResult`: `status` (valid|invalid|unknown|error) + `reason_code` +
 `explanation` + `details` (karşıörnek/eksik/ilk-hatalı-adım) + `meta`.

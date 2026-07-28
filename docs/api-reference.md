@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **57 araç**.
+Toplam **59 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -233,3 +233,11 @@ Adlandırılmış dağılımın E[X]/Var/std (sembolik/tam) özellikleri.
 ### `schur_number(n, colors)`
 
 {1..n}'i `colors` sum-free renge bölmeyi dener (Schur sayısı S(colors) çekirdeği).
+
+### `graph_coloring(edges, colors, n=None)`
+
+Grafı `colors` renge boyar (komşular farklı). NP-tam graph k-coloring.
+
+### `subset_sum(numbers, target)`
+
+`numbers`'ın bir alt kümesi `target`'a toplanır mı? (NP-tam subset-sum).

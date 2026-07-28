@@ -306,6 +306,16 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("n", type=int)
     p.add_argument("colors", type=int)
 
+    p = sub.add_parser("graph-coloring", help="graf k-boyama (Track B, doğrulanmış)")
+    p.add_argument("--edge", action="append", default=[], required=True, metavar="U,V",
+                   help="bir kenar, tekrarlanabilir (ör. --edge 1,2)")
+    p.add_argument("--colors", type=int, required=True)
+    p.add_argument("--n", type=int, default=None, help="köşe sayısı (varsayılan: en büyük köşe)")
+
+    p = sub.add_parser("subset-sum", help="alt küme toplamı (Track B, doğrulanmış)")
+    p.add_argument("numbers", nargs="+", type=int, metavar="SAYI")
+    p.add_argument("--target", type=int, required=True)
+
     return parser
 
 
@@ -383,6 +393,11 @@ _DISPATCH = {
     "pythagorean": lambda a: ("pythagorean_coloring", {"n": a.n}),
     "vdw": lambda a: ("van_der_waerden", {"n": a.n, "k": a.k, "colors": a.colors}),
     "schur": lambda a: ("schur_number", {"n": a.n, "colors": a.colors}),
+    "graph-coloring": lambda a: ("graph_coloring", {
+        "edges": [[int(x) for x in e.split(",")] for e in a.edge],
+        "colors": a.colors, "n": a.n,
+    }),
+    "subset-sum": lambda a: ("subset_sum", {"numbers": a.numbers, "target": a.target}),
 }
 
 

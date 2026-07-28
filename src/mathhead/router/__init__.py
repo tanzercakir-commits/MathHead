@@ -194,5 +194,10 @@ def route(task: str, payload: dict[str, Any]) -> (
         )
     if task == "schur_number":
         return frontier.schur_number_coloring(payload["n"], payload["colors"], **_opts(payload))
+    if task == "graph_coloring":
+        return frontier.graph_coloring(payload["edges"], payload["colors"],
+                                       payload.get("n"), **_opts(payload))
+    if task == "subset_sum":
+        return frontier.subset_sum(payload["numbers"], payload["target"], **_opts(payload))
 
     raise ValueError(f"bilinmeyen görev: {task!r}")

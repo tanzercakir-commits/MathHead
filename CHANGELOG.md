@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Track B genişleme + doğrulanabilir sertifika (`graph_coloring`, `subset_sum`):**
+  Aşama 10. İki yeni NP-tam indirgeme (graf k-boyama, alt küme toplamı). **Olumlu
+  sertifika:** `sat` tanığı Z3'ten **bağımsız**, saf Python'da yeniden denetlenir
+  → `meta.verified=true` (kodlama hatası olsa da yakalanır). **Dürüst asimetri:**
+  `unsat` için bağımsız DRAT/LRAT sertifikası bir DUVAR olarak açıkça belgelenir
+  (`docs/track-b-results.md`). MCP (**59 araç**) + CLI (`graph-coloring/subset-sum`).
 - **Eşitsizlik ispatı & nonlineer (`prove_inequality`, `prove_nonnegative`,
   `find_real_solution`):** Aşama 9. Z3 doğrusal-olmayan gerçel aritmetik (NRA /
   nlsat) ile polinom eşitsizliklerini **ispatlar** (ret-ile-ispat: `¬P` UNSAT mı)

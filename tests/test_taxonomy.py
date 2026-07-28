@@ -84,6 +84,10 @@ CALLS = [
                           "initial": {"0": "2"}}),               # nonlin -> COMPUTE_FAILED
     ("pigeonhole", {"n": 4}),
     ("pythagorean_coloring", {"n": 10}),
+    ("graph_coloring", {"edges": [[1, 2], [2, 3], [1, 3]], "colors": 3}),
+    ("graph_coloring", {"edges": [[1, 2], [2, 3], [1, 3]], "colors": 2}),   # unsat
+    ("subset_sum", {"numbers": [3, 4, 2], "target": 9}),
+    ("subset_sum", {"numbers": [3, 4, 2], "target": 100}),                  # unsat
 ]
 
 

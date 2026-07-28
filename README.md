@@ -115,6 +115,8 @@ mathhead solve-system --eq "x + y == 10" --eq "x - y == 2" \
 mathhead det "1,2;3,4"                                    # -> -2
 mathhead eigenvals "2,0;0,3"                              # -> özdeğerler + katlılık
 mathhead pigeonhole 4                                     # -> unsat (ispat)
+mathhead graph-coloring --edge 1,2 --edge 2,3 --edge 1,3 --colors 3   # -> sat (doğrulanmış)
+mathhead subset-sum 3 34 4 12 5 2 --target 9              # -> sat: {3,4,2}
 mathhead --json consistent "x > 2" "x < 5"                # ham JSON
 ```
 
@@ -140,7 +142,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 57 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 59 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```

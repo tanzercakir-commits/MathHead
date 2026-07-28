@@ -491,6 +491,25 @@ def schur_number(n: int, colors: int) -> dict[str, Any]:
     return asdict(route("schur_number", {"n": n, "colors": colors}))
 
 
+@mcp.tool()
+def graph_coloring(edges: list[list[int]], colors: int, n: int | None = None) -> dict[str, Any]:
+    """Grafı `colors` renge boyar (komşular farklı). NP-tam graph k-coloring.
+
+    `sat` → boyama (BAĞIMSIZ doğrulanmış, `meta.verified`); `unsat` → kromatik
+    sayı > colors. Köşeler 1-indeksli; kenarlar `[[u,v],...]`.
+    """
+    return asdict(route("graph_coloring", {"edges": edges, "colors": colors, "n": n}))
+
+
+@mcp.tool()
+def subset_sum(numbers: list[int], target: int) -> dict[str, Any]:
+    """`numbers`'ın bir alt kümesi `target`'a toplanır mı? (NP-tam subset-sum).
+
+    `sat` → toplayan alt küme (BAĞIMSIZ doğrulanmış sertifika); `unsat` → yok.
+    """
+    return asdict(route("subset_sum", {"numbers": numbers, "target": target}))
+
+
 def main() -> None:
     """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
     mcp.run(transport="stdio")

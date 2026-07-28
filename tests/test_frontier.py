@@ -7,9 +7,11 @@ tek renkli üçlü içermiyor mu) ve bir imkânsızlığı ispatladığını gö
 from mathhead.frontier import (
     arithmetic_progressions,
     boolean_pythagorean_coloring,
+    graph_coloring,
     pigeonhole,
     pythagorean_triples,
     schur_number_coloring,
+    subset_sum,
     van_der_waerden_coloring,
 )
 
@@ -111,3 +113,53 @@ def test_symmetry_break_preserves_result():
     assert schur_number_coloring(13, 3, symmetry_break=True).status == "sat"
     assert schur_number_coloring(14, 3, symmetry_break=True).status == "unsat"
     assert van_der_waerden_coloring(35, 4, symmetry_break=True).status == "unsat"
+
+
+# --------- Aşama 10: yeni indirgemeler + doğrulanabilir sertifika ---------- #
+def test_graph_coloring_triangle_3colorable():
+    # Üçgen (K3) 3 renge boyanabilir; tanık BAĞIMSIZ doğrulanmış olmalı
+    r = graph_coloring([[1, 2], [2, 3], [1, 3]], 3)
+    assert r.status == "sat"
+    assert r.reason_code == "COLORING_FOUND"
+    assert r.meta.get("verified") is True
+    # sertifikayı testin kendisi de bağımsız kontrol etsin
+    col = r.witness["coloring"]
+    assert all(col[u] != col[v] for u, v in ([1, 2], [2, 3], [1, 3]))
+
+
+def test_graph_coloring_triangle_not_2colorable():
+    # K3 iki renge BOYANAMAZ (tek sayılı döngü)
+    r = graph_coloring([[1, 2], [2, 3], [1, 3]], 2)
+    assert r.status == "unsat"
+    assert r.reason_code == "NO_COLORING"
+
+
+def test_graph_coloring_k4_needs_4():
+    # K4 üç renge boyanamaz (kromatik sayı 4)
+    assert graph_coloring([[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]], 3).status == "unsat"
+
+
+def test_graph_coloring_bad_edge_rejected():
+    assert graph_coloring([[1, 2, 3]], 2).status == "error"
+
+
+def test_subset_sum_found_and_verified():
+    r = subset_sum([3, 34, 4, 12, 5, 2], 9)
+    assert r.status == "sat"
+    assert r.meta.get("verified") is True
+    assert sum(r.witness["subset"]) == 9      # sertifikayı bağımsız doğrula
+
+
+def test_subset_sum_none():
+    # 1,2,4 ile 8'e ulaşılamaz (max 7)
+    assert subset_sum([1, 2, 4], 8).status == "unsat"
+
+
+def test_subset_sum_empty_rejected():
+    assert subset_sum([], 5).status == "error"
+
+
+def test_trackB_determinism():
+    for _ in range(3):
+        assert graph_coloring([[1, 2], [2, 3], [1, 3]], 2).status == "unsat"
+        assert subset_sum([3, 4, 2], 9).status == "sat"

@@ -87,6 +87,8 @@ ARGS = {
     "pigeonhole": {"n": 4},
     "van_der_waerden": {"n": 8, "k": 3, "colors": 2},
     "schur_number": {"n": 4, "colors": 2},
+    "graph_coloring": {"edges": [[1, 2], [2, 3], [1, 3]], "colors": 3, "n": None},
+    "subset_sum": {"numbers": [3, 34, 4, 12, 5, 2], "target": 9},
 }
 
 

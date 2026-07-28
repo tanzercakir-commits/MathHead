@@ -323,3 +323,111 @@ def schur_number_coloring(
             {"note": "imkânsızlık ispatı"}, _meta(t0, seed, timeout_ms, extra),
         )
     return _unknown(solver, t0, seed, timeout_ms, extra)
+
+
+# --------------------------------------------------------------------------- #
+# Aşama 10 — yeni indirgemeler + DOĞRULANABİLİR SERTİFİKA.
+#
+# Sertifika felsefesi: `sat` durumunda tanık (witness) BİR SERTİFİKADIR. Onu
+# Z3'ten BAĞIMSIZ olarak, saf Python'da yeniden kontrol ederiz (`verified: true`).
+# Böylece kodlama/çeviri hatası olsa bile yakalanır ve olumlu kanıt çözücüden
+# bağımsız doğrulanabilir olur (polinom-zaman denetimi).
+#
+# DÜRÜST asimetri: `unsat` için bağımsız-denetlenebilir DRAT/LRAT sertifikası
+# üretmek DIMACS düzeyinde bir SAT hattı ister; bu bir DUVAR olarak açıkça
+# belgeleniyor (Z3 kararı korunur, çıktı bunu dürüstçe not eder).
+# --------------------------------------------------------------------------- #
+def graph_coloring(
+    edges: list[list[int]], colors: int, n: int | None = None,
+    *, timeout_ms: int = 10_000, seed: int = 42,
+) -> ReasoningResult:
+    """Bir grafı `colors` renge, komşu köşeler farklı renk olacak şekilde boyar.
+
+    Klasik NP-tam problem (graph k-coloring). `sat` → boyama bulundu (ve BAĞIMSIZ
+    doğrulandı); `unsat` → kromatik sayı > colors (boyanamaz). Köşeler 1-indeksli.
+    """
+    t0 = time.perf_counter()
+    if not isinstance(colors, int) or not isinstance(edges, list) or (n is not None and not isinstance(n, int)):
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "edges liste, colors/n tam sayı olmalı", None, _meta(t0, seed, timeout_ms))
+    verts: set[int] = set()
+    for e in edges:
+        if not (isinstance(e, list) and len(e) == 2 and all(isinstance(v, int) for v in e)):
+            return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                                   "her kenar [u, v] (tam sayı) olmalı", None, _meta(t0, seed, timeout_ms))
+        verts.update(e)
+    maxv = max(verts) if verts else 0
+    N = n if n is not None else maxv
+    if colors < 1 or N < 1 or N > 300 or maxv > N or (verts and min(verts) < 1):
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "1≤köşe≤n≤300 ve colors≥1 olmalı", None, _meta(t0, seed, timeout_ms))
+
+    solver = solver_config(timeout_ms, seed)
+    col = {v: z3.Int(f"col_{v}") for v in range(1, N + 1)}
+    for v in range(1, N + 1):
+        solver.add(col[v] >= 0, col[v] < colors)
+    for u, w in edges:
+        solver.add(col[u] != col[w])
+    extra = {"vertices": N, "edges": len(edges), "colors": colors}
+    result = solver.check()
+    if result == z3.sat:
+        model = solver.model()
+        coloring = {v: model.eval(col[v], model_completion=True).as_long() for v in range(1, N + 1)}
+        # BAĞIMSIZ doğrulama (Z3'süz): her kenarın uçları farklı renk + renk aralığı
+        ok = all(coloring[u] != coloring[w] for u, w in edges) and \
+            all(0 <= coloring[v] < colors for v in coloring)
+        if not ok:
+            return ReasoningResult("error", "UNEXPECTED_SAT",
+                                   "iç tutarsızlık: tanık bağımsız doğrulamayı geçemedi",
+                                   None, _meta(t0, seed, timeout_ms, extra))
+        witness = {"coloring": coloring} if N <= 60 else {"note": f"{N} köşe boyandı (özet)"}
+        return ReasoningResult("sat", "COLORING_FOUND",
+                               f"graf {colors} renge boyanabilir (bağımsız doğrulandı).",
+                               witness, _meta(t0, seed, timeout_ms, {**extra, "verified": True}))
+    if result == z3.unsat:
+        return ReasoningResult("unsat", "NO_COLORING",
+                               f"graf {colors} renge BOYANAMAZ (kromatik sayı > {colors}).",
+                               {"note": "imkânsızlık ispatı (DRAT sertifikası: duvar, bkz. docs)"},
+                               _meta(t0, seed, timeout_ms, extra))
+    return _unknown(solver, t0, seed, timeout_ms, extra)
+
+
+def subset_sum(
+    numbers: list[int], target: int, *, timeout_ms: int = 10_000, seed: int = 42,
+) -> ReasoningResult:
+    """`numbers`'ın bir alt kümesi `target`'a toplanır mı? (NP-tam subset-sum).
+
+    `sat` → toplayan alt küme (BAĞIMSIZ doğrulanmış sertifika); `unsat` → yok.
+    """
+    t0 = time.perf_counter()
+    if not isinstance(numbers, list) or not numbers or not all(isinstance(x, int) for x in numbers):
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "numbers boş olmayan tam sayı listesi olmalı", None, _meta(t0, seed, timeout_ms))
+    if not isinstance(target, int) or len(numbers) > 200:
+        return ReasoningResult("error", "GUARDRAIL_VIOLATION",
+                               "target tam sayı, |numbers|≤200 olmalı", None, _meta(t0, seed, timeout_ms))
+
+    solver = solver_config(timeout_ms, seed)
+    xs = [z3.Bool(f"x_{i}") for i in range(len(numbers))]
+    solver.add(z3.Sum([z3.If(xs[i], numbers[i], 0) for i in range(len(numbers))]) == target)
+    extra = {"count": len(numbers), "target": target}
+    result = solver.check()
+    if result == z3.sat:
+        model = solver.model()
+        idx = [i for i in range(len(numbers)) if z3.is_true(model.eval(xs[i], model_completion=True))]
+        subset = [numbers[i] for i in idx]
+        # BAĞIMSIZ doğrulama (Z3'süz): seçilenlerin toplamı gerçekten target mı
+        if sum(subset) != target:
+            return ReasoningResult("error", "UNEXPECTED_SAT",
+                                   "iç tutarsızlık: tanık bağımsız doğrulamayı geçemedi",
+                                   None, _meta(t0, seed, timeout_ms, extra))
+        witness = {"subset": subset, "indices": idx}
+        return ReasoningResult("sat", "MODEL_FOUND",
+                               f"alt küme {target}'a toplanıyor: {subset} (bağımsız doğrulandı).",
+                               witness, _meta(t0, seed, timeout_ms, {**extra, "verified": True}))
+    if result == z3.unsat:
+        return ReasoningResult("unsat", "NO_MODEL",
+                               f"hiçbir alt küme {target}'a toplanmıyor.",
+                               {"note": "imkânsızlık (DRAT sertifikası: duvar, bkz. docs)"},
+                               _meta(t0, seed, timeout_ms, extra))
+    return _unknown(solver, t0, seed, timeout_ms, extra)

@@ -90,3 +90,23 @@ başladığını şeffafça gösterdi.
 Track B'nin tezi budur: *yöntem gerçek; ölçek arttıkça hesap sınırı devreye
 girer.* Ölçeği büyütmek (daha güçlü çözücü, paralellik, küme) mühendislik işidir
 — yöntem değişmez.
+
+## Aşama 10 — yeni indirgemeler + doğrulanabilir sertifika
+
+**Yeni indirgemeler (NP-tam):**
+
+- `graph_coloring(edges, colors)` — graf k-boyama. K3 → 3 renk sat, 2 renk unsat
+  (tek döngü); K4 → 3 renk unsat (kromatik sayı 4). Bağımsız doğrulandı.
+- `subset_sum(numbers, target)` — alt küme toplamı. `[3,34,4,12,5,2]→9` sat
+  (`{3,4,2}`); `→100` unsat.
+
+**Doğrulanabilir sertifika (dürüst durum):**
+
+- **Olumlu (`sat`):** tanık bir sertifikadır ve Z3'ten BAĞIMSIZ, saf Python'da
+  yeniden denetlenir → `meta.verified=true`. Bu, olumlu kanıtı çözücüden bağımsız
+  ve polinom-zamanda doğrulanabilir kılar (kodlama/çeviri hatasını yakalar).
+- **Olumsuz (`unsat`) — DUVAR:** bağımsız-denetlenebilir bir **DRAT/LRAT**
+  sertifikası, DIMACS düzeyinde bir CDCL SAT çözücü + `drat-trim` tarzı denetleyici
+  hattı gerektirir. Z3'ün iç ispat nesnesi kendi biçimindedir (DRAT değil). Bunu
+  kurmak bu turun kapsamı dışında; **dürüstçe** `unsat` sonucunu veriyor ve notta
+  DRAT sertifikasının henüz üretilmediğini belirtiyoruz. Gelecek iş.

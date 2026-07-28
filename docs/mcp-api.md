@@ -350,6 +350,8 @@ Girdi programatik (sayı `n`); çıktı ortak `ReasoningResult`.
 | `pigeonhole` | `pigeonhole(n)` | `unsat` = güvercin yuvası ilkesi ispatı |
 | `van_der_waerden` | `van_der_waerden(n, k, colors=2)` | `unsat` = n ≥ W(colors,k) (ispat) |
 | `schur_number` | `schur_number(n, colors)` | `unsat` = n > S(colors) (ispat) |
+| `graph_coloring` | `graph_coloring(edges, colors, n=None)` | `sat` (boyama, doğrulanmış) / `unsat` (kromatik sayı > colors) |
+| `subset_sum` | `subset_sum(numbers, target)` | `sat` (alt küme, doğrulanmış) / `unsat` (yok) |
 
 Motorun fiilen ispatladığı/yeniden ürettiği sonuçlar (dürüst kayıt, bilinen vs
 açık ayrımı): `docs/track-b-results.md`.
@@ -357,3 +359,10 @@ açık ayrımı): `docs/track-b-results.md`.
 **Dürüstlük:** Küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
 (Boolean Pythagorean n=7825 sınırı ~200 TB ispat; burada küçük n anında çözülür).
 Büyük ölçek `unknown`/`error` döner — gizlenmez.
+
+**Doğrulanabilir sertifika:** `graph_coloring`/`subset_sum` `sat` döndüğünde tanık
+(witness) BİR SERTİFİKADIR ve Z3'ten **bağımsız** olarak saf Python'da yeniden
+denetlenir → `meta.verified: true` (kodlama hatası olsa bile yakalanır). **Dürüst
+asimetri:** `unsat` için bağımsız-denetlenebilir **DRAT/LRAT** sertifikası üretmek
+DIMACS düzeyinde bir SAT hattı ister — bu bir **duvar** olarak açıkça belgelenir
+(çıktı `unsat`'ı verir ve notta belirtir); ayrıntı `docs/track-b-results.md`.

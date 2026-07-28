@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — Aşama 10 · Track B genişleme + doğrulanabilir sertifika
+
+**Yapıldı**
+
+- 2 yeni NP-tam indirgeme: `graph_coloring` (graf k-boyama), `subset_sum`.
+- **Doğrulanabilir sertifika:** `sat` tanığı Z3'ten BAĞIMSIZ, saf Python'da
+  yeniden denetlenir → `meta.verified=true`. Denetim başarısızsa `UNEXPECTED_SAT`
+  hatası (kodlama-hatası çiti).
+- Uçtan uca: router (2) + MCP (**59 araç**) + CLI (`graph-coloring/subset-sum`) +
+  `tests/test_frontier.py` (+8) → **367/367 yeşil**. API ref + taksonomi + mcp-layer
+  güncel.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- K3 → 3 renk sat (doğrulanmış), 2 renk unsat; K4 → 3 renk unsat (kromatik 4).
+  `subset_sum([3,34,4,12,5,2],9)` → `{3,4,2}` (doğrulanmış); `→100` unsat.
+- **DÜRÜST ASİMETRİ:** `unsat` için bağımsız DRAT/LRAT sertifikası DIMACS+drat-trim
+  hattı ister → DUVAR olarak `docs/track-b-results.md`'de belgelendi. Olumlu kanıt
+  çözücüden bağımsız doğrulanıyor; olumsuz kanıt Z3 kararı (DRAT gelecek iş).
+
+**Sıradaki:** Aşama 11 [S] — canlı MCP entegrasyon testi + sözleşme denetimi +
+sürüm dondurma (RC). SON AŞAMA.
+
 ## 2026-07-28 — Aşama 9 · eşitsizlik ispatı & nonlineer (Z3 NRA)
 
 **Yapıldı**

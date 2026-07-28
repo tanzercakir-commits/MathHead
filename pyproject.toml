@@ -4,7 +4,7 @@ version = "0.0.1"
 description = "AI'ın MCP üzerinden kullanabileceği, first-order logic temelli, deterministik matematik akıl yürütme ve ispat motoru."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "tanzercakir" }]
 
 # Mimari karar: tek bir "FOL motoru" yazmak yerine kanıtlanmış çözücüleri

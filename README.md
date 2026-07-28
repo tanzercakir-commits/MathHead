@@ -54,4 +54,4 @@ mathhead/
 
 ## Lisans
 
-MIT.
+Apache-2.0 — bkz. `LICENSE`.

@@ -35,6 +35,14 @@
 İfadeleri sağlayan **somut** bir örnek (değişken ataması) döndürür.
 `sat` → `witness` = model; `unsat` → model yok; `unknown` → belirsiz.
 
+### 4) `prove(premises: list[str], conclusion: str) -> ProofResult`
+
+Entailment + **neden**. `valid` ise: `used_premises` (sonucun dayandığı minimal
+öncül alt kümesi) + `proof_steps` (önerme/yüklem/evrensel parçası için adım adım
+doğal tümdengelim; kurulamazsa Z3 kararı korunur, adımsız). `invalid` ise
+`witness` = karşıörnek. Adım biçimi: `{step, formula, rule, refs}` — kurallar:
+`modus ponens`, `∧-ayıklama`, `iff-ayıklama`, `evrensel örnekleme`.
+
 ---
 
 ## Girdi grameri (v1.2)

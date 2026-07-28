@@ -21,6 +21,7 @@ from mathhead.core.logic import (
     check_entailment,
     find_model,
 )
+from mathhead.core.proof import ProofResult, prove_entailment
 
 __all__ = ["route"]
 
@@ -33,7 +34,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
     return opts
 
 
-def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult:
+def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult | ProofResult:
     """Bir görevi uygun çözücü + ilkele yönlendirir.
 
     Mantık görevleri (Z3): entailment, consistency, find_model.
@@ -46,6 +47,8 @@ def route(task: str, payload: dict[str, Any]) -> ReasoningResult | ComputeResult
         return check_consistency(payload["statements"], **_opts(payload))
     if task == "find_model":
         return find_model(payload["statements"], **_opts(payload))
+    if task == "prove":
+        return prove_entailment(payload["premises"], payload["conclusion"], **_opts(payload))
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

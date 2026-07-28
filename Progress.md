@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-07-28 — v3 · ispat üretimi (adım adım) (aynı oturum)
+
+**Yapıldı**
+
+- `core/proof.py`: entailment + NEDEN. (1) minimal öncül çekirdeği (unsat core),
+  (2) ileri zincirleme **doğal tümdengelim** türetimi (modus ponens, ∧-ayıklama,
+  iff, evrensel örnekleme). Klasik silogizm adım adım.
+- Yeni MCP aracı `prove` (**12. araç**) + CLI `mathhead prove` + testler → **72/72**.
+- Yeni karar: ADR-0014.
+
+**Dürüstlük:** Türetici önerme + yüklem + evrensel parçasıyla sınırlı; aritmetik /
+`or`-`not` / varoluşsal için türetim kurulamaz → Z3 kararı korunur, adımsız
+("türetim yok" denir).
+
+**Sıradaki (gelecek oturumlar):** türeticiyi genişletme (or-elim, varoluşsal);
+GitHub release; PyPI (senin evden).
+
 ## 2026-07-28 — Optimizasyon denemesi · simetri kırma (dürüst: karışık sonuç)
 
 **Yapıldı**

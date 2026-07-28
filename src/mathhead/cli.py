@@ -46,6 +46,13 @@ def _emit(result: Any, as_json: bool) -> int:
             print(f"tanık    : {data['witness']}")
         if data.get("result") is not None:
             print(f"sonuç    : {data['result']}")
+        if data.get("used_premises") is not None:
+            print(f"çekirdek : {data['used_premises']}  (gerekli öncül indeksleri)")
+        if data.get("proof_steps"):
+            print("ispat:")
+            for s in data["proof_steps"]:
+                ref = " " + str(s["refs"]) if s["refs"] else ""
+                print(f"  {s['step']}. {s['formula']}  [{s['rule']}{ref}]")
     if status == "error":
         return 1
     if status == "unknown":
@@ -71,6 +78,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("model", help="ifadeleri sağlayan bir model bul")
     p.add_argument("statements", nargs="+", metavar="İFADE")
+
+    p = sub.add_parser("prove", help="entailment + adım adım ispat / minimal çekirdek")
+    p.add_argument("-p", "--premise", action="append", default=[], metavar="İFADE")
+    p.add_argument("-c", "--conclusion", required=True, metavar="İFADE")
 
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
@@ -110,6 +121,7 @@ _DISPATCH = {
     "entail": lambda a: ("entailment", {"premises": a.premise, "conclusion": a.conclusion}),
     "consistent": lambda a: ("consistency", {"statements": a.statements}),
     "model": lambda a: ("find_model", {"statements": a.statements}),
+    "prove": lambda a: ("prove", {"premises": a.premise, "conclusion": a.conclusion}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

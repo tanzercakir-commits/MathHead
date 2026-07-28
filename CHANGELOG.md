@@ -2,6 +2,15 @@
 
 Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver.org/lang/tr/).
 
+## [Yayınlanmamış]
+
+### Eklendi
+
+- **İspat üretimi (`prove`):** entailment için *neden* — minimal öncül çekirdeği
+  (unsat core) + adım adım **doğal tümdengelim** türetimi (modus ponens,
+  ∧-ayıklama, iff, evrensel örnekleme). Klasik silogizmi adım adım gösterir.
+  MCP aracı `prove` (12 araç) + `mathhead prove` CLI.
+
 ## [0.1.0] — 2026-07-28
 
 İlk yayınlanabilir sürüm. AI'ın **MCP** üzerinden kullanabileceği, first-order

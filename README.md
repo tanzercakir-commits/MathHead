@@ -59,6 +59,8 @@ Terminalden (CLI):
 mathhead entail -p "p" -p "implies(p, q)" -c "q"          # -> valid
 mathhead entail -p "forall(x, implies(Man(x), Mortal(x)))" \
                 -p "Man(socrates)" -c "Mortal(socrates)"  # silogizm -> valid
+mathhead prove -p "forall(x, implies(Man(x), Mortal(x)))" \
+               -p "Man(socrates)" -c "Mortal(socrates)"   # + adım adım ispat
 mathhead solve "x**2 == 4" x                              # -> ['-2', '2']
 mathhead pigeonhole 4                                     # -> unsat (ispat)
 mathhead --json consistent "x > 2" "x < 5"                # ham JSON

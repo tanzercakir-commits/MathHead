@@ -59,6 +59,16 @@ def model(statements: list[str]) -> dict[str, Any]:
     return asdict(route("find_model", {"statements": statements}))
 
 
+@mcp.tool()
+def prove(premises: list[str], conclusion: str) -> dict[str, Any]:
+    """Öncüller sonucu gerektiriyorsa NEDEN gösterir — minimal çekirdek + adım adım türetim.
+
+    valid: `used_premises` (gerekli öncüller) + `proof_steps` (önerme/yüklem/evrensel
+    parçası için kurulur; kurulamazsa Z3 kararı korunur). invalid: `witness` karşıörnek.
+    """
+    return asdict(route("prove", {"premises": premises, "conclusion": conclusion}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

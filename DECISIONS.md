@@ -164,6 +164,20 @@
   verilebilirlik daha da zayıflar; `unknown` mümkün, **soundness** korunur.
   Fonksiyon terimleri sonraki sürüme.
 
+## ADR-0014 — İspat üretimi: Z3 verdict + minimal çekirdek + ND türetimi
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** "Geçerli" yetmez; bilim/eğitim için NEDEN (adım adım) gerekir.
+  Z3'ün ham ispat nesneleri insan-okur değildir.
+- **Karar:** `core/proof.py` — üç katman: (1) Z3 sağlam verdict, (2) minimal
+  öncül çekirdeği (unsat core), (3) önerme + yüklem + evrensel parçası için ileri
+  zincirleme **doğal tümdengelim** (modus ponens, ∧-ayıklama, iff-ayıklama,
+  evrensel örnekleme). Türetici SAĞLAM (yalnızca geçerli kurallar).
+- **Sonuçlar:** Klasik silogizm adım adım gösterilir. DÜRÜSTLÜK: türetici bu
+  parçayla sınırlı; aritmetik / `or`-`not` / varoluşsal için türetim kurulamaz →
+  "Z3 doğruladı ama adım adım türetim yok" (verdict yine sağlam). Yeni MCP aracı
+  `prove`, CLI `mathhead prove`.
+
 ---
 
 <!-- Yeni karar şablonu:

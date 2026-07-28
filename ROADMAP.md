@@ -75,7 +75,7 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
        ↳ dürüst duvar: NRA yarı-karar verilebilir → unknown birinci sınıf ✅
        ↳ not: SOS-sertifikası yerine CAD-temelli Z3 kararı (daha güçlü/tam)
 
-[x] Aşama 10 · Track B genişletme + sertifika  (bitti — 367 test, 59 araç)
+[x] Aşama 10 · Track B genişletme + sertifika  (bitti — 357 test, 59 araç)
     └─ yeni indirgemeler: graph_coloring, subset_sum ✅
        → olumlu sertifika: sat tanığı BAĞIMSIZ doğrulanır (meta.verified) ✅
        ↳ dürüst asimetri: unsat DRAT/LRAT = duvar (DIMACS hattı gerekir), belgelendi

@@ -42,7 +42,7 @@
 - [x] **T21** ROADMAP Aşama 7: olasılık & istatistik ✅ (273 test, 54 araç, 7 dağılım)
 - [x] **T22** ROADMAP Aşama 8 [S]: coverage %87 + benchmark çiti + otomatik API ref ✅ (330 test)
 - [x] **T23** ROADMAP Aşama 9: eşitsizlik ispatı (Z3 NRA) ✅ (345 test, 57 araç, AM-GM ispatı)
-- [x] **T24** ROADMAP Aşama 10: Track B + doğrulanabilir sertifika ✅ (367 test, 59 araç)
+- [x] **T24** ROADMAP Aşama 10: Track B + doğrulanabilir sertifika ✅ (357 test, 59 araç)
 - [ ] **T25** ROADMAP Aşama 11 [S]: canlı MCP entegrasyon testi + sözleşme denetimi + sürüm (RC)
 
 ---

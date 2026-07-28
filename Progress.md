@@ -15,7 +15,7 @@
   yeniden denetlenir → `meta.verified=true`. Denetim başarısızsa `UNEXPECTED_SAT`
   hatası (kodlama-hatası çiti).
 - Uçtan uca: router (2) + MCP (**59 araç**) + CLI (`graph-coloring/subset-sum`) +
-  `tests/test_frontier.py` (+8) → **367/367 yeşil**. API ref + taksonomi + mcp-layer
+  `tests/test_frontier.py` (+8) → **357/357 yeşil**. API ref + taksonomi + mcp-layer
   güncel.
 
 **Doğrulandı (dürüst duvarlar ampirik)**

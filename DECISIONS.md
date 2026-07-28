@@ -178,6 +178,18 @@
   "Z3 doğruladı ama adım adım türetim yok" (verdict yine sağlam). Yeni MCP aracı
   `prove`, CLI `mathhead prove`.
 
+## ADR-0015 — İspat üreticisini genişletme (MT, ayrık tasım, RAA)
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** İlk türetici yalnızca ileri zincirleme (MP, ∧, iff, ∀) yapıyordu;
+  `not`/`or` içeren birçok geçerli çıkarımı adım adım kuramıyordu.
+- **Karar:** Kural kümesi genişletildi: modus tollens, ayrık tasım (disjunctive
+  syllogism), çift olumsuzlama, De Morgan (¬(A∨B)). Ayrıca ikinci strateji:
+  doğrudan bulunamazsa **çelişkiden ispat (RAA)** — ¬sonuç varsayılıp çelişki
+  aranır. Böylece "durum ayrımı" (proof by cases) gibi dolaylı ispatlar çıkar.
+- **Sonuçlar:** Kapsam belirgin genişledi. Hâlâ yok: varoluşsal (∃) eleme,
+  aritmetik türetim → bunlarda Z3 kararı korunur (adımsız). Türetici sağlam kalır.
+
 ---
 
 <!-- Yeni karar şablonu:

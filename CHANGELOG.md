@@ -7,9 +7,10 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 ### Eklendi
 
 - **İspat üretimi (`prove`):** entailment için *neden* — minimal öncül çekirdeği
-  (unsat core) + adım adım **doğal tümdengelim** türetimi (modus ponens,
-  ∧-ayıklama, iff, evrensel örnekleme). Klasik silogizmi adım adım gösterir.
-  MCP aracı `prove` (12 araç) + `mathhead prove` CLI.
+  (unsat core) + adım adım **doğal tümdengelim**: modus ponens/tollens, ayrık
+  tasım, ∧-ayıklama, iff, çift olumsuzlama, De Morgan, evrensel örnekleme; ve
+  **çelişkiden ispat (RAA)** ile durum ayrımı (proof by cases). Silogizm ve
+  proof-by-cases adım adım. MCP aracı `prove` (12 araç) + `mathhead prove` CLI.
 
 ## [0.1.0] — 2026-07-28
 

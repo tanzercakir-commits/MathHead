@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-07-28 — v3.1 · ispat üreticisi genişletildi (RAA + MT/DS)
+
+**Yapıldı**
+
+- `core/proof.py` kural kümesi: modus tollens, ayrık tasım, çift olumsuzlama,
+  De Morgan; + ikinci strateji **çelişkiden ispat (RAA)** → durum ayrımı (proof
+  by cases) gibi dolaylı ispatlar adım adım çıkıyor.
+- Testler (MT / DS / RAA / De Morgan) + regresyon → **76/76 yeşil**.
+- Yeni karar: ADR-0015.
+
+**Dürüstlük:** Varoluşsal (∃) eleme ve aritmetik türetim hâlâ yok → Z3 kararı
+korunur (adımsız).
+
+**Sıradaki (gelecek oturumlar):** ∃-eleme; GitHub release + PyPI (akşam, sende).
+
 ## 2026-07-28 — v3 · ispat üretimi (adım adım) (aynı oturum)
 
 **Yapıldı**

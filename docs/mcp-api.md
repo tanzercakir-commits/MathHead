@@ -40,8 +40,10 @@
 Entailment + **neden**. `valid` ise: `used_premises` (sonucun dayandığı minimal
 öncül alt kümesi) + `proof_steps` (önerme/yüklem/evrensel parçası için adım adım
 doğal tümdengelim; kurulamazsa Z3 kararı korunur, adımsız). `invalid` ise
-`witness` = karşıörnek. Adım biçimi: `{step, formula, rule, refs}` — kurallar:
-`modus ponens`, `∧-ayıklama`, `iff-ayıklama`, `evrensel örnekleme`.
+`witness` = karşıörnek. İki strateji: DOĞRUDAN ileri zincirleme; olmazsa
+ÇELİŞKİDEN (RAA). Adım biçimi: `{step, formula, rule, refs}` — kurallar:
+`modus ponens`, `modus tollens`, `ayrık tasım`, `∧-ayıklama`, `iff-ayıklama`,
+`çift olumsuzlama`, `De Morgan`, `evrensel örnekleme`, `çelişkiden ispat (RAA)`.
 
 ---
 

@@ -51,3 +51,29 @@ def test_arithmetic_valid_but_no_nd_steps():
     assert r.status == "valid"
     assert r.proof_steps is None
     assert r.used_premises == [0]
+
+
+# ---------------------- genişletilmiş kurallar (v3.1) --------------------- #
+def test_modus_tollens():
+    r = prove_entailment(["implies(p, q)", "not(q)"], "not(p)")
+    assert r.status == "valid"
+    assert any(s["rule"] == "modus tollens" for s in r.proof_steps)
+
+
+def test_disjunctive_syllogism():
+    r = prove_entailment(["p or q", "not(p)"], "q")
+    assert r.status == "valid"
+    assert any(s["rule"] == "ayrık tasım" for s in r.proof_steps)
+
+
+def test_proof_by_cases_via_raa():
+    # p->r, q->r, p∨q ⊨ r  (doğrudan kurulamaz; çelişkiden/RAA ile)
+    r = prove_entailment(["implies(p, r)", "implies(q, r)", "p or q"], "r")
+    assert r.status == "valid"
+    assert r.proof_steps[-1]["rule"] == "çelişkiden ispat (RAA)"
+
+
+def test_de_morgan():
+    r = prove_entailment(["not(p or q)"], "not(p)")
+    assert r.status == "valid"
+    assert any(s["rule"] == "De Morgan" for s in r.proof_steps)

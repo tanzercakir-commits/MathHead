@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — G3 · precision bridge (arbitrary precision + symbolic↔numeric)
+
+**Done — 3 new compute tools (148 total):**
+
+- `evaluate_precision` (a constant to N significant figures — e.g. π to 50 digits),
+  `verify_numeric` (verify a CLAIMED numerical value against the exact high-precision value —
+  the numeric analogue of the Track C verifiers), `cross_check_numeric` (SYMBOLIC↔NUMERIC
+  cross-validation of f(point): two independent evaluation paths must AGREE — a bug detector,
+  the same philosophy as the Track C `cross_check`).
+- Wired router + MCP (148 tools) + CLI (`precision`/`verify-numeric`/`cross-check-numeric`) +
+  `tests/test_precision.py` (13) → **966/966 green**.
+
+**Verified:** π to 50 digits; verify_numeric accepts 3.14159265358979 and REJECTS 3.14 as π;
+symbolic and numeric agree for sin²+cos²=1 at x=1.3, x³−2x at x=3 (=21), and exp at 0.
+
+**Alignment:** this phase directly serves the product mission — `verify_numeric` and
+`cross_check_numeric` extend the "audit AI answers" theme into the numerical domain.
+
+**Next:** G4 [S] — numerical hardening → closes Track G.
+
 ## 2026-07-28 — G2 · numerical linear algebra & ODE
 
 **Done — 3 new compute tools (145 total):**

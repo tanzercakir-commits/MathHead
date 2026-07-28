@@ -651,6 +651,21 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--func", default="y")
     p.add_argument("--var", default="x")
 
+    p = sub.add_parser("precision", help="evaluate a constant to N digits (arbitrary precision)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--digits", type=int, default=50)
+
+    p = sub.add_parser("verify-numeric", help="verify a claimed numerical value")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("claimed", metavar="VALUE")
+    p.add_argument("--tolerance", type=float, default=1e-9)
+
+    p = sub.add_parser("cross-check-numeric", help="symbolic vs numeric at a point")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("symbol", metavar="VARIABLE")
+    p.add_argument("point", metavar="POINT")
+    p.add_argument("--digits", type=int, default=25)
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -913,6 +928,13 @@ _DISPATCH = {
     "rk4": lambda a: ("runge_kutta",
                       {"rhs": a.rhs, "x0": a.x0, "y0": a.y0, "x_end": a.x_end,
                        "steps": a.steps, "func": a.func, "var": a.var}),
+    "precision": lambda a: ("evaluate_precision", {"expression": a.expression, "digits": a.digits}),
+    "verify-numeric": lambda a: ("verify_numeric",
+                                 {"expression": a.expression, "claimed": a.claimed,
+                                  "tolerance": a.tolerance}),
+    "cross-check-numeric": lambda a: ("cross_check_numeric",
+                                      {"expression": a.expression, "symbol": a.symbol,
+                                       "point": a.point, "digits": a.digits}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

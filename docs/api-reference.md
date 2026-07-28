@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **145 tools**.
+Total **148 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -541,6 +541,18 @@ Numerical eigenvalues of a square matrix (mpmath). Complex ones reported as `a �
 ### `runge_kutta(rhs, x0, y0, x_end, steps=100, func='y', var='x')`
 
 RK4 solver for the IVP y' = f(x, y), y(x0)=y0, up to x_end → `{x_end, y_end, trajectory}`.
+
+### `evaluate_precision(expression, digits=50)`
+
+Evaluates a CONSTANT expression to `digits` significant figures (arbitrary precision). E.g. `pi`.
+
+### `verify_numeric(expression, claimed, tolerance=1e-09)`
+
+Verifies a CLAIMED numerical value against the exact high-precision value → `{match, exact_value, absolute_error}`.
+
+### `cross_check_numeric(expression, symbol, point, digits=25)`
+
+SYMBOLIC↔NUMERIC cross-validation of f(point): evaluate two independent ways and confirm agreement.
 
 ### `mean(data)`
 

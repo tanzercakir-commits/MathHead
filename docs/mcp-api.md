@@ -294,6 +294,11 @@ flagged (`converged:false`), not hidden.
 y0, x_end, steps=100, func="y", var="x")` (RK4 IVP solver → `{x_end, y_end, trajectory}`; e.g.
 y'=y, y(0)=1 → e).
 
+**Precision bridge (G3):** `evaluate_precision(expression, digits=50)` (arbitrary-precision constant
+eval), `verify_numeric(expression, claimed, tolerance=1e-9)` (verify a claimed numerical value → the
+numeric analogue of the Track C verifiers), `cross_check_numeric(expression, symbol, point,
+digits=25)` (SYMBOLIC↔NUMERIC cross-validation — two independent paths must agree, a bug detector).
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

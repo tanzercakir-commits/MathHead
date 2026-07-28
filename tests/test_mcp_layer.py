@@ -182,6 +182,10 @@ ARGS = {
     "numerical_eigenvalues": {"matrix": [["2", "1"], ["1", "2"]]},
     "condition_number": {"matrix": [["2", "0"], ["0", "1"]]},
     "runge_kutta": {"rhs": "y", "x0": 0, "y0": 1, "x_end": 1, "steps": 100, "func": "y", "var": "x"},
+    "evaluate_precision": {"expression": "pi", "digits": 50},
+    "verify_numeric": {"expression": "pi", "claimed": "3.14159265358979", "tolerance": 1e-12},
+    "cross_check_numeric": {"expression": "sin(x)**2 + cos(x)**2", "symbol": "x", "point": "1.3",
+                            "digits": 25},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

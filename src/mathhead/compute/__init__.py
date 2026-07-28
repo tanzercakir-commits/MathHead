@@ -3234,6 +3234,90 @@ def runge_kutta(rhs: str, x0: float, y0: float, x_end: float, steps: int = 100,
 
 
 # --------------------------------------------------------------------------- #
+# G3 — precision bridge: arbitrary-precision evaluation, numeric-claim
+# verification, and symbolic↔numeric CROSS-VALIDATION (two independent methods must
+# agree — the same "don't trust one path" philosophy as the Track C cross_check).
+# --------------------------------------------------------------------------- #
+def evaluate_precision(expression: str, digits: int = 50) -> ComputeResult:
+    """Evaluates a CONSTANT expression to `digits` significant figures. E.g. `pi` → 50 digits."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(digits, int) or not (1 <= digits <= 1000):
+            raise ComputeError("digits must be an integer in 1..1000")
+        expr = _parse(expression, syms)
+        if syms:
+            raise ComputeError(f"expression must be constant (has symbol(s): "
+                               f"{', '.join(sorted(syms))})")
+    except ComputeError as exc:
+        return _error("evaluate_precision", str(exc), t0)
+    try:
+        result = str(expr.evalf(digits))
+    except Exception as exc:  # noqa: BLE001
+        return _error("evaluate_precision", f"could not evaluate: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "evaluate_precision", result,
+                         f"{expression} = {result} ({digits} digits).", "OK", _meta(t0))
+
+
+def verify_numeric(expression: str, claimed: str, tolerance: float = 1e-9) -> ComputeResult:
+    """Verifies a CLAIMED numerical value of a constant expression against the exact value.
+
+    Computes the exact value to high precision and compares. Returns
+    `{match, exact_value, absolute_error}`. (A numeric analogue of the Track C verifiers.)
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _parse(expression, syms)
+        if syms:
+            raise ComputeError("expression must be constant (no free symbols)")
+        claim = sympy.Float(str(claimed)) if not isinstance(claimed, (int, float)) else sympy.Float(claimed)
+        tol = float(tolerance)
+    except (ComputeError, ValueError, TypeError) as exc:
+        return _error("verify_numeric", str(exc), t0)
+    try:
+        exact = expr.evalf(30)
+        err = abs(exact - claim)
+        match = bool(err < tol)
+    except Exception as exc:  # noqa: BLE001
+        return _error("verify_numeric", f"could not evaluate: {exc}", t0, "COMPUTE_FAILED")
+    result = {"match": match, "exact_value": str(sympy.N(exact, 20)), "absolute_error": str(sympy.N(err, 6))}
+    return ComputeResult("ok", "verify_numeric", result,
+                         f"the claim {claimed} is {'CORRECT' if match else 'WRONG'} "
+                         f"(exact ≈ {sympy.N(exact, 12)}, |error| ≈ {sympy.N(err, 4)}).",
+                         "OK", _meta(t0))
+
+
+def cross_check_numeric(expression: str, symbol: str, point: str,
+                        digits: int = 25) -> ComputeResult:
+    """SYMBOLIC↔NUMERIC cross-validation of f(point): evaluate via SymPy simplification AND via
+    mpmath, and confirm the two INDEPENDENT paths agree (a bug detector; ADR/Track-C spirit)."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    try:
+        expr, var = _single_var(expression, symbol)
+        if not isinstance(digits, int) or not (1 <= digits <= 200):
+            raise ComputeError("digits must be an integer in 1..200")
+        pt = sympy.Rational(str(point)) if "." not in str(point) else sympy.Float(str(point))
+    except (ComputeError, ValueError, TypeError) as exc:
+        return _error("cross_check_numeric", str(exc), t0)
+    try:
+        symbolic = sympy.simplify(expr).subs(var, pt).evalf(digits)
+        with mp.workdps(digits + 5):
+            numeric = sympy.lambdify(var, expr, "mpmath")(mp.mpf(str(float(pt))))
+        diff = abs(complex(symbolic) - complex(numeric))
+        agree = bool(diff < 10 ** (-(digits - 3)))
+    except Exception as exc:  # noqa: BLE001
+        return _error("cross_check_numeric", f"could not evaluate: {exc}", t0, "COMPUTE_FAILED")
+    result = {"symbolic_value": str(sympy.N(symbolic, 15)),
+              "numeric_value": mp.nstr(numeric, 15) if not isinstance(numeric, complex) else str(numeric),
+              "agree": agree, "difference": f"{diff:.3e}"}
+    return ComputeResult("ok", "cross_check_numeric", result,
+                         f"symbolic and numeric {'AGREE' if agree else 'DISAGREE'} at {symbol}={point} "
+                         f"(|difference| ≈ {result['difference']}).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

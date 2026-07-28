@@ -408,6 +408,14 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.runge_kutta(payload["rhs"], payload["x0"], payload["y0"], payload["x_end"],
                                    payload.get("steps", 100), payload.get("func", "y"),
                                    payload.get("var", "x"))
+    if task == "evaluate_precision":
+        return compute.evaluate_precision(payload["expression"], payload.get("digits", 50))
+    if task == "verify_numeric":
+        return compute.verify_numeric(payload["expression"], payload["claimed"],
+                                      payload.get("tolerance", 1e-9))
+    if task == "cross_check_numeric":
+        return compute.cross_check_numeric(payload["expression"], payload["symbol"],
+                                           payload["point"], payload.get("digits", 25))
 
     # --- Probability & statistics ---
     if task == "mean":

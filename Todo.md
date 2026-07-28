@@ -100,7 +100,8 @@
 
 - [x] **G1** root & numerical analysis — newton/bisection/secant, num-integrate, interpolate ✅ (929 tests, 142 tools)
 - [x] **G2** numerical linalg & ODE — numerical_eigenvalues/condition_number/runge_kutta ✅ (947 tests, 145 tools)
-- [ ] **G3** precision bridge · **G4** [S]
+- [x] **G3** precision bridge — evaluate_precision/verify_numeric/cross_check_numeric ✅ (966 tests, 148 tools)
+- [ ] **G4** [S] numerical hardening
 - [ ] then: H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

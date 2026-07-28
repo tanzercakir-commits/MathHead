@@ -1113,6 +1113,32 @@ def runge_kutta(rhs: str, x0: float, y0: float, x_end: float, steps: int = 100,
 
 
 @mcp.tool()
+def evaluate_precision(expression: str, digits: int = 50) -> dict[str, Any]:
+    """Evaluates a CONSTANT expression to `digits` significant figures (arbitrary precision). E.g. `pi`."""
+    return asdict(route("evaluate_precision", {"expression": expression, "digits": digits}))
+
+
+@mcp.tool()
+def verify_numeric(expression: str, claimed: str, tolerance: float = 1e-9) -> dict[str, Any]:
+    """Verifies a CLAIMED numerical value against the exact high-precision value → `{match, exact_value, absolute_error}`.
+
+    A numeric analogue of the Track C verifiers. E.g. is `pi ≈ 3.14`? → match:false.
+    """
+    return asdict(route("verify_numeric",
+                        {"expression": expression, "claimed": claimed, "tolerance": tolerance}))
+
+
+@mcp.tool()
+def cross_check_numeric(expression: str, symbol: str, point: str, digits: int = 25) -> dict[str, Any]:
+    """SYMBOLIC↔NUMERIC cross-validation of f(point): evaluate two independent ways and confirm agreement.
+
+    Same "don't trust one path" spirit as the Track C `cross_check`; a disagreement flags a bug.
+    """
+    return asdict(route("cross_check_numeric",
+                        {"expression": expression, "symbol": symbol, "point": point, "digits": digits}))
+
+
+@mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""
     return asdict(route("mean", {"data": data}))

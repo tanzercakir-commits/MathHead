@@ -84,6 +84,13 @@ def _emit(result: Any, as_json: bool) -> int:
         if isinstance(data.get("stats"), dict):
             for k, v in data["stats"].items():
                 print(f"  {k:10s}: {v}")
+        if isinstance(data.get("metrics"), dict):
+            m = data["metrics"]
+            print(f"calls         : {m.get('total_calls')} across {m.get('distinct_tools')} tools")
+            print(f"by_status     : {m.get('by_status')}")
+        if isinstance(data.get("limits"), dict):
+            for k, v in data["limits"].items():
+                print(f"  {k:26s}: {v}")
     if status in ("error", "refuted"):
         return 1
     if status == "unknown":
@@ -234,6 +241,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("-c", "--conclusion", action="append", default=[], required=True, metavar="CONCLUSION")
 
     sub.add_parser("cache-stats", help="deterministic memoization cache statistics")
+    sub.add_parser("metrics", help="structured engine metrics (calls / status / latency)")
+    sub.add_parser("limits", help="the engine's active resource fences (guardrails)")
 
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
@@ -832,6 +841,8 @@ _DISPATCH = {
                                           "max_conflicts": a.max_conflicts, "backend": a.backend}),
     "entail-batch": lambda a: ("entail_batch", {"premises": a.premise, "conclusions": a.conclusion}),
     "cache-stats": lambda a: ("cache_stats", {}),
+    "metrics": lambda a: ("engine_metrics", {}),
+    "limits": lambda a: ("resource_limits", {}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

@@ -254,7 +254,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           targeted guardrail coverage + docs/grammar.md formal spec; coverage 86→88% ✅ (1227 tests)
           ↳ honest: the 95% goal is NOT met — the gap is `compute`'s per-function defensive branches
             (a mechanical follow-up); deliberately not padded with trivial tests (integrity over the number)
-[ ] K3 🟡 Observability — structured metrics/logs, resource limits, perf regression fence
+[x] K3 🟡 Observability — engine_metrics (structured per-tool metrics via a route @observe decorator) +
+          resource_limits (introspectable guardrails) + a perf regression fence ✅ (1236 tests, 168 tools; ADR-0030)
 [ ] K4 🟢 Version 1.0 freeze — full contract check, API stability, release notes
 ```
 

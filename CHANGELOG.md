@@ -12,6 +12,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Observability — metrics, resource limits, perf fence (`engine_metrics`, `resource_limits`):**
+  ROADMAP K3. New `mathhead/observability.py`. An `observe` decorator on `route` aggregates every
+  call's (task, status, elapsed_ms) into structured metrics (total calls, status distribution,
+  per-tool avg/max latency, recent-call log); `resource_limits` exposes the active guardrails. A
+  perf regression fence guards representative operations. Observational only — results and
+  determinism unchanged. MCP (**168 tools**) + CLI (`metrics`/`limits`) + 5 tests. ADR-0030.
+  **1236 tests green.**
 - **Parser fuzzing + grammar spec (K2):** ROADMAP K2. New `tests/test_fuzz.py` throws malformed /
   random / adversarial input at every parser-backed tool and asserts no uncaught exception — it
   FOUND (and this release fixes) the SMT-parser arity bug above. New `tests/test_coverage.py` (75)

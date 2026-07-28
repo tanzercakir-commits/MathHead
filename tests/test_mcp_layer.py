@@ -230,6 +230,9 @@ ARGS = {
     # Performance (K1)
     "entail_batch": {"premises": ["p", "implies(p, q)"], "conclusions": ["q", "p"]},
     "cache_stats": {},
+    # Observability (K3)
+    "engine_metrics": {},
+    "resource_limits": {},
 }
 
 

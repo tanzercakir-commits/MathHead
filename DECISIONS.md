@@ -468,6 +468,24 @@
 
 ---
 
+## ADR-0030 — Observability as transparent side-state over the existing meta traceability
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP K3 wants structured metrics/logs, introspectable resource limits, and a perf
+  regression fence — without changing results or the determinism guarantee.
+- **Decision:** `mathhead/observability.py` adds an `observe` decorator on `router.route` that times
+  each call and records (task, status, elapsed_ms) into an in-memory aggregate (counters + timing
+  sums + a bounded recent-call ring). `engine_metrics` returns a snapshot; `resource_limits` reads
+  the active guardrail constants. Both are exposed as read-only tools. A perf fence test asserts
+  representative operations stay within a generous budget.
+- **Consequences:** The traceability already present in every result's `meta` (PRINCIPLES 9) becomes
+  a queryable aggregate. Metrics are OBSERVATIONAL side-state — results are byte-identical with or
+  without observation, so determinism is untouched; `reset_metrics` gives test isolation. The perf
+  fence catches gross regressions without being a flaky micro-benchmark. Persisting metrics across
+  process restarts and richer structured log sinks are left as future extensions.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

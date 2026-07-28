@@ -37,6 +37,13 @@ from mathhead.core.logic import (
     optimize,
 )
 from mathhead.cache import CacheStats, cache_stats_result
+from mathhead.observability import (
+    LimitsResult,
+    MetricsResult,
+    limits_result,
+    metrics_result,
+    observe,
+)
 from mathhead.core.proof import ProofResult, prove_entailment
 from mathhead.core.induction import InductionResult, prove_by_induction
 from mathhead.core.modal import ModalResult, check_modal
@@ -76,10 +83,11 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
     return opts
 
 
+@observe
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
-    | DratResult | SolveResult | BatchResult | CacheStats
+    | DratResult | SolveResult | BatchResult | CacheStats | MetricsResult | LimitsResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -511,5 +519,11 @@ def route(task: str, payload: dict[str, Any]) -> (
         return entail_batch(payload["premises"], payload["conclusions"], **_opts(payload))
     if task == "cache_stats":
         return cache_stats_result()
+
+    # --- Observability (K3) ---
+    if task == "engine_metrics":
+        return metrics_result()
+    if task == "resource_limits":
+        return limits_result()
 
     raise ValueError(f"unknown task: {task!r}")

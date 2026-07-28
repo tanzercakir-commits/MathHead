@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — K3 · observability (metrics, resource limits, perf fence)
+
+**Done — 2 new tools (168 total), new `mathhead/observability.py`:**
+
+- `engine_metrics` — STRUCTURED metrics: an `observe` decorator on `route` records every call's
+  (task, status, elapsed_ms) into a live aggregate — total calls, status distribution, per-tool
+  call counts / avg & max latency, and a bounded recent-call log. Observational only; results are
+  unchanged (determinism untouched).
+- `resource_limits` — the ACTIVE fences made introspectable: statement/expression/depth caps, the
+  default timeout (5000 ms) and seed (42), solver variable bounds, cache capacity.
+- **Perf regression fence** (`tests/test_observability.py`): representative operations across layers
+  must complete well within a generous budget — a regression guard.
+- Wired router (route now `@observe`d) + MCP (168 tools) + CLI (`metrics`/`limits`) +
+  `tests/test_observability.py` (5) → **1236/1236 green**.
+
+**Decision:** ADR-0030 (observability is transparent side-state layered on the existing `meta`
+traceability; it never changes a result).
+
+**Next:** K4 — v1.0 freeze (contract check, release notes, version bump).
+
 ## 2026-07-28 — K2 · coverage & fuzzing (parsers, grammar spec)
 
 **Done — tests + docs (no new tools; 166 total):**

@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **166 tools**.
+Total **168 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -669,3 +669,11 @@ Check MANY conclusions against SHARED premises via INCREMENTAL solving (Z3 push/
 ### `cache_stats()`
 
 Deterministic-memoization cache statistics: hits, misses, hit-rate, size (K1 observability).
+
+### `engine_metrics()`
+
+Structured engine metrics (K3 observability): call counts, status distribution, per-tool latency.
+
+### `resource_limits()`
+
+The engine's ACTIVE resource fences (K3): statement/expression/depth caps, default timeout &

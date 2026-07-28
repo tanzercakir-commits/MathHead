@@ -678,3 +678,17 @@ premises + theory setup are asserted once, and each conclusion's verdict is iden
 standalone `entailment` call. `cache_stats` reports the deterministic memoization cache (pure
 compute operations are cached safely because their results are deterministic — a hit returns the
 identical result).
+
+---
+
+## Observability (K3 — metrics + limits)
+
+| Tool | Signature | Result |
+|---|---|---|
+| `engine_metrics` | `engine_metrics()` | total calls, status distribution, per-tool latency, recent log |
+| `resource_limits` | `resource_limits()` | the active guardrail fences |
+
+`route` is wrapped by an `observe` decorator that records each call's (task, status, elapsed_ms)
+into a live aggregate — observational only, results are unchanged (determinism untouched).
+`resource_limits` reports the hard fences (statement/expression/depth caps, default timeout & seed,
+solver variable bounds, cache capacity).

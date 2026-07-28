@@ -1450,6 +1450,25 @@ def cache_stats() -> dict[str, Any]:
     return asdict(route("cache_stats", {}))
 
 
+@mcp.tool()
+def engine_metrics() -> dict[str, Any]:
+    """Structured engine metrics (K3 observability): call counts, status distribution, per-tool latency.
+
+    Aggregates every routed call's (task, status, elapsed_ms) — total calls, `by_status`,
+    `per_tool` (calls / avg-ms / max-ms), and a recent-call log. Observational only; results
+    are unchanged.
+    """
+    return asdict(route("engine_metrics", {}))
+
+
+@mcp.tool()
+def resource_limits() -> dict[str, Any]:
+    """The engine's ACTIVE resource fences (K3): statement/expression/depth caps, default timeout &
+    seed, solver variable bounds, cache capacity. Makes the hard guardrails introspectable.
+    """
+    return asdict(route("resource_limits", {}))
+
+
 def main() -> None:
     """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")

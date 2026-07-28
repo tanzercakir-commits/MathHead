@@ -120,6 +120,36 @@ def max_satisfy(hard: list[str], soft: list[str], weights: list[int] | None = No
     return asdict(route("maxsat", {"hard": hard, "soft": soft, "weights": weights}))
 
 
+# ----------------- Eşitsizlik ispatı & nonlineer (Z3 NRA) ----------------- #
+@mcp.tool()
+def prove_inequality(goal: str, assumptions: list[str] | None = None) -> dict[str, Any]:
+    """`goal` eşitsizliği TÜM gerçel değerler için (varsayımlar altında) geçerli mi?
+
+    Z3 NRA (nonlinear real): valid → her yerde doğru; invalid → `witness` karşıörnek;
+    unknown → karar verilemedi (dürüst). Ör: `"x**2 + y**2 >= 2*x*y"` → valid.
+    """
+    return asdict(route("prove_inequality", {"goal": goal, "assumptions": assumptions}))
+
+
+@mcp.tool()
+def prove_nonnegative(expression: str, assumptions: list[str] | None = None) -> dict[str, Any]:
+    """`expression ≥ 0` her gerçel değer için (varsayımlar altında) geçerli mi?
+
+    Kareler-toplamı benzeri negatif-olmama iddiaları (ör. `x**2 - 2*x + 1`).
+    """
+    return asdict(route("prove_nonnegative", {"expression": expression, "assumptions": assumptions}))
+
+
+@mcp.tool()
+def find_real_solution(constraints: list[str]) -> dict[str, Any]:
+    """Doğrusal-olmayan kısıt kümesini GERÇEL sayılarda sağlayan bir nokta bulur.
+
+    sat → `witness` somut çözüm; unsat → gerçel çözüm yok; unknown → karar yok.
+    Ör: `["x**2 + y**2 == 1", "x == y"]` → sat.
+    """
+    return asdict(route("find_real_solution", {"constraints": constraints}))
+
+
 # --------------------------- Hesap (SymPy) -------------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:

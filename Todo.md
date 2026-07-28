@@ -41,7 +41,8 @@
 - [x] **T20** ROADMAP Aşama 6: çok değişkenli analiz ✅ (258 test, 49 araç, ODE dahil)
 - [x] **T21** ROADMAP Aşama 7: olasılık & istatistik ✅ (273 test, 54 araç, 7 dağılım)
 - [x] **T22** ROADMAP Aşama 8 [S]: coverage %87 + benchmark çiti + otomatik API ref ✅ (330 test)
-- [ ] **T23** ROADMAP Aşama 9: eşitsizlik ispatı & nonlineer (Z3 NRA + kareler toplamı/SOS)
+- [x] **T23** ROADMAP Aşama 9: eşitsizlik ispatı (Z3 NRA) ✅ (345 test, 57 araç, AM-GM ispatı)
+- [ ] **T24** ROADMAP Aşama 10: Track B genişletme + doğrulanabilir UNSAT sertifikası (DRAT/LRAT)
 
 ---
 

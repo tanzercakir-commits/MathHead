@@ -69,9 +69,11 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     └─ coverage (pytest-cov + MCP katman testi %85→%87) + benchmark çiti +
        otomatik API referansı (docs/api-reference.md, kod=doküman) ✅
 
-[ ] Aşama 9 · Eşitsizlik ispatı & nonlineer
-    └─ Z3 nonlinear real (NRA) + kareler toplamı (SOS) ile eşitsizlik kanıtı
-       ↳ dürüst duvar: NRA yarı-karar verilebilir → unknown birinci sınıf
+[x] Aşama 9 · Eşitsizlik ispatı & nonlineer  (bitti — 345 test, 57 araç)
+    └─ Z3 nonlinear real (NRA/nlsat) ile eşitsizlik kanıtı (AM-GM, kareler-
+       tamamlama) + gerçel çözüm bulma. core/inequality.py ✅
+       ↳ dürüst duvar: NRA yarı-karar verilebilir → unknown birinci sınıf ✅
+       ↳ not: SOS-sertifikası yerine CAD-temelli Z3 kararı (daha güçlü/tam)
 
 [ ] Aşama 10 · Track B genişletme + sertifika
     └─ yeni indirgeme(ler) + doğrulanabilir UNSAT sertifikası (DRAT/LRAT)

@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **54 araç**.
+Toplam **57 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -41,6 +41,18 @@ Kısıtları sağlayıp sayısal `objective`'i en büyük/küçük (`sense`) yap
 ### `max_satisfy(hard, soft, weights=None)`
 
 Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağla (MaxSAT).
+
+### `prove_inequality(goal, assumptions=None)`
+
+`goal` eşitsizliği TÜM gerçel değerler için (varsayımlar altında) geçerli mi?
+
+### `prove_nonnegative(expression, assumptions=None)`
+
+`expression ≥ 0` her gerçel değer için (varsayımlar altında) geçerli mi?
+
+### `find_real_solution(constraints)`
+
+Doğrusal-olmayan kısıt kümesini GERÇEL sayılarda sağlayan bir nokta bulur.
 
 ### `simplify(expression)`
 

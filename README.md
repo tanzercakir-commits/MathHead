@@ -41,6 +41,10 @@ check_entailment(["x > 0"], "x > 5")             # -> "invalid", witness={"x": 1
 check_consistency(["p", "not(p)"])               # -> "unsat" + unsat core
 find_model(["x > 2", "x < 5"])                    # -> "sat", witness={"x": 3}
 
+from mathhead.core.inequality import prove_inequality   # v2+ (Z3 NRA, nonlineer)
+prove_inequality("x**2 + y**2 >= 2*x*y")          # -> "valid"  (AM-GM, ispat)
+prove_inequality("x**2 >= x")                     # -> "invalid", witness={"x": 0.5}
+
 from mathhead.compute import solve, differentiate, integrate   # v2 (SymPy)
 solve("x**2 == 4", "x")                           # -> ["-2", "2"]
 differentiate("x**3 + 2*x", "x")                  # -> "3*x**2 + 2"
@@ -136,7 +140,7 @@ mathhead/
 │   ├── compute/         · sembolik hesap (SymPy)                          [v2+]
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
-│   └── server/          · MCP sunucusu (FastMCP, 54 araç)
+│   └── server/          · MCP sunucusu (FastMCP, 57 araç)
 ├── scripts/             · benchmark.py + gen_api_reference.py
 └── tests/               · kapsamlı test paketi + fixtures/golden.json (regresyon çiti)
 ```

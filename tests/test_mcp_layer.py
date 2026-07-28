@@ -30,6 +30,10 @@ ARGS = {
     "enumerate_models": {"statements": ["p or q"], "limit": 5},
     "optimize": {"constraints": ["x>=0", "x<=10"], "objective": "x", "sense": "max"},
     "max_satisfy": {"hard": ["p"], "soft": ["not(p)"], "weights": None},
+    # eşitsizlik & nonlineer (Z3 NRA)
+    "prove_inequality": {"goal": "x**2 + y**2 >= 2*x*y", "assumptions": None},
+    "prove_nonnegative": {"expression": "x**2 - 2*x + 1", "assumptions": None},
+    "find_real_solution": {"constraints": ["x**2 + y**2 == 1", "x == y"]},
     # hesap
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},

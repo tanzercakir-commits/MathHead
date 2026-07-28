@@ -48,6 +48,10 @@ CALLS = [
     ("optimize", {"constraints": ["x>=0", "x<=10"], "objective": "x", "sense": "max"}),
     ("optimize", {"constraints": ["x>=0"], "objective": "x", "sense": "max"}),
     ("maxsat", {"hard": ["p"], "soft": ["not(p)"], "weights": None}),
+    ("prove_inequality", {"goal": "x**2 >= 0"}),
+    ("prove_inequality", {"goal": "x**2 >= x"}),        # invalid -> karşıörnek
+    ("prove_nonnegative", {"expression": "x**2 - 2*x + 1"}),
+    ("find_real_solution", {"constraints": ["x**2 == -1"]}),   # unsat
     # compute — başarı + hata
     ("simplify", {"expression": "x+x"}),
     ("simplify", {"expression": "foo(x)"}),

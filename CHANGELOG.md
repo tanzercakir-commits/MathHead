@@ -6,6 +6,14 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Eşitsizlik ispatı & nonlineer (`prove_inequality`, `prove_nonnegative`,
+  `find_real_solution`):** Aşama 9. Z3 doğrusal-olmayan gerçel aritmetik (NRA /
+  nlsat) ile polinom eşitsizliklerini **ispatlar** (ret-ile-ispat: `¬P` UNSAT mı)
+  ya da karşıörnek verir; nonlineer kısıtlara gerçel çözüm bulur. AM-GM
+  (`x²+y²≥2xy`), kareler-tamamlama vb. ispatlanır. **Dürüstlük:** `unknown`
+  birinci sınıf; nonpolinom üs / non-bool hedef reddedilir. Yeni modül
+  `core/inequality.py` (nonlineer Z3 çevirici). MCP (**57 araç**) + CLI
+  (`prove-inequality/prove-nonnegative/real-solve`). +15 test.
 - **Olasılık & istatistik (`mean`, `variance`, `standard_deviation`, `median`,
   `distribution`):** Aşama 7. Betimsel istatistik (tam/rasyonel) + `sympy.stats`
   ile 7 adlandırılmış dağılım (`normal/binomial/poisson/exponential/uniform/

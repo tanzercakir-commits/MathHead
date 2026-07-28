@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-28 — Aşama 9 · eşitsizlik ispatı & nonlineer (Z3 NRA)
+
+**Yapıldı**
+
+- Yeni modül `core/inequality.py`: nonlineer ast→Z3 çevirici (Real, `**` polinom,
+  karşılaştırma + bağlaçlar) + 3 işlem: `prove_inequality`, `prove_nonnegative`,
+  `find_real_solution`. Yöntem: `∀x.P(x)` → `¬P(x)` UNSAT (ret-ile-ispat).
+- Uçtan uca: router (3) + MCP (**57 araç**) + CLI (`prove-inequality/
+  prove-nonnegative/real-solve`) + `tests/test_inequality.py` (15) →
+  **345/345 yeşil**. API referansı + taksonomi + mcp-layer testleri güncellendi.
+
+**Doğrulandı (dürüst duvarlar ampirik)**
+
+- **AM-GM** `x²+y²≥2xy` → valid; `x²+1≥2x` → valid; varsayım altında `x>0,y>0 ⊨
+  x+y>0` → valid. Yanlış `x²≥x` → karşıörnek `x=0.5`. Çember∩doğru → gerçel
+  çözüm `±√2/2`; `x²=-1` → gerçel çözüm yok.
+- Dürüstlük: non-bool hedef / değişken üs (nonpolinom) / kötücül → red;
+  NRA `unknown` birinci sınıf. Yeni reason_code yok (taksonomi sabit).
+
+**Sıradaki:** Aşama 10 — Track B genişletme + doğrulanabilir UNSAT sertifikası
+(DRAT/LRAT).
+
 ## 2026-07-28 — Aşama 8 [S] · sağlamlaştırma-3 (coverage + API ref + benchmark çiti)
 
 **Yapıldı**

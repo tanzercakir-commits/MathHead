@@ -29,6 +29,11 @@ from mathhead.core.logic import (
     max_satisfy,
     optimize,
 )
+from mathhead.core.inequality import (
+    find_real_solution,
+    prove_inequality,
+    prove_nonnegative,
+)
 from mathhead.core.proof import ProofResult, prove_entailment
 
 __all__ = ["route"]
@@ -70,6 +75,12 @@ def route(task: str, payload: dict[str, Any]) -> (
                         payload.get("sense", "max"), **_opts(payload))
     if task == "maxsat":
         return max_satisfy(payload["hard"], payload["soft"], payload.get("weights"), **_opts(payload))
+    if task == "prove_inequality":
+        return prove_inequality(payload["goal"], payload.get("assumptions"), **_opts(payload))
+    if task == "prove_nonnegative":
+        return prove_nonnegative(payload["expression"], payload.get("assumptions"), **_opts(payload))
+    if task == "find_real_solution":
+        return find_real_solution(payload["constraints"], **_opts(payload))
 
     # --- Hesap katmanı (SymPy) ---
     if task == "simplify":

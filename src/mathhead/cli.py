@@ -128,6 +128,17 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--hard", action="append", default=[], metavar="KISIT")
     p.add_argument("--soft", action="append", default=[], metavar="KISIT")
 
+    p = sub.add_parser("prove-inequality", help="eşitsizliği ispatla (Z3 NRA, nonlineer)")
+    p.add_argument("goal", metavar="EŞİTSİZLİK", help="ör. 'x**2 + y**2 >= 2*x*y'")
+    p.add_argument("--assume", action="append", default=[], metavar="VARSAYIM")
+
+    p = sub.add_parser("prove-nonnegative", help="ifade ≥ 0 mı (her gerçel için)")
+    p.add_argument("expression", metavar="İFADE")
+    p.add_argument("--assume", action="append", default=[], metavar="VARSAYIM")
+
+    p = sub.add_parser("real-solve", help="nonlineer kısıtlara gerçel çözüm bul")
+    p.add_argument("constraints", nargs="+", metavar="KISIT")
+
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
 
@@ -309,6 +320,9 @@ _DISPATCH = {
     "optimize": lambda a: ("optimize", {"constraints": a.constraints, "objective": a.objective,
                                         "sense": "min" if a.min else "max"}),
     "maxsat": lambda a: ("maxsat", {"hard": a.hard, "soft": a.soft}),
+    "prove-inequality": lambda a: ("prove_inequality", {"goal": a.goal, "assumptions": a.assume}),
+    "prove-nonnegative": lambda a: ("prove_nonnegative", {"expression": a.expression, "assumptions": a.assume}),
+    "real-solve": lambda a: ("find_real_solution", {"constraints": a.constraints}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

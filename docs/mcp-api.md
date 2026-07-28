@@ -317,6 +317,28 @@ döner.
 
 ---
 
+## Eşitsizlik ispatı & nonlineer (Z3 NRA)
+
+Polinom eşitsizliklerini Z3'ün doğrusal-olmayan gerçel aritmetik (nonlinear real
+arithmetic, NRA / nlsat) karar yordamıyla **ispatlar** ya da karşıörnek verir.
+Yöntem: `∀x. P(x)` → `¬P(x)` UNSAT mı (ret-ile-ispat). Girdi burada **nonlineer**
+serbest: `Real` değişkenler, `+ - * / **` (üs = negatif-olmayan tam sayı),
+`< <= > >= == !=`, `and`/`or`/`not(...)`/`implies`/`iff`.
+
+| Araç | İmza | Örnek |
+|---|---|---|
+| `prove_inequality` | `prove_inequality(goal, assumptions=None)` | `x**2 + y**2 >= 2*x*y` → `valid` |
+| `prove_nonnegative` | `prove_nonnegative(expression, assumptions=None)` | `x**2 - 2*x + 1` → `valid` |
+| `find_real_solution` | `find_real_solution(constraints)` | `["x**2+y**2==1","x==y"]` → `sat` |
+
+Dönüş `ReasoningResult`: `prove_*` → `valid` (her yerde doğru) / `invalid`
+(`witness` karşıörnek) / `unknown`. `find_real_solution` → `sat` (`witness` somut
+nokta) / `unsat` / `unknown`. **Dürüstlük:** NRA teoride karar-verilebilir ama Z3
+zor örnekte `unknown`/timeout dönebilir — birinci sınıf raporlanır; hedef
+karşılaştırma değilse ya da üs değişkense (nonpolinom) `GUARDRAIL_VIOLATION`.
+
+---
+
 ## Track B araçları (frontier — SAT indirgeme)
 
 Zor problemleri **sağlanabilirliğe indirgeyip** çözer / imkânsızlığı ispatlar.

@@ -116,6 +116,7 @@ mathhead/
 ├── docs/
 │   ├── architecture.md  · katman şeması (Mermaid) + istek yaşam döngüsü
 │   ├── mcp-api.md        · net MCP protokol & araç tanımları + gramer
+│   ├── error-taxonomy.md · tüm status/reason_code kanonik listesi
 │   └── glossary.md       · terimler (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/
 │   ├── core/            · mantık çekirdeği (Z3) — logic.py, translate.py  [v1]
@@ -123,7 +124,8 @@ mathhead/
 │   ├── router/          · yönlendirme
 │   ├── guardrails/      · çit: doğrulama, timeout, determinizm
 │   └── server/          · MCP sunucusu (FastMCP, 42 araç)
-└── tests/               · smoke (geçer) + logic spec (best/worst, xfail)
+├── scripts/             · benchmark.py (performans taban çizgisi)
+└── tests/               · 242 test + fixtures/golden.json (regresyon çiti)
 ```
 
 ## Nereden okumaya başlamalı?

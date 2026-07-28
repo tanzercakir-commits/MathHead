@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — Aşama 5 [S] · sağlamlaştırma-2 (taksonomi + golden + benchmark)
+
+**Yapıldı**
+
+- **Hata taksonomisi:** `docs/error-taxonomy.md` — tüm `status`/`reason_code`
+  kanonik listesi. `tests/test_taxonomy.py` (4): 44 temsili çağrıyı tarar, her
+  kodu belgelenen kümeye karşı zorlar + "error → uydurma result yok" değişmezi.
+- **Golden fixtures:** `tests/fixtures/golden.json` (32 senaryo) + veri-güdümlü
+  `tests/test_golden.py` — bilinen çıktıların sessizce bozulmasına karşı çit.
+- **Benchmark:** `scripts/benchmark.py` (taban çizgisi, süre eşiği yok) + duman
+  testi. → **242/242 yeşil**.
+
+**Doğrulandı**
+
+- Taban çizgisi (N=15, medyan): en yavaş `recurrence` ~43ms, `pigeonhole` ~8ms,
+  gerisi <4ms. Sayı teorisi <0.1ms.
+- Yanlış alarm çürütüldü: `classify('or(...)')` "hatası" aslında geçersiz gramerdi
+  (`or` Python'da infix); doğru form `p or not(p)` → tautology. Araç sağlam.
+- Yeni araç/CLI yok (bilinçli sağlamlaştırma). API yüzeyi 42 araçta sabit.
+
+**Sıradaki:** Aşama 6 — çok değişkenli analiz (gradyan/Jacobian/Hessian/belirli
+integral/seri toplam/ODE).
+
 ## 2026-07-28 — Aşama 4 · kombinatorik & ayrık (perm/comb/factorial/partition/recurrence)
 
 **Yapıldı**

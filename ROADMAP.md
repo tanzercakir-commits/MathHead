@@ -52,9 +52,9 @@ Durum işareti: `[ ]` bekliyor · `[~]` sürüyor · `[x]` bitti · `[S]` = sağ
     └─ permütasyon/kombinasyon, binom, bölüntü (partition),
        yineleme bağıntısı (recurrence) kapalı-form çözümü ✅ (Fibonacci→Binet)
 
-[ ] Aşama 5 · [S] Sağlamlaştırma-2
-    └─ hata taksonomisi birleştirme (reason_code tutarlılığı) +
-       golden senaryolar (`tests/fixtures/*.json`) + benchmark iskeleti
+[x] Aşama 5 · [S] Sağlamlaştırma-2  (bitti — 242 test)
+    └─ hata taksonomisi (docs/error-taxonomy.md + test_taxonomy) +
+       golden senaryolar (fixtures/golden.json, 32) + benchmark iskeleti ✅
 
 [ ] Aşama 6 · Çok değişkenli analiz (multivariable)
     └─ gradyan, Jacobian, Hessian, belirli integral, seri toplam/çarpım,

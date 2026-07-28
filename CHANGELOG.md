@@ -61,6 +61,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Değişti / sağlamlaştırma
 
+- **Sağlamlaştırma-2 (ROADMAP Aşama 5):** (1) **Hata taksonomisi** birleştirildi
+  → `docs/error-taxonomy.md` (tüm `status`/`reason_code` kanonik listesi) +
+  `tests/test_taxonomy.py` bunu zorlar (belgesiz kod sızarsa kırılır). (2) **Golden
+  fixtures** → `tests/fixtures/golden.json` (32 bilinen girdi→çıktı) +
+  `tests/test_golden.py` (regresyon çiti). (3) **Benchmark iskeleti** →
+  `scripts/benchmark.py` (taban çizgisi; süre eşiği yok) + duman testi.
 - **Sağlamlaştırma-1 (ROADMAP Aşama 2) — hesap katmanı property testleri:**
   `tests/test_compute_properties.py`. Matematiksel değişmezler çapraz kontrol:
   `det(A·B)=det(A)·det(B)`, `det(Aᵀ)=det(A)`, `Ax=b` roundtrip (b=Ax → x geri),

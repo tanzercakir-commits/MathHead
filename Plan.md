@@ -27,7 +27,7 @@ offload** ederek bu üç duvara birden mimari cevap verir:
 |---|---|
 | **#1 Bağlam kaybı** | `Plan/Todo/Progress/DECISIONS` disiplini + her yanıtta izlenebilir `meta` (hangi çözücü, hangi sürüm, ne kadar sürdü). Kararlar `DECISIONS.md`'de kaybolmaz. |
 | **#2 Fazla varsayım** | Motor yalnızca **açık gramerin** izin verdiği girdiyi kabul eder; belirsizi *reddeder*, tahmin etmez. "Sessiz varsayım yok" kuralı. |
-| **#3 Non-determinizm** | Çekirdek deterministik (sabit tohum + zaman aşımı + tek iş parçacığı). **Aynı girdi → aynı çıktı.** AI'ın oynak kısmı motorun dışında kalır. |
+| **#3 Non-determinizm** | Çekirdek deterministik (sabit tohum + zaman aşımı). **Aynı girdi → aynı verdict** (kesin sonuç); tanık bir örnektir (ADR-0019). AI'ın oynak kısmı motorun dışında kalır. |
 
 ---
 

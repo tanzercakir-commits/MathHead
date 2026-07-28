@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-07-28 — sağlamlaştırma: property-based test (hypothesis)
+
+**Yapıldı**
+
+- `tests/test_properties.py`: `hypothesis` ile rastgele formüllerde değişmezler —
+  hiç çökmeme, `A⊨B ⟺ {A,¬B} tutarsız`, öz-gerektirme, `enumerate ⟺ consistency`,
+  türetici sağlamlığı. `hypothesis` dev bağımlılığı eklendi.
+- **Property testi GERÇEK bir zayıflık yakaladı:** tanık (model) çağrılar arası
+  değişebiliyordu (birden çok geçerli model). Determinizm iddiası kesinleştirildi:
+  **verdict garantidir, tanık bir örnektir** (ADR-0019); don't-care'ler kanonik
+  varsayılana sabitlendi. `PRINCIPLES` / `Plan` güncellendi.
+- **103/103 yeşil** (7 property testi dahil).
+
+**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans.
+
 ## 2026-07-28 — MaxSAT (yumuşak/ağırlıklı kısıtlar)
 
 **Yapıldı**

@@ -226,6 +226,22 @@
 - **Sonuçlar:** Ağırlıklı MaxSAT çalışır (ağır kısıt tercih edilir). `hard`
   sağlanamazsa `unsat`. Optimize (ADR-0017) ile aynı aileden farklı bir soru.
 
+## ADR-0019 — Determinizm: verdict garantidir, tanık bir örnektir
+
+- **Durum:** Kabul edildi · 2026-07-28
+- **Bağlam:** Property-based test (`hypothesis`), `check_consistency`'nin aynı
+  girdide farklı TANIK (model) döndürebildiğini yakaladı: birden çok geçerli model
+  varsa (ör. `iff(q,r)` → `{q:T,r:T}` veya `{q:F,r:F}`) Z3 çağrılar arası
+  farklısını seçebiliyor. Yani "aynı girdi → aynı çıktı" iddiası tanık düzeyinde
+  tutmuyordu.
+- **Karar:** Garanti kesinleştirildi: **verdict (status: valid/invalid/sat/unsat…)
+  deterministiktir**; **tanık (witness) geçerli bir örnektir** (birden çok çözümde
+  hangisi döndüğü değişebilir). Ayrıca kısıtlanmamış (don't-care) değişkenler
+  kanonik varsayılana (False/0) sabitlenir.
+- **Sonuçlar:** İddia artık dürüst ve property testiyle doğrulanıyor. Tam kanonik
+  tanık (lex-min) maliyetli olduğu için tercih edilmedi; asıl garanti olan
+  *cevabın* kararlılığı korunur.
+
 ---
 
 <!-- Yeni karar şablonu:

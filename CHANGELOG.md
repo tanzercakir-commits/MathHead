@@ -23,6 +23,13 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
   yumuşak (soft) kısıtı sağlar — aşırı-kısıtlı / çelişen isteklerin çözümü. MCP
   aracı (15 araç) + `mathhead maxsat` CLI.
 
+### Değişti / sağlamlaştırma
+
+- **Property-based testler (`hypothesis`):** rastgele formüllerde değişmezler
+  (çökme yok, araçlar tutarlı, türetici sağlam). Test bir zayıflık yakaladı →
+  **determinizm garantisi kesinleştirildi**: *verdict* deterministik, *tanık* bir
+  geçerli örnek (birden çok çözümde değişebilir) — ADR-0019.
+
 ## [0.1.0] — 2026-07-28
 
 İlk yayınlanabilir sürüm. AI'ın **MCP** üzerinden kullanabileceği, first-order

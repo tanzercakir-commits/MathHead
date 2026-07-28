@@ -91,11 +91,13 @@ def test_unknown_and_error_are_not_conclusive():
 
 
 # --------------------------- DETERMİNİZM (duvar #3) ------------------------ #
-def test_determinism_same_input_same_output():
-    query = (["x > 0", "x < 10"], "x < 5")  # invalid + karşıörnek
+def test_verdict_determinism_same_input():
+    # GARANTİ: aynı girdi -> aynı VERDICT (status + reason). Tanık bir örnektir
+    # (birden çok karşıörnek varsa değişebilir; bkz. ADR-0019).
+    query = (["x > 0", "x < 10"], "x < 5")  # invalid
     first = check_entailment(*query)
     assert first.status == "invalid"
     for _ in range(50):
         r = check_entailment(*query)
         assert r.status == first.status
-        assert r.witness == first.witness  # karşıörnek bile birebir aynı olmalı
+        assert r.reason_code == first.reason_code

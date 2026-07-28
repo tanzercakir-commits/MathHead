@@ -34,6 +34,7 @@ dev = [
     "pytest>=8.0",
     "pytest-timeout>=2.3",   # worst-case (zaman aşımı) testleri için guardrail
     "ruff>=0.6",             # lint (statik guardrail)
+    "hypothesis>=6.0",       # property-based (özellik temelli) testler
 ]
 
 [project.scripts]

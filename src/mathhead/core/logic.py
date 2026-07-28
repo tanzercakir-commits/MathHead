@@ -75,17 +75,34 @@ def _py_value(val: Any) -> Any:
     return str(val)                        # cebirsel/irrasyonel: tam metin gösterim
 
 
-def _witness(model: z3.ModelRef, symbols: dict[str, Any]) -> dict[str, Any]:
-    """Modeli, çekirdek değişkenler için okunur bir sözlüğe çevirir.
+def _default_for(const: Any) -> Any:
+    """Kısıtlanmamış (don't-care) değişken için KANONİK varsayılan -> determinizm."""
+    sort = const.sort()
+    if sort == z3.BoolSort():
+        return False
+    if sort == z3.IntSort():
+        return 0
+    if sort == z3.RealSort():
+        return 0.0
+    return None
 
-    `model_completion=True` -> "don't care" değişkenlere de somut değer atanır,
-    böylece çıktı her zaman tam ve deterministik olur. İç izleme (__track_) hariç.
+
+def _witness(model: z3.ModelRef, symbols: dict[str, Any]) -> dict[str, Any]:
+    """Modeli okunur, DETERMİNİSTİK bir sözlüğe çevirir.
+
+    Kısıtlanmamış (don't-care) değişkene Z3'ün oynak seçimini değil, kanonik
+    varsayılanı (False / 0) atarız — böylece "aynı girdi -> aynı tanık" gerçekten
+    tutar (property testiyle doğrulandı; bkz. ADR-0019). İç izleme (__track_) hariç.
     """
     out: dict[str, Any] = {}
     for name, const in symbols.items():
         if name.startswith("__track_"):
             continue
-        out[name] = _py_value(model.eval(const, model_completion=True))
+        val = model.eval(const, model_completion=False)
+        if z3.is_true(val) or z3.is_false(val) or z3.is_int_value(val) or z3.is_rational_value(val):
+            out[name] = _py_value(val)
+        else:  # atanmamış (don't-care) -> kanonik varsayılan
+            out[name] = _default_for(const)
     return dict(sorted(out.items()))
 
 

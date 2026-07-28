@@ -9,8 +9,10 @@
 
 ## Çekirdek prensipler
 
-1. **Determinizm önce gelir.** Aynı girdi → aynı çıktı. Rastgelelik gerekiyorsa
-   sabit tohumla (seed) kontrol edilir. Oynaklık motorun *dışında* kalır. *(Duvar #3)*
+1. **Determinizm önce gelir.** Aynı girdi → aynı **verdict** (kesin sonuç: valid/
+   invalid/sat/unsat). Tanık (witness) geçerli bir *örnektir*; birden çok çözüm
+   varsa hangisi döndüğü değişebilir ama verdict hep aynıdır (ADR-0019). Oynaklık
+   motorun *dışında* kalır. *(Duvar #3)*
 
 2. **Sessiz varsayım yok.** Girdi belirsiz, eksik ya da gramer dışıysa motor
    **reddeder** — "herhalde şunu kastetti" diye tahmin *etmez*. Reddin gerekçesi

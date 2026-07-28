@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — I5 [S] · I-track hardening → TRACK I DONE 🎉
+
+**Done**
+
+- New `tests/test_i_track_hardening.py` (11): property-based (hypothesis) + determinism +
+  fuzz across the Verification Layer II additions. No new features/tools — reliability only.
+- **Invariants proven on random input:** the genuine A·B always verifies (perturbed →
+  refuted); a linear equation solved by subtract-then-divide is always `DERIVATION_VALID`;
+  extended-Euclid Bézout coefficients always verify; a true prime factorization always
+  verifies; SymPy's derivative is always accepted by `verify_derivative`.
+- **Safety:** `verify_derivation` / `interpret` / `check_certificate` never crash on random
+  junk (always a valid status). **Determinism:** same input → same verdict across runs.
+- **564/564 green.**
+
+**Milestone:** Track I (Verification Layer II) is COMPLETE — verify_derivation (I3), the I1
+claim types, natural-language interpret (I2), and 13 certificate kinds (I4), all hardened.
+This is the product's differentiator: MathHead as the deterministic *auditor* of AI reasoning.
+
+**Next:** Track D (Analysis & Transforms) — the roadmap order is D → E → F → G → H → J → K.
+
 ## 2026-07-28 — I4 · certificate extension (matrix / number-theory / probability, stdlib)
 
 **Context:** Continued the D–K roadmap at I4 — extend the independent (stdlib-only)

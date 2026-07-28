@@ -64,7 +64,10 @@
       Anglicized output keys; bilingual TR+EN NL *input* kept as a feature) — 523/523 green
 - [x] **I3** full derivation proof check (verify_derivation — operation-replay justification) ✅ (542 tests, 71 tools)
 - [x] **I4** certificate extension — 8 new stdlib kinds (matrix/number-theory/probability) ✅ (553 tests)
-- [ ] **I5** [S] hardening
+- [x] **I5** [S] hardening — property/determinism/fuzz across the I-track ✅ (564 tests)
+
+### 🎉 TRACK I DONE — Verification Layer II (71 tools, 564 tests). Next: **D → E → F → G → H → J → K**.
+
 - [ ] then: D → E → F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

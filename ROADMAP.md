@@ -185,8 +185,10 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] I4 🟡 Certificate extension (C2 continuation) — matrix / number theory / probability certificates ✅
           (8 new stdlib kinds: matrix_product/inverse, linear_system, factorization, bezout_gcd,
            modular_inverse, chinese_remainder, expectation; engine-independence preserved)
-[ ] I5 [S] Hardening
+[x] I5 [S] Hardening — property-based + determinism + fuzz across the I-track ✅ (564 tests)
 ```
+
+### 🎉 TRACK I DONE — Verification Layer II (verify_derivation, I1 claim types, NL, 13 certificate kinds)
 
 ## J. Frontier — Track B extension
 ```

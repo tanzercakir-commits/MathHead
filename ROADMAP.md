@@ -132,8 +132,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           Green/Stokes/Gauss theorems deferred (region/surface modeling — larger effort)
 [x] D2 🟢 Integral transforms — Laplace & inverse, Fourier & inverse, Z-transform ✅
           (81 tools; honest COMPUTE_FAILED when no closed form; Z closed-form + ROC)
-[ ] D3 🟡 Differential equations II — ODE systems, higher order, boundary value;
-          basic PDE (heat/wave, separation of variables)   ↳ 🔴 general PDE solving limited
+[x] D3 🟡 Differential equations II — solve_ode_system / solve_ode_ivp (IVP+BVP) /
+          classify_ode / solve_pde ✅ (85 tools; shared _parse_diffeq; higher-order via solve_ode).
+          🔴 general PDE (heat/wave separation) beyond pdsolve → honest COMPUTE_FAILED
 [ ] D4 🟡 Complex analysis — residue, contour integral, Laurent series, complex evaluation
 [ ] D5 [S] Hardening — analysis identity properties (∇×∇f=0, ∇·(∇×F)=0) + numerical check
 ```

@@ -222,6 +222,13 @@ variables)` (∇×F, 3-D only), `laplacian(expression, variables)` (∇²f),
 returns the closed form + ROC). Each returns `error`/`COMPUTE_FAILED` when SymPy finds no closed
 form — an unevaluated transform object is never passed off as an answer.
 
+**Differential equations II (D3):** `solve_ode_system(equations, functions, var)`,
+`solve_ode_ivp(equation, conditions, func, var)` (IVP **or** BVP — conditions like
+`"y(0)=0"`, `"y'(0)=1"`), `classify_ode(equation, func, var)`, and `solve_pde(equation,
+variables, func)` (first-order linear only — honest `COMPUTE_FAILED` otherwise).
+Derivative input across the ODE/PDE family: prime notation `y'`/`y''` (w.r.t. the first
+variable) or the marker `D(func, var, …)` for explicit partials (e.g. `D(u,x)`).
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

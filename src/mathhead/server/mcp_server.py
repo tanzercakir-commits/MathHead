@@ -633,6 +633,44 @@ def solve_ode(equation: str, func: str = "y", var: str = "x") -> dict[str, Any]:
     return asdict(route("solve_ode", {"equation": equation, "func": func, "var": var}))
 
 
+@mcp.tool()
+def solve_ode_system(equations: list[str], functions: list[str], var: str = "x") -> dict[str, Any]:
+    """Solves a SYSTEM of ODEs for `functions` of one variable. Primes: `f'`, `g''`.
+
+    E.g. `["f' = g", "g' = -f"]`, `["f", "g"]` → f, g as sin/cos combinations.
+    """
+    return asdict(route("solve_ode_system",
+                        {"equations": equations, "functions": functions, "var": var}))
+
+
+@mcp.tool()
+def solve_ode_ivp(equation: str, conditions: list[str], func: str = "y",
+                  var: str = "x") -> dict[str, Any]:
+    """Solves an ODE with initial/boundary conditions (IVP or BVP).
+
+    `conditions` e.g. `["y(0)=1", "y'(0)=0"]` (initial) or `["y(0)=0", "y(1)=2"]`
+    (boundary; `pi` allowed in a point). E.g. y''+y=0, y(0)=0, y'(0)=1 → `Eq(y(x), sin(x))`.
+    """
+    return asdict(route("solve_ode_ivp",
+                        {"equation": equation, "conditions": conditions, "func": func, "var": var}))
+
+
+@mcp.tool()
+def classify_ode(equation: str, func: str = "y", var: str = "x") -> dict[str, Any]:
+    """Classifies an ODE — the applicable SymPy solution methods (e.g. `separable`, `1st_linear`)."""
+    return asdict(route("classify_ode", {"equation": equation, "func": func, "var": var}))
+
+
+@mcp.tool()
+def solve_pde(equation: str, variables: list[str], func: str = "u") -> dict[str, Any]:
+    """Solves a first-order linear PDE (SymPy `pdsolve`). Partials via `D(u, x)`, `D(u, y)`.
+
+    HONEST scope: only what `pdsolve` supports (mostly first-order linear); otherwise
+    `COMPUTE_FAILED`. E.g. `"D(u,x) + D(u,y) = 0"`, `["x","y"]` → `Eq(u(x,y), F(x - y))`.
+    """
+    return asdict(route("solve_pde", {"equation": equation, "variables": variables, "func": func}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

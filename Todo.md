@@ -70,7 +70,8 @@
 
 - [x] **D1** vector calculus — divergence/curl/laplacian/directional_derivative/line_integral ✅ (591 tests, 76 tools, +π/e)
 - [x] **D2** integral transforms — Laplace/Fourier/Z (+inverses) ✅ (614 tests, 81 tools)
-- [ ] **D3** diff-eq II · **D4** complex analysis · **D5** [S]
+- [x] **D3** diff-eq II — ode_system/ode_ivp(IVP+BVP)/classify_ode/solve_pde ✅ (635 tests, 85 tools)
+- [ ] **D4** complex analysis · **D5** [S]
 - [ ] then: E → F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

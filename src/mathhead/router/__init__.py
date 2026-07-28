@@ -243,6 +243,18 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "solve_ode":
         return compute.solve_ode(payload["equation"], payload.get("func", "y"),
                                  payload.get("var", "x"))
+    if task == "solve_ode_system":
+        return compute.solve_ode_system(payload["equations"], payload["functions"],
+                                        payload.get("var", "x"))
+    if task == "solve_ode_ivp":
+        return compute.solve_ode_ivp(payload["equation"], payload["conditions"],
+                                     payload.get("func", "y"), payload.get("var", "x"))
+    if task == "classify_ode":
+        return compute.classify_ode(payload["equation"], payload.get("func", "y"),
+                                    payload.get("var", "x"))
+    if task == "solve_pde":
+        return compute.solve_pde(payload["equation"], payload.get("func", "u"),
+                                 payload["variables"])
 
     # --- Probability & statistics ---
     if task == "mean":

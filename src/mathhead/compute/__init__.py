@@ -1187,16 +1187,22 @@ def product(expression: str, index: str, lower: str, upper: str) -> ComputeResul
                          f"Π({index}={lower}..{upper}) {expression} = {result}.", "OK", _meta(t0))
 
 
-def solve_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
-    """Solves an ordinary differential equation (ODE). Derivative: `y'`, `y''` (prime).
+def _parse_diffeq(equation: str, func_names: list[str], var_names: list[str]):
+    """Parses an ODE/PDE string to `(expr = LHS − RHS, func_map, var_map)`.
 
-    E.g. `"y' = y"` → `Eq(y(x), C1*exp(x))`; `"y'' + y = 0"` → C1·sin + C2·cos.
-    If it cannot be solved (no closed form), an honest error.
+    Shared by the whole differential-equation family. Derivatives: prime notation
+    (`y'`, `y''` — w.r.t. the FIRST variable) or the marker `D(func, ...)` whose args
+    are either an integer order (single-variable) or explicit variables (partials).
+    Only the declared function/variable names, whitelisted elementary functions,
+    arithmetic, and the constants `pi`/`E` are allowed; everything else is rejected.
     """
     import re
-    t0 = time.perf_counter()
-    F = sympy.Function(func)
-    varsym = sympy.Symbol(var)
+    var_map = {v: sympy.Symbol(v) for v in var_names}
+    func_map = {f: sympy.Function(f) for f in func_names}
+    primary = var_map[var_names[0]]
+
+    def _applied(name: str) -> Any:
+        return func_map[name](*[var_map[v] for v in var_names])
 
     def _tr(node: ast.AST) -> Any:
         if isinstance(node, ast.BinOp):
@@ -1216,54 +1222,191 @@ def solve_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
                 return _tr(node.operand)
             raise ComputeError("disallowed unary operator")
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-            if node.func.id == "D":     # derivative marker: D(func, order)
-                if len(node.args) != 2 or not (
-                    isinstance(node.args[0], ast.Name) and node.args[0].id == func
-                ) or not (isinstance(node.args[1], ast.Constant)
-                          and isinstance(node.args[1].value, int)):
-                    raise ComputeError("derivative must be of the form D(func, order)")
-                return sympy.Derivative(F(varsym), varsym, node.args[1].value)
-            if node.func.id == func:    # explicit y(x)
-                return F(varsym)
-            if node.func.id in _FUNCS:
-                return _FUNCS[node.func.id](*[_tr(a) for a in node.args])
-            raise ComputeError(f"disallowed call: {node.func.id}")
+            fid = node.func.id
+            if fid == "D":                       # derivative marker
+                if not node.args or not isinstance(node.args[0], ast.Name) \
+                        or node.args[0].id not in func_map:
+                    raise ComputeError("D(...)'s first argument must be a declared function")
+                base = _applied(node.args[0].id)
+                rest = node.args[1:]
+                if len(rest) == 1 and isinstance(rest[0], ast.Constant) \
+                        and isinstance(rest[0].value, int) and not isinstance(rest[0].value, bool):
+                    return sympy.Derivative(base, primary, rest[0].value)
+                diffvars = []
+                for a in rest:
+                    if not (isinstance(a, ast.Name) and a.id in var_map):
+                        raise ComputeError("D(...) differentiation args must be declared variables")
+                    diffvars.append(var_map[a.id])
+                if not diffvars:
+                    raise ComputeError("D(...) needs an order or at least one variable")
+                return sympy.Derivative(base, *diffvars)
+            if fid in func_map:
+                return _applied(fid)
+            if fid in _FUNCS:
+                return _FUNCS[fid](*[_tr(a) for a in node.args])
+            raise ComputeError(f"disallowed call: {fid}")
         if isinstance(node, ast.Name):
-            if node.id == var:
-                return varsym
-            if node.id == func:
-                return F(varsym)
+            if node.id in var_map:
+                return var_map[node.id]
+            if node.id in func_map:
+                return _applied(node.id)
+            if node.id in _CONSTS:
+                return _CONSTS[node.id]
             raise ComputeError(f"disallowed name: {node.id}")
         if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) \
                 and not isinstance(node.value, bool):
             return sympy.Integer(node.value) if isinstance(node.value, int) else sympy.Float(node.value)
         raise ComputeError("could not parse expression")
 
+    src = str(equation).strip()
+    for name in func_names:                      # y', y'' -> D(y,1), D(y,2)
+        src = re.sub(rf"\b{re.escape(name)}('+)",
+                     lambda m, nm=name: f"D({nm},{len(m.group(1))})", src)
+    if "=" in src and "==" not in src:
+        src = src.replace("=", "==", 1)
     try:
-        src = str(equation).strip()
-        # y', y'' ... -> D(y,1), D(y,2) ... (convert the prime into an ast-friendly call)
-        src = re.sub(rf"{re.escape(func)}('+)",
-                     lambda m: f"D({func},{len(m.group(1))})", src)
-        if "=" in src and "==" not in src:
-            src = src.replace("=", "==", 1)
         body = ast.parse(src, mode="eval").body
-        if isinstance(body, ast.Compare):
-            if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):
-                raise ComputeError("only the '==' comparison is supported")
-            expr = _tr(body.left) - _tr(body.comparators[0])
-        else:
-            expr = _tr(body)
+    except (SyntaxError, ValueError) as exc:
+        raise ComputeError(f"could not parse: {exc}") from exc
+    if isinstance(body, ast.Compare):
+        if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):
+            raise ComputeError("only the '==' comparison is supported")
+        return _tr(body.left) - _tr(body.comparators[0]), func_map, var_map
+    return _tr(body), func_map, var_map
+
+
+def solve_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
+    """Solves an ordinary differential equation (ODE). Derivative: `y'`, `y''` (prime).
+
+    E.g. `"y' = y"` → `Eq(y(x), C1*exp(x))`; `"y'' + y = 0"` → C1·sin + C2·cos.
+    If it cannot be solved (no closed form), an honest error.
+    """
+    t0 = time.perf_counter()
+    try:
+        expr, func_map, var_map = _parse_diffeq(equation, [func], [var])
     except ComputeError as exc:
         return _error("solve_ode", str(exc), t0)
-    except (SyntaxError, ValueError) as exc:
-        return _error("solve_ode", f"could not parse: {exc}", t0)
     try:
-        sol = sympy.dsolve(expr, F(varsym))
+        applied = func_map[func](var_map[var])
+        sol = sympy.dsolve(expr, applied)
         result = [str(s) for s in sol] if isinstance(sol, list) else str(sol)
     except Exception as exc:  # noqa: BLE001
         return _error("solve_ode", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "solve_ode", result,
                          f"ODE solution ({func}({var})).", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# D3 — differential equations II: ODE systems, initial/boundary value problems,
+# ODE classification, and (limited) first-order linear PDEs. Built on the shared
+# `_parse_diffeq`. Honest COMPUTE_FAILED whenever SymPy finds no closed form.
+# --------------------------------------------------------------------------- #
+def solve_ode_system(equations: list[str], functions: list[str],
+                     var: str = "x") -> ComputeResult:
+    """Solves a SYSTEM of ODEs for `functions` of a single variable `var`.
+
+    E.g. `["f' = g", "g' = -f"]`, `["f", "g"]` → f, g as sin/cos combinations.
+    """
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(equations, list) or not equations:
+            raise ComputeError("the equation list cannot be empty")
+        if not isinstance(functions, list) or not functions:
+            raise ComputeError("the function list cannot be empty")
+        parsed = []
+        func_map = var_map = None
+        for eq in equations:
+            expr, func_map, var_map = _parse_diffeq(eq, functions, [var])
+            parsed.append(sympy.Eq(expr, 0))
+    except ComputeError as exc:
+        return _error("solve_ode_system", str(exc), t0)
+    try:
+        applied = [func_map[f](var_map[var]) for f in functions]
+        sol = sympy.dsolve(parsed, applied)
+        result = [str(s) for s in sol] if isinstance(sol, (list, tuple)) else str(sol)
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_ode_system", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "solve_ode_system", result,
+                         f"ODE system solution ({', '.join(functions)}).", "OK", _meta(t0))
+
+
+def solve_ode_ivp(equation: str, conditions: list[str], func: str = "y",
+                  var: str = "x") -> ComputeResult:
+    """Solves an ODE with initial/boundary conditions (IVP **or** BVP).
+
+    `conditions`: e.g. `["y(0)=1", "y'(0)=0"]` (initial) or `["y(0)=0", "y(1)=2"]`
+    (boundary). A `pi` in a point is allowed (e.g. `y(pi/2)=1`).
+    """
+    import re
+    t0 = time.perf_counter()
+    csyms: dict[str, Any] = {}
+    try:
+        if not isinstance(conditions, list) or not conditions:
+            raise ComputeError("at least one condition is required")
+        expr, func_map, var_map = _parse_diffeq(equation, [func], [var])
+        F, varsym = func_map[func], var_map[var]
+        ics = {}
+        for c in conditions:
+            m = re.match(rf"^\s*{re.escape(func)}('*)\(([^)]+)\)\s*=\s*(.+)$", str(c).strip())
+            if not m:
+                raise ComputeError(f"bad condition (expected {func}(point)=value): {c!r}")
+            order = len(m.group(1))
+            point = _parse_point(m.group(2), csyms)
+            value = _parse(m.group(3), csyms)
+            key = (F(varsym).diff(varsym, order).subs(varsym, point) if order
+                   else F(varsym).subs(varsym, point))
+            ics[key] = value
+    except ComputeError as exc:
+        return _error("solve_ode_ivp", str(exc), t0)
+    try:
+        sol = sympy.dsolve(expr, F(varsym), ics=ics)
+        result = [str(s) for s in sol] if isinstance(sol, list) else str(sol)
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_ode_ivp", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "solve_ode_ivp", result,
+                         f"ODE solution with {len(conditions)} condition(s).", "OK", _meta(t0))
+
+
+def classify_ode(equation: str, func: str = "y", var: str = "x") -> ComputeResult:
+    """Returns SymPy's classification of the ODE — the applicable solution methods."""
+    t0 = time.perf_counter()
+    try:
+        expr, func_map, var_map = _parse_diffeq(equation, [func], [var])
+    except ComputeError as exc:
+        return _error("classify_ode", str(exc), t0)
+    try:
+        kinds = list(sympy.classify_ode(expr, func_map[func](var_map[var])))
+    except Exception as exc:  # noqa: BLE001
+        return _error("classify_ode", f"could not classify: {exc}", t0, "COMPUTE_FAILED")
+    if not kinds:
+        return _error("classify_ode", "no known classification (honest).", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "classify_ode", kinds,
+                         f"ODE classification ({len(kinds)} method(s); first: {kinds[0]}).",
+                         "OK", _meta(t0))
+
+
+def solve_pde(equation: str, func: str = "u", variables: list[str] | None = None) -> ComputeResult:
+    """Solves a first-order linear PDE (SymPy `pdsolve`). Partials via `D(u, x)`, `D(u, y)`.
+
+    HONEST scope: only the limited class SymPy's `pdsolve` supports (mostly first-order
+    linear); anything else → `COMPUTE_FAILED`. E.g. `"D(u,x) + D(u,y) = 0"` → `u = F(x - y)`.
+    """
+    t0 = time.perf_counter()
+    try:
+        if not isinstance(variables, list) or len(variables) < 2:
+            raise ComputeError("a PDE needs at least 2 variables")
+        expr, func_map, var_map = _parse_diffeq(equation, [func], variables)
+    except ComputeError as exc:
+        return _error("solve_pde", str(exc), t0)
+    try:
+        applied = func_map[func](*[var_map[v] for v in variables])
+        sol = sympy.pdsolve(expr, applied)
+        result = [str(s) for s in sol] if isinstance(sol, list) else str(sol)
+    except Exception as exc:  # noqa: BLE001
+        return _error("solve_pde", f"could not solve (PDE support is limited): {exc}",
+                      t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "solve_pde", result,
+                         f"PDE solution ({func}({', '.join(variables)})).", "OK", _meta(t0))
 
 
 # --------------------------------------------------------------------------- #

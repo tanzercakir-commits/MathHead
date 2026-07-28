@@ -105,6 +105,11 @@ ARGS = {
     "summation": {"expression": "i", "index": "i", "lower": "1", "upper": "n"},
     "product": {"expression": "i", "index": "i", "lower": "1", "upper": "5"},
     "solve_ode": {"equation": "y' = y", "func": "y", "var": "x"},
+    "solve_ode_system": {"equations": ["f' = g", "g' = -f"], "functions": ["f", "g"], "var": "x"},
+    "solve_ode_ivp": {"equation": "y'' + y = 0", "conditions": ["y(0)=0", "y'(0)=1"],
+                      "func": "y", "var": "x"},
+    "classify_ode": {"equation": "y' + y", "func": "y", "var": "x"},
+    "solve_pde": {"equation": "D(u,x) + D(u,y) = 0", "variables": ["x", "y"], "func": "u"},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

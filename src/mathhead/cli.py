@@ -375,6 +375,28 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("equation", metavar="EQUATION", help="e.g. \"y'' + y = 0\"")
     p.add_argument("--func", default="y"); p.add_argument("--var", default="x")
 
+    p = sub.add_parser("ode-system", help="system of ODEs (multiple --eq, --func, --var)")
+    p.add_argument("--eq", action="append", default=[], required=True, metavar="EQUATION")
+    p.add_argument("--func", action="append", default=[], required=True, metavar="FUNC")
+    p.add_argument("--var", default="x")
+
+    p = sub.add_parser("ode-ivp", help="ODE with initial/boundary conditions (IVP/BVP)")
+    p.add_argument("equation", metavar="EQUATION", help="e.g. \"y'' + y = 0\"")
+    p.add_argument("--cond", action="append", default=[], required=True, metavar="COND",
+                   help="condition, e.g. \"y(0)=0\" or \"y'(0)=1\" (repeatable)")
+    p.add_argument("--func", default="y")
+    p.add_argument("--var", default="x")
+
+    p = sub.add_parser("classify-ode", help="classify an ODE (solution methods)")
+    p.add_argument("equation", metavar="EQUATION")
+    p.add_argument("--func", default="y")
+    p.add_argument("--var", default="x")
+
+    p = sub.add_parser("pde", help="first-order linear PDE (partials via D(u,x))")
+    p.add_argument("equation", metavar="EQUATION", help="e.g. \"D(u,x) + D(u,y) = 0\"")
+    p.add_argument("--vars", required=True, metavar="X,Y", help="variables, with ','")
+    p.add_argument("--func", default="u")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -529,6 +551,16 @@ _DISPATCH = {
     "product": lambda a: ("product", {"expression": a.expression, "index": a.index,
                                       "lower": a.lower, "upper": a.upper}),
     "ode": lambda a: ("solve_ode", {"equation": a.equation, "func": a.func, "var": a.var}),
+    "ode-system": lambda a: ("solve_ode_system",
+                             {"equations": a.eq, "functions": a.func, "var": a.var}),
+    "ode-ivp": lambda a: ("solve_ode_ivp",
+                          {"equation": a.equation, "conditions": a.cond,
+                           "func": a.func, "var": a.var}),
+    "classify-ode": lambda a: ("classify_ode",
+                               {"equation": a.equation, "func": a.func, "var": a.var}),
+    "pde": lambda a: ("solve_pde",
+                      {"equation": a.equation, "func": a.func,
+                       "variables": [v.strip() for v in a.vars.split(",")]}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **81 tools**.
+Total **85 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -285,6 +285,22 @@ Product Π — product of `expression` for `index`=lower..upper.
 ### `solve_ode(equation, func='y', var='x')`
 
 Solves an ordinary differential equation (ODE). Derivative: `y'`, `y''` (prime).
+
+### `solve_ode_system(equations, functions, var='x')`
+
+Solves a SYSTEM of ODEs for `functions` of one variable. Primes: `f'`, `g''`.
+
+### `solve_ode_ivp(equation, conditions, func='y', var='x')`
+
+Solves an ODE with initial/boundary conditions (IVP or BVP).
+
+### `classify_ode(equation, func='y', var='x')`
+
+Classifies an ODE — the applicable SymPy solution methods (e.g. `separable`, `1st_linear`).
+
+### `solve_pde(equation, variables, func='u')`
+
+Solves a first-order linear PDE (SymPy `pdsolve`). Partials via `D(u, x)`, `D(u, y)`.
 
 ### `mean(data)`
 

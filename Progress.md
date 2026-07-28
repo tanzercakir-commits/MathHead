@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-28 — D3 · differential equations II (systems / IVP+BVP / classify / PDE)
+
+**Done — 4 new compute tools (85 total):**
+
+- `solve_ode_system` (systems of ODEs), `solve_ode_ivp` (initial **or** boundary
+  conditions — one tool covers IVP and BVP), `classify_ode` (SymPy's solution-method
+  classification), `solve_pde` (first-order linear via `pdsolve`).
+- **Refactor:** extracted a shared `_parse_diffeq(equation, func_names, var_names)` —
+  one ODE/PDE parser for the whole family (multiple functions, multiple variables;
+  prime `y'`/`y''` **and** the `D(func, var, …)` partial marker). `solve_ode` now uses
+  it too (behavior preserved — its 16 tests stay green).
+- Wired router + MCP (85 tools) + CLI (`ode-system`/`ode-ivp`/`classify-ode`/`pde`) +
+  `tests/test_diffeq.py` (13) → **635/635 green**.
+
+**Verified:** f'=g, g'=-f → sin/cos pair; y''+y=0 with y(0)=0,y'(0)=1 → sin(x) (IVP);
+y(0)=0, y(pi/2)=1 → sin(x) (BVP, uses the π constant); classify(y'+y) includes
+`1st_linear`/`separable`; u_x+u_y=0 → u=F(x−y).
+
+**Honest wall:** general PDE (heat/wave via separation of variables) is beyond SymPy's
+`pdsolve` — those return `COMPUTE_FAILED` rather than a fabricated closed form. Only the
+first-order linear class `pdsolve` supports is claimed.
+
+**Next:** D4 — complex analysis (residue, contour integral, Laurent series, evaluation).
+
 ## 2026-07-28 — D2 · integral transforms (Laplace / Fourier / Z)
 
 **Done — 5 new compute tools (81 total):**

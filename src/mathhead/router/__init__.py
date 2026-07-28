@@ -400,6 +400,14 @@ def route(task: str, payload: dict[str, Any]) -> (
                                            payload.get("intervals", 100))
     if task == "interpolate":
         return compute.interpolate(payload["points"], payload.get("at"))
+    if task == "numerical_eigenvalues":
+        return compute.numerical_eigenvalues(payload["matrix"])
+    if task == "condition_number":
+        return compute.condition_number(payload["matrix"])
+    if task == "runge_kutta":
+        return compute.runge_kutta(payload["rhs"], payload["x0"], payload["y0"], payload["x_end"],
+                                   payload.get("steps", 100), payload.get("func", "y"),
+                                   payload.get("var", "x"))
 
     # --- Probability & statistics ---
     if task == "mean":

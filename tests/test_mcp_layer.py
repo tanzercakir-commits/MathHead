@@ -179,6 +179,9 @@ ARGS = {
     "numerical_integrate": {"expression": "x**2", "symbol": "x", "lower": 0, "upper": 3,
                             "method": "simpson", "intervals": 100},
     "interpolate": {"points": [[0, 1], [1, 3], [2, 7]], "at": 3},
+    "numerical_eigenvalues": {"matrix": [["2", "1"], ["1", "2"]]},
+    "condition_number": {"matrix": [["2", "0"], ["0", "1"]]},
+    "runge_kutta": {"rhs": "y", "x0": 0, "y0": 1, "x_end": 1, "steps": 100, "func": "y", "var": "x"},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

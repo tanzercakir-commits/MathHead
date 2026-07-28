@@ -289,6 +289,11 @@ upper, method="simpson", intervals=100)` (Simpson/trapezoid), `interpolate(point
 (Lagrange). Numerical work runs at fixed mpmath precision → DETERMINISTIC; non-convergence is
 flagged (`converged:false`), not hidden.
 
+**Numerical linear algebra & ODE (G2):** `numerical_eigenvalues(matrix)` (mpmath; complex ones as
+`a ± b*I`), `condition_number(matrix)` (κ = σ_max/σ_min; `null` if singular), `runge_kutta(rhs, x0,
+y0, x_end, steps=100, func="y", var="x")` (RK4 IVP solver → `{x_end, y_end, trajectory}`; e.g.
+y'=y, y(0)=1 → e).
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

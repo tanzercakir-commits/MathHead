@@ -3127,6 +3127,113 @@ def interpolate(points: list, at: float | None = None) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# G2 — numerical linear algebra & ODE: numerical eigenvalues, condition number,
+# and a Runge-Kutta (RK4) initial-value solver. Fixed mpmath precision → determinism.
+# --------------------------------------------------------------------------- #
+def _fmt_complex(z: Any, digits: int = 10) -> str:
+    """Formats a (possibly complex) numeric value; drops a negligible imaginary part."""
+    re, im = float(z.real), float(z.imag)
+    if abs(im) < 1e-12:
+        return str(round(re, digits))
+    return f"{round(re, digits)} {'+' if im >= 0 else '-'} {round(abs(im), digits)}*I"
+
+
+def numerical_eigenvalues(matrix: list[list[str]]) -> ComputeResult:
+    """Numerical eigenvalues of a square matrix (mpmath). Handles matrices whose symbolic
+    eigenvalues are intractable; complex eigenvalues are reported as `a ± b*I`."""
+    import mpmath as mp
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if M.rows != M.cols:
+            raise ComputeError("matrix must be square")
+        if syms:
+            raise ComputeError("matrix must be numeric for a numerical eigenvalue computation")
+    except ComputeError as exc:
+        return _error("numerical_eigenvalues", str(exc), t0)
+    try:
+        with mp.workdps(30):
+            A = mp.matrix([[mp.mpf(str(M[i, j])) for j in range(M.cols)] for i in range(M.rows)])
+            eigs, _ = mp.eig(A)
+            result = [_fmt_complex(e) for e in eigs]
+    except Exception as exc:  # noqa: BLE001
+        return _error("numerical_eigenvalues", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "numerical_eigenvalues", result,
+                         f"{len(result)} eigenvalue(s).", "OK", _meta(t0))
+
+
+def condition_number(matrix: list[list[str]]) -> ComputeResult:
+    """2-norm condition number κ(A) = σ_max / σ_min. Large κ ⟹ ill-conditioned; ∞ if singular."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(matrix, syms)
+        if syms:
+            raise ComputeError("matrix must be numeric")
+    except ComputeError as exc:
+        return _error("condition_number", str(exc), t0)
+    try:
+        svs = [sympy.Abs(s) for s in M.singular_values()]
+        smax = max(svs, key=lambda s: float(s))
+        smin = min(svs, key=lambda s: float(s))
+    except Exception as exc:  # noqa: BLE001
+        return _error("condition_number", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    if float(smin) == 0:
+        return ComputeResult("ok", "condition_number", None,
+                             "the matrix is singular (σ_min = 0) — condition number is infinite.",
+                             "OK", _meta(t0))
+    kappa = round(float(smax / smin), 10)
+    return ComputeResult("ok", "condition_number", kappa,
+                         f"κ(A) = {kappa}.", "OK", _meta(t0))
+
+
+def runge_kutta(rhs: str, x0: float, y0: float, x_end: float, steps: int = 100,
+                func: str = "y", var: str = "x") -> ComputeResult:
+    """Solves the IVP y' = f(x, y), y(x0)=y0, up to x_end using classic RK4.
+
+    `rhs` is f(x, y) (in `var` and `func`). Returns the final value and a sampled trajectory.
+    """
+    import mpmath as mp
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(steps, int) or steps < 1:
+            raise ComputeError("steps must be an integer >= 1")
+        syms[var] = sympy.Symbol(var)
+        syms[func] = sympy.Symbol(func)
+        expr = _parse(rhs, syms)
+        xs, ys = syms[var], syms[func]
+        extra = sorted((s for s in expr.free_symbols if s not in (xs, ys)), key=str)
+        if extra:
+            raise ComputeError(f"rhs has extra symbol(s): {', '.join(map(str, extra))}")
+    except ComputeError as exc:
+        return _error("runge_kutta", str(exc), t0)
+    f = sympy.lambdify((xs, ys), expr, "mpmath")
+    try:
+        with mp.workdps(30):
+            x, y = mp.mpf(str(x0)), mp.mpf(str(y0))
+            h = (mp.mpf(str(x_end)) - x) / steps
+            traj = [[round(float(x), 10), round(float(y), 10)]]
+            sample_every = max(1, steps // 20)
+            for i in range(1, steps + 1):
+                k1 = f(x, y)
+                k2 = f(x + h / 2, y + h * k1 / 2)
+                k3 = f(x + h / 2, y + h * k2 / 2)
+                k4 = f(x + h, y + h * k3)
+                y = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+                x = x + h
+                if i % sample_every == 0 or i == steps:
+                    traj.append([round(float(x), 10), round(float(y), 10)])
+            result = {"x_end": round(float(x), 10), "y_end": round(float(y), 10), "trajectory": traj}
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        return _error("runge_kutta", f"numerical failure: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "runge_kutta", result,
+                         f"y({result['x_end']}) ≈ {result['y_end']} (RK4, {steps} steps).",
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

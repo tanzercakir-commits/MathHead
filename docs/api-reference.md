@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **142 tools**.
+Total **145 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -529,6 +529,18 @@ Numerical integral over [lower, upper] via composite `simpson` or `trapezoid`. E
 ### `interpolate(points, at=None)`
 
 Lagrange polynomial through `points` ([x,y] list). E.g. (0,1),(1,3),(2,7) → `x**2 + x + 1`.
+
+### `numerical_eigenvalues(matrix)`
+
+Numerical eigenvalues of a square matrix (mpmath). Complex ones reported as `a ± b*I`.
+
+### `condition_number(matrix)`
+
+2-norm condition number κ(A) = σ_max/σ_min. Large κ ⟹ ill-conditioned; `null` if singular.
+
+### `runge_kutta(rhs, x0, y0, x_end, steps=100, func='y', var='x')`
+
+RK4 solver for the IVP y' = f(x, y), y(x0)=y0, up to x_end → `{x_end, y_end, trajectory}`.
 
 ### `mean(data)`
 

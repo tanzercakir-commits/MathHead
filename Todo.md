@@ -99,7 +99,8 @@
 ### Track G — Numerical Methods (in progress)
 
 - [x] **G1** root & numerical analysis — newton/bisection/secant, num-integrate, interpolate ✅ (929 tests, 142 tools)
-- [ ] **G2** numerical linalg & ODE · **G3** precision bridge · **G4** [S]
+- [x] **G2** numerical linalg & ODE — numerical_eigenvalues/condition_number/runge_kutta ✅ (947 tests, 145 tools)
+- [ ] **G3** precision bridge · **G4** [S]
 - [ ] then: H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

@@ -636,6 +636,21 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--points", required=True, metavar="JSON", help="e.g. '[[0,1],[1,3],[2,7]]'")
     p.add_argument("--at", type=float)
 
+    p = sub.add_parser("num-eigenvalues", help="numerical eigenvalues ('2,1;1,2')")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("condition-number", help="2-norm condition number")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("rk4", help="Runge-Kutta (RK4) ODE solver y' = f(x,y)")
+    p.add_argument("rhs", metavar="RHS", help="f(x,y), e.g. 'y' or 'x+y'")
+    p.add_argument("x0", type=float)
+    p.add_argument("y0", type=float)
+    p.add_argument("x_end", type=float)
+    p.add_argument("--steps", type=int, default=100)
+    p.add_argument("--func", default="y")
+    p.add_argument("--var", default="x")
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -893,6 +908,11 @@ _DISPATCH = {
                                  "upper": a.upper, "method": a.method, "intervals": a.intervals}),
     "interpolate": lambda a: ("interpolate",
                               {"points": json.loads(a.points), "at": a.at}),
+    "num-eigenvalues": lambda a: ("numerical_eigenvalues", {"matrix": _matrix(a.matrix)}),
+    "condition-number": lambda a: ("condition_number", {"matrix": _matrix(a.matrix)}),
+    "rk4": lambda a: ("runge_kutta",
+                      {"rhs": a.rhs, "x0": a.x0, "y0": a.y0, "x_end": a.x_end,
+                       "steps": a.steps, "func": a.func, "var": a.var}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

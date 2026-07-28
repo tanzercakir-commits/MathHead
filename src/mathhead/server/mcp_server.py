@@ -1090,6 +1090,29 @@ def interpolate(points: list, at: float | None = None) -> dict[str, Any]:
 
 
 @mcp.tool()
+def numerical_eigenvalues(matrix: list[list[str]]) -> dict[str, Any]:
+    """Numerical eigenvalues of a square matrix (mpmath). Complex ones reported as `a ± b*I`."""
+    return asdict(route("numerical_eigenvalues", {"matrix": matrix}))
+
+
+@mcp.tool()
+def condition_number(matrix: list[list[str]]) -> dict[str, Any]:
+    """2-norm condition number κ(A) = σ_max/σ_min. Large κ ⟹ ill-conditioned; `null` if singular."""
+    return asdict(route("condition_number", {"matrix": matrix}))
+
+
+@mcp.tool()
+def runge_kutta(rhs: str, x0: float, y0: float, x_end: float, steps: int = 100,
+                func: str = "y", var: str = "x") -> dict[str, Any]:
+    """RK4 solver for the IVP y' = f(x, y), y(x0)=y0, up to x_end → `{x_end, y_end, trajectory}`.
+
+    E.g. rhs `"y"`, y(0)=1 to x=1 → y_end ≈ 2.71828 (e). Deterministic (fixed precision).
+    """
+    return asdict(route("runge_kutta", {"rhs": rhs, "x0": x0, "y0": y0, "x_end": x_end,
+                                        "steps": steps, "func": func, "var": var}))
+
+
+@mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""
     return asdict(route("mean", {"data": data}))

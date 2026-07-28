@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-07-28 — G2 · numerical linear algebra & ODE
+
+**Done — 3 new compute tools (145 total):**
+
+- `numerical_eigenvalues` (mpmath.eig; complex eigenvalues as `a ± b*I`), `condition_number`
+  (κ = σ_max/σ_min; `null` when singular), `runge_kutta` (classic RK4 IVP solver → final value +
+  a sampled trajectory).
+- Deterministic (fixed `mpmath.workdps(30)`). Wired router + MCP (145 tools) + CLI
+  (`num-eigenvalues`/`condition-number`/`rk4`) + `tests/test_numerical_linalg.py` (11) → **947/947 green**.
+
+**Verified:** eig([[2,1],[1,2]]) = {1,3}; eig(rotation) = ±i; κ(diag(2,1))=2, κ(I)=1, singular→∞;
+RK4 of y'=y → e, y'=x → x²/2 (2 at x=2), y'=2x+1 → x²+x (12 at x=3).
+
+**Next:** G3 — precision bridge (arbitrary-precision eval, symbolic↔numeric cross-validation, error bounds).
+
 ## 2026-07-28 — G1 · root-finding & numerical analysis (Track G begins)
 
 **Done — 5 new compute tools (142 total):**

@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — E6 [S] · algebra/discrete hardening → TRACK E DONE 🎉
+
+**Done**
+
+- New `tests/test_algebra_hardening.py` (12): the property tests ARE the classic theorems.
+  Tests only — no new tools.
+- **Theorems proven as properties** on random input: Lagrange (|generated subgroup of Sₘ|
+  divides m!), Euler-φ multiplicativity (φ(mn)=φ(m)φ(n) for coprime), Σ_{d|n} φ(d)=n,
+  Σ_{d|n} μ(d)=[n=1], Pell solutions satisfy x²−n·y²=1, Bₙ=Σ S(n,k) (second kind),
+  the Catalan–binomial identity Cₙ=C(2n,n)/(n+1) (cross-checked against stdlib `math.comb`),
+  permutation sign is multiplicative, and QR reconstructs A.
+- **Fuzz + determinism** across the number/combinatorics tools. **821/821 green.**
+
+**Milestone:** Track E (Algebra & Discrete Structures) COMPLETE — permutation groups (E1),
+linear algebra III (E2), graph theory (E3, pure stdlib), number theory II (E4),
+combinatorics II (E5), all hardened (E6). Engine grew 89→122 tools this track.
+
+**Next:** Track F (Probability, Statistics & Optimization) — roadmap order F → G → H → J → K.
+
 ## 2026-07-28 — E5 · combinatorics II
 
 **Done — 6 new compute tools (122 total):**

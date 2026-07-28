@@ -83,7 +83,10 @@
 - [x] **E3** graph theory — shortest_path/components/MST/max_flow/matching/isomorphism (stdlib) ✅ (751 tests, 109 tools)
 - [x] **E4** number theory II — totient/mobius/continued-fraction/quad-residue/primitive-root/Pell ✅ (782 tests, 116 tools)
 - [x] **E5** combinatorics II — catalan/bell/stirling/derangements/GF-coeff/necklaces ✅ (809 tests, 122 tools)
-- [ ] **E6** [S] algebra/discrete hardening
+- [x] **E6** [S] algebra/discrete hardening — theorems as properties (Lagrange, Euler-φ, Bell=ΣStirling…) ✅ (821 tests)
+
+### 🎉 TRACK E DONE — Algebra & Discrete Structures (122 tools, 821 tests). Next: **F → G → H → J → K**.
+
 - [ ] then: F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

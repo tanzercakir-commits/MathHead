@@ -32,6 +32,11 @@ _FUNCS = {
     "exp": sympy.exp, "log": sympy.log, "sqrt": sympy.sqrt, "Abs": sympy.Abs,
 }
 
+# Recognized mathematical constants: a bare name matching one of these is the
+# CONSTANT, not a free symbol (so `pi`, `E` mean π, e). Variable names declared via
+# `_symbol` are unaffected — a declared variable stays a variable.
+_CONSTS = {"pi": sympy.pi, "E": sympy.E}
+
 
 class ComputeError(ValueError):
     """Input-grammar/expression violation. A clear error, no silent assumptions."""
@@ -87,6 +92,8 @@ def _to_sympy(node: ast.AST, syms: dict[str, Any]) -> Any:
             raise ComputeError("no keyword/star arguments in a function call")
         return _FUNCS[node.func.id](*[_to_sympy(a, syms) for a in node.args])
     if isinstance(node, ast.Name):
+        if node.id in _CONSTS:
+            return _CONSTS[node.id]
         if node.id not in syms:
             syms[node.id] = sympy.Symbol(node.id)
         return syms[node.id]
@@ -870,6 +877,137 @@ def hessian(expression: str, variables: list[str]) -> ComputeResult:
         return _error("hessian", f"could not compute Hessian: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "hessian", result,
                          f"H = {len(vs)}×{len(vs)} matrix.", "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# D1 — vector calculus: the differential operators (divergence / curl / Laplacian /
+# directional derivative) + the line integral. Complements the existing gradient.
+# --------------------------------------------------------------------------- #
+def divergence(field: list[str], variables: list[str]) -> ComputeResult:
+    """∇·F — divergence of a vector field: Σ ∂Fᵢ/∂xᵢ (field and variables match in length)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(field, list) or not field:
+            raise ComputeError("the field cannot be empty")
+        if not isinstance(variables, list) or len(variables) != len(field):
+            raise ComputeError("field and variables must have equal length")
+        fs = [_parse(e, syms) for e in field]
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("divergence", str(exc), t0)
+    try:
+        result = str(sympy.simplify(sum(sympy.diff(fs[i], vs[i]) for i in range(len(fs)))))
+    except Exception as exc:  # noqa: BLE001
+        return _error("divergence", f"could not compute divergence: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "divergence", result,
+                         f"∇·F = {result} (variables: {', '.join(variables)}).", "OK", _meta(t0))
+
+
+def curl(field: list[str], variables: list[str]) -> ComputeResult:
+    """∇×F — curl of a 3-D vector field (requires exactly 3 components and 3 variables)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(field, list) or len(field) != 3:
+            raise ComputeError("curl requires a 3-component field")
+        if not isinstance(variables, list) or len(variables) != 3:
+            raise ComputeError("curl requires exactly 3 variables")
+        fx, fy, fz = (_parse(e, syms) for e in field)
+        x, y, z = (_symbol(v, syms) for v in variables)
+    except ComputeError as exc:
+        return _error("curl", str(exc), t0)
+    try:
+        result = [
+            str(sympy.simplify(sympy.diff(fz, y) - sympy.diff(fy, z))),
+            str(sympy.simplify(sympy.diff(fx, z) - sympy.diff(fz, x))),
+            str(sympy.simplify(sympy.diff(fy, x) - sympy.diff(fx, y))),
+        ]
+    except Exception as exc:  # noqa: BLE001
+        return _error("curl", f"could not compute curl: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "curl", result,
+                         f"∇×F = {result} (variables: {', '.join(variables)}).", "OK", _meta(t0))
+
+
+def laplacian(expression: str, variables: list[str]) -> ComputeResult:
+    """∇²f — Laplacian of a scalar field: Σ ∂²f/∂xᵢ²."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("the variable list cannot be empty")
+        expr = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+    except ComputeError as exc:
+        return _error("laplacian", str(exc), t0)
+    try:
+        result = str(sympy.simplify(sum(sympy.diff(expr, v, 2) for v in vs)))
+    except Exception as exc:  # noqa: BLE001
+        return _error("laplacian", f"could not compute Laplacian: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "laplacian", result,
+                         f"∇²f = {result} (variables: {', '.join(variables)}).", "OK", _meta(t0))
+
+
+def directional_derivative(expression: str, variables: list[str],
+                           direction: list[str]) -> ComputeResult:
+    """Dᵤf — directional derivative ∇f·û along the NORMALIZED `direction`."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(variables, list) or not variables:
+            raise ComputeError("the variable list cannot be empty")
+        if not isinstance(direction, list) or len(direction) != len(variables):
+            raise ComputeError("direction and variables must have equal length")
+        expr = _parse(expression, syms)
+        vs = [_symbol(v, syms) for v in variables]
+        dvec = [_parse(d, syms) for d in direction]
+    except ComputeError as exc:
+        return _error("directional_derivative", str(exc), t0)
+    try:
+        norm = sympy.sqrt(sum(d ** 2 for d in dvec))
+        if norm == 0:
+            return _error("directional_derivative", "the direction vector cannot be zero",
+                          t0, "COMPUTE_FAILED")
+        grad = [sympy.diff(expr, v) for v in vs]
+        raw = sum(grad[i] * dvec[i] for i in range(len(vs)))
+        result = str(sympy.simplify(raw / norm))
+    except Exception as exc:  # noqa: BLE001
+        return _error("directional_derivative", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "directional_derivative", result,
+                         f"Dᵤf = {result} (unit direction).", "OK", _meta(t0))
+
+
+def line_integral(field: list[str], variables: list[str], parametrization: list[str],
+                  param: str, lower: str, upper: str) -> ComputeResult:
+    """∫_C F·dr — line integral of a vector field along a parametrized curve.
+
+    Each variable = parametrization[i](param); the integrand is Σ Fᵢ(r(t))·(drᵢ/dt),
+    integrated over `param` = lower..upper.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(field, list) or not field:
+            raise ComputeError("the field cannot be empty")
+        if not (isinstance(variables, list) and isinstance(parametrization, list)
+                and len(variables) == len(field) == len(parametrization)):
+            raise ComputeError("field, variables and parametrization must have equal length")
+        fs = [_parse(e, syms) for e in field]
+        vs = [_symbol(v, syms) for v in variables]
+        t = _symbol(param, syms)
+        rs = [_parse(p, syms) for p in parametrization]
+        a = _parse_point(str(lower), syms)
+        b = _parse_point(str(upper), syms)
+    except ComputeError as exc:
+        return _error("line_integral", str(exc), t0)
+    try:
+        subs = dict(zip(vs, rs))
+        integrand = sum(fs[i].subs(subs) * sympy.diff(rs[i], t) for i in range(len(fs)))
+        result = str(sympy.simplify(sympy.integrate(sympy.simplify(integrand), (t, a, b))))
+    except Exception as exc:  # noqa: BLE001
+        return _error("line_integral", f"could not compute line integral: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "line_integral", result,
+                         f"∫_C F·dr = {result} ({param}: {lower}..{upper}).", "OK", _meta(t0))
 
 
 def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> ComputeResult:

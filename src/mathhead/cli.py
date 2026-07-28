@@ -308,6 +308,32 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("expression", metavar="EXPRESSION")
     p.add_argument("--vars", required=True, metavar="X,Y")
 
+    p = sub.add_parser("divergence", help="divergence ∇·F (--field per component, --vars)")
+    p.add_argument("--field", action="append", default=[], required=True, metavar="COMPONENT")
+    p.add_argument("--vars", required=True, metavar="X,Y,Z")
+
+    p = sub.add_parser("curl", help="curl ∇×F of a 3-D field (3× --field, --vars x,y,z)")
+    p.add_argument("--field", action="append", default=[], required=True, metavar="COMPONENT")
+    p.add_argument("--vars", required=True, metavar="X,Y,Z")
+
+    p = sub.add_parser("laplacian", help="Laplacian ∇²f (--vars comma-separated)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--vars", required=True, metavar="X,Y,Z")
+
+    p = sub.add_parser("dir-deriv", help="directional derivative ∇f·û (--vars, --dir)")
+    p.add_argument("expression", metavar="EXPRESSION")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+    p.add_argument("--dir", required=True, metavar="DX,DY", help="direction (normalized), with ','")
+
+    p = sub.add_parser("line-integral", help="∫_C F·dr along a parametrized curve")
+    p.add_argument("--field", action="append", default=[], required=True, metavar="COMPONENT")
+    p.add_argument("--vars", required=True, metavar="X,Y")
+    p.add_argument("--r", action="append", default=[], required=True, metavar="PARAM_EXPR",
+                   help="parametrization component (per variable), in order")
+    p.add_argument("--param", default="t", metavar="T")
+    p.add_argument("--lower", required=True, metavar="LOWER")
+    p.add_argument("--upper", required=True, metavar="UPPER")
+
     p = sub.add_parser("defint", help="definite integral ∫[a,b] f dx")
     p.add_argument("expression", metavar="EXPRESSION"); p.add_argument("symbol", metavar="VARIABLE")
     p.add_argument("lower", metavar="LOWER"); p.add_argument("upper", metavar="UPPER")
@@ -446,6 +472,21 @@ _DISPATCH = {
                                         "variables": [v.strip() for v in a.vars.split(",")]}),
     "hessian": lambda a: ("hessian", {"expression": a.expression,
                                       "variables": [v.strip() for v in a.vars.split(",")]}),
+    "divergence": lambda a: ("divergence", {"field": a.field,
+                                            "variables": [v.strip() for v in a.vars.split(",")]}),
+    "curl": lambda a: ("curl", {"field": a.field,
+                                "variables": [v.strip() for v in a.vars.split(",")]}),
+    "laplacian": lambda a: ("laplacian", {"expression": a.expression,
+                                          "variables": [v.strip() for v in a.vars.split(",")]}),
+    "dir-deriv": lambda a: ("directional_derivative",
+                            {"expression": a.expression,
+                             "variables": [v.strip() for v in a.vars.split(",")],
+                             "direction": [d.strip() for d in a.dir.split(",")]}),
+    "line-integral": lambda a: ("line_integral",
+                                {"field": a.field,
+                                 "variables": [v.strip() for v in a.vars.split(",")],
+                                 "parametrization": a.r, "param": a.param,
+                                 "lower": a.lower, "upper": a.upper}),
     "defint": lambda a: ("definite_integral", {"expression": a.expression, "symbol": a.symbol,
                                                "lower": a.lower, "upper": a.upper}),
     "sum": lambda a: ("summation", {"expression": a.expression, "index": a.index,

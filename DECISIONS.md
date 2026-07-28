@@ -261,6 +261,23 @@
   return `undecided` — but that beats a "flaky correct": honest uncertainty is consistent with the
   principle. `verify_equality`/`verify_steps`/`cross_check` share this helper.
 
+## ADR-0021 — `pi` and `E` are recognized constants in the compute grammar
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** The compute parser (`_to_sympy`) turned every bare name into a free
+  `sympy.Symbol`, so `pi` and `E` became symbols, not π and e. A line integral around
+  a circle (`param` up to `2*pi`) then returned `sin(4*pi)/2` instead of `0` — correct
+  given `pi` as a symbol, but not the mathematical answer. The whole Analysis track (D)
+  — transforms, complex analysis — routinely needs π and e.
+- **Decision:** A small constant map `_CONSTS = {"pi": π, "E": e}` is checked in the
+  `ast.Name` branch of `_to_sympy` BEFORE creating a symbol. Only expression parsing is
+  affected; a variable passed explicitly via `_symbol` (e.g. a `symbol`/`variables`
+  argument) stays a variable. Scope is intentionally minimal (π, e only).
+- **Consequences:** `pi`/`E` now mean the constants in any compute expression; the
+  closed-loop line integral returns `0`. No existing test used `pi`/`E` as an input
+  variable (the one `.result == "E"` case is an OUTPUT, unaffected). The specialized
+  ODE/recurrence sub-parsers are left as-is for now (revisit in D3 if needed).
+
 ---
 
 <!-- New decision template:

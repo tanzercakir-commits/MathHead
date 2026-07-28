@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **71 tools**.
+Total **76 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -229,6 +229,26 @@ Jacobian matrix — the partial-derivative matrix of a vector-valued function.
 ### `hessian(expression, variables)`
 
 Hessian matrix — the second partial-derivative matrix of a scalar function (symmetric).
+
+### `divergence(field, variables)`
+
+∇·F — divergence of a vector field: Σ ∂Fᵢ/∂xᵢ (field and variables must match in length).
+
+### `curl(field, variables)`
+
+∇×F — curl of a 3-D vector field. Requires exactly 3 components and 3 variables (e.g. x,y,z).
+
+### `laplacian(expression, variables)`
+
+∇²f — Laplacian of a scalar field: Σ ∂²f/∂xᵢ². (0 ⟺ harmonic.)
+
+### `directional_derivative(expression, variables, direction)`
+
+Dᵤf — directional derivative ∇f·û along the NORMALIZED `direction` (same length as variables).
+
+### `line_integral(field, variables, parametrization, param, lower, upper)`
+
+∫_C F·dr — line integral of a vector field along a curve parametrized by `param`.
 
 ### `definite_integral(expression, symbol, lower, upper)`
 

@@ -68,7 +68,9 @@
 
 ### 🎉 TRACK I DONE — Verification Layer II (71 tools, 564 tests). Next: **D → E → F → G → H → J → K**.
 
-- [ ] then: D → E → F → G → H → J → K (full list in ROADMAP)
+- [x] **D1** vector calculus — divergence/curl/laplacian/directional_derivative/line_integral ✅ (591 tests, 76 tools, +π/e)
+- [ ] **D2** integral transforms · **D3** diff-eq II · **D4** complex analysis · **D5** [S]
+- [ ] then: E → F → G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

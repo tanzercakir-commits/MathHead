@@ -206,8 +206,15 @@ again filtered through the ast-whitelist (no `sympify`/`eval`). Here `*`, `/`,
 | `solve_system` | `solve_system(equations: list[str], symbols: list[str])` | `["x+y==10","x-y==2"]`, `["x","y"]` → `[{"x":"6","y":"4"}]` |
 
 **Allowed:** `+ - * / **`, unary `-`, symbols, numbers (integer/decimal),
-functions `sin cos tan asin acos atan sinh cosh tanh exp log sqrt Abs`. `solve`
-input may be `a == b` (Eq) or a plain expression assumed `=0`.
+functions `sin cos tan asin acos atan sinh cosh tanh exp log sqrt Abs`, and the
+mathematical constants `pi` (π) and `E` (e). A bare `pi`/`E` is the constant, not a
+free symbol; a variable you pass explicitly (e.g. a `symbol` argument) stays a
+variable. `solve` input may be `a == b` (Eq) or a plain expression assumed `=0`.
+
+**Vector calculus (D1):** `divergence(field, variables)` (∇·F), `curl(field,
+variables)` (∇×F, 3-D only), `laplacian(expression, variables)` (∇²f),
+`directional_derivative(expression, variables, direction)` (∇f·û, normalized),
+`line_integral(field, variables, parametrization, param, lower, upper)` (∫_C F·dr).
 
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor

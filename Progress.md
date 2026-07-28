@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-28 — D1 · vector calculus (Track D begins)
+
+**Context:** Started Track D (Analysis & Transforms). D1 = the vector-calculus
+differential operators + line integral, complementing the existing `gradient`.
+
+**Done — 5 new compute tools (76 total):**
+
+- `divergence` (∇·F = Σ ∂Fᵢ/∂xᵢ), `curl` (∇×F, 3-D only — honest error otherwise),
+  `laplacian` (∇²f = Σ ∂²f/∂xᵢ²; 0 ⟺ harmonic), `directional_derivative` (∇f·û,
+  NORMALIZED direction), `line_integral` (∫_C F·dr along a parametrized curve).
+- Wired router + MCP (76 tools) + CLI (`divergence`/`curl`/`laplacian`/`dir-deriv`/
+  `line-integral`) + `tests/test_vector_calculus.py` (17) → **591/591 green**.
+
+**Verified (identities):** curl(∇f)=0 (conservative field), div of a solenoidal field
+= 0, Laplacian of a harmonic function = 0, directional derivative normalizes (dir (3,4)
+→ /5), line integral of (y,x) over t↦(t,t²) = 1.
+
+**Parser upgrade (ADR-0021):** `pi`/`E` are now recognized CONSTANTS in the compute
+grammar (were free symbols). Surfaced by a circle line-integral returning `sin(4·pi)/2`
+instead of `0`. Minimal, expression-parse only; declared variables unaffected; no
+existing test used them as input variables. The whole Analysis track needs π and e.
+
+**Honest wall:** surface integrals and the Green/Stokes/Gauss theorems are deferred —
+they need region/surface modeling (a larger effort than the differential operators).
+
+**Next:** D2 — integral transforms (Laplace/inverse, Fourier/inverse, Z-transform).
+
 ## 2026-07-28 — I5 [S] · I-track hardening → TRACK I DONE 🎉
 
 **Done**

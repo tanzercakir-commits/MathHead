@@ -127,8 +127,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## D. Analysis & Transforms
 ```
-[ ] D1 🟢 Vector calculus — divergence/curl/Laplacian, line & surface integrals,
-          Green/Stokes/Gauss theorems
+[x] D1 🟢 Vector calculus — divergence / curl / Laplacian / directional_derivative /
+          line_integral ✅ (76 tools; +π/e constants ADR-0021). 🔴 surface integrals &
+          Green/Stokes/Gauss theorems deferred (region/surface modeling — larger effort)
 [ ] D2 🟢 Integral transforms — Laplace & inverse, Fourier & inverse, Z-transform
 [ ] D3 🟡 Differential equations II — ODE systems, higher order, boundary value;
           basic PDE (heat/wave, separation of variables)   ↳ 🔴 general PDE solving limited

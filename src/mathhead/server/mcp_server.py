@@ -517,6 +517,45 @@ def hessian(expression: str, variables: list[str]) -> dict[str, Any]:
 
 
 @mcp.tool()
+def divergence(field: list[str], variables: list[str]) -> dict[str, Any]:
+    """∇·F — divergence of a vector field: Σ ∂Fᵢ/∂xᵢ (field and variables must match in length)."""
+    return asdict(route("divergence", {"field": field, "variables": variables}))
+
+
+@mcp.tool()
+def curl(field: list[str], variables: list[str]) -> dict[str, Any]:
+    """∇×F — curl of a 3-D vector field. Requires exactly 3 components and 3 variables (e.g. x,y,z)."""
+    return asdict(route("curl", {"field": field, "variables": variables}))
+
+
+@mcp.tool()
+def laplacian(expression: str, variables: list[str]) -> dict[str, Any]:
+    """∇²f — Laplacian of a scalar field: Σ ∂²f/∂xᵢ². (0 ⟺ harmonic.)"""
+    return asdict(route("laplacian", {"expression": expression, "variables": variables}))
+
+
+@mcp.tool()
+def directional_derivative(expression: str, variables: list[str],
+                           direction: list[str]) -> dict[str, Any]:
+    """Dᵤf — directional derivative ∇f·û along the NORMALIZED `direction` (same length as variables)."""
+    return asdict(route("directional_derivative",
+                        {"expression": expression, "variables": variables, "direction": direction}))
+
+
+@mcp.tool()
+def line_integral(field: list[str], variables: list[str], parametrization: list[str],
+                  param: str, lower: str, upper: str) -> dict[str, Any]:
+    """∫_C F·dr — line integral of a vector field along a curve parametrized by `param`.
+
+    Each variable = parametrization[i](param); integrates Σ Fᵢ(r(t))·(drᵢ/dt) over lower..upper.
+    E.g. F=(y,x), r(t)=(t, t²), t:0..1 → 1.
+    """
+    return asdict(route("line_integral",
+                        {"field": field, "variables": variables, "parametrization": parametrization,
+                         "param": param, "lower": lower, "upper": upper}))
+
+
+@mcp.tool()
 def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> dict[str, Any]:
     """Definite integral ∫ₐᵇ f dx. Bounds may be infinite ("oo"/"-oo")."""
     return asdict(route("definite_integral", {"expression": expression, "symbol": symbol,

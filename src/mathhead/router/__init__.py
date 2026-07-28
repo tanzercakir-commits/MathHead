@@ -203,6 +203,19 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.jacobian(payload["expressions"], payload["variables"])
     if task == "hessian":
         return compute.hessian(payload["expression"], payload["variables"])
+    if task == "divergence":
+        return compute.divergence(payload["field"], payload["variables"])
+    if task == "curl":
+        return compute.curl(payload["field"], payload["variables"])
+    if task == "laplacian":
+        return compute.laplacian(payload["expression"], payload["variables"])
+    if task == "directional_derivative":
+        return compute.directional_derivative(payload["expression"], payload["variables"],
+                                              payload["direction"])
+    if task == "line_integral":
+        return compute.line_integral(payload["field"], payload["variables"],
+                                     payload["parametrization"], payload["param"],
+                                     payload["lower"], payload["upper"])
     if task == "definite_integral":
         return compute.definite_integral(payload["expression"], payload["symbol"],
                                          payload["lower"], payload["upper"])

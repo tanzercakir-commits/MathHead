@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **161 tools**.
+Total **163 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -649,3 +649,11 @@ Is there a Hamiltonian path (or `cycle`) visiting every vertex once? (NP-complet
 ### `tsp_decision(distances, budget)`
 
 Decision TSP: is there a tour visiting every city once with total length ≤ `budget`?
+
+### `prove_unsat(clauses)`
+
+Decide a CNF and, when UNSAT, return an INDEPENDENTLY-VERIFIED DRUP certificate (J2).
+
+### `check_unsat_proof(clauses, proof)`
+
+Independently verify a DRUP UNSAT `proof` for a CNF (bring your own proof from any solver).

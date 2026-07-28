@@ -6,6 +6,14 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Verifiable UNSAT certificate (`prove_unsat`, `check_unsat_proof`):** ROADMAP J2 — the
+  Phase-10 wall CLOSED with NO external SAT binary. New stdlib-only `mathhead/drat.py` (imports
+  neither z3 nor sympy): `check_unsat_proof` is an INDEPENDENT reverse-unit-propagation checker
+  for DRUP proofs (bring a proof from any solver — "don't trust us, run the checker");
+  `prove_unsat` is a self-contained DPLL→resolution DRUP producer that re-checks its own proof
+  before returning (`verified: true`). Reproduces pigeonhole refutations; rejects
+  incomplete/bogus proofs. MCP (**163 tools**) + CLI (`prove-unsat`/`check-unsat-proof`) + 13
+  tests (incl. an engine-independence subprocess test). ADR-0027. **1110 tests green.**
 - **Frontier reductions II (`n_queens`, `latin_square`, `sudoku_solve`, `hamiltonian_path`,
   `ramsey_coloring`, `tsp_decision`):** ROADMAP J1 — Track J begins. Six classic
   NP-complete/combinatorial reductions to Z3, each `sat` witness INDEPENDENTLY re-verified in

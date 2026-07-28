@@ -622,5 +622,24 @@ witness IS A CERTIFICATE and is re-checked in pure Python **independently** of Z
 → `meta.verified: true` (caught even if there is an encoding error). **Honest
 asymmetry:** producing an independently-checkable **DRAT/LRAT** certificate for
 `unsat` requires a DIMACS-level SAT pipeline — this is documented explicitly as a
-**wall** (the output gives `unsat` and notes it); details in
-`docs/track-b-results.md`.
+**wall** (the output gives `unsat` and notes it) — **now addressed at the CNF layer by J2
+below**; details in `docs/track-b-results.md`.
+
+---
+
+## Verifiable UNSAT certificate (J2 — DRUP/RUP)
+
+Closes the `unsat`-side wall: an UNSAT result becomes a **DRUP proof** re-checked by an
+INDEPENDENT, pure-Python reverse-unit-propagation checker (`mathhead/drat.py` imports neither
+z3 nor sympy — no external SAT binary).
+
+| Tool | Signature | Result |
+|---|---|---|
+| `prove_unsat` | `prove_unsat(clauses)` | `unsat` (+ independently-verified DRUP `proof`) / `sat` (model) / `unknown` |
+| `check_unsat_proof` | `check_unsat_proof(clauses, proof)` | `verified` / `refuted` |
+
+CNF = a list of clauses of nonzero-int DIMACS literals (`[[1,2],[-1],[-2]]`). `prove_unsat`
+produces a proof AND re-checks it with the independent checker (`verified: true`); it is
+bounded to a small number of variables (honest `unknown` beyond the node budget).
+`check_unsat_proof` verifies a DRUP proof from ANY solver — an incomplete/bogus proof is
+`refuted` (an empty proof only verifies when the empty clause is directly RUP-implied).

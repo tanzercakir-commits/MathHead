@@ -209,6 +209,13 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("distances", metavar="JSON", help="n×n distance matrix JSON")
     p.add_argument("budget", type=int)
 
+    p = sub.add_parser("prove-unsat", help="decide a CNF; UNSAT → independently-verified DRUP certificate")
+    p.add_argument("clauses", metavar="JSON", help="CNF as JSON, e.g. '[[1,2],[-1],[-2]]'")
+
+    p = sub.add_parser("check-unsat-proof", help="independently verify a DRUP UNSAT proof (any solver)")
+    p.add_argument("clauses", metavar="CNF_JSON", help="CNF as JSON")
+    p.add_argument("proof", metavar="PROOF_JSON", help="DRUP proof as JSON list of clauses")
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -799,6 +806,9 @@ _DISPATCH = {
                             "n": a.n, "cycle": a.cycle}),
     "ramsey": lambda a: ("ramsey_coloring", {"n": a.n, "s": a.s, "t": a.t}),
     "tsp": lambda a: ("tsp_decision", {"distances": json.loads(a.distances), "budget": a.budget}),
+    "prove-unsat": lambda a: ("prove_unsat", {"clauses": json.loads(a.clauses)}),
+    "check-unsat-proof": lambda a: ("check_unsat_proof",
+                                    {"clauses": json.loads(a.clauses), "proof": json.loads(a.proof)}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

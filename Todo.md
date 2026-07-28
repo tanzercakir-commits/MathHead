@@ -118,7 +118,7 @@
 ### Track J — Frontier (in progress)
 
 - [x] **J1** new reductions — n_queens/latin_square/sudoku/hamiltonian_path/ramsey/tsp_decision ✅ (1093 tests, 161 tools)
-- [ ] **J2** verifiable UNSAT certificate (DRAT/LRAT) — the Phase-10 wall
+- [x] **J2** verifiable UNSAT certificate — drat.py: DRUP producer + INDEPENDENT RUP checker (stdlib) ✅ (1110 tests, 163 tools)
 - [ ] **J3** high-performance solver (PySAT/CaDiCaL) or honest wall
 - [ ] **J4** [S] Track J hardening
 

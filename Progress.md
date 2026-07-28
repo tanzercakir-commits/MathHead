@@ -6,6 +6,38 @@
 
 ---
 
+## 2026-07-28 — J2 · verifiable UNSAT certificate (DRUP/RUP) — Phase-10 wall CLOSED
+
+**Done — 2 new tools (163 total), new `mathhead/drat.py` (stdlib-only):**
+
+- The standing Phase-10 wall — an `unsat` result was only Z3's word, with no
+  independently-checkable certificate — is now CLOSED, with NO external SAT binary.
+- `check_unsat_proof(clauses, proof)` — an INDEPENDENT, pure-Python reverse-unit-propagation
+  (RUP) checker for DRUP proofs: each lemma must be RUP and the empty clause must be derived.
+  Bring a DRUP proof from ANY solver; MathHead checks it. `drat.py` imports NEITHER z3 NOR
+  sympy (proven by a subprocess test) — the same "don't trust us, run the checker" guarantee
+  as `certificate.py`.
+- `prove_unsat(clauses)` — a self-contained PRODUCER: a DPLL search emitting a resolution
+  refutation as a DRUP proof (each resolvent is RUP by construction), then re-checking it with
+  the independent checker before returning (`verified: true`).
+- Wired router + MCP (163 tools) + CLI (`prove-unsat`/`check-unsat-proof`) + `tests/test_drat.py`
+  (13) → **1110/1110 green**.
+
+**Verified:** pigeonhole PHP(3)/PHP(4) proved UNSAT with an independently-checked DRUP
+certificate; a SAT CNF returns a model (honest — no UNSAT cert); an EMPTY proof is accepted
+only when the empty clause is directly RUP (`(x)∧(¬x)`) and REJECTED for a non-trivial UNSAT
+(exactly the failure mode of a naive solver's empty proof); a non-RUP lemma is refuted; the
+producer is deterministic.
+
+**Why self-contained (honesty over stubs):** PySAT installs, but its DRUP emission was
+inconsistent here (an empty, uncheckable proof for genuinely-hard PHP(3)). Rather than ship a
+fragile external path, `drat.py` produces AND checks proofs in pure stdlib — always a complete,
+verifiable certificate.
+
+**Decision:** ADR-0027 (self-contained DRUP producer + independent RUP checker; stdlib-only).
+
+**Next:** J3 — high-performance solver (PySAT/CaDiCaL) or an honest wall.
+
 ## 2026-07-28 — J1 · new reductions (Track J begins)
 
 **Done — 6 new frontier tools (161 total):**

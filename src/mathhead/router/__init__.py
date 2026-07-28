@@ -45,6 +45,7 @@ from mathhead.core.smt import (
     check_uninterpreted,
 )
 from mathhead.certificate import CertificateResult, check_certificate
+from mathhead.drat import DratResult, check_unsat_proof, prove_unsat
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.nl import NLResult, interpret
 from mathhead.core.verify import (
@@ -74,6 +75,7 @@ def _opts(payload: dict[str, Any]) -> dict[str, Any]:
 def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult | InductionResult | QEResult | ModalResult
+    | DratResult
 ):
     """Routes a task to the appropriate solver + primitive.
 
@@ -490,5 +492,11 @@ def route(task: str, payload: dict[str, Any]) -> (
         return frontier.ramsey_coloring(payload["n"], payload["s"], payload["t"], **_opts(payload))
     if task == "tsp_decision":
         return frontier.tsp_decision(payload["distances"], payload["budget"], **_opts(payload))
+
+    # --- Verifiable UNSAT certificate (J2 — DRUP/RUP) ---
+    if task == "prove_unsat":
+        return prove_unsat(payload["clauses"])
+    if task == "check_unsat_proof":
+        return check_unsat_proof(payload["clauses"], payload["proof"])
 
     raise ValueError(f"unknown task: {task!r}")

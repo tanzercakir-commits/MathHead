@@ -1389,6 +1389,30 @@ def tsp_decision(distances: list[list[int]], budget: int) -> dict[str, Any]:
     return asdict(route("tsp_decision", {"distances": distances, "budget": budget}))
 
 
+@mcp.tool()
+def prove_unsat(clauses: list[list[int]]) -> dict[str, Any]:
+    """Decide a CNF and, when UNSAT, return an INDEPENDENTLY-VERIFIED DRUP certificate (J2).
+
+    Closes the Phase-10 wall with NO external SAT binary: a pure-Python DPLL emits a
+    resolution refutation as a DRUP proof, then an independent reverse-unit-propagation
+    checker re-verifies it (`verified: true`). `sat` → a model (no UNSAT certificate);
+    `unknown` → the search exceeded its node budget (honest). CNF = list of clauses of
+    nonzero-int DIMACS literals, e.g. `[[1,2],[-1],[-2]]`.
+    """
+    return asdict(route("prove_unsat", {"clauses": clauses}))
+
+
+@mcp.tool()
+def check_unsat_proof(clauses: list[list[int]], proof: list[list[int]]) -> dict[str, Any]:
+    """Independently verify a DRUP UNSAT `proof` for a CNF (bring your own proof from any solver).
+
+    Pure-Python reverse unit propagation — imports neither z3 nor sympy. `verified` → the
+    proof soundly derives the empty clause; `refuted` → it does not (an incomplete/bogus
+    proof is rejected). "Don't trust us — run the checker."
+    """
+    return asdict(route("check_unsat_proof", {"clauses": clauses, "proof": proof}))
+
+
 def main() -> None:
     """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")

@@ -395,6 +395,32 @@
 
 ---
 
+## ADR-0027 — Verifiable UNSAT: a self-contained DRUP producer + independent RUP checker
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP J2 must produce an INDEPENDENTLY-checkable certificate for UNSAT — the
+  Phase-10 wall (a `sat` witness was already independently verified; `unsat` was only Z3's
+  verdict). SETUP.md requires checking whether external tools (drat-trim / CaDiCaL / Kissat)
+  can actually be installed, and marking an honest wall otherwise rather than shipping a stub.
+- **Decision:** Go fully self-contained, stdlib-only, in `mathhead/drat.py` (which imports
+  neither z3 nor sympy — preserving the `certificate.py` independence guarantee). Two halves:
+  a reverse-unit-propagation (RUP) CHECKER that validates a DRUP proof (each lemma RUP over the
+  accumulated formula, ending in the empty clause), and a PRODUCER — a DPLL search that emits a
+  tree-resolution refutation as a DRUP proof (a resolvent of two clauses is RUP from them). The
+  producer re-checks its own output with the independent checker before returning. `drat-trim`
+  is not in apt, and PySAT's `get_proof()` returned EMPTY (uncheckable) proofs for genuinely-hard
+  instances (e.g. PHP(3)) in this environment — an unreliable base, so it was rejected in favour
+  of the self-contained path.
+- **Consequences:** UNSAT results carry an engine-independent, polynomial-time-checkable
+  certificate with NO external binary. Correctly reproduces pigeonhole refutations; correctly
+  REJECTS incomplete/bogus proofs (an empty proof only verifies when the empty clause is directly
+  RUP). The producer is bounded (≤20 variables + a node budget) — beyond that it is an honest
+  `unknown`, never a fabricated certificate; `check_unsat_proof` accepts much larger proofs
+  (checking is polynomial). Bridging the Z3-based `frontier` reductions to DIMACS CNF so their
+  `unsat` cases emit certificates directly is a future enhancement.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

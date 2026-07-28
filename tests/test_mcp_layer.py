@@ -221,6 +221,9 @@ ARGS = {
     "hamiltonian_path": {"edges": [[0, 1], [1, 2], [2, 3]], "n": 4, "cycle": False},
     "ramsey_coloring": {"n": 5, "s": 3, "t": 3},
     "tsp_decision": {"distances": [[0, 1, 2, 1], [1, 0, 1, 2], [2, 1, 0, 1], [1, 2, 1, 0]], "budget": 4},
+    # Verifiable UNSAT certificate (J2)
+    "prove_unsat": {"clauses": [[1, 2], [-1, -2], [1, -2], [-1, 2]]},
+    "check_unsat_proof": {"clauses": [[1], [-1]], "proof": []},
 }
 
 

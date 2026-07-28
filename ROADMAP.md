@@ -231,7 +231,10 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 [x] J1 🟡 New reductions — n_queens, latin_square, sudoku_solve, hamiltonian_path (path/cycle),
           ramsey_coloring (R(s,t)), tsp_decision (directed arcs + MTZ); every sat witness is
           INDEPENDENTLY verified in pure Python (meta.verified) ✅ (1093 tests, 161 tools; ADR-0026)
-[ ] J2 🔴 Verifiable UNSAT certificate (DRAT/LRAT) — the Phase 10 wall; DIMACS + drat-trim
+[x] J2 🔴 Verifiable UNSAT certificate (DRUP/RUP) — the Phase 10 wall CLOSED. New stdlib-only
+          mathhead/drat.py: prove_unsat (DPLL→resolution DRUP producer) + check_unsat_proof
+          (INDEPENDENT reverse-unit-propagation checker; imports no z3/sympy, no external binary)
+          ✅ (1110 tests, 163 tools; ADR-0027)
 [ ] J3 🟡 High-performance solver — CaDiCaL/Kissat integration (scale), parallel solving
 [ ] J4 [S] Hardening
 ```

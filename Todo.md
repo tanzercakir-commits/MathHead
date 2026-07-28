@@ -87,7 +87,11 @@
 
 ### 🎉 TRACK E DONE — Algebra & Discrete Structures (122 tools, 821 tests). Next: **F → G → H → J → K**.
 
-- [ ] then: F → G → H → J → K (full list in ROADMAP)
+### Track F — Probability, Statistics & Optimization (in progress)
+
+- [x] **F1** probability II — bayes/covariance/correlation/markov-stationary/markov-step/marginal ✅ (850 tests, 128 tools)
+- [ ] **F2** inferential statistics · **F3** optimization II · **F4** [S]
+- [ ] then: G → H → J → K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

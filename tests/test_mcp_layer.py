@@ -154,6 +154,13 @@ ARGS = {
     "derangements": {"n": 4},
     "generating_function_coefficient": {"expression": "1/(1 - x - x**2)", "symbol": "x", "n": 6},
     "necklace_count": {"n": 4, "colors": 2},
+    # probability II
+    "bayes_theorem": {"prior": "1/100", "likelihood": "9/10", "false_alarm": "1/20"},
+    "covariance": {"x": ["1", "2", "3", "4"], "y": ["2", "4", "5", "4"], "sample": False},
+    "correlation": {"x": ["1", "2", "3", "4"], "y": ["2", "4", "6", "8"]},
+    "markov_stationary": {"matrix": [["1/2", "1/2"], ["1/4", "3/4"]]},
+    "markov_step": {"matrix": [["1/2", "1/2"], ["1/4", "3/4"]], "initial": ["1", "0"], "steps": 2},
+    "joint_marginal": {"joint": [["1/8", "1/8"], ["1/4", "1/2"]], "axis": "row"},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

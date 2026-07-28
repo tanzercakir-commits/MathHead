@@ -345,6 +345,20 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "necklace_count":
         return compute.necklace_count(payload["n"], payload["colors"])
 
+    # --- Probability II ---
+    if task == "bayes_theorem":
+        return compute.bayes_theorem(payload["prior"], payload["likelihood"], payload["false_alarm"])
+    if task == "covariance":
+        return compute.covariance(payload["x"], payload["y"], payload.get("sample", False))
+    if task == "correlation":
+        return compute.correlation(payload["x"], payload["y"])
+    if task == "markov_stationary":
+        return compute.markov_stationary(payload["matrix"])
+    if task == "markov_step":
+        return compute.markov_step(payload["matrix"], payload["initial"], payload["steps"])
+    if task == "joint_marginal":
+        return compute.joint_marginal(payload["joint"], payload.get("axis", "row"))
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

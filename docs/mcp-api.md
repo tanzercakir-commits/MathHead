@@ -263,6 +263,12 @@ kind="second")` (`first`/`second`), `derangements(n)` (!n, inclusion-exclusion),
 `generating_function_coefficient(expression, symbol, n)` ([xⁿ] of a GF's series), `necklace_count(n,
 colors)` (distinct necklaces under rotation — Burnside/Pólya).
 
+**Probability II (F1):** `bayes_theorem(prior, likelihood, false_alarm)` (→ `{posterior, evidence}`),
+`covariance(x, y, sample=False)`, `correlation(x, y)` (Pearson ρ), `markov_stationary(matrix)`
+(stationary π of a row-stochastic matrix), `markov_step(matrix, initial, steps)` (initial·Pᵏ),
+`joint_marginal(joint, axis="row")`. All exact (rationals); zero evidence / zero variance /
+non-stochastic matrix are honest errors.
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

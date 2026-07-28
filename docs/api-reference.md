@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **122 tools**.
+Total **128 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -449,6 +449,30 @@ Coefficient of `symbol`ⁿ in a generating function's series. E.g. `1/(1-x-x**2)
 ### `necklace_count(n, colors)`
 
 Distinct necklaces of `n` beads in `colors` colors under rotation (Burnside/Pólya). n=4,c=2 → 6.
+
+### `bayes_theorem(prior, likelihood, false_alarm)`
+
+Posterior P(H|E) from prior P(H), likelihood P(E|H), false-alarm P(E|¬H) → `{posterior, evidence}`.
+
+### `covariance(x, y, sample=False)`
+
+Covariance Cov(X,Y) of two equal-length datasets (population; `sample` divides by n−1). Exact.
+
+### `correlation(x, y)`
+
+Pearson correlation ρ ∈ [−1, 1]. Exact; undefined (error) if a variable has zero variance.
+
+### `markov_stationary(matrix)`
+
+Stationary distribution π (π·P = π, Σπ = 1) of a row-stochastic transition matrix. Exact.
+
+### `markov_step(matrix, initial, steps)`
+
+Distribution after `steps` steps: initial·Pᵏ. E.g. [1,0] on [[1/2,1/2],[1/4,3/4]], 2 → [3/8,5/8].
+
+### `joint_marginal(joint, axis='row')`
+
+Marginal distribution from a joint probability table. `axis`: `row` → P(X), `col` → P(Y).
 
 ### `mean(data)`
 

@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-28 — F1 · probability II (Track F begins)
+
+**Done — 6 new compute tools (128 total):**
+
+- `bayes_theorem` (→ {posterior, evidence}), `covariance` (population/sample), `correlation`
+  (Pearson ρ), `markov_stationary` (stationary π of a row-stochastic matrix), `markov_step`
+  (initial·Pᵏ), `joint_marginal` (P(X)/P(Y) from a joint table). All EXACT (SymPy rationals).
+- Wired router + MCP (128 tools) + CLI (`bayes`/`covariance`/`correlation`/`markov-stationary`/
+  `markov-step`/`marginal`) + `tests/test_probability2.py` (18) → **850/850 green**.
+
+**Verified:** the base-rate case (prior 1%, sens 90%, false-alarm 5%) → posterior 2/13
+(≈15%, the classic base-rate lesson); Cov population 7/8, sample 7/6; ρ=±1 for perfectly
+linear data; stationary π of [[1/2,1/2],[1/4,3/4]] = [1/3, 2/3]; 2-step evolution [1,0]→[3/8,5/8].
+
+**Honesty:** zero evidence (Bayes), zero variance (correlation), and a non-row-stochastic
+transition matrix are rejected — no fabricated probabilities.
+
+**Next:** F2 — inferential statistics (z/t/χ²/ANOVA tests, confidence intervals, p-values, regression).
+
 ## 2026-07-28 — E6 [S] · algebra/discrete hardening → TRACK E DONE 🎉
 
 **Done**

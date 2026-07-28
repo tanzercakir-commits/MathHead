@@ -937,6 +937,46 @@ def necklace_count(n: int, colors: int) -> dict[str, Any]:
 
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
+def bayes_theorem(prior: str, likelihood: str, false_alarm: str) -> dict[str, Any]:
+    """Posterior P(H|E) from prior P(H), likelihood P(E|H), false-alarm P(E|¬H) → `{posterior, evidence}`.
+
+    E.g. prior 1/100, likelihood 9/10, false_alarm 1/20 → posterior 2/13 (the base-rate lesson).
+    """
+    return asdict(route("bayes_theorem",
+                        {"prior": prior, "likelihood": likelihood, "false_alarm": false_alarm}))
+
+
+@mcp.tool()
+def covariance(x: list[str], y: list[str], sample: bool = False) -> dict[str, Any]:
+    """Covariance Cov(X,Y) of two equal-length datasets (population; `sample` divides by n−1). Exact."""
+    return asdict(route("covariance", {"x": x, "y": y, "sample": sample}))
+
+
+@mcp.tool()
+def correlation(x: list[str], y: list[str]) -> dict[str, Any]:
+    """Pearson correlation ρ ∈ [−1, 1]. Exact; undefined (error) if a variable has zero variance."""
+    return asdict(route("correlation", {"x": x, "y": y}))
+
+
+@mcp.tool()
+def markov_stationary(matrix: list[list[str]]) -> dict[str, Any]:
+    """Stationary distribution π (π·P = π, Σπ = 1) of a row-stochastic transition matrix. Exact."""
+    return asdict(route("markov_stationary", {"matrix": matrix}))
+
+
+@mcp.tool()
+def markov_step(matrix: list[list[str]], initial: list[str], steps: int) -> dict[str, Any]:
+    """Distribution after `steps` steps: initial·Pᵏ. E.g. [1,0] on [[1/2,1/2],[1/4,3/4]], 2 → [3/8,5/8]."""
+    return asdict(route("markov_step", {"matrix": matrix, "initial": initial, "steps": steps}))
+
+
+@mcp.tool()
+def joint_marginal(joint: list[list[str]], axis: str = "row") -> dict[str, Any]:
+    """Marginal distribution from a joint probability table. `axis`: `row` → P(X), `col` → P(Y)."""
+    return asdict(route("joint_marginal", {"joint": joint, "axis": axis}))
+
+
+@mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
     """Arithmetic mean of a list of numbers (exact/rational)."""
     return asdict(route("mean", {"data": data}))

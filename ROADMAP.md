@@ -163,7 +163,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## F. Probability, Statistics & Optimization
 ```
-[ ] F1 🟡 Probability II — conditional & Bayes, joint/marginal distribution, covariance, Markov chain
+[x] F1 🟡 Probability II — bayes_theorem, covariance, correlation, markov_stationary + markov_step,
+          joint_marginal ✅ (128 tools; exact rationals)
 [ ] F2 🟡 Inferential statistics — hypothesis test (z/t/χ²/ANOVA), confidence interval, p-value, regression
 [ ] F3 🟡 Optimization II — linear programming (simplex), integer programming,
           Lagrange multipliers, KKT/convex

@@ -2379,6 +2379,170 @@ def necklace_count(n: Any, colors: Any) -> ComputeResult:
 
 
 # --------------------------------------------------------------------------- #
+# F1 — probability II: Bayes' theorem, covariance/correlation, Markov chains
+# (stationary distribution + n-step evolution), joint→marginal. Exact arithmetic
+# (SymPy rationals) throughout; degenerate cases (zero evidence, zero variance,
+# non-stochastic matrix) are honest errors.
+# --------------------------------------------------------------------------- #
+def _prob(x: Any, name: str) -> Any:
+    """Parses a probability value and checks it lies in [0, 1]."""
+    syms: dict[str, Any] = {}
+    v = _parse(str(x), syms)
+    if syms:
+        raise ComputeError(f"{name} must be numeric")
+    if not (0 <= v <= 1):
+        raise ComputeError(f"{name} must be a probability in [0, 1], got {v}")
+    return v
+
+
+def bayes_theorem(prior: Any, likelihood: Any, false_alarm: Any) -> ComputeResult:
+    """Posterior P(H|E) from P(H) (`prior`), P(E|H) (`likelihood`), P(E|¬H) (`false_alarm`).
+
+    P(H|E) = P(E|H)·P(H) / [P(E|H)·P(H) + P(E|¬H)·(1−P(H))]. Returns `{posterior, evidence}`.
+    """
+    t0 = time.perf_counter()
+    try:
+        ph = _prob(prior, "prior")
+        peh = _prob(likelihood, "likelihood")
+        penh = _prob(false_alarm, "false_alarm")
+    except ComputeError as exc:
+        return _error("bayes_theorem", str(exc), t0)
+    evidence = sympy.simplify(peh * ph + penh * (1 - ph))
+    if evidence == 0:
+        return _error("bayes_theorem", "the evidence has probability 0 (posterior undefined)",
+                      t0, "COMPUTE_FAILED")
+    posterior = sympy.simplify(peh * ph / evidence)
+    result = {"posterior": str(posterior), "evidence": str(evidence)}
+    return ComputeResult("ok", "bayes_theorem", result,
+                         f"P(H|E) = {result['posterior']} (evidence P(E) = {result['evidence']}).",
+                         "OK", _meta(t0))
+
+
+def covariance(x: list, y: list, sample: bool = False) -> ComputeResult:
+    """Covariance Cov(X, Y) of two equal-length datasets (population, or `sample` for n−1)."""
+    t0 = time.perf_counter()
+    try:
+        xs = _parse_data(x)
+        ys = _parse_data(y)
+        if len(xs) != len(ys):
+            raise ComputeError("x and y must have the same length")
+        if sample and len(xs) < 2:
+            raise ComputeError("the sample covariance needs at least 2 points")
+    except ComputeError as exc:
+        return _error("covariance", str(exc), t0)
+    n = len(xs)
+    mx = sum(xs) / n
+    my = sum(ys) / n
+    denom = (n - 1) if sample else n
+    cov = sympy.simplify(sum((xi - mx) * (yi - my) for xi, yi in zip(xs, ys)) / denom)
+    result = str(cov)
+    return ComputeResult("ok", "covariance", result,
+                         f"Cov(X,Y) = {result} ({'sample' if sample else 'population'}, n={n}).",
+                         "OK", _meta(t0))
+
+
+def correlation(x: list, y: list) -> ComputeResult:
+    """Pearson correlation ρ = Cov(X,Y) / (σ_X·σ_Y), in [−1, 1]. Undefined if a variance is 0."""
+    t0 = time.perf_counter()
+    try:
+        xs = _parse_data(x)
+        ys = _parse_data(y)
+        if len(xs) != len(ys):
+            raise ComputeError("x and y must have the same length")
+    except ComputeError as exc:
+        return _error("correlation", str(exc), t0)
+    n = len(xs)
+    mx = sum(xs) / n
+    my = sum(ys) / n
+    cov = sum((xi - mx) * (yi - my) for xi, yi in zip(xs, ys))
+    vx = sum((xi - mx) ** 2 for xi in xs)
+    vy = sum((yi - my) ** 2 for yi in ys)
+    if vx == 0 or vy == 0:
+        return _error("correlation", "correlation is undefined when a variable has zero variance",
+                      t0, "COMPUTE_FAILED")
+    rho = sympy.simplify(cov / sympy.sqrt(vx * vy))
+    result = str(rho)
+    return ComputeResult("ok", "correlation", result,
+                         f"ρ = {result} (n={n}).", "OK", _meta(t0))
+
+
+def markov_stationary(matrix: list[list[str]]) -> ComputeResult:
+    """Stationary distribution π of a row-stochastic transition matrix (π·P = π, Σπ = 1)."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        P = _parse_matrix(matrix, syms)
+        if P.rows != P.cols:
+            raise ComputeError("the transition matrix must be square")
+        if syms:
+            raise ComputeError("the transition matrix must be numeric")
+        for i in range(P.rows):
+            if sympy.simplify(sum(P.row(i)) - 1) != 0:
+                raise ComputeError(f"row {i} does not sum to 1 (not row-stochastic)")
+    except ComputeError as exc:
+        return _error("markov_stationary", str(exc), t0)
+    n = P.rows
+    pv = sympy.Matrix([[sympy.Symbol(f"_pi{i}") for i in range(n)]])
+    eqs = [(pv * P)[0, j] - pv[0, j] for j in range(n)] + [sum(pv) - 1]
+    try:
+        sol = sympy.solve(eqs, list(pv), dict=True)
+    except Exception as exc:  # noqa: BLE001
+        return _error("markov_stationary", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    if not sol:
+        return _error("markov_stationary", "no unique stationary distribution found",
+                      t0, "COMPUTE_FAILED")
+    result = [str(sympy.simplify(sol[0][pv[0, i]])) for i in range(n)]
+    return ComputeResult("ok", "markov_stationary", result,
+                         f"stationary distribution π = {result}.", "OK", _meta(t0))
+
+
+def markov_step(matrix: list[list[str]], initial: list, steps: int) -> ComputeResult:
+    """Distribution after `steps` steps of a Markov chain: `initial`·Pᵏ."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(steps, int) or steps < 0:
+            raise ComputeError("steps must be an integer >= 0")
+        P = _parse_matrix(matrix, syms)
+        if P.rows != P.cols:
+            raise ComputeError("the transition matrix must be square")
+        if not isinstance(initial, list) or len(initial) != P.rows:
+            raise ComputeError("initial distribution length must match the matrix size")
+        init = sympy.Matrix([[_parse(str(v), syms) for v in initial]])
+    except ComputeError as exc:
+        return _error("markov_step", str(exc), t0)
+    try:
+        dist = init * (P ** steps)
+        result = [str(sympy.simplify(dist[0, j])) for j in range(P.cols)]
+    except Exception as exc:  # noqa: BLE001
+        return _error("markov_step", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    return ComputeResult("ok", "markov_step", result,
+                         f"distribution after {steps} step(s) = {result}.", "OK", _meta(t0))
+
+
+def joint_marginal(joint: list[list[str]], axis: str = "row") -> ComputeResult:
+    """Marginal distribution from a joint probability table. `axis`: `row` (P(X)) or `col` (P(Y))."""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        M = _parse_matrix(joint, syms)
+        if syms:
+            raise ComputeError("the joint table must be numeric")
+        which = str(axis).strip().lower()
+        if which not in ("row", "col"):
+            raise ComputeError("axis must be 'row' or 'col'")
+    except ComputeError as exc:
+        return _error("joint_marginal", str(exc), t0)
+    if which == "row":
+        result = [str(sympy.simplify(sum(M.row(i)))) for i in range(M.rows)]
+    else:
+        result = [str(sympy.simplify(sum(M.col(j)))) for j in range(M.cols)]
+    return ComputeResult("ok", "joint_marginal", result,
+                         f"marginal over {'columns' if which == 'row' else 'rows'} = {result}.",
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

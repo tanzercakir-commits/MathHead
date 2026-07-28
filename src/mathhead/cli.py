@@ -543,6 +543,32 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("n", type=int)
     p.add_argument("colors", type=int)
 
+    p = sub.add_parser("bayes", help="Bayes posterior from prior, likelihood, false-alarm")
+    p.add_argument("prior")
+    p.add_argument("likelihood")
+    p.add_argument("false_alarm")
+
+    p = sub.add_parser("covariance", help="covariance of two datasets (--sample for n-1)")
+    p.add_argument("--x", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--y", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--sample", action="store_true")
+
+    p = sub.add_parser("correlation", help="Pearson correlation of two datasets")
+    p.add_argument("--x", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--y", nargs="+", required=True, metavar="NUMBER")
+
+    p = sub.add_parser("markov-stationary", help="stationary distribution ('1/2,1/2;1/4,3/4')")
+    p.add_argument("matrix", metavar="MATRIX")
+
+    p = sub.add_parser("markov-step", help="distribution after k steps")
+    p.add_argument("matrix", metavar="MATRIX")
+    p.add_argument("--init", nargs="+", required=True, metavar="NUMBER")
+    p.add_argument("--steps", type=int, required=True)
+
+    p = sub.add_parser("marginal", help="marginal from a joint table (--axis row|col)")
+    p.add_argument("joint", metavar="MATRIX")
+    p.add_argument("--axis", default="row", choices=["row", "col"])
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -765,6 +791,14 @@ _DISPATCH = {
     "gf-coeff": lambda a: ("generating_function_coefficient",
                            {"expression": a.expression, "symbol": a.symbol, "n": a.n}),
     "necklaces": lambda a: ("necklace_count", {"n": a.n, "colors": a.colors}),
+    "bayes": lambda a: ("bayes_theorem",
+                        {"prior": a.prior, "likelihood": a.likelihood, "false_alarm": a.false_alarm}),
+    "covariance": lambda a: ("covariance", {"x": a.x, "y": a.y, "sample": a.sample}),
+    "correlation": lambda a: ("correlation", {"x": a.x, "y": a.y}),
+    "markov-stationary": lambda a: ("markov_stationary", {"matrix": _matrix(a.matrix)}),
+    "markov-step": lambda a: ("markov_step",
+                              {"matrix": _matrix(a.matrix), "initial": a.init, "steps": a.steps}),
+    "marginal": lambda a: ("joint_marginal", {"joint": _matrix(a.joint), "axis": a.axis}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

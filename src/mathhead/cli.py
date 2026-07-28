@@ -185,6 +185,30 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--system", default="K", help="K|T|D|B|S4|S5 (default K)")
     p.add_argument("--worlds", type=int, default=6, help="max worlds for bounded checking (default 6)")
 
+    p = sub.add_parser("queens", help="N-queens (place n non-attacking queens)")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("latin", help="complete an n×n Latin square")
+    p.add_argument("n", type=int)
+    p.add_argument("--givens", default=None, metavar="JSON", help="n×n grid JSON, 0 = blank")
+
+    p = sub.add_parser("sudoku", help="solve a 9×9 Sudoku (JSON grid, 0 = blank)")
+    p.add_argument("givens", metavar="JSON", help="9×9 grid JSON")
+
+    p = sub.add_parser("hamilton", help="Hamiltonian path/cycle over a graph")
+    p.add_argument("n", type=int)
+    p.add_argument("--edge", action="append", default=[], metavar="U,V", help="undirected edge 'u,v' (repeatable)")
+    p.add_argument("--cycle", action="store_true")
+
+    p = sub.add_parser("ramsey", help="2-color K_n avoiding red K_s / blue K_t")
+    p.add_argument("n", type=int)
+    p.add_argument("s", type=int)
+    p.add_argument("t", type=int)
+
+    p = sub.add_parser("tsp", help="decision TSP (JSON distance matrix + budget)")
+    p.add_argument("distances", metavar="JSON", help="n×n distance matrix JSON")
+    p.add_argument("budget", type=int)
+
     p = sub.add_parser("verify-eq", help="are two expressions equivalent (incl. domain trap)")
     p.add_argument("left", metavar="LEFT"); p.add_argument("right", metavar="RIGHT")
 
@@ -767,6 +791,14 @@ _DISPATCH = {
     "strings": lambda a: ("check_strings", {"assumptions": a.assume, "goal": a.goal}),
     "qe": lambda a: ("eliminate_quantifiers", {"formula": a.formula}),
     "modal": lambda a: ("check_modal", {"formula": a.formula, "system": a.system, "max_worlds": a.worlds}),
+    "queens": lambda a: ("n_queens", {"n": a.n}),
+    "latin": lambda a: ("latin_square", {"n": a.n, "givens": json.loads(a.givens) if a.givens else None}),
+    "sudoku": lambda a: ("sudoku_solve", {"givens": json.loads(a.givens)}),
+    "hamilton": lambda a: ("hamiltonian_path",
+                           {"edges": [[int(x) for x in e.split(",")] for e in a.edge],
+                            "n": a.n, "cycle": a.cycle}),
+    "ramsey": lambda a: ("ramsey_coloring", {"n": a.n, "s": a.s, "t": a.t}),
+    "tsp": lambda a: ("tsp_decision", {"distances": json.loads(a.distances), "budget": a.budget}),
     "verify-eq": lambda a: ("verify_equality", {"left": a.left, "right": a.right}),
     "verify-solution": lambda a: ("verify_solution", {"equation": a.equation,
                                                       "symbol": a.symbol, "claimed": a.claim}),

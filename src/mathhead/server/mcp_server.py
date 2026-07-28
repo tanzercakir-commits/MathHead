@@ -1328,6 +1328,67 @@ def subset_sum(numbers: list[int], target: int) -> dict[str, Any]:
     return asdict(route("subset_sum", {"numbers": numbers, "target": target}))
 
 
+# ----------------- Frontier J1: new reductions (verified) ----------------- #
+@mcp.tool()
+def n_queens(n: int) -> dict[str, Any]:
+    """Place `n` non-attacking queens on an n×n board (N-queens, SAT reduction).
+
+    `sat` → a placement (`witness.columns`, INDEPENDENTLY verified, `meta.verified`);
+    `unsat` → impossible (n=2, n=3). Rows/columns are 0-indexed.
+    """
+    return asdict(route("n_queens", {"n": n}))
+
+
+@mcp.tool()
+def latin_square(n: int, givens: list[list[int]] | None = None) -> dict[str, Any]:
+    """Complete an n×n Latin square (each symbol 1..n once per row and column).
+
+    `givens` (optional) is an n×n grid with 0 for blanks. `sat` → the completed `grid`
+    (INDEPENDENTLY verified); `unsat` → the givens cannot be completed.
+    """
+    return asdict(route("latin_square", {"n": n, "givens": givens}))
+
+
+@mcp.tool()
+def sudoku_solve(givens: list[list[int]]) -> dict[str, Any]:
+    """Solve a 9×9 Sudoku (`givens` is a 9×9 grid, 0 = blank).
+
+    `sat` → the solved `grid` (INDEPENDENTLY verified: rows/cols/boxes are permutations of
+    1..9 and the clues are respected); `unsat` → no solution.
+    """
+    return asdict(route("sudoku_solve", {"givens": givens}))
+
+
+@mcp.tool()
+def hamiltonian_path(edges: list[list[int]], n: int, cycle: bool = False) -> dict[str, Any]:
+    """Is there a Hamiltonian path (or `cycle`) visiting every vertex once? (NP-complete)
+
+    Vertices 0-indexed `0..n-1`; `edges` undirected `[[u,v],...]`. `sat` → the `order`
+    (INDEPENDENTLY verified against the edges); `unsat` → none exists.
+    """
+    return asdict(route("hamiltonian_path", {"edges": edges, "n": n, "cycle": cycle}))
+
+
+@mcp.tool()
+def ramsey_coloring(n: int, s: int, t: int) -> dict[str, Any]:
+    """2-color the edges of K_n avoiding a red K_s and a blue K_t (Ramsey reduction).
+
+    `sat` → a coloring exists → R(s,t) > n (INDEPENDENTLY verified); `unsat` → R(s,t) ≤ n
+    (a proof). Known: R(3,3)=6, so n=5 is `sat` and n=6 is `unsat`.
+    """
+    return asdict(route("ramsey_coloring", {"n": n, "s": s, "t": t}))
+
+
+@mcp.tool()
+def tsp_decision(distances: list[list[int]], budget: int) -> dict[str, Any]:
+    """Decision TSP: is there a tour visiting every city once with total length ≤ `budget`?
+
+    `distances` is an n×n non-negative integer matrix. `sat` → a `tour` + `length`
+    (INDEPENDENTLY verified: one Hamiltonian cycle with cost ≤ budget); `unsat` → none.
+    """
+    return asdict(route("tsp_decision", {"distances": distances, "budget": budget}))
+
+
 def main() -> None:
     """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")

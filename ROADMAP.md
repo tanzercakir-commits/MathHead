@@ -228,7 +228,9 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
 
 ## J. Frontier — Track B extension
 ```
-[ ] J1 🟡 New reductions — Ramsey (small), Latin squares, Sudoku, N-queens, Hamilton, TSP (decision)
+[x] J1 🟡 New reductions — n_queens, latin_square, sudoku_solve, hamiltonian_path (path/cycle),
+          ramsey_coloring (R(s,t)), tsp_decision (directed arcs + MTZ); every sat witness is
+          INDEPENDENTLY verified in pure Python (meta.verified) ✅ (1093 tests, 161 tools; ADR-0026)
 [ ] J2 🔴 Verifiable UNSAT certificate (DRAT/LRAT) — the Phase 10 wall; DIMACS + drat-trim
 [ ] J3 🟡 High-performance solver — CaDiCaL/Kissat integration (scale), parallel solving
 [ ] J4 [S] Hardening

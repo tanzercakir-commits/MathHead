@@ -115,7 +115,14 @@
 
 ### 🎉 TRACK H DONE — Logic & Proof Depth (155 tools, 1064 tests). Next: **J → K**.
 
-- [ ] then: J → K (full list in ROADMAP)
+### Track J — Frontier (in progress)
+
+- [x] **J1** new reductions — n_queens/latin_square/sudoku/hamiltonian_path/ramsey/tsp_decision ✅ (1093 tests, 161 tools)
+- [ ] **J2** verifiable UNSAT certificate (DRAT/LRAT) — the Phase-10 wall
+- [ ] **J3** high-performance solver (PySAT/CaDiCaL) or honest wall
+- [ ] **J4** [S] Track J hardening
+
+- [ ] then: K (full list in ROADMAP)
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

@@ -374,6 +374,27 @@
 
 ---
 
+## ADR-0026 — J1 reductions: independently-verified witnesses (and TSP via MTZ)
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** ROADMAP J1 adds classic NP-complete/combinatorial reductions (N-queens, Latin
+  squares, Sudoku, Hamiltonian path/cycle, Ramsey, decision-TSP). They must fit the frontier
+  philosophy: a positive answer should be a CHECKABLE certificate, not "trust the solver".
+- **Decision:** Each reduction encodes the problem for Z3 and, on `sat`, RE-VERIFIES the
+  extracted witness in pure Python before returning it (`meta.verified: true`) — permutation/
+  diagonal checks for queens, row/col/box permutation checks for Sudoku/Latin, edge-membership
+  along the order for Hamiltonian, no-monochromatic-clique for Ramsey, single-cycle-and-cost for
+  TSP. If verification fails, the tool returns `UNEXPECTED_SAT` (an internal-inconsistency guard)
+  rather than a possibly-bogus witness. TSP uses a directed-arc formulation with MTZ subtour
+  elimination and a `Σ length ≤ budget` constraint.
+- **Consequences:** Positive results carry an engine-independent certificate (an encoding bug is
+  caught, not shipped). Known values are reproduced (N-queens unsat at 2/3, R(3,3)=6). The
+  `unsat` side is still a bare Z3 verdict — its independent DRAT/LRAT certificate is the standing
+  Phase-10 wall, addressed in J2. Sizes are capped for tractability (honest `error` above the
+  cap); `unknown` stays first-class on timeout.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

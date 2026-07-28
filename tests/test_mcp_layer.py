@@ -210,6 +210,17 @@ ARGS = {
     "eliminate_quantifiers": {"formula": "exists(y, x == 2*y)"},
     # Modal logic (H4)
     "check_modal": {"formula": "implies(box(p), p)", "system": "T", "max_worlds": 6},
+    # Frontier J1 — new reductions
+    "n_queens": {"n": 6},
+    "latin_square": {"n": 4, "givens": None},
+    "sudoku_solve": {"givens": [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                                [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                                [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                                [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5],
+                                [3, 4, 5, 2, 8, 6, 1, 7, 9]]},
+    "hamiltonian_path": {"edges": [[0, 1], [1, 2], [2, 3]], "n": 4, "cycle": False},
+    "ramsey_coloring": {"n": 5, "s": 3, "t": 3},
+    "tsp_decision": {"distances": [[0, 1, 2, 1], [1, 0, 1, 2], [2, 1, 0, 1], [1, 2, 1, 0]], "budget": 4},
 }
 
 

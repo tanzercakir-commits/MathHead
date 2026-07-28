@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-28 — J1 · new reductions (Track J begins)
+
+**Done — 6 new frontier tools (161 total):**
+
+- `n_queens` (non-attacking queens; unsat at n=2,3), `latin_square` (n×n completion, optional
+  givens), `sudoku_solve` (9×9), `hamiltonian_path` (path/cycle, NP-complete), `ramsey_coloring`
+  (2-color K_n avoiding red K_s / blue K_t → R(s,t)), `tsp_decision` (decision TSP: directed
+  arcs + MTZ subtour elimination + budget). All in `frontier/__init__.py`.
+- Each `sat` witness is INDEPENDENTLY re-verified in pure Python (`meta.verified`) — the
+  Phase-10 certificate philosophy, so even an encoding bug is caught (→ `UNEXPECTED_SAT`).
+- Wired router + MCP (161 tools) + CLI (`queens`/`latin`/`sudoku`/`hamilton`/`ramsey`/`tsp`)
+  + `tests/test_frontier2.py` (17) → **1093/1093 green**.
+
+**Verified (known results reproduced):** 8-queens solved (2,3 impossible); a 4×4 Latin square;
+the canonical 9×9 Sudoku solved (a contradictory grid → unsat); a Hamiltonian path in 0-1-2-3
+but NO cycle (a cycle appears once the square is closed); **R(3,3)=6** — K_5 is 2-colorable
+with no monochromatic triangle, K_6 is not; a TSP tour of length 4 ≤ budget (budget 3 → unsat).
+
+**Honest asymmetry (unchanged):** a `sat` witness is an independently-checkable certificate;
+the `unsat` side is a Z3 verdict whose independent DRAT/LRAT certificate remains the Phase-10
+wall — addressed next in J2.
+
+**Decision:** ADR-0026 (six new reductions; each positive witness independently verified; TSP
+via MTZ).
+
+**Next:** J2 — verifiable UNSAT certificate (DRAT/LRAT) — tackle the Phase-10 wall.
+
 ## 2026-07-28 — H5 [S] · Track H hardening → TRACK H DONE 🎉
 
 **Done**

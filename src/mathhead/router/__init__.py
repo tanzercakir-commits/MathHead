@@ -476,4 +476,19 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "subset_sum":
         return frontier.subset_sum(payload["numbers"], payload["target"], **_opts(payload))
 
+    # --- Frontier J1: new reductions (independently-verified witnesses) ---
+    if task == "n_queens":
+        return frontier.n_queens(payload["n"], **_opts(payload))
+    if task == "latin_square":
+        return frontier.latin_square(payload["n"], payload.get("givens"), **_opts(payload))
+    if task == "sudoku_solve":
+        return frontier.sudoku_solve(payload["givens"], **_opts(payload))
+    if task == "hamiltonian_path":
+        return frontier.hamiltonian_path(payload["edges"], payload["n"],
+                                         payload.get("cycle", False), **_opts(payload))
+    if task == "ramsey_coloring":
+        return frontier.ramsey_coloring(payload["n"], payload["s"], payload["t"], **_opts(payload))
+    if task == "tsp_decision":
+        return frontier.tsp_decision(payload["distances"], payload["budget"], **_opts(payload))
+
     raise ValueError(f"unknown task: {task!r}")

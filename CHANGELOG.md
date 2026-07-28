@@ -6,6 +6,13 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added
 
+- **Frontier reductions II (`n_queens`, `latin_square`, `sudoku_solve`, `hamiltonian_path`,
+  `ramsey_coloring`, `tsp_decision`):** ROADMAP J1 — Track J begins. Six classic
+  NP-complete/combinatorial reductions to Z3, each `sat` witness INDEPENDENTLY re-verified in
+  pure Python (`meta.verified`). Reproduces known results (8-queens; unsat at n=2,3;
+  **R(3,3)=6**; Hamiltonian path-but-no-cycle; decision-TSP via MTZ subtour elimination). MCP
+  (**161 tools**) + CLI (`queens`/`latin`/`sudoku`/`hamilton`/`ramsey`/`tsp`) + 17 tests.
+  ADR-0026. **1093 tests green.**
 - **Track H hardening (`tests/test_h_track_hardening.py`, 16):** ROADMAP H5 — **TRACK H
   DONE**. Theorems as properties (proved induction theorems verified numerically to n=100k;
   BV identities incl. De Morgan checked on random values; EUF/array/string axioms; the QE

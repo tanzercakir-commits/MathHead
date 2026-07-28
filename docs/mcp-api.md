@@ -598,6 +598,17 @@ impossibility. Input is programmatic (a number `n`); output is the common
 | `schur_number` | `schur_number(n, colors)` | `unsat` = n > S(colors) (proof) |
 | `graph_coloring` | `graph_coloring(edges, colors, n=None)` | `sat` (coloring, verified) / `unsat` (chromatic number > colors) |
 | `subset_sum` | `subset_sum(numbers, target)` | `sat` (subset, verified) / `unsat` (none) |
+| `n_queens` | `n_queens(n)` | `sat` (columns, verified) / `unsat` (n=2,3) |
+| `latin_square` | `latin_square(n, givens=None)` | `sat` (grid, verified) / `unsat` |
+| `sudoku_solve` | `sudoku_solve(givens)` | `sat` (9×9 solution, verified) / `unsat` |
+| `hamiltonian_path` | `hamiltonian_path(edges, n, cycle=False)` | `sat` (order, verified) / `unsat` |
+| `ramsey_coloring` | `ramsey_coloring(n, s, t)` | `sat` = R(s,t) > n (verified) / `unsat` = R(s,t) ≤ n |
+| `tsp_decision` | `tsp_decision(distances, budget)` | `sat` (tour ≤ budget, verified) / `unsat` |
+
+The last six are the ROADMAP J1 reductions; like `graph_coloring`/`subset_sum` every `sat`
+witness is re-checked in pure Python (`meta.verified`). Known results are reproduced
+(N-queens unsat at 2/3; **R(3,3)=6**; a Hamiltonian cycle needs the closing edge; TSP uses a
+directed-arc + MTZ subtour-elimination encoding under a budget).
 
 The results the engine actually proves/reproduces (an honest log, known vs open
 distinction): `docs/track-b-results.md`.

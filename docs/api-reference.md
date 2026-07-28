@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **155 tools**.
+Total **161 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -625,3 +625,27 @@ Colors a graph with `colors` colors (neighbors differ). NP-complete graph k-colo
 ### `subset_sum(numbers, target)`
 
 Does a subset of `numbers` sum to `target`? (NP-complete subset-sum).
+
+### `n_queens(n)`
+
+Place `n` non-attacking queens on an n×n board (N-queens, SAT reduction).
+
+### `latin_square(n, givens=None)`
+
+Complete an n×n Latin square (each symbol 1..n once per row and column).
+
+### `sudoku_solve(givens)`
+
+Solve a 9×9 Sudoku (`givens` is a 9×9 grid, 0 = blank).
+
+### `hamiltonian_path(edges, n, cycle=False)`
+
+Is there a Hamiltonian path (or `cycle`) visiting every vertex once? (NP-complete)
+
+### `ramsey_coloring(n, s, t)`
+
+2-color the edges of K_n avoiding a red K_s and a blue K_t (Ramsey reduction).
+
+### `tsp_decision(distances, budget)`
+
+Decision TSP: is there a tour visiting every city once with total length ≤ `budget`?

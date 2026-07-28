@@ -1,92 +1,94 @@
 # MathHead — Todo
 
-> **Bu dosyanın işi:** ŞU AN yapılacaklar ve öncelikler. Sürekli değişir.
-> Hedef mimari `Plan.md`'de sabit durur.
+> **This file's job:** what to do RIGHT NOW and the priorities. Changes constantly.
+> The target architecture stays fixed in `Plan.md`.
 >
-> İşaretler: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti
+> Markers: `[ ]` open · `[~]` in progress · `[x]` done
 
 ---
 
-## Aktif hedef: **v1 — Akıl Yürütme Denetçisi** → ÇEKİRDEK TAMAM ✅
+## Active goal: **v1 — Reasoning Checker** → CORE DONE ✅
 
-### P0 — Zemin (çekirdek)
+### P0 — Foundation (core)
 
-- [x] **T1** `guardrails`: `validate_input` + `solver_config` (sabit tohum + timeout)
-- [x] **T2** `translate`: Python `ast` → Z3, sort çıkarımı, doğrusallık çiti
-- [x] **T3** `check_entailment` (¬sonuç UNSAT + karşıörnek)
+- [x] **T1** `guardrails`: `validate_input` + `solver_config` (fixed seed + timeout)
+- [x] **T2** `translate`: Python `ast` → Z3, sort inference, linearity fence
+- [x] **T3** `check_entailment` (¬conclusion UNSAT + counterexample)
 - [x] **T4** `check_consistency` (sat/unsat + `unsat core`)
 - [x] **T5** `find_model`
 
-### P1 — Uçtan uca
+### P1 — End to end
 
-- [x] **T6** `router.route` (3 ilkel) + `server → router`
-- [x] **T7** testler: best/worst + **determinizm (×50)** + guardrail → **17/17 yeşil**
-- [x] **T8** gerçek MCP istemcisi: **canlı stdio entegrasyon testi** eklendi
-  (`tests/test_mcp_live.py` — subprocess + JSON-RPC uçtan uca) ✅ (Aşama 11)
+- [x] **T6** `router.route` (3 primitives) + `server → router`
+- [x] **T7** tests: best/worst + **determinism (×50)** + guardrail → **17/17 green**
+- [x] **T8** real MCP client: **live stdio integration test** added
+  (`tests/test_mcp_live.py` — subprocess + JSON-RPC end to end) ✅ (Phase 11)
 
-### P2 — Cila / sıradaki
+### P2 — Polish / next
 
-- [ ] **T9** `explanation`'ı zenginleştir (invalid'de karşıörneği cümleye göm)
-- [ ] **T10** golden senaryolar (`tests/fixtures/*.json`)
-- [x] **T11** v1.1: Real sayılar + `∀`/`∃` nicelik belirteçleri ✅
-- [x] **T12** v2: `compute/` (SymPy) — solve / simplify / türev-integral ✅
-- [x] **T13** v2+: kalkülüs & sistemler — limit / series / solve_system ✅
-- [x] **T14** v2+: lineer cebir (matris) — determinant / eigenvalue / inverse / rank ✅
-- [x] **T15** v2+: lineer cebir II — matmul / Ax=b / eigenvector / rref / nullspace / LU ✅
-      (ROADMAP Aşama 1 · 161 test · 30 araç)
-- [x] **T16** ROADMAP Aşama 2 [S]: determinizm + property (det/Ax=b/simplify) + fuzz ✅ (169 test)
-- [x] **T17** ROADMAP Aşama 3: sayı teorisi ✅ (187 test, 37 araç)
-- [x] **T18** ROADMAP Aşama 4: kombinatorik & ayrık ✅ (205 test, 42 araç, Fibonacci→Binet)
-- [x] **T19** ROADMAP Aşama 5 [S]: taksonomi + golden fixtures + benchmark ✅ (242 test)
-- [x] **T20** ROADMAP Aşama 6: çok değişkenli analiz ✅ (258 test, 49 araç, ODE dahil)
-- [x] **T21** ROADMAP Aşama 7: olasılık & istatistik ✅ (273 test, 54 araç, 7 dağılım)
-- [x] **T22** ROADMAP Aşama 8 [S]: coverage %87 + benchmark çiti + otomatik API ref ✅ (330 test)
-- [x] **T23** ROADMAP Aşama 9: eşitsizlik ispatı (Z3 NRA) ✅ (345 test, 57 araç, AM-GM ispatı)
-- [x] **T24** ROADMAP Aşama 10: Track B + doğrulanabilir sertifika ✅ (357 test, 59 araç)
-- [x] **T25** ROADMAP Aşama 11 [S]: canlı MCP testi + sözleşme denetimi + sürüm 0.2.0 (RC) ✅ (417 test)
+- [ ] **T9** enrich the `explanation` (embed the counterexample into the sentence on invalid)
+- [ ] **T10** golden scenarios (`tests/fixtures/*.json`)
+- [x] **T11** v1.1: Real numbers + `∀`/`∃` quantifiers ✅
+- [x] **T12** v2: `compute/` (SymPy) — solve / simplify / derivative-integral ✅
+- [x] **T13** v2+: calculus & systems — limit / series / solve_system ✅
+- [x] **T14** v2+: linear algebra (matrix) — determinant / eigenvalue / inverse / rank ✅
+- [x] **T15** v2+: linear algebra II — matmul / Ax=b / eigenvector / rref / nullspace / LU ✅
+      (ROADMAP Phase 1 · 161 tests · 30 tools)
+- [x] **T16** ROADMAP Phase 2 [S]: determinism + property (det/Ax=b/simplify) + fuzz ✅ (169 tests)
+- [x] **T17** ROADMAP Phase 3: number theory ✅ (187 tests, 37 tools)
+- [x] **T18** ROADMAP Phase 4: combinatorics & discrete ✅ (205 tests, 42 tools, Fibonacci→Binet)
+- [x] **T19** ROADMAP Phase 5 [S]: taxonomy + golden fixtures + benchmark ✅ (242 tests)
+- [x] **T20** ROADMAP Phase 6: multivariable analysis ✅ (258 tests, 49 tools, ODE included)
+- [x] **T21** ROADMAP Phase 7: probability & statistics ✅ (273 tests, 54 tools, 7 distributions)
+- [x] **T22** ROADMAP Phase 8 [S]: coverage 87% + benchmark fence + auto API ref ✅ (330 tests)
+- [x] **T23** ROADMAP Phase 9: inequality proof (Z3 NRA) ✅ (345 tests, 57 tools, AM-GM proof)
+- [x] **T24** ROADMAP Phase 10: Track B + verifiable certificate ✅ (357 tests, 59 tools)
+- [x] **T25** ROADMAP Phase 11 [S]: live MCP test + contract check + version 0.2.0 (RC) ✅ (417 tests)
 
-### 🎉 ROADMAP Aşama 1–11 TAMAM — motor 24→59 araç, 146→417 test, kapsam %87
+### 🎉 ROADMAP Phases 1–11 DONE — engine 24→59 tools, 146→417 tests, 87% coverage
 
-### Track C — öne geçiren yön (doğrulama katmanı)
+### Track C — differentiating direction (verification layer)
 
-- [x] **C1** çekirdek doğrulayıcı: verify_equality/solution/steps ✅ (438 test, 62 araç)
-- [x] **C2** bağımsız sertifika (stdlib checker, z3/sympy'siz — kanıtlı) ✅
-- [x] **C3** çapraz denetim (Z3 ⋈ SymPy) ✅ (447 test, 63 araç, +determinizm fix ADR-0020)
-- [x] **C4** benchmark (LLM-tuzak seti, %100 yakalama + regresyon çiti) ✅
+- [x] **C1** core verifier: verify_equality/solution/steps ✅ (438 tests, 62 tools)
+- [x] **C2** independent certificate (stdlib checker, without z3/sympy — proven) ✅
+- [x] **C3** cross-check (Z3 ⋈ SymPy) ✅ (447 tests, 63 tools, +determinism fix ADR-0020)
+- [x] **C4** benchmark (LLM-trap set, 100% catch + regression fence) ✅
 
-### 🎉 TRACK C TAMAM — doğrulama katmanı (64 araç, 477 test). MathHead = AI'ın yargıcı.
+### 🎉 TRACK C DONE — verification layer (64 tools, 477 tests). MathHead = the judge of AI.
 
-### D–K roadmap ONAYLANDI (a: hepsi, önerilen sıra I→D→E→F→G→H→J→K). Kalite>hız.
+### D–K roadmap APPROVED (a: all of it, suggested order I→D→E→F→G→H→J→K). Quality>speed.
 
-- [x] **I1** yeni doğrulama türleri (türev/integral/limit/seri/matris) ✅ (505 test, 69 araç)
-- [x] **I2** doğal dil → formal + round-trip ✅ (523 test, 70 araç, tanı-ya-da-reddet)
-- [ ] **I3** tam türetim ispat denetimi · **I4** sertifika genişletme · **I5** [S]
-- [ ] sonra: D → E → F → G → H → J → K (ROADMAP'te tam liste)
+- [x] **I1** new verification types (derivative/integral/limit/series/matrix) ✅ (505 tests, 69 tools)
+- [x] **I2** natural language → formal + round-trip ✅ (523 tests, 70 tools, recognize-or-reject)
+- [x] **Repo language → English** ✅ (docstrings/comments/user-strings/docs/data prose;
+      Anglicized output keys; bilingual TR+EN NL *input* kept as a feature) — 523/523 green
+- [ ] **I3** full derivation proof check · **I4** certificate extension · **I5** [S]
+- [ ] then: D → E → F → G → H → J → K (full list in ROADMAP)
 
-**Ürünleştirme (kullanıcıda, acelesi yok):** PyPI (0.2.0), release, tutorial.
+**Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 
 ---
 
-## Bu oturumda biten
+## Finished in this session
 
-- [x] v0: iskelet + tasarım dosyaları
-- [x] v1 çekirdeği **çalışır** (gerçek Z3): 3 ilkel, unsat core, karşıörnek, meta
-- [x] MCP uçtan uca (3 araç kayıtlı, JSON temiz), 17/17 test yeşil
-- [x] Repo GitHub'da; CI (Actions) kurulu
-- [x] **v1.1**: nicelik belirteçleri (∀/∃) + Real → 25/25 test yeşil
-- [x] **v2**: hesap katmanı (SymPy) — solve/simplify/türev/integral → 37/37 test yeşil
-- [x] **Track B tohumu**: problem→SAT indirgeme (Pythagorean + pigeonhole) → 42/42 yeşil
-- [x] **v1.2**: yüklemler + bireyler (klasik silogizm çalışır) → 51/51 yeşil
-- [x] **CLI**: `mathhead` terminal aracı (11 komut + --json)
-- [x] **v3 ispat üretimi** (adım adım ND: MP/MT/DS/∀/∃/RAA) + **model numaralandırma** → 84/84
-- [x] **optimizasyon** (Z3 Optimize / MaxSMT): kısıt altında amacı en iyile → 90/90
-- [x] **MaxSAT** (yumuşak/ağırlıklı kısıtlar): en çok soft kısıtı sağla → 96/96
-- [x] **sağlamlaştırma**: property-based test (hypothesis) + determinizm kesinleştirildi → 103/103
-- [x] **denklik & sınıflandırma** (equivalent / classify): totoloji/çelişki/olumsal → 110/110
-- [x] **kalkülüs & sistemler** (limit / series / solve_system): tek yön + sonsuz nokta,
-  Taylor, çok değişkenli sistem (doğrusal+değil, dürüst boş çözüm) → **128/128**, MCP **20 araç**
-- [x] **lineer cebir (matris)** (determinant / inverse / eigenvalues / rank): sembolik hücre,
-  tekil matris dürüst hata, karmaşık özdeğer + katlılık → **146/146**, MCP **24 araç**
-- [x] **Track B / van der Waerden**: W(2,3..5) bilinen değerleri yeniden üretildi (dürüst) → 61/61
-- [x] **Track B / Schur**: S(2)=4, S(3)=13 yeniden üretildi; S(4)≥44 (dürüst duvar) → 65/65
-- [x] **v3 / ispat üretimi**: minimal çekirdek + doğal tümdengelim (silogizm adım adım) → 72/72
+- [x] v0: skeleton + design files
+- [x] v1 core **works** (real Z3): 3 primitives, unsat core, counterexample, meta
+- [x] MCP end to end (3 tools registered, clean JSON), 17/17 tests green
+- [x] Repo on GitHub; CI (Actions) set up
+- [x] **v1.1**: quantifiers (∀/∃) + Real → 25/25 tests green
+- [x] **v2**: compute layer (SymPy) — solve/simplify/derivative/integral → 37/37 tests green
+- [x] **Track B seed**: problem→SAT reduction (Pythagorean + pigeonhole) → 42/42 green
+- [x] **v1.2**: predicates + individuals (classical syllogism works) → 51/51 green
+- [x] **CLI**: `mathhead` terminal tool (11 commands + --json)
+- [x] **v3 proof generation** (step-by-step ND: MP/MT/DS/∀/∃/RAA) + **model enumeration** → 84/84
+- [x] **optimization** (Z3 Optimize / MaxSMT): optimize an objective under constraints → 90/90
+- [x] **MaxSAT** (soft/weighted constraints): satisfy the most soft constraints → 96/96
+- [x] **hardening**: property-based tests (hypothesis) + determinism made precise → 103/103
+- [x] **equivalence & classification** (equivalent / classify): tautology/contradiction/contingent → 110/110
+- [x] **calculus & systems** (limit / series / solve_system): one-sided + infinite point,
+  Taylor, multivariable system (linear+nonlinear, honest empty solution) → **128/128**, MCP **20 tools**
+- [x] **linear algebra (matrix)** (determinant / inverse / eigenvalues / rank): symbolic cells,
+  honest error on singular matrix, complex eigenvalue + multiplicity → **146/146**, MCP **24 tools**
+- [x] **Track B / van der Waerden**: W(2,3..5) known values reproduced (honest) → 61/61
+- [x] **Track B / Schur**: S(2)=4, S(3)=13 reproduced; S(4)≥44 (honest wall) → 65/65
+- [x] **v3 / proof generation**: minimal core + natural deduction (syllogism step by step) → 72/72

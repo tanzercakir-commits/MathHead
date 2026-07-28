@@ -1,11 +1,11 @@
 """
-Sözleşme denetimi (ROADMAP Aşama 11 [S]) — HER aracın ortak çıktı sözleşmesine
-uyduğunu doğrular: `status` + `reason_code` + `explanation` + `meta` (elapsed_ms
-ile). Bu, "net protokol & API" prensibinin makine-denetimidir; bir araç
-sözleşmeyi bozarsa (ör. meta'sız döner) test kırılır.
+Contract check (ROADMAP Phase 11 [S]) — verifies that EVERY tool conforms to the
+common output contract: `status` + `reason_code` + `explanation` + `meta` (with
+elapsed_ms). This is the machine-check of the "clean protocol & API" principle;
+if a tool breaks the contract (e.g. returns without meta), the test fails.
 
-Kapsanan araç kümesi `test_mcp_layer.ARGS`'tan gelir (tek kaynak) — böylece yeni
-araç eklenince hem çağrılabilirlik hem sözleşme birlikte zorlanır.
+The covered tool set comes from `test_mcp_layer.ARGS` (single source) — so when a
+new tool is added, both callability and contract are enforced together.
 """
 from dataclasses import asdict
 
@@ -14,8 +14,8 @@ import pytest
 from mathhead.router import route
 from tests.test_mcp_layer import ARGS
 
-# route() task adları MCP araç adlarından birkaç yerde ayrışır (enumerate_models
-# -> enumerate, model -> find_model, vb.). MCP adı -> router task eşlemesi:
+# route() task names diverge from MCP tool names in a few places (enumerate_models
+# -> enumerate, model -> find_model, etc.). MCP name -> router task mapping:
 _TASK = {
     "model": "find_model",
     "enumerate_models": "enumerate",
@@ -28,12 +28,12 @@ _TASK = {
 def test_tool_output_contract(tool):
     task = _TASK.get(tool, tool)
     result = asdict(route(task, ARGS[tool]))
-    # Evrensel sözleşme: dört alan daima var
+    # Universal contract: four fields always present
     for key in ("status", "reason_code", "explanation", "meta"):
-        assert key in result, f"{tool}: sözleşme ihlali — '{key}' yok"
+        assert key in result, f"{tool}: contract violation — '{key}' missing"
     assert isinstance(result["status"], str) and result["status"]
     assert isinstance(result["explanation"], str)
     assert isinstance(result["meta"], dict)
-    # meta ölçüm taşımalı (her katman)
-    assert "elapsed_ms" in result["meta"], f"{tool}: meta.elapsed_ms yok"
+    # meta must carry a measurement (every layer)
+    assert "elapsed_ms" in result["meta"], f"{tool}: meta.elapsed_ms missing"
     assert isinstance(result["meta"]["elapsed_ms"], (int, float))

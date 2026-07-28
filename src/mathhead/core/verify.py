@@ -1,22 +1,24 @@
 """
-mathhead.core.verify — DOĞRULAMA KATMANI (AI muhakeme denetçisi).
+mathhead.core.verify — VERIFICATION LAYER (auditor of AI reasoning).
 
-**Öne geçiren fikir (ROADMAP Track C):** AI non-deterministiktir ve uydurur;
-MathHead deterministik olarak DENETLER. Bu katman "öner-ve-denetle": bir AI (ya
-da insan) matematiksel bir İDDİA sunar (bu ifade şuna denk / bu değerler çözüm /
-bu adım zinciri doğru), MathHead bağımsız doğrular ve **karşıörnek + kanıt** verir.
+**The differentiating idea (ROADMAP Track C):** AI is non-deterministic and makes
+things up; MathHead AUDITS deterministically. This layer is "propose-and-audit": an
+AI (or human) presents a mathematical CLAIM (this expression equals that / these
+values are solutions / this chain of steps is correct), MathHead independently
+verifies it and provides **counterexample + proof**.
 
-Bu, ürünü "başka bir hesap makinesi" olmaktan çıkarıp AI muhakemesinin *yargıcı*
-yapan farktır. Rakip CAS'lar cevap verir; biz cevabı DOĞRULARIZ.
+This is the difference that turns the product from "yet another calculator" into a
+*judge* of AI reasoning. Rival CASs give an answer; we VERIFY the answer.
 
-Dürüstlük duvarları (bilerek yüzeye çıkarılır):
-- **Domain tuzağı:** `(x²-1)/(x-1)` ile `x+1` sembolik denk görünür ama `x=1`'de
-  tanımsızdır. Denklik "ortak tanım kümesinde" olarak nitelenir, ayrışma noktaları
-  raporlanır (naif eşitlik kontrolünün KAÇIRDIĞI hata — bizim yakaladığımız).
-- **Tamlık:** bir çözüm kümesinin TAM olduğunu her zaman doğrulayamayız (ör.
-  transandantal denklem). Bu durum `unknown` olarak birinci sınıf raporlanır.
+Honesty walls (deliberately surfaced):
+- **Domain trap:** `(x²-1)/(x-1)` and `x+1` look symbolically equal but the former
+  is undefined at `x=1`. Equality is qualified as "on the common domain" and the
+  divergence points are reported (the error a naive equality check MISSES — the one
+  we catch).
+- **Completeness:** we cannot always verify that a solution set is COMPLETE (e.g. a
+  transcendental equation). This case is reported first-class as `unknown`.
 
-Güvenlik: girdi yine compute katmanının ast-whitelist ayrıştırıcısıyla süzülür.
+Security: input is still filtered through the compute layer's ast-whitelist parser.
 """
 from __future__ import annotations
 
@@ -42,17 +44,17 @@ __all__ = [
     "verify_series", "verify_matrix_identity",
 ]
 
-_SAMPLE = (0, 1, 2, -1, 3, -2, 5)   # karşıörnek taraması için nokta kümesi
+_SAMPLE = (0, 1, 2, -1, 3, -2, 5)   # set of points for counterexample scanning
 
 
 @dataclass
 class VerifyResult:
-    """Doğrulama çıktısı — ortak sözleşme (status/reason_code/explanation/meta)."""
+    """Verification output — shared contract (status/reason_code/explanation/meta)."""
 
     status: str                       # valid | invalid | unknown | error
     reason_code: str
     explanation: str
-    details: dict[str, Any] | None = None    # karşıörnek / eksik-fazla / ilk hatalı adım
+    details: dict[str, Any] | None = None    # counterexample / missing-extra / first bad step
     meta: dict[str, Any] = field(default_factory=dict)
 
 
@@ -61,22 +63,22 @@ def _err(operation: str, msg: str, t0: float) -> VerifyResult:
 
 
 def _as_expr(value: str, syms: dict[str, Any]) -> Any:
-    """İfadeyi ayrıştırır; denklem (Eq) gelirse reddeder (burada ifade beklenir)."""
+    """Parses the expression; rejects an equation (Eq) if given (an expression is expected here)."""
     parsed = _parse(value, syms)
     if isinstance(parsed, sympy.Equality):
-        raise ComputeError("burada ifade beklenir, denklem değil")
+        raise ComputeError("an expression is expected here, not an equation")
     return parsed
 
 
 def _counterexample(diff: Any, syms: dict[str, Any]) -> dict[str, Any] | None:
-    """`diff` (= sol - sağ) sıfırdan farklı olan somut bir nokta bulur."""
+    """Finds a concrete point where `diff` (= left - right) is nonzero."""
     free = sorted(diff.free_symbols, key=str)
     if not free:
         val = sympy.simplify(diff)
         return None if val == 0 else {"value": str(val)}
     combos = itertools.product(_SAMPLE, repeat=len(free))
     for i, combo in enumerate(combos):
-        if i > 400:                    # tarama sınırı (dürüst: kapsamlı değil)
+        if i > 400:                    # scan limit (honest: not exhaustive)
             break
         subs = dict(zip(free, combo))
         try:
@@ -90,7 +92,7 @@ def _counterexample(diff: Any, syms: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def _domain_diff(left: Any, right: Any) -> list[str]:
-    """İki ifadenin tanım kümelerinin ayrıştığı (tekillik) noktaları toplar."""
+    """Collects the (singularity) points where the two expressions' domains diverge."""
     out: set[str] = set()
     for s in sorted(left.free_symbols | right.free_symbols, key=str):
         try:
@@ -110,12 +112,13 @@ def _domain_diff(left: Any, right: Any) -> list[str]:
 
 
 def _equal_verdict(le: Any, re: Any, syms: dict[str, Any]) -> tuple[str, dict | None]:
-    """DETERMİNİSTİK denklik kararı: ('equal'|'not_equal'|'undecided', karşıörnek?).
+    """DETERMINISTIC equality decision: ('equal'|'not_equal'|'undecided', counterexample?).
 
-    SymPy `.equals()` KULLANILMAZ — o içsel RASTGELE örnekleme yapar (aynı girdi →
-    değişen sonuç), determinizm ilkesini (ADR-0019) ihlal ederdi. Bunun yerine:
-    (1) `simplify(sol - sağ) == 0` → denk (deterministik), (2) sabit-nokta
-    karşıörnek taraması → değilse `not_equal` + kanıt, (3) aksi halde `undecided`.
+    SymPy `.equals()` is NOT USED — it does internal RANDOM sampling (same input →
+    varying result), which would violate the determinism principle (ADR-0019).
+    Instead: (1) `simplify(left - right) == 0` → equal (deterministic), (2) fixed
+    sample-point counterexample scan → if not, `not_equal` + proof, (3) otherwise
+    `undecided`.
     """
     diff = le - re
     try:
@@ -131,12 +134,12 @@ def _equal_verdict(le: Any, re: Any, syms: dict[str, Any]) -> tuple[str, dict | 
 
 
 def verify_equality(left: str, right: str) -> VerifyResult:
-    """`left` ile `right` matematiksel olarak DENK mi? (AI'ın "= şuna eşittir"
-    iddiasını denetler.)
+    """Are `left` and `right` mathematically EQUAL? (audits an AI's "= equals this"
+    claim.)
 
-    valid → denk; ayrıca tanım kümeleri ayrışıyorsa `EQUAL_ON_COMMON_DOMAIN` ile
-    ayrışma noktaları raporlanır (domain tuzağı). invalid → `details.counterexample`
-    farklı olduğu somut nokta. unknown → karar verilemedi (dürüst).
+    valid → equal; and if the domains diverge, the divergence points are reported
+    via `EQUAL_ON_COMMON_DOMAIN` (domain trap). invalid → `details.counterexample`
+    is a concrete point where they differ. unknown → could not decide (honest).
     """
     import time
     t0 = time.perf_counter()
@@ -153,32 +156,33 @@ def verify_equality(left: str, right: str) -> VerifyResult:
         if caveat:
             return VerifyResult(
                 "valid", "EQUAL_ON_COMMON_DOMAIN",
-                f"ortak tanım kümesinde denk; ANCAK tanım kümeleri şurada ayrışıyor: "
-                f"{', '.join(caveat)} (koşulsuz eşit DEĞİL).",
+                f"equal on the common domain; BUT the domains diverge at: "
+                f"{', '.join(caveat)} (NOT unconditionally equal).",
                 {"domain_caveat": caveat}, _meta(t0))
-        return VerifyResult("valid", "EQUAL", "ifadeler denk (doğrulandı).", None, _meta(t0))
+        return VerifyResult("valid", "EQUAL", "the expressions are equal (verified).", None, _meta(t0))
     if verdict == "not_equal":
         return VerifyResult("invalid", "NOT_EQUAL",
-                            f"denk DEĞİL; karşıörnek: {cx}.", {"counterexample": cx}, _meta(t0))
+                            f"NOT equal; counterexample: {cx}.", {"counterexample": cx}, _meta(t0))
     return VerifyResult("unknown", "UNDECIDED",
-                        "denklik kararlaştırılamadı (dürüst: ne ispat ne çürütme).",
+                        "equality could not be decided (honest: neither proof nor refutation).",
                         None, _meta(t0))
 
 
 def verify_solution(equation: str, symbol: str, claimed: list[str]) -> VerifyResult:
-    """`claimed` değerleri `equation`'ın çözümü mü — ve TAM mı? (AI'ın "çözümler
-    şunlar" iddiasını denetler.)
+    """Are the `claimed` values solutions of `equation` — and are they COMPLETE?
+    (audits an AI's "here are the solutions" claim.)
 
-    Her değer ikame ile denetlenir; ayrıca gerçek çözüm kümesiyle karşılaştırılıp
-    EKSİK/FAZLA raporlanır. valid → doğru + tam; invalid → yanlış değer ya da eksik;
-    unknown → değerler tutar ama TAMLIK doğrulanamadı (ör. transandantal).
+    Each value is checked by substitution; also compared against the true solution
+    set and reported as MISSING/EXTRA. valid → correct + complete; invalid → wrong
+    value or missing; unknown → the values hold but COMPLETENESS could not be
+    verified (e.g. transcendental).
     """
     import time
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
     try:
         if not isinstance(claimed, list) or not claimed:
-            raise ComputeError("iddia edilen çözüm listesi boş olamaz")
+            raise ComputeError("the claimed solution list cannot be empty")
         parsed = _parse(equation, syms)
         expr = (parsed.lhs - parsed.rhs) if isinstance(parsed, sympy.Equality) else parsed
         var = _symbol(symbol, syms)
@@ -196,7 +200,7 @@ def verify_solution(equation: str, symbol: str, claimed: list[str]) -> VerifyRes
         checks.append({"value": str(c), "satisfies": ok})
     wrong = [d["value"] for d in checks if not d["satisfies"]]
 
-    # tamlık: gerçek çözüm kümesini bulmaya çalış
+    # completeness: try to find the true solution set
     actual = None
     try:
         actual = set(sympy.solve(expr, var))
@@ -207,38 +211,39 @@ def verify_solution(equation: str, symbol: str, claimed: list[str]) -> VerifyRes
     if wrong:
         details["wrong_values"] = wrong
         return VerifyResult("invalid", "SOLUTION_INCORRECT",
-                            f"şu iddia edilen değerler çözüm DEĞİL: {wrong}.",
+                            f"these claimed values are NOT solutions: {wrong}.",
                             details, _meta(t0))
     if actual is None:
         return VerifyResult("unknown", "COMPLETENESS_UNKNOWN",
-                            "iddia edilen değerler çözüm; ANCAK tümü mü doğrulanamadı "
-                            "(çözüm kümesi kapalı-formda bulunamadı).",
+                            "the claimed values are solutions; BUT whether they are all of them "
+                            "could not be verified (the solution set was not found in closed form).",
                             details, _meta(t0))
     claimed_set = set(claimed_vals)
     missing = sorted((actual - claimed_set), key=str)
     if missing:
         details["missing"] = [str(m) for m in missing]
         return VerifyResult("invalid", "SOLUTION_INCOMPLETE",
-                            f"değerler doğru ama EKSİK; kaçan çözümler: "
+                            f"the values are correct but INCOMPLETE; missing solutions: "
                             f"{details['missing']}.", details, _meta(t0))
     return VerifyResult("valid", "SOLUTION_VERIFIED",
-                        "iddia edilen çözümler doğru ve TAM (doğrulandı).",
+                        "the claimed solutions are correct and COMPLETE (verified).",
                         details, _meta(t0))
 
 
 def verify_steps(steps: list[str]) -> VerifyResult:
-    """Bir ifade zincirini (her adım bir öncekiyle DENK olmalı) denetler ve İLK
-    hatalı geçişi bulur. (AI'ın adım adım çözümünü "not verir".)
+    """Audits a chain of expressions (each step must be EQUAL to the previous one)
+    and finds the FIRST bad transition. ("grades" an AI's step-by-step solution.)
 
-    valid → tüm geçişler denk; invalid → `details.first_bad_step` (1-tabanlı) ilk
-    kırılan geçiş + karşıörnek; unknown → bir geçiş kararlaştırılamadı.
+    valid → all transitions equal; invalid → `details.first_bad_step` (1-based) the
+    first broken transition + counterexample; unknown → a transition could not be
+    decided.
     """
     import time
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
     try:
         if not isinstance(steps, list) or len(steps) < 2:
-            raise ComputeError("en az 2 adım gerekir")
+            raise ComputeError("at least 2 steps are required")
         exprs = [_as_expr(s, syms) for s in steps]
     except ComputeError as exc:
         return _err("verify_steps", str(exc), t0)
@@ -249,7 +254,7 @@ def verify_steps(steps: list[str]) -> VerifyResult:
         if verdict == "not_equal":
             return VerifyResult(
                 "invalid", "STEP_INVALID",
-                f"{i + 1}. adımdan {i + 2}. adıma geçiş HATALI "
+                f"the transition from step {i + 1} to step {i + 2} is WRONG "
                 f"('{steps[i]}' ≠ '{steps[i + 1]}').",
                 {"first_bad_step": i + 1, "from": steps[i], "to": steps[i + 1],
                  "counterexample": cx}, _meta(t0))
@@ -257,43 +262,44 @@ def verify_steps(steps: list[str]) -> VerifyResult:
             undecided_at = i + 1
     if undecided_at is not None:
         return VerifyResult("unknown", "UNDECIDED",
-                            f"{undecided_at}. geçiş kararlaştırılamadı; gerisi tutarlı.",
+                            f"transition {undecided_at} could not be decided; the rest are consistent.",
                             {"undecided_step": undecided_at}, _meta(t0))
     return VerifyResult("valid", "STEPS_VALID",
-                        f"{len(exprs)} adımın tüm geçişleri denk (doğrulandı).",
+                        f"all transitions of the {len(exprs)} steps are equal (verified).",
                         None, _meta(t0))
 
 
 # --------------------------------------------------------------------------- #
-# I1 — daha çok iddia türü: limit / türev / integral / seri / matris özdeşliği.
-# Hepsi "AI'ın iddiası ≟ bağımsız hesaplanan doğru" — deterministik denklikle
-# denetlenir (EQUAL/NOT_EQUAL/UNDECIDED). İntegral: türev-alıp-karşılaştır (dürüst).
+# I1 — more claim types: limit / derivative / integral / series / matrix identity.
+# All are "the AI's claim ≟ the independently computed truth" — audited by
+# deterministic equality (EQUAL/NOT_EQUAL/UNDECIDED). Integral: differentiate-and-
+# compare (honest).
 # --------------------------------------------------------------------------- #
 def _from_verdict(op: str, claimed: str, computed_desc: str,
                   le: Any, re: Any, syms: dict[str, Any], t0: float) -> VerifyResult:
-    """`le` (iddia) ile `re` (hesaplanan) denk mi → ortak VerifyResult üretir."""
+    """Is `le` (claim) equal to `re` (computed) → produces a shared VerifyResult."""
     verdict, cx = _equal_verdict(le, re, syms)
     if verdict == "equal":
         return VerifyResult("valid", "EQUAL",
-                            f"{op}: iddia doğru (= {computed_desc}).", None, _meta(t0))
+                            f"{op}: the claim is correct (= {computed_desc}).", None, _meta(t0))
     if verdict == "not_equal":
         return VerifyResult("invalid", "NOT_EQUAL",
-                            f"{op}: iddia YANLIŞ. Doğrusu: {computed_desc}. Karşıörnek: {cx}.",
+                            f"{op}: the claim is WRONG. Correct: {computed_desc}. Counterexample: {cx}.",
                             {"claimed": claimed, "correct": computed_desc, "counterexample": cx},
                             _meta(t0))
     return VerifyResult("unknown", "UNDECIDED",
-                        f"{op}: kararlaştırılamadı (iddia: {claimed}, hesaplanan: {computed_desc}).",
+                        f"{op}: could not decide (claim: {claimed}, computed: {computed_desc}).",
                         None, _meta(t0))
 
 
 def verify_derivative(expression: str, symbol: str, claimed: str,
                       order: int = 1) -> VerifyResult:
-    """`d^order/d{symbol}^order (expression)` gerçekten `claimed` mı? (AI türev iddiası.)"""
+    """Is `d^order/d{symbol}^order (expression)` really `claimed`? (AI derivative claim.)"""
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
     try:
         if not isinstance(order, int) or order < 1:
-            raise ComputeError("türev mertebesi 1 veya daha büyük tam sayı olmalı")
+            raise ComputeError("the derivative order must be an integer >= 1")
         expr = _as_expr(expression, syms)
         var = _symbol(symbol, syms)
         claimed_e = _as_expr(claimed, syms)
@@ -302,15 +308,15 @@ def verify_derivative(expression: str, symbol: str, claimed: str,
     try:
         computed = sympy.diff(expr, var, order)
     except Exception as exc:  # noqa: BLE001
-        return _err("verify_derivative", f"türev alınamadı: {exc}", t0)
-    return _from_verdict("türev", claimed, str(computed), claimed_e, computed, syms, t0)
+        return _err("verify_derivative", f"could not differentiate: {exc}", t0)
+    return _from_verdict("derivative", claimed, str(computed), claimed_e, computed, syms, t0)
 
 
 def verify_integral(expression: str, symbol: str, claimed: str) -> VerifyResult:
-    """`∫ expression d{symbol}` gerçekten `claimed` mı? (sabit farkı hoş görülür.)
+    """Is `∫ expression d{symbol}` really `claimed`? (a constant difference is tolerated.)
 
-    DÜRÜST yöntem: `claimed`'ın türevini alıp `expression`'a eşit mi bakılır
-    (böylece +C belirsizliği doğal olarak aşılır).
+    HONEST method: differentiate `claimed` and check whether it equals `expression`
+    (so the +C ambiguity is naturally overcome).
     """
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
@@ -323,16 +329,16 @@ def verify_integral(expression: str, symbol: str, claimed: str) -> VerifyResult:
     try:
         d_claimed = sympy.diff(claimed_e, var)
     except Exception as exc:  # noqa: BLE001
-        return _err("verify_integral", f"türev alınamadı: {exc}", t0)
-    res = _from_verdict("integral", claimed, f"türevi {d_claimed}", d_claimed, expr, syms, t0)
+        return _err("verify_integral", f"could not differentiate: {exc}", t0)
+    res = _from_verdict("integral", claimed, f"its derivative {d_claimed}", d_claimed, expr, syms, t0)
     if res.status == "valid":
-        res.explanation = (f"integral: iddia doğru — d/d{symbol}({claimed}) = {expr} "
-                           f"(sabit farkı hoş görülür).")
+        res.explanation = (f"integral: the claim is correct — d/d{symbol}({claimed}) = {expr} "
+                           f"(a constant difference is tolerated).")
     return res
 
 
 def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> VerifyResult:
-    """`lim {symbol}→{point} expression` gerçekten `claimed` mı? (`point`/`claimed` `oo` olabilir.)"""
+    """Is `lim {symbol}→{point} expression` really `claimed`? (`point`/`claimed` may be `oo`.)"""
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
     try:
@@ -346,7 +352,7 @@ def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> Veri
         actual = sympy.limit(expr, var, pt)
     except Exception as exc:  # noqa: BLE001
         return VerifyResult("unknown", "UNDECIDED",
-                            f"limit: bağımsız hesaplanamadı ({exc}).", None, _meta(t0))
+                            f"limit: could not be computed independently ({exc}).", None, _meta(t0))
     equal = False
     try:
         equal = bool(actual == claimed_v) or bool(sympy.simplify(actual - claimed_v) == 0)
@@ -354,21 +360,21 @@ def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> Veri
         equal = bool(actual == claimed_v)
     if equal:
         return VerifyResult("valid", "EQUAL",
-                            f"limit: iddia doğru (lim {symbol}→{point} = {actual}).",
+                            f"limit: the claim is correct (lim {symbol}→{point} = {actual}).",
                             None, _meta(t0))
     return VerifyResult("invalid", "NOT_EQUAL",
-                        f"limit: iddia YANLIŞ. Doğru limit: {actual} (iddia: {claimed}).",
+                        f"limit: the claim is WRONG. Correct limit: {actual} (claim: {claimed}).",
                         {"claimed": str(claimed), "correct": str(actual)}, _meta(t0))
 
 
 def verify_series(expression: str, symbol: str, point: str, order: int,
                   claimed: str) -> VerifyResult:
-    """`expression`'ın `{symbol}={point}` civarı `order`. mertebe Taylor açılımı `claimed` mı?"""
+    """Is `expression`'s order-`order` Taylor expansion around `{symbol}={point}` the `claimed` one?"""
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
     try:
         if not isinstance(order, int) or order < 1:
-            raise ComputeError("order 1 veya daha büyük tam sayı olmalı")
+            raise ComputeError("order must be an integer >= 1")
         expr = _as_expr(expression, syms)
         var = _symbol(symbol, syms)
         pt = _parse_point(str(point), syms)
@@ -378,15 +384,15 @@ def verify_series(expression: str, symbol: str, point: str, order: int,
     try:
         computed = expr.series(var, pt, order).removeO()
     except Exception as exc:  # noqa: BLE001
-        return _err("verify_series", f"seri açılamadı: {exc}", t0)
-    return _from_verdict("seri", claimed, str(computed), claimed_e, computed, syms, t0)
+        return _err("verify_series", f"could not expand the series: {exc}", t0)
+    return _from_verdict("series", claimed, str(computed), claimed_e, computed, syms, t0)
 
 
 def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> VerifyResult:
-    """İki matris (sembolik hücreler dahil) EŞİT mi? (AI matris özdeşliği iddiası.)
+    """Are two matrices (including symbolic cells) EQUAL? (AI matrix identity claim.)
 
-    Boyut farklıysa `NOT_EQUAL`; aksi halde her hücre deterministik denklikle
-    denetlenir, ilk farklı hücre + karşıörnek raporlanır.
+    If the dimensions differ, `NOT_EQUAL`; otherwise each cell is audited by
+    deterministic equality, and the first differing cell + counterexample is reported.
     """
     t0 = time.perf_counter()
     syms: dict[str, Any] = {}
@@ -397,7 +403,7 @@ def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> Ver
         return _err("verify_matrix_identity", str(exc), t0)
     if (A.rows, A.cols) != (B.rows, B.cols):
         return VerifyResult("invalid", "NOT_EQUAL",
-                            f"matris boyutları farklı: {A.rows}×{A.cols} ≠ {B.rows}×{B.cols}.",
+                            f"the matrix dimensions differ: {A.rows}×{A.cols} ≠ {B.rows}×{B.cols}.",
                             {"left_shape": [A.rows, A.cols], "right_shape": [B.rows, B.cols]},
                             _meta(t0))
     undecided = None
@@ -406,7 +412,7 @@ def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> Ver
             verdict, cx = _equal_verdict(A[i, j], B[i, j], syms)
             if verdict == "not_equal":
                 return VerifyResult("invalid", "NOT_EQUAL",
-                                    f"matrisler farklı: [{i}][{j}] hücresi eşit değil "
+                                    f"the matrices differ: cell [{i}][{j}] is not equal "
                                     f"({A[i, j]} ≠ {B[i, j]}).",
                                     {"cell": [i, j], "left": str(A[i, j]),
                                      "right": str(B[i, j]), "counterexample": cx}, _meta(t0))
@@ -414,8 +420,8 @@ def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> Ver
                 undecided = [i, j]
     if undecided is not None:
         return VerifyResult("unknown", "UNDECIDED",
-                            f"[{undecided[0]}][{undecided[1]}] hücresi kararlaştırılamadı; "
-                            f"gerisi eşit.", {"undecided_cell": undecided}, _meta(t0))
+                            f"cell [{undecided[0]}][{undecided[1]}] could not be decided; "
+                            f"the rest are equal.", {"undecided_cell": undecided}, _meta(t0))
     return VerifyResult("valid", "EQUAL",
-                        f"matrisler eşit ({A.rows}×{A.cols}, tüm hücreler doğrulandı).",
+                        f"the matrices are equal ({A.rows}×{A.cols}, all cells verified).",
                         None, _meta(t0))

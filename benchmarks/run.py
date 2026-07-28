@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-MathHead — LLM-tuzak benchmark harness (ROADMAP Track C4).
+MathHead — LLM-trap benchmark harness (ROADMAP Track C4).
 
-`benchmarks/llm_traps.json` içindeki her tuzağı MathHead'in ilgili aracıyla
-adjuke eder ve **yakalama oranını** (catch-rate) raporlar. Bir tuzak, MathHead
-`expect`'teki düzeltici verdict'i döndürürse "YAKALANDI" sayılır.
+Adjudicates every trap in `benchmarks/llm_traps.json` with MathHead's relevant
+tool and reports the **catch-rate**. A trap counts as "CAUGHT" if MathHead
+returns the corrective verdict in `expect`.
 
-DÜRÜST çerçeve: bu, MathHead'in bilinen LLM hata desenlerini doğru adjuke
-ettiğinin **yeniden-üretilebilir gösterimidir** — canlı bir LLM ile A/B testi
-DEĞİL (o, gerçek bir modelle kullanıcının koşacağı iş). Amaç: değer önerisini
-("AI'ın işini denetler") ölçülebilir + regresyona karşı korunur kılmak.
+HONEST framing: this is a **reproducible demonstration** that MathHead correctly
+adjudicates known LLM error patterns — NOT an A/B test against a live LLM
+(that's the work the user runs with a real model). Goal: make the value proposition
+("audits the AI's work") measurable + protected against regression.
 
-Kullanım:
-    python benchmarks/run.py           # rapor
-    python benchmarks/run.py --json    # ham JSON
+Usage:
+    python benchmarks/run.py           # report
+    python benchmarks/run.py --json    # raw JSON
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ _TRAPS = Path(__file__).parent / "llm_traps.json"
 
 
 def run() -> list[dict]:
-    """Her tuzağı çalıştırır; {id, category, caught, got} listesi döndürür."""
+    """Runs each trap; returns a list of {id, category, caught, got}."""
     traps = json.loads(_TRAPS.read_text(encoding="utf-8"))["traps"]
     out = []
     for t in traps:
@@ -45,7 +45,7 @@ def run() -> list[dict]:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="MathHead LLM-tuzak benchmark")
+    ap = argparse.ArgumentParser(description="MathHead LLM-trap benchmark")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
     rows = run()
@@ -60,21 +60,21 @@ def main() -> None:
         by_cat[r["category"]].append(r["caught"])
 
     print("=" * 72)
-    print("  MathHead — LLM-tuzak benchmark (yeniden-üretilebilir gösterim)")
+    print("  MathHead — LLM-trap benchmark (reproducible demonstration)")
     print("=" * 72)
     for r in rows:
-        mark = "✓ yakaladı" if r["caught"] else "✗ KAÇIRDI"
+        mark = "✓ caught" if r["caught"] else "✗ MISSED"
         print(f"  [{mark}] {r['id']:30} — {r['llm_error']}")
         if not r["caught"]:
-            print(f"       beklenen {r['expect']}  ·  gelen {r['got']}")
+            print(f"       expected {r['expect']}  ·  got {r['got']}")
     print("-" * 72)
-    print("  Kategori bazında:")
+    print("  By category:")
     for cat, vals in sorted(by_cat.items()):
         print(f"    {cat:22} {sum(vals)}/{len(vals)}")
     print("-" * 72)
-    print(f"  YAKALAMA ORANI: {caught}/{total} = %{round(100 * caught / total, 1)}")
-    print("  (Not: MathHead'in bilinen hata desenlerini doğru adjuke etme oranı;")
-    print("   canlı LLM A/B değil — o kullanıcının gerçek modelle koşacağı iş.)")
+    print(f"  CATCH RATE: {caught}/{total} = %{round(100 * caught / total, 1)}")
+    print("  (Note: the rate at which MathHead correctly adjudicates known error patterns;")
+    print("   not a live LLM A/B — that's the work the user runs with a real model.)")
     print("=" * 72)
 
 

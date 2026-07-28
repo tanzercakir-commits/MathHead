@@ -1,9 +1,9 @@
 """
-Kombinatorik & ayrık (ROADMAP Aşama 4) — permütasyon/kombinasyon, faktöriyel,
-tam sayı bölüntüleri, doğrusal özyineleme (recurrence) kapalı-form çözümü.
+Combinatorics & discrete (ROADMAP Phase 4) — permutation/combination, factorial,
+integer partitions, closed-form solution of linear recurrence.
 
-Best-case + worst-case (negatif, doğrusal olmayan, kötücül) + dürüstlük
-(kapalı form yoksa hata) + determinizm.
+Best-case + worst-case (negative, nonlinear, malicious) + honesty
+(error if no closed form) + determinism.
 """
 import sympy
 
@@ -22,7 +22,7 @@ def test_permutations_basic():
 
 
 def test_permutations_k_gt_n_is_zero():
-    # 5 nesneden 7'li sıralı seçim imkânsız -> 0
+    # ordered selection of 7 from 5 objects impossible -> 0
     assert permutations(5, 7).result == 0
 
 
@@ -63,13 +63,13 @@ def test_partition_10():
 
 
 def test_partition_zero():
-    # p(0) = 1 (boş bölüntü)
+    # p(0) = 1 (empty partition)
     assert partition_count(0).result == 1
 
 
 # ---------------------------- solve_recurrence ---------------------------- #
 def test_recurrence_fibonacci_closed_form():
-    # y(n)=y(n-1)+y(n-2), y0=0, y1=1 -> kapalı form; Fib(10)=55 doğrula
+    # y(n)=y(n-1)+y(n-2), y0=0, y1=1 -> closed form; verify Fib(10)=55
     r = solve_recurrence("y(n) = y(n-1) + y(n-2)", "y", "n", {"0": "0", "1": "1"})
     assert r.status == "ok"
     n = sympy.symbols("n")
@@ -85,13 +85,13 @@ def test_recurrence_geometric():
 
 
 def test_recurrence_equality_form_accepted():
-    # '==' de kabul edilir
+    # '==' is also accepted
     r = solve_recurrence("y(n) == 3*y(n-1)", "y", "n", {"0": "1"})
     assert r.result == "3**n"
 
 
 def test_recurrence_nonlinear_honest_error():
-    # Doğrusal olmayan -> kapalı form yok, uydurma yok
+    # Nonlinear -> no closed form, no fabrication
     r = solve_recurrence("y(n) = y(n-1)**2", "y", "n", {"0": "2"})
     assert r.status == "error"
     assert r.reason_code == "COMPUTE_FAILED"
@@ -102,11 +102,11 @@ def test_recurrence_malicious_rejected():
 
 
 def test_recurrence_unknown_name_rejected():
-    # Tanımsız fonksiyon adı (z) -> reddedilir
+    # Undefined function name (z) -> rejected
     assert solve_recurrence("y(n) = z(n-1)", "y", "n", {"0": "1"}).status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_combinatorics_determinism():
     for _ in range(5):
         assert combinations(10, 3).result == 120

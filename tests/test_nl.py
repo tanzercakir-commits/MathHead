@@ -1,14 +1,14 @@
 """
-Doğal dil → formal (ROADMAP I2) — interpret: tanı-ya-da-reddet + round-trip.
+Natural language → formal (ROADMAP I2) — interpret: recognize-or-refuse + round-trip.
 
-Öne çıkan dürüstlük: TAHMİN ETMEZ. Tanınırsa formal görev + NL geri-çeviri
-(restatement); belirsizse AMBIGUOUS; tanınmazsa UNRECOGNIZED (uydurma yok).
-Bilingual (TR + EN).
+Key honesty property: DOES NOT GUESS. If recognized → formal task + NL
+back-translation (restatement); if ambiguous → AMBIGUOUS; if unrecognized →
+UNRECOGNIZED (no fabrication). Bilingual (TR + EN).
 """
 from mathhead.core.nl import interpret
 
 
-# ------------------------------ anlaşıldı (EN) ---------------------------- #
+# ------------------------------ understood (EN) -------------------------- #
 def test_derivative_en():
     r = interpret("derivative of x**3 with respect to x")
     assert r.status == "ok" and r.reason_code == "UNDERSTOOD"
@@ -31,7 +31,8 @@ def test_is_prime_en():
     assert interpret("is 91 prime").interpretation["task"] == "is_prime"
 
 
-# ------------------------------ anlaşıldı (TR) ---------------------------- #
+# ------------------------------ understood (TR) -------------------------- #
+# NOTE: Turkish input strings below exercise the bilingual TR feature — keep them.
 def test_derivative_tr():
     r = interpret("x**3 ifadesinin x e göre türevi")
     assert r.status == "ok"
@@ -63,8 +64,8 @@ def test_is_prime_tr():
 def test_restatement_present_and_descriptive():
     r = interpret("derivative of x**3 with respect to x")
     rs = r.interpretation["restatement"]
-    assert "türev" in rs and "x**3" in rs      # ne anlaşıldığı geri ifade edilir
-    assert "onayla" in r.explanation.lower()   # "güvenmeden önce onayla"
+    assert "derivative" in rs and "x**3" in rs   # what was understood is restated
+    assert "confirm" in r.explanation.lower()    # "confirm before trusting it"
 
 
 def test_limit_infinity_word():
@@ -72,15 +73,15 @@ def test_limit_infinity_word():
     assert interpret("limit of 1/x as x approaches infinity").interpretation["payload"]["point"] == "oo"
 
 
-# ------------------------------ DÜRÜSTLÜK --------------------------------- #
+# ------------------------------ HONESTY ----------------------------------- #
 def test_unrecognized_is_refused_not_guessed():
     r = interpret("bu tamamen anlamsız bir cümle")
     assert r.status == "error" and r.reason_code == "UNRECOGNIZED"
-    assert r.interpretation is None            # TAHMİN YOK
+    assert r.interpretation is None            # NO GUESSING
 
 
 def test_bare_expression_refused():
-    # Salt ifade (işlem/soru yok) tanınmaz — uydurulmaz
+    # A bare expression (no operation/question) is not recognized — not fabricated
     assert interpret("x squared plus one").status == "error"
 
 
@@ -95,7 +96,7 @@ def test_empty_input():
     assert interpret("").status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_nl_determinism():
     for _ in range(5):
         assert interpret("factorize 360").interpretation["payload"] == {"n": "360"}

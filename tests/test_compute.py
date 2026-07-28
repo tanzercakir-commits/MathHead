@@ -1,6 +1,6 @@
 """
-v2 — SymPy hesap katmanı: simplify / solve / differentiate / integrate.
-Ayrıca beyaz-liste güvenliği (kötücül/bilinmeyen girdi reddi).
+v2 — SymPy compute layer: simplify / solve / differentiate / integrate.
+Also whitelist safety (rejection of malicious/unknown input).
 """
 from mathhead.compute import differentiate, integrate, simplify, solve
 
@@ -49,7 +49,7 @@ def test_integrate_trig():
     assert integrate("cos(x)", "x").result == "sin(x)"
 
 
-# ----------------------- guardrail / güvenlik ----------------------------- #
+# ----------------------- guardrail / safety ----------------------------- #
 def test_unknown_function_rejected():
     r = simplify("foo(x)")
     assert r.status == "error"
@@ -57,7 +57,7 @@ def test_unknown_function_rejected():
 
 
 def test_malicious_import_rejected():
-    # Beyaz liste dışı çağrı -> reddedilir (ör. __import__)
+    # Call outside the whitelist -> rejected (e.g. __import__)
     assert simplify("__import__('os')").status == "error"
 
 

@@ -1,192 +1,190 @@
 # MathHead — Plan
 
-> **Bu dosyanın işi:** Projenin *hedef mimarisini* ve *yol haritasını* korumak.
-> Değişmeye dirençlidir; sık güncellenmez. Anlık işler `Todo.md`'de, ne yaptığımız
-> `Progress.md`'de, kararların gerekçesi `DECISIONS.md`'dedir.
-> (Plan ≠ Todo ayrımı senin çalışma prensiplerinden geliyor.)
+> **This file's job:** to preserve the project's *target architecture* and *roadmap*.
+> It is change-resistant; not updated often. Immediate work is in `Todo.md`, what we've done
+> in `Progress.md`, the rationale of decisions in `DECISIONS.md`.
+> (The Plan ≠ Todo distinction comes from your working principles.)
 
 ---
 
-## 0. Tek cümlede
+## 0. In one sentence
 
-AI'ın matematiksel **akıl yürütme ve ispatını**, kendi kafasından
-(non-deterministik, varsayıma açık) yapmak yerine, **MCP** üzerinden
-**deterministik** bir motora (SMT çözücü **Z3** + sembolik hesap **SymPy**)
-devrettiği bir sistem.
+A system where AI delegates its mathematical **reasoning and proof**, instead of doing it
+in its own head (non-deterministic, assumption-prone), to a **deterministic** engine
+(SMT solver **Z3** + symbolic compute **SymPy**) over **MCP**.
 
 ---
 
-## 1. Neden var? (çözdüğü gerçek problem)
+## 1. Why does it exist? (the real problem it solves)
 
-LLM'ler dil işinde güçlü ama katı mantık/ispatta güvenilmez: geçersiz çıkarım
-adımı atar, sayı/cebir hatası yapar, "emin" görünüp yanılır. Senin AI ile
-çarptığın 3 duvar bunun kök nedeni. MathHead matematiği **gerçek bir motora
-offload** ederek bu üç duvara birden mimari cevap verir:
+LLMs are strong at language work but unreliable at rigorous logic/proof: they take an invalid
+inference step, make numeric/algebraic errors, look "sure" and get it wrong. The 3 walls you
+hit with AI are the root cause of this. MathHead **offloads math to a real engine**, giving an
+architectural answer to all three walls at once:
 
-| Duvar | MathHead'in cevabı |
+| Wall | MathHead's answer |
 |---|---|
-| **#1 Bağlam kaybı** | `Plan/Todo/Progress/DECISIONS` disiplini + her yanıtta izlenebilir `meta` (hangi çözücü, hangi sürüm, ne kadar sürdü). Kararlar `DECISIONS.md`'de kaybolmaz. |
-| **#2 Fazla varsayım** | Motor yalnızca **açık gramerin** izin verdiği girdiyi kabul eder; belirsizi *reddeder*, tahmin etmez. "Sessiz varsayım yok" kuralı. |
-| **#3 Non-determinizm** | Çekirdek deterministik (sabit tohum + zaman aşımı). **Aynı girdi → aynı verdict** (kesin sonuç); tanık bir örnektir (ADR-0019). AI'ın oynak kısmı motorun dışında kalır. |
+| **#1 Context loss** | The `Plan/Todo/Progress/DECISIONS` discipline + traceable `meta` on every response (which solver, which version, how long it took). Decisions aren't lost in `DECISIONS.md`. |
+| **#2 Over-assumption** | The engine only accepts input permitted by the **explicit grammar**; it *rejects* the ambiguous, doesn't guess. The "no silent assumptions" rule. |
+| **#3 Non-determinism** | The core is deterministic (fixed seed + timeout). **Same input → same verdict** (definite result); the witness is an example (ADR-0019). AI's volatile part stays outside the engine. |
 
 ---
 
-## 2. Hedef — iki hat (Track A + Track B)
+## 2. Goal — two tracks (Track A + Track B)
 
-Senin isteğin net: motor hem güvenilir olsun **hem de** "şu an çözülemeyen ya da
-çözülmesine en çok ihtiyaç duyulan" zor problemlere gerçekten saldırsın. Bunu tek
-hedefe sıkıştırmıyoruz; **iki paralel hat** olarak kuruyoruz:
+Your request is clear: the engine should be reliable **and also** genuinely attack hard problems
+that are "currently unsolvable or most in need of solving". We don't squeeze this into a single
+goal; we build it as **two parallel tracks**:
 
-**Track A — Sağlam temel (yakın vade, v1–v2).**
-AI'ın matematiğini *deterministik ve doğrulanabilir* kılmak. LLM'lerin bugün
-yapamadığı şey tam olarak bu; bu hat güvenin kaynağı.
+**Track A — Solid foundation (near term, v1–v2).**
+Making AI's math *deterministic and verifiable*. This is exactly what LLMs can't do
+today; this track is the source of trust.
 
-**Track B — Kuzey Yıldızı: gerçekten zor/açık problemlere saldırı (v3+).**
-Ve burada dürüst olmak "yapamayız" demek *değil* — tam tersi. SMT/SAT
-çözücülerinin **onlarca yıllık açık problemleri fiilen çözdüğü** bir sicil var:
+**Track B — North Star: attacking genuinely hard/open problems (v3+).**
+And being honest here does *not* mean saying "we can't" — quite the opposite. There's a track
+record of SMT/SAT solvers **actually solving decades-old open problems**:
 
-- **Boolean Pythagorean Triples** (2016) — uzun süre açık kalan soru, SAT
-  çözücüyle çözüldü (Heule ve ark.); ~200 TB'lık makine-üretimi ispat.
-- **Keller sanısı, 7. boyut** (2020, CMU) — ~90 yıllık geometri problemi, SAT ile
-  kapatıldı.
-- **Schur sayısı 5** (2017) — yine SAT çözücüyle belirlendi (~2 PB ispat).
-- **Collatz sanısı** gibi dev problemlere bile SAT / yeniden-yazma ile *aktif
-  saldırı* denemeleri sürüyor.
+- **Boolean Pythagorean Triples** (2016) — a long-open question, solved with a SAT
+  solver (Heule et al.); a ~200 TB machine-generated proof.
+- **Keller conjecture, dimension 7** (2020, CMU) — a ~90-year-old geometry problem, closed with
+  SAT.
+- **Schur number 5** (2017) — again determined with a SAT solver (~2 PB proof).
+- Even giant problems like the **Collatz conjecture** have ongoing *active attack* attempts via
+  SAT / rewriting.
 
-MathHead'in Z3 çekirdeği tam da bu soydan geliyor. Track B'nin hedef sınıfı:
-**büyük sonlu/kombinatoryal "sağlanabilirlik" (satisfiability) problemine
-indirgenebilen** açık sorular — artı, insan/AI ispatlarını *formal doğrulama*
-(Lean / AlphaProof tarzı frontier). Kritik nokta: bir çözücünün "çözdüm" demesi,
-ancak **bağımsız doğrulanabilir bir sertifika/ispat** üretirse değerlidir; bu
-yüzden Track B, Track A'nın (doğrulanabilir çekirdek) *üstüne* kurulur —
-**önce güven, sonra fetih.**
+MathHead's Z3 core comes from exactly this lineage. Track B's target class:
+open questions **reducible to a large finite/combinatorial "satisfiability" problem** — plus
+*formal verification* of human/AI proofs (a Lean / AlphaProof-style frontier). The critical
+point: a solver saying "I solved it" is only valuable if it produces an **independently verifiable
+certificate/proof**; that's why Track B is built *on top of* Track A (the verifiable core) —
+**trust first, conquest second.**
 
 ---
 
-## 3. Kapsam sözleşmesi: Vizyon geniş, v1 dar
+## 3. Scope contract: broad vision, narrow v1
 
-Senin iki tercihin ("ileriye dönük/iddialı" **ve** "v1 dar & sağlam") çelişmiyor;
-tam da senin `Plan ≠ Todo` prensibinle çözülüyor:
+Your two preferences ("forward-looking/ambitious" **and** "v1 narrow & solid") don't conflict;
+they're resolved precisely by your `Plan ≠ Todo` principle:
 
 ```
-Plan.md  ─▶ BÜYÜK vizyon (frontier): AI için doğrulanabilir ispat motoru
-Todo.md  ─▶ KÜÇÜK dilim (v1): tek, uçtan uca çalışan "Akıl Yürütme Denetçisi"
+Plan.md  ─▶ BIG vision (frontier): a verifiable proof engine for AI
+Todo.md  ─▶ SMALL slice (v1): a single, end-to-end working "Reasoning Checker"
 ```
 
-v1'i kasıtlı olarak **dikey bir dilim** (vertical slice) tutuyoruz: dar konu,
-ama MCP'den çekirdeğe kadar *uçtan uca çalışan ve iyi test edilmiş*. Sağlam zemin
-kurulunca genişlemek ucuz; zemin çürükken genişlemek pahalı.
+We deliberately keep v1 a **vertical slice**: a narrow topic, but *working end to end and
+well-tested* from MCP down to the core. Once the solid ground is laid, expanding is cheap;
+expanding on rotten ground is expensive.
 
 ---
 
-## 4. Mimari — katmanlı hibrit
+## 4. Architecture — layered hybrid
 
-Tek bir "FOL motoru" yazmıyoruz. Her katmanın tek bir sorumluluğu var; dış dünya
-motora **yalnızca** MCP katmanından dokunur.
+We're not writing a single "FOL engine". Each layer has one responsibility; the outside world
+touches the engine **only** through the MCP layer.
 
 ```
                 ┌──────────────────────────────────────────────┐
-   AI / Claude ─┤  server/   MCP arayüzü (tek sözleşme/protokol) │
+   AI / Claude ─┤  server/   MCP interface (contract/protocol) │
                 └───────────────┬──────────────────────────────┘
-                                │  net API (docs/mcp-api.md)
+                                │  clear API (docs/mcp-api.md)
                 ┌───────────────▼──────────────┐
-                │  guardrails/  ÇİT             │  ← girdi doğrulama, zaman aşımı,
-                │  (her istek buradan geçer)    │     determinizm ayarı
+                │  guardrails/  FENCE          │  ← input validation, timeout,
+                │  (every request passes here) │     determinism setup
                 └───────────────┬──────────────┘
                 ┌───────────────▼──────────────┐
-                │  router/   yönlendirme        │  ← hangi çözücü + hangi ilkel?
+                │  router/   routing           │  ← which solver + which primitive?
                 └──────┬────────────────┬───────┘
           ┌────────────▼───┐     ┌──────▼─────────────┐
           │ core/  (Z3)    │     │ compute/ (SymPy)   │
-          │ MANTIK [v1]    │     │ HESAP    [v2+]     │
+          │ LOGIC  [v1]    │     │ COMPUTE  [v2+]     │
           │ entailment,    │     │ solve, simplify,   │
-          │ consistency,   │     │ türev/integral     │
+          │ consistency,   │     │ derivative/integral│
           │ find_model     │     │                    │
           └────────────────┘     └────────────────────┘
 ```
 
-Katman sorumlulukları detayı: `docs/architecture.md`. Neden Z3 + SymPy seçildi:
+Details of layer responsibilities: `docs/architecture.md`. Why Z3 + SymPy were chosen:
 `DECISIONS.md` ADR-0001/0002.
 
 ---
 
-## 5. v1 dilimi — "Akıl Yürütme Denetçisi" (Reasoning Checker)
+## 5. The v1 slice — "Reasoning Checker"
 
-AI bir çıkarım/iddia üretir; MathHead onu **deterministik** denetler. Üç ilkel:
+AI produces an inference/claim; MathHead checks it **deterministically**. Three primitives:
 
-1. **`entailment(premises, conclusion)`** — Öncüller sonucu mantıksal gerektirir mi?
-   Yöntem: `(⋀ premises) ∧ ¬conclusion` **UNSAT** ise geçerli; **SAT** ise
-   *karşıörnek* döner.
-2. **`consistency(statements)`** — Bu ifadeler aynı anda doğru olabilir mi?
-   `SAT` → model, `UNSAT` → çelişen alt küme (unsat core).
-3. **`model(statements)`** — İfadeleri sağlayan somut bir örnek atama.
+1. **`entailment(premises, conclusion)`** — Do the premises logically entail the conclusion?
+   Method: valid if `(⋀ premises) ∧ ¬conclusion` is **UNSAT**; if **SAT** it returns a
+   *counterexample*.
+2. **`consistency(statements)`** — Can these statements all be true at once?
+   `SAT` → a model, `UNSAT` → the conflicting subset (unsat core).
+3. **`model(statements)`** — A concrete example assignment satisfying the statements.
 
-**v1 girdi parçası (fragment):** önermeler mantığı (and/or/not/implies/iff) +
-doğrusal aritmetik (Int/Real üzerinde `+ - * < <= = >= >`). Nicelik belirteçleri
-(∀/∃) v1.1 hedefi. Gramerin tamamı: `docs/mcp-api.md`.
+**v1 input fragment:** propositional logic (and/or/not/implies/iff) +
+linear arithmetic (`+ - * < <= = >= >` over Int/Real). Quantifiers
+(∀/∃) are a v1.1 target. The full grammar: `docs/mcp-api.md`.
 
-**Ortak çıktı sözleşmesi:** her ilkel `ReasoningResult` döner —
+**Shared output contract:** each primitive returns a `ReasoningResult` —
 `status ∈ {valid, invalid, sat, unsat, unknown, error}`, `witness` (model/
-karşıörnek), `explanation`, `reason_code`, `meta`. `unknown` ve `error` **birinci
-sınıf**tır; motor asla sonucu uydurmaz.
+counterexample), `explanation`, `reason_code`, `meta`. `unknown` and `error` are **first-class**;
+the engine never fabricates a result.
 
 ---
 
-## 6. Yol haritası
+## 6. Roadmap
 
 ```
-v0  İSKELET (bu oturum) ....... yapı, sözleşmeler, tasarım dosyaları, stub'lar
-v1  Akıl Yürütme Denetçisi .... 3 ilkel çalışır; önerme + doğrusal aritmetik;
-                                 uçtan uca MCP; best/worst testler yeşil
-v1.1 Nicelik belirteçleri ..... ∀/∃ ve daha zengin FOL parçası
-v2  Hesap katmanı (SymPy) ..... solve/simplify/türev/integral; router genişler
-v3  Track B başlar ........... ispat üretimi/doğrulama; açık problemi
-                                 satisfiability'e indirgeyip çözücüyle çözme
-                                 [TOHUM EKLENDİ: frontier/ — Pythagorean + PHP]
-v4+ "Motor ailesi" ............ aynı iskelet üzerine Fizik/Kimya motorları
+v0  SKELETON (this session) .... structure, contracts, design files, stubs
+v1  Reasoning Checker .......... 3 primitives work; propositions + linear arithmetic;
+                                 end-to-end MCP; best/worst tests green
+v1.1 Quantifiers ............... ∀/∃ and a richer FOL fragment
+v2  Compute layer (SymPy) ...... solve/simplify/derivative/integral; router grows
+v3  Track B begins ............. proof generation/verification; reduce an open
+                                 problem to satisfiability and solve it with the solver
+                                 [SEED ADDED: frontier/ — Pythagorean + PHP]
+v4+ "Engine family" ........... Physics/Chemistry engines on the same skeleton
 ```
 
-Not: Fizik/Kimya motorları senin uzun vadeli fikrin. İskeleti (guardrails +
-router + MCP sözleşmesi) *motor-bağımsız* tasarlıyoruz ki v4'te tekrar
-yazılmasın. Ama v1 kapsamına **dahil değil**.
+Note: Physics/Chemistry engines are your long-term idea. We design the skeleton (guardrails +
+router + MCP contract) to be *engine-independent* so it doesn't have to be rewritten at v4.
+But it is **not included** in the v1 scope.
 
 ---
 
-## 7. Guardrail'ler (senin 4 koruyucu maddenin karşılığı)
+## 7. Guardrails (the counterpart to your 4 protective clauses)
 
-1. **Otomatik testler (best/worst case)** → `tests/` : bilinen-doğru senaryolar
-   spec olarak kodlandı; `unknown`/timeout dürüstlüğü de test ediliyor.
-2. **Mimari güvenlik (çit)** → `guardrails/` : girdi boy/derinlik sınırı,
-   bilinmeyen sembol reddi, çözücü zaman aşımı, deterministik yapılandırma.
-3. **Açık proje prensipleri** → `PRINCIPLES.md`.
-4. **Net protokol / API** → `docs/mcp-api.md` (+ `server/mcp_server.py` birebir
-   aynı imzalar). API **erken donduruldu**; çekirdek değişse de dış sözleşme sabit.
-
----
-
-## 8. Başarı ölçütü — "v1 bitti" tanımı
-
-- [ ] Üç ilkel gerçek Z3 ile çalışıyor.
-- [ ] `tests/test_logic.py` içindeki best/worst senaryolar **yeşil** (xfail kalkar).
-- [ ] Malformed girdi net reddediliyor (sessiz varsayım yok).
-- [ ] Aynı girdi 100 kez → 100 kez aynı çıktı (determinizm kanıtı).
-- [ ] Bir MCP istemcisinden (ör. Claude) uçtan uca en az 3 gerçek soru çözülüyor.
-- [ ] Her karar `DECISIONS.md`'ye, her adım `Progress.md`'ye işlendi.
+1. **Automated tests (best/worst case)** → `tests/` : known-correct scenarios are
+   coded as specs; `unknown`/timeout honesty is tested too.
+2. **Architectural safety (the fence)** → `guardrails/` : input size/depth limits,
+   rejection of unknown symbols, solver timeout, deterministic configuration.
+3. **Explicit project principles** → `PRINCIPLES.md`.
+4. **A clear protocol / API** → `docs/mcp-api.md` (+ `server/mcp_server.py` with the exact
+   same signatures). The API was **frozen early**; even if the core changes, the external contract is fixed.
 
 ---
 
-## 9. Riskler & dürüst sınırlar
+## 8. Success criterion — the definition of "v1 done"
 
-- **Undecidability:** Genel FOL yarı-karar verilebilir (semi-decidable); zengin
-  parçalarda motor `unknown` dönebilir. Bunu *gizlemiyoruz*, raporluyoruz.
-- **Girdi dili gerginliği:** Gramer ne kadar dar → o kadar güvenli ama az yetenek;
-  ne kadar geniş → o kadar güçlü ama riskli. v1 bilinçli olarak dar başlar.
-- **"Matematik fizik/kimyadan kolay mı?"** Dürüst cevap: *kapsama bağlı.*
-  Doğrulama/mantık (v1) tractable; açık teorem ispatı (v3+) zor cephedir. Kolaylık
-  varsayımına yaslanmıyoruz, dar dilimle riski düşürüyoruz.
-- **Determinizm sınırı:** Z3 çoğu sorguda kararlı; yine de sürüm/zaman aşımı
-  kaynaklı sapmaları `meta` ile şeffaf kaydediyoruz.
-- **Track B'nin sınırı (dürüst):** Ünlü sanıları (Riemann vb.) *sihirle* çözmeyi
-  vaat etmiyoruz. Gerçekçi cephe: sonlu/kombinatoryal satisfiability'e
-  indirgenebilen problemler + ispat doğrulama/formalleştirme. Track B, Track A
-  olgunlaşmadan başlamaz ve her "çözüm" bağımsız doğrulanabilir sertifika ister.
+- [ ] The three primitives work with real Z3.
+- [ ] The best/worst scenarios in `tests/test_logic.py` are **green** (xfail removed).
+- [ ] Malformed input is cleanly rejected (no silent assumptions).
+- [ ] Same input 100 times → 100 times the same output (proof of determinism).
+- [ ] At least 3 real questions solved end to end from an MCP client (e.g. Claude).
+- [ ] Every decision recorded in `DECISIONS.md`, every step in `Progress.md`.
+
+---
+
+## 9. Risks & honest limits
+
+- **Undecidability:** General FOL is semi-decidable; on rich fragments the engine
+  may return `unknown`. We don't *hide* this, we report it.
+- **Input-language tension:** the narrower the grammar → the safer but less capable;
+  the broader → the more powerful but riskier. v1 deliberately starts narrow.
+- **"Is math easier than physics/chemistry?"** The honest answer: *it depends on scope.*
+  Verification/logic (v1) is tractable; open theorem proving (v3+) is a hard front. We don't
+  lean on an assumption of easiness; we lower the risk with a narrow slice.
+- **Determinism limit:** Z3 is stable on most queries; still, we transparently record
+  version/timeout-related deviations via `meta`.
+- **Track B's limit (honest):** We don't promise to solve famous conjectures (Riemann, etc.)
+  *by magic*. The realistic front: problems reducible to finite/combinatorial satisfiability
+  + proof verification/formalization. Track B doesn't start before Track A matures, and every
+  "solution" requires an independently verifiable certificate.

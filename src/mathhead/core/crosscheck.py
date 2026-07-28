@@ -1,17 +1,20 @@
 """
-mathhead.core.crosscheck — ÇAPRAZ DENETİM (Z3 ⋈ SymPy), ROADMAP Track C3.
+mathhead.core.crosscheck — CROSS-CHECK (Z3 ⋈ SymPy), ROADMAP Track C3.
 
-**Öne geçiren fikir:** Aynı iddiayı İKİ BAĞIMSIZ motorla doğrula; mutabakat şart.
-- SymPy (CAS, sembolik) ve Z3 (SMT, gerçel karar) birbirinden bağımsız çalışır.
-- İkisi de "denk" derse → **mutabakat** (tek-motorlu rakiplerin veremeyeceği güven).
-- İkisi çelişirse → **ANLAŞMAZLIK**: çoğu zaman ince bir konuyu (ör. tanım kümesi /
-  domain tuzağı) açığa çıkarır ve insana bayrak kaldırır (dürüst 'unknown').
+**The differentiating idea:** verify the same claim with TWO INDEPENDENT engines;
+consensus is required.
+- SymPy (CAS, symbolic) and Z3 (SMT, real decision) run independently of each other.
+- If both say "equal" → **consensus** (confidence a single-engine rival cannot give).
+- If they conflict → **DISAGREEMENT**: often exposes a subtle issue (e.g. domain /
+  domain trap) and raises a flag for a human (an honest 'unknown').
 
-Örnek (fark yaratan): `(x²-1)/(x-1)` vs `x+1` — SymPy sembolik "denk" der; Z3 gerçel
-bölme semantiğiyle `x=1`'de ayrışır → **anlaşmazlık** → domain tuzağı yakalanır.
+Example (the difference-maker): `(x²-1)/(x-1)` vs `x+1` — SymPy says symbolically
+"equal"; with real division semantics Z3 diverges at `x=1` → **disagreement** →
+the domain trap is caught.
 
-Not: Z3 tarafı yalnız polinom/rasyonel gerçel ifadeleri denetler; `sin/exp/log`
-gibi ifadelerde Z3 "desteklenmiyor" der ve tek-motor (SymPy) kararına düşülür.
+Note: the Z3 side only checks polynomial/rational real expressions; for expressions
+like `sin/exp/log` Z3 says "unsupported" and we fall back to the single-engine
+(SymPy) decision.
 """
 from __future__ import annotations
 
@@ -30,10 +33,11 @@ __all__ = ["cross_check"]
 
 
 def _sympy_equal(left: str, right: str) -> str:
-    """SymPy tarafı (DETERMİNİSTİK): 'equal' | 'not_equal' | 'undecided' | 'error'.
+    """SymPy side (DETERMINISTIC): 'equal' | 'not_equal' | 'undecided' | 'error'.
 
-    Ortak deterministik yardımcı `verify._equal_verdict` (simplify + sabit-nokta
-    karşıörnek; `.equals()`'in rastgeleliği YOK) — çapraz denetim de deterministik.
+    Shared deterministic helper `verify._equal_verdict` (simplify + fixed
+    sample-point counterexample; NONE of `.equals()`'s randomness) — the cross-check
+    is deterministic too.
     """
     syms: dict[str, Any] = {}
     try:
@@ -47,14 +51,14 @@ def _sympy_equal(left: str, right: str) -> str:
 
 
 def _z3_equal(left: str, right: str) -> tuple[str, dict | None]:
-    """Z3 tarafı: ('equal'|'not_equal'|'undecided'|'unsupported', karşıörnek?)."""
+    """Z3 side: ('equal'|'not_equal'|'undecided'|'unsupported', counterexample?)."""
     rvars: dict[str, Any] = {}
     try:
         lz = _translate(left, rvars)
         rz = _translate(right, rvars)
     except (_IneqError, SyntaxError, ValueError):
         return "unsupported", None
-    if z3.is_bool(lz) or z3.is_bool(rz):     # karşılaştırma değil, ifade beklenir
+    if z3.is_bool(lz) or z3.is_bool(rz):     # not a comparison, an expression is expected
         return "unsupported", None
     solver = solver_config(5_000, 42)
     solver.add(z3.Not(lz == rz))
@@ -72,18 +76,19 @@ def _z3_equal(left: str, right: str) -> tuple[str, dict | None]:
 
 
 def cross_check(left: str, right: str) -> VerifyResult:
-    """`left` = `right` iddiasını Z3 ve SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
+    """INDEPENDENTLY verifies the claim `left` = `right` with Z3 and SymPy; seeks
+    consensus.
 
-    valid → iki motor da 'denk' (CONSENSUS_EQUAL) ya da tek motor doğruladı
-    (SINGLE_ENGINE). invalid → iki motor da 'denk değil'. unknown →
-    **ENGINES_DISAGREE** (motorlar çelişiyor; ince konu/domain bayrağı) ya da ikisi
-    de kararsız (CROSS_UNDECIDED).
+    valid → both engines say 'equal' (CONSENSUS_EQUAL) or a single engine confirmed
+    it (SINGLE_ENGINE). invalid → both engines say 'not equal'. unknown →
+    **ENGINES_DISAGREE** (the engines conflict; subtle-issue/domain flag) or both are
+    undecided (CROSS_UNDECIDED).
     """
     t0 = time.perf_counter()
     sym = _sympy_equal(left, right)
     if sym == "error":
         return VerifyResult("error", "PARSE_ERROR",
-                            "cross_check: ifade ayrıştırılamadı (ya da denklem verildi).",
+                            "cross_check: could not parse expression (or an equation was given).",
                             None, _meta(t0))
     z3v, cx = _z3_equal(left, right)
     details = {"sympy": sym, "z3": z3v}
@@ -91,34 +96,34 @@ def cross_check(left: str, right: str) -> VerifyResult:
         details["z3_counterexample"] = cx
 
     decisive = {"equal", "not_equal"}
-    # her iki motor da kararlı
+    # both engines are decisive
     if sym in decisive and z3v in decisive:
         if sym == z3v:
             if sym == "equal":
                 return VerifyResult("valid", "CONSENSUS_EQUAL",
-                                    "iki bağımsız motor (Z3 + SymPy) DENK diyor (mutabakat).",
+                                    "two independent engines (Z3 + SymPy) say EQUAL (consensus).",
                                     details, _meta(t0))
             return VerifyResult("invalid", "CONSENSUS_NOT_EQUAL",
-                                f"iki motor da DENK DEĞİL diyor (mutabakat); karşıörnek: {cx}.",
+                                f"both engines say NOT EQUAL (consensus); counterexample: {cx}.",
                                 details, _meta(t0))
-        # çelişki — ince konu bayrağı (çoğunlukla domain / tanım kümesi)
+        # conflict — subtle-issue flag (usually domain)
         return VerifyResult(
             "unknown", "ENGINES_DISAGREE",
-            f"MOTORLAR ÇELİŞİYOR — SymPy: {sym}, Z3: {z3v}. Genelde ince bir konu "
-            f"(tanım kümesi/domain, bölme, kök dalı). İnsan gözü gerekir. "
-            f"Z3 karşıörneği: {cx}.",
+            f"ENGINES CONFLICT — SymPy: {sym}, Z3: {z3v}. Usually a subtle issue "
+            f"(domain, division, root branch). Human eyes needed. "
+            f"Z3 counterexample: {cx}.",
             details, _meta(t0))
-    # yalnız bir motor karar verebildi
+    # only one engine could decide
     if sym in decisive:
         status = "valid" if sym == "equal" else "invalid"
         return VerifyResult(status, "SINGLE_ENGINE",
-                            f"yalnız SymPy karar verdi: {sym} (Z3: {z3v}). Tek-motor, "
-                            f"çapraz doğrulama yok (güven daha düşük).", details, _meta(t0))
+                            f"only SymPy decided: {sym} (Z3: {z3v}). Single-engine, "
+                            f"no cross-verification (lower confidence).", details, _meta(t0))
     if z3v in decisive:
         status = "valid" if z3v == "equal" else "invalid"
         return VerifyResult(status, "SINGLE_ENGINE",
-                            f"yalnız Z3 karar verdi: {z3v} (SymPy: {sym}). Tek-motor, "
-                            f"çapraz doğrulama yok (güven daha düşük).", details, _meta(t0))
+                            f"only Z3 decided: {z3v} (SymPy: {sym}). Single-engine, "
+                            f"no cross-verification (lower confidence).", details, _meta(t0))
     return VerifyResult("unknown", "CROSS_UNDECIDED",
-                        f"hiçbir motor karar veremedi (SymPy: {sym}, Z3: {z3v}).",
+                        f"no engine could decide (SymPy: {sym}, Z3: {z3v}).",
                         details, _meta(t0))

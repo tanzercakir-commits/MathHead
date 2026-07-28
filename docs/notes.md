@@ -1,36 +1,40 @@
-# MathHead — Gelişim Notları (development notes)
+# MathHead — Development Notes
 
-Bu dosya iş günlüğü (→ `Progress.md`), yapılacaklar (→ `Todo.md`) ya da karar
-kaydı (→ `DECISIONS.md`) değildir. Burası projenin **yönünü** besleyen fikir /
-gözlem defteri — acelesi olmayan, olgunlaşacak notlar.
+This file is not a work log (→ `Progress.md`), a to-do list (→ `Todo.md`), or a
+decision record (→ `DECISIONS.md`). It is the idea/observation notebook that feeds
+the project's **direction** — unhurried notes meant to mature.
 
 ---
 
-## 2026-07-28 — "Kodlama değil, matematik/fizik öğrenin" ne demek? (yön notu)
+## 2026-07-28 — What does "learn math/physics, not coding" mean? (direction note)
 
-Teknoloji liderlerinin (ör. Jensen Huang) kastettiği "matematik" mekanik **hesap**
-değil (onu AI zaten yapıyor). Üç katman:
+The "math" that tech leaders (e.g. Jensen Huang) mean is not mechanical
+**computation** (AI already does that). Three layers:
 
-1. **AI'ı çalıştıran matematik:** lineer cebir (tensör/matris), olasılık &
-   istatistik (belirsizlik/çıkarım), çok değişkenli kalkülüs & optimizasyon
-   (gradyan/eğitim), bilgi kuramı (entropi).
-2. **Titiz düşünmenin matematiği — kalıcı insan üstünlüğü:** matematiksel mantık &
-   ispat, ayrık matematik / kombinatorik / graf, soyutlama & cebirsel yapı.
-3. **En derin okuma, bir düşünme biçimi:** gerçekliği ilk ilkelerden modelleme
-   (fizik), dağınık bir problemi **kesin bir matematiksel ifadeye** çevirme, ve
-   "hesaplıyor" değil "**neden doğru**" (ispat / doğrulama) rigoru.
+1. **The math that runs AI:** linear algebra (tensors/matrices), probability &
+   statistics (uncertainty/inference), multivariable calculus & optimization
+   (gradient/training), information theory (entropy).
+2. **The math of rigorous thinking — the lasting human edge:** mathematical logic
+   & proof, discrete math / combinatorics / graphs, abstraction & algebraic
+   structure.
+3. **The deepest reading, a way of thinking:** modeling reality from first
+   principles (physics), turning a messy problem into **a precise mathematical
+   statement**, and the rigor of not "computing" but "**why is it true**"
+   (proof / verification).
 
-**MathHead için anlamı (kritik):** MathHead tam da 2. ve 3. katmanda yaşıyor —
-*hesap* değil, **doğrulanabilir akıl yürütme + modelleme**. AI kodu yazınca
-darboğaz yukarı kayıyor: "nasıl yazarım"dan → "problem tam olarak ne, çıkarımım
-doğru mu, cevabı nasıl doğrularım"a. MathHead'in tezi (AI'a deterministik,
-sağlam, **ispat-üreten** bir motor vermek) bu kaymanın tam ortasında.
+**What it means for MathHead (critical):** MathHead lives precisely in layers 2
+and 3 — not *computation* but **verifiable reasoning + modeling**. Once AI writes
+the code, the bottleneck shifts upward: from "how do I write it" → to "what
+exactly is the problem, is my inference correct, how do I verify the answer".
+MathHead's thesis (giving AI a deterministic, robust, **proof-producing** engine)
+sits right in the middle of that shift.
 
-**Yön teyidi:** `prove` (adım adım ispat), FOL (yüklem/nicelik), `enumerate`,
-Track B indirgemeleri (problem → kesin ifade) — *hesaptan çok mantık / ispat /
-modelleme* eksenine yaslanmak doğru bahis. Yani şu ana kadarki yön bu tezle
-uyumlu; ileride de ağırlığı buraya vermek mantıklı.
+**Direction confirmation:** `prove` (step-by-step proof), FOL
+(predicate/quantifier), `enumerate`, Track B reductions (problem → precise
+statement) — leaning on the *logic / proof / modeling* axis rather than
+computation is the right bet. So the direction so far is consistent with this
+thesis; it makes sense to keep the weight here going forward.
 
-**Dürüst denge:** "kodlamayı hiç öğrenmeyin" bir abartı; asıl devalüe olan şey
-*sözdizimi emeği* olarak kodlama. Sistemleri anlama + AI'ı yönetip **doğrulama**
-hâlâ çok değerli — ki bu da yine rigor / matematik demek.
+**Honest balance:** "never learn to code at all" is an exaggeration; what actually
+gets devalued is coding as *syntax labor*. Understanding systems + steering AI and
+**verifying** it is still very valuable — which, again, means rigor / math.

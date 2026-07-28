@@ -1,11 +1,11 @@
 """
-CANLI MCP entegrasyon testi (ROADMAP Aşama 11 [S]) — sunucuyu GERÇEK bir alt
-süreç olarak stdio üzerinden başlatır, MCP istemcisiyle el sıkışır, araçları
-listeler ve birkaçını çağırıp JSON yanıtını doğrular.
+LIVE MCP integration test (ROADMAP Phase 11 [S]) — starts the server as a REAL
+subprocess over stdio, handshakes with the MCP client, lists the tools and
+calls a few, verifying the JSON response.
 
-Aşama 8'deki `test_mcp_layer` in-process (fonksiyonu doğrudan çağırır); bu ise
-tam yığını (subprocess + JSON-RPC + FastMCP + router + Z3/SymPy) uçtan uca
-sınar — "canlı `stdio` bağlantısı" sözleşmesinin fiilen çalıştığını kanıtlar.
+Phase 8's `test_mcp_layer` is in-process (calls the function directly); this one
+exercises the full stack (subprocess + JSON-RPC + FastMCP + router + Z3/SymPy)
+end-to-end — proving the "live `stdio` connection" contract actually works.
 """
 import asyncio
 import json
@@ -20,7 +20,7 @@ _PARAMS = StdioServerParameters(
     command=sys.executable, args=["-m", "mathhead.server.mcp_server"],
 )
 
-# (araç, argümanlar, doğrulanacak (anahtar, beklenen)) — her katmandan birer temsil
+# (tool, arguments, (key, expected) to verify) — one representative from each layer
 _PROBES = [
     ("entailment", {"premises": ["p", "implies(p,q)"], "conclusion": "q"}, ("status", "valid")),
     ("simplify", {"expression": "sin(x)**2 + cos(x)**2"}, ("result", "1")),
@@ -31,10 +31,10 @@ _PROBES = [
 
 
 def _payload(call_result) -> dict:
-    """CallToolResult -> araç dönüş sözlüğü (structuredContent ya da metin JSON)."""
+    """CallToolResult -> tool return dict (structuredContent or text JSON)."""
     structured = getattr(call_result, "structuredContent", None)
     if isinstance(structured, dict):
-        # FastMCP dict dönüşünü bazen {"result": {...}} sarar
+        # FastMCP sometimes wraps the dict return in {"result": {...}}
         return structured.get("result", structured) if "status" not in structured else structured
     text = call_result.content[0].text
     return json.loads(text)
@@ -55,7 +55,7 @@ async def _run():
 @pytest.mark.timeout(60)
 def test_live_mcp_stdio_roundtrip():
     names, results = asyncio.run(_run())
-    # Sunucu tüm araçları canlı yayımlıyor
+    # Server publishes all tools live
     assert len(names) >= 59
     for tool, _, (key, expected) in _PROBES:
         assert results[tool].get(key) == expected, \

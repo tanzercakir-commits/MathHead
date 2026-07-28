@@ -1,9 +1,9 @@
 """
-Eşitsizlik ispatı & nonlineer gerçel aritmetik (ROADMAP Aşama 9) —
+Inequality proving & nonlinear real arithmetic (ROADMAP Phase 9) —
 prove_inequality / prove_nonnegative / find_real_solution (Z3 NRA).
 
-Best-case (bilinen eşitsizlikler) + worst-case (yanlış eşitsizlik → karşıörnek,
-gramer ihlali) + dürüstlük (unknown/hata birinci sınıf).
+Best-case (known inequalities) + worst-case (false inequality → counterexample,
+grammar violation) + honesty (unknown/error first-class).
 """
 from mathhead.core.inequality import (
     find_real_solution,
@@ -30,7 +30,7 @@ def test_square_completion():
 
 
 def test_false_inequality_gives_counterexample():
-    # x² ≥ x  0<x<1 için YANLIŞ -> karşıörnek
+    # x² ≥ x  FALSE for 0<x<1 -> counterexample
     r = prove_inequality("x**2 >= x")
     assert r.status == "invalid"
     assert r.reason_code == "COUNTEREXAMPLE_FOUND"
@@ -43,14 +43,14 @@ def test_inequality_under_assumptions():
 
 
 def test_goal_must_be_boolean():
-    # Salt aritmetik ifade (karşılaştırma değil) -> hata
+    # Pure arithmetic expression (not a comparison) -> error
     r = prove_inequality("x + 1")
     assert r.status == "error"
     assert r.reason_code == "GUARDRAIL_VIOLATION"
 
 
 def test_non_polynomial_exponent_rejected():
-    # Değişken üs (nonpolinom) -> reddedilir
+    # Variable exponent (non-polynomial) -> rejected
     assert prove_inequality("x**y >= 0").status == "error"
 
 
@@ -65,21 +65,21 @@ def test_nonnegative_perfect_square():
 
 
 def test_nonnegative_false():
-    # x² - 2x  x=1'de -1 < 0 -> karşıörnek
+    # x² - 2x  -1 < 0 at x=1 -> counterexample
     r = prove_nonnegative("x**2 - 2*x")
     assert r.status == "invalid"
 
 
 # --------------------------- find_real_solution --------------------------- #
 def test_real_solution_exists():
-    # Çember ∩ doğru -> gerçel çözüm var
+    # Circle ∩ line -> a real solution exists
     r = find_real_solution(["x**2 + y**2 == 1", "x == y"])
     assert r.status == "sat"
     assert r.witness is not None
 
 
 def test_real_solution_none():
-    # x² = -1 -> gerçel çözüm yok
+    # x² = -1 -> no real solution
     r = find_real_solution(["x**2 == -1"])
     assert r.status == "unsat"
     assert r.reason_code == "NO_MODEL"
@@ -89,7 +89,7 @@ def test_real_solution_empty_rejected():
     assert find_real_solution([]).status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_inequality_determinism():
     for _ in range(5):
         assert prove_inequality("x**2 >= 0").status == "valid"

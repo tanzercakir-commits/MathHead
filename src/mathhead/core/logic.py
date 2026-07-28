@@ -2,18 +2,18 @@
 mathhead.core.logic
 ====================
 
-Motorun KALBİ: bir SMT çözücü (Z3) üzerine kurulu, deterministik akıl yürütme
-ilkelleri (reasoning primitives).
+The HEART of the engine: deterministic reasoning primitives built on an SMT
+solver (Z3).
 
-Neden Z3? -> DECISIONS.md ADR-0002. FOL + hazır teoriler (doğrusal tam sayı
-aritmetiği, eşitlik...) için dünya standardı; deterministik ve kanıtlanmış.
+Why Z3? -> DECISIONS.md ADR-0002. The world standard for FOL + built-in theories
+(linear integer arithmetic, equality...); deterministic and battle-proven.
 
-Dönüş Sözleşmesi (erken donduruldu — ADR-0004):
-    valid / invalid  -> entailment (mantıksal gerektirme) sorusu
-    sat   / unsat    -> consistency (tutarlılık) sorusu
-    unknown          -> çözücü karar veremedi (undecidability'e DÜRÜST yanıt)
-    error            -> girdi/guardrail/parse hatası
-    "unknown" ve "error" birinci sınıf çıktılardır; ASLA gizlenmez.
+Return Contract (frozen early — ADR-0004):
+    valid / invalid  -> entailment question
+    sat   / unsat    -> consistency question
+    unknown          -> solver could not decide (an HONEST answer to undecidability)
+    error            -> input/guardrail/parse error
+    "unknown" and "error" are first-class outputs; NEVER hidden.
 """
 from __future__ import annotations
 
@@ -32,21 +32,21 @@ DEFAULT_SEED: int = 42
 
 @dataclass
 class ReasoningResult:
-    """Tüm akıl yürütme ilkellerinin ortak, makine + insan okunur çıktısı."""
+    """Shared machine- and human-readable output of all reasoning primitives."""
 
     status: str                              # valid|invalid|sat|unsat|unknown|error
     reason_code: str                         # ENTAILED, COUNTEREXAMPLE_FOUND, ...
-    explanation: str                         # insan-okur açıklama
-    witness: dict[str, Any] | None = None    # model (sat) / karşıörnek (invalid) / unsat core
+    explanation: str                         # human-readable explanation
+    witness: dict[str, Any] | None = None    # model (sat) / counterexample (invalid) / unsat core
     meta: dict[str, Any] = field(default_factory=dict)
 
     def is_conclusive(self) -> bool:
-        """Sonuç kesin mi? (unknown/error -> False)."""
+        """Is the result conclusive? (unknown/error -> False)."""
         return self.status not in ("unknown", "error")
 
 
 # --------------------------------------------------------------------------- #
-# Yardımcılar
+# Helpers
 # --------------------------------------------------------------------------- #
 def _meta(t0: float, seed: int, timeout_ms: int) -> dict[str, Any]:
     return {
@@ -63,7 +63,7 @@ def _error(code: str, msg: str, t0: float, seed: int, timeout_ms: int) -> Reason
 
 
 def _py_value(val: Any) -> Any:
-    """Z3 değerini sade Python değerine indirger (JSON-dostu)."""
+    """Reduces a Z3 value to a plain Python value (JSON-friendly)."""
     if z3.is_true(val):
         return True
     if z3.is_false(val):
@@ -71,12 +71,12 @@ def _py_value(val: Any) -> Any:
     if z3.is_int_value(val):
         return val.as_long()
     if z3.is_rational_value(val):
-        return float(val.as_fraction())   # Real: kesirli değeri ondalığa çevir
-    return str(val)                        # cebirsel/irrasyonel: tam metin gösterim
+        return float(val.as_fraction())   # Real: convert the fractional value to a decimal
+    return str(val)                        # algebraic/irrational: exact text representation
 
 
 def _default_for(const: Any) -> Any:
-    """Kısıtlanmamış (don't-care) değişken için KANONİK varsayılan -> determinizm."""
+    """CANONICAL default for an unconstrained (don't-care) variable -> determinism."""
     sort = const.sort()
     if sort == z3.BoolSort():
         return False
@@ -88,11 +88,12 @@ def _default_for(const: Any) -> Any:
 
 
 def _witness(model: z3.ModelRef, symbols: dict[str, Any]) -> dict[str, Any]:
-    """Modeli okunur, DETERMİNİSTİK bir sözlüğe çevirir.
+    """Converts the model into a readable, DETERMINISTIC dictionary.
 
-    Kısıtlanmamış (don't-care) değişkene Z3'ün oynak seçimini değil, kanonik
-    varsayılanı (False / 0) atarız — böylece "aynı girdi -> aynı tanık" gerçekten
-    tutar (property testiyle doğrulandı; bkz. ADR-0019). İç izleme (__track_) hariç.
+    For an unconstrained (don't-care) variable we assign the canonical default
+    (False / 0) rather than Z3's volatile choice — so that "same input -> same
+    witness" genuinely holds (verified by property test; see ADR-0019). Internal
+    tracking literals (__track_) are excluded.
     """
     out: dict[str, Any] = {}
     for name, const in symbols.items():
@@ -101,7 +102,7 @@ def _witness(model: z3.ModelRef, symbols: dict[str, Any]) -> dict[str, Any]:
         val = model.eval(const, model_completion=False)
         if z3.is_true(val) or z3.is_false(val) or z3.is_int_value(val) or z3.is_rational_value(val):
             out[name] = _py_value(val)
-        else:  # atanmamış (don't-care) -> kanonik varsayılan
+        else:  # unassigned (don't-care) -> canonical default
             out[name] = _default_for(const)
     return dict(sorted(out.items()))
 
@@ -110,14 +111,14 @@ def _unknown(solver: z3.Solver, t0: float, seed: int, timeout_ms: int) -> Reason
     reason = solver.reason_unknown()
     code = "SOLVER_TIMEOUT" if reason == "timeout" else "SOLVER_UNKNOWN"
     return ReasoningResult(
-        "unknown", code, f"Çözücü karar veremedi ({reason}).",
+        "unknown", code, f"Solver could not decide ({reason}).",
         None, _meta(t0, seed, timeout_ms),
     )
 
 
 def _prepare(statements: list[str], t0: float, seed: int, timeout_ms: int):
-    """Ortak ön adım: guardrail + çeviri. (result, z3_list, symbols) döner;
-    result doluysa (hata) çağıran erken döner."""
+    """Shared pre-step: guardrail + translation. Returns (result, z3_list, symbols);
+    if result is set (error), the caller returns early."""
     try:
         validate_input(statements)
     except GuardrailError as exc:
@@ -130,7 +131,7 @@ def _prepare(statements: list[str], t0: float, seed: int, timeout_ms: int):
 
 
 # --------------------------------------------------------------------------- #
-# İlkeller
+# Primitives
 # --------------------------------------------------------------------------- #
 def check_entailment(
     premises: list[str],
@@ -139,16 +140,16 @@ def check_entailment(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> ReasoningResult:
-    """`premises ⊨ conclusion` mı? (öncüller sonucu mantıksal gerektirir mi).
+    """Does `premises ⊨ conclusion` hold? (do the premises logically entail the conclusion).
 
-    Yöntem: (⋀ premises) ∧ ¬conclusion UNSAT ise entailment VARDIR.
+    Method: if (⋀ premises) ∧ ¬conclusion is UNSAT, entailment HOLDS.
       * UNSAT -> valid
-      * SAT   -> invalid (witness = karşıörnek)
+      * SAT   -> invalid (witness = counterexample)
       * unknown/timeout -> unknown
     """
     t0 = time.perf_counter()
     if not isinstance(premises, list) or not isinstance(conclusion, str):
-        return _error("GUARDRAIL_VIOLATION", "premises liste, conclusion metin olmalı", t0, seed, timeout_ms)
+        return _error("GUARDRAIL_VIOLATION", "premises must be a list, conclusion must be a string", t0, seed, timeout_ms)
 
     err, z3_list, symbols = _prepare([*premises, conclusion], t0, seed, timeout_ms)
     if err is not None:
@@ -164,13 +165,13 @@ def check_entailment(
     if result == z3.unsat:
         return ReasoningResult(
             "valid", "ENTAILED",
-            "Sonuç öncüllerden mantıksal olarak çıkar (öncüller ∧ ¬sonuç tatmin edilemez).",
+            "The conclusion follows logically from the premises (premises ∧ ¬conclusion is unsatisfiable).",
             None, _meta(t0, seed, timeout_ms),
         )
     if result == z3.sat:
         return ReasoningResult(
             "invalid", "COUNTEREXAMPLE_FOUND",
-            "Öncülleri sağlayıp sonucu çürüten bir karşıörnek bulundu.",
+            "Found a counterexample that satisfies the premises but refutes the conclusion.",
             _witness(solver.model(), symbols), _meta(t0, seed, timeout_ms),
         )
     return _unknown(solver, t0, seed, timeout_ms)
@@ -182,11 +183,11 @@ def check_consistency(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> ReasoningResult:
-    """İfadeler kümesi TUTARLI mı (aynı anda doğru olabilir mi)?
+    """Is the set of statements CONSISTENT (can they all be true at once)?
 
-    Yöntem: ⋀ statements SAT mı?
-      * SAT   -> sat   (witness = örnek atama/model)
-      * UNSAT -> unsat (witness = çelişen alt küme / unsat core)
+    Method: is ⋀ statements SAT?
+      * SAT   -> sat   (witness = sample assignment/model)
+      * UNSAT -> unsat (witness = conflicting subset / unsat core)
       * unknown/timeout -> unknown
     """
     t0 = time.perf_counter()
@@ -195,7 +196,7 @@ def check_consistency(
         return err
 
     solver = solver_config(timeout_ms, seed)
-    # unsat core için her ifadeyi izleme literaliyle ekle (assert_and_track).
+    # For the unsat core, add each statement with a tracking literal (assert_and_track).
     trackers: dict[str, int] = {}
     for i, expr in enumerate(z3_list):
         lit_name = f"__track_{i}"
@@ -206,14 +207,14 @@ def check_consistency(
     if result == z3.sat:
         return ReasoningResult(
             "sat", "CONSISTENT",
-            "İfadeler tutarlı; hepsini aynı anda sağlayan bir atama var.",
+            "The statements are consistent; there is an assignment satisfying all of them at once.",
             _witness(solver.model(), symbols), _meta(t0, seed, timeout_ms),
         )
     if result == z3.unsat:
         core_idx = sorted(trackers[str(c)] for c in solver.unsat_core())
         return ReasoningResult(
             "unsat", "CONTRADICTION",
-            "İfadeler çelişkili; işaretli alt küme aynı anda sağlanamaz.",
+            "The statements are contradictory; the flagged subset cannot be satisfied simultaneously.",
             {
                 "unsat_core_indices": core_idx,
                 "unsat_core": [statements[i] for i in core_idx],
@@ -229,10 +230,10 @@ def find_model(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> ReasoningResult:
-    """İfadeleri sağlayan SOMUT bir model (değişken ataması) bulur.
+    """Finds a CONCRETE model (variable assignment) satisfying the statements.
 
       * SAT   -> sat (witness = model)
-      * UNSAT -> unsat (model yok)
+      * UNSAT -> unsat (no model)
       * unknown/timeout -> unknown
     """
     t0 = time.perf_counter()
@@ -248,13 +249,13 @@ def find_model(
     if result == z3.sat:
         return ReasoningResult(
             "sat", "MODEL_FOUND",
-            "İfadeleri sağlayan somut bir model bulundu.",
+            "Found a concrete model satisfying the statements.",
             _witness(solver.model(), symbols), _meta(t0, seed, timeout_ms),
         )
     if result == z3.unsat:
         return ReasoningResult(
             "unsat", "NO_MODEL",
-            "İfadeleri sağlayan hiçbir model yok (küme çelişkili).",
+            "No model satisfies the statements (the set is contradictory).",
             None, _meta(t0, seed, timeout_ms),
         )
     return _unknown(solver, t0, seed, timeout_ms)
@@ -262,14 +263,14 @@ def find_model(
 
 @dataclass
 class ModelSet:
-    """`enumerate_models` çıktısı: bir formülü sağlayan (farklı) modeller kümesi."""
+    """Output of `enumerate_models`: the set of (distinct) models satisfying a formula."""
 
     status: str                              # sat|unsat|unknown|error
     reason_code: str
     explanation: str
     models: list[dict[str, Any]] = field(default_factory=list)
     count: int = 0
-    exhaustive: bool = False                 # True: TÜM modeller bulundu (unsat'a ulaşıldı)
+    exhaustive: bool = False                 # True: ALL models found (unsat was reached)
     meta: dict[str, Any] = field(default_factory=dict)
 
 
@@ -280,16 +281,17 @@ def enumerate_models(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> ModelSet:
-    """İfadeleri sağlayan FARKLI modelleri (en fazla `limit` tane) numaralandırır.
+    """Enumerates DISTINCT models (at most `limit` of them) satisfying the statements.
 
-    Yöntem: çöz → modeli kaydet → o modeli **blokla** (farklı atama zorla) → tekrar.
-    `unsat`'a ulaşılırsa küme tüketildi (`exhaustive=True`, tüm modeller bulundu);
-    `limit`'e ulaşılırsa daha fazlası olabilir (sonsuz alanlarda — ör. sınırsız
-    tam sayı/Real — bu beklenir, dürüstçe belirtilir).
+    Method: solve → record the model → **block** that model (force a different
+    assignment) → repeat. If `unsat` is reached, the set is exhausted
+    (`exhaustive=True`, all models found); if `limit` is reached, there may be more
+    (in infinite domains — e.g. unbounded Int/Real — this is expected and reported
+    honestly).
     """
     t0 = time.perf_counter()
     if not isinstance(limit, int) or limit < 1 or limit > 1000:
-        return ModelSet("error", "GUARDRAIL_VIOLATION", "limit 1..1000 tam sayı olmalı",
+        return ModelSet("error", "GUARDRAIL_VIOLATION", "limit must be an integer in 1..1000",
                         meta=_meta(t0, seed, timeout_ms))
 
     err, z3_list, symbols = _prepare(statements, t0, seed, timeout_ms)
@@ -307,38 +309,38 @@ def enumerate_models(
         if result == z3.unsat:
             if models:
                 return ModelSet("sat", "ALL_MODELS_FOUND",
-                                f"{len(models)} model bulundu — tümü (başka yok).",
+                                f"Found {len(models)} models — all of them (no more exist).",
                                 models, len(models), True, _meta(t0, seed, timeout_ms))
             return ModelSet("unsat", "CONTRADICTION",
-                            "İfadeler çelişkili; hiç model yok.",
+                            "The statements are contradictory; there are no models.",
                             [], 0, True, _meta(t0, seed, timeout_ms))
         if result != z3.sat:
             return ModelSet("unknown", "SOLVER_UNKNOWN",
-                            f"Çözücü karar veremedi ({solver.reason_unknown()}); "
-                            f"{len(models)} model bulunmuştu.",
+                            f"Solver could not decide ({solver.reason_unknown()}); "
+                            f"{len(models)} models had been found.",
                             models, len(models), False, _meta(t0, seed, timeout_ms))
         model = solver.model()
         models.append(_witness(model, symbols))
         if free:
             solver.add(z3.Or(*[c != model.eval(c, model_completion=True) for c in free]))
-        else:  # serbest değişken yok (kapalı formül) -> en çok bir model
+        else:  # no free variables (closed formula) -> at most one model
             solver.add(z3.BoolVal(False))
 
     return ModelSet("sat", "MODELS_FOUND",
-                    f"{limit} model bulundu (sınıra ulaşıldı; daha fazlası olabilir).",
+                    f"Found {limit} models (limit reached; there may be more).",
                     models, limit, False, _meta(t0, seed, timeout_ms))
 
 
 @dataclass
 class OptimizeResult:
-    """`optimize` çıktısı: kısıtlar altında bir amacı en iyileyen çözüm."""
+    """Output of `optimize`: a solution optimizing an objective under constraints."""
 
     status: str                              # optimal|unbounded|unsat|unknown|error
     reason_code: str
     explanation: str
-    objective_value: Any = None              # optimal amaç değeri
+    objective_value: Any = None              # optimal objective value
     sense: str = ""                          # "max" | "min"
-    witness: dict[str, Any] | None = None    # optimumu sağlayan atama
+    witness: dict[str, Any] | None = None    # assignment achieving the optimum
     meta: dict[str, Any] = field(default_factory=dict)
 
 
@@ -361,11 +363,12 @@ def optimize(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> OptimizeResult:
-    """Kısıtları sağlayıp `objective` sayısal amacını en büyük/küçük yapan çözümü bul.
+    """Find a solution satisfying the constraints that maximizes/minimizes the
+    numeric `objective`.
 
-    sense: "max"/"maximize" veya "min"/"minimize". Z3 Optimize (optimization
-    modulo theories) çekirdeği. `unbounded` (sınırsız), `unsat` (uygun çözüm yok),
-    `unknown` durumları dürüstçe raporlanır.
+    sense: "max"/"maximize" or "min"/"minimize". Z3 Optimize (optimization modulo
+    theories) core. `unbounded`, `unsat` (no feasible solution), and `unknown`
+    states are reported honestly.
     """
     t0 = time.perf_counter()
     s = sense.lower()
@@ -375,10 +378,10 @@ def optimize(
         is_max = False
     else:
         return OptimizeResult("error", "GUARDRAIL_VIOLATION",
-                              "sense 'max' veya 'min' olmalı", meta=_meta(t0, seed, timeout_ms))
+                              "sense must be 'max' or 'min'", meta=_meta(t0, seed, timeout_ms))
     if not isinstance(objective, str) or not objective.strip():
         return OptimizeResult("error", "GUARDRAIL_VIOLATION",
-                              "amaç (objective) boş olamaz", meta=_meta(t0, seed, timeout_ms))
+                              "objective cannot be empty", meta=_meta(t0, seed, timeout_ms))
     try:
         validate_input(constraints)
     except GuardrailError as exc:
@@ -401,11 +404,11 @@ def optimize(
     result = opt.check()
     if result == z3.unsat:
         return OptimizeResult("unsat", "INFEASIBLE",
-                              "Kısıtlar birlikte sağlanamıyor; uygun çözüm yok.",
+                              "The constraints cannot be satisfied together; no feasible solution.",
                               sense=sense_str, meta=_meta(t0, seed, timeout_ms))
     if result != z3.sat:
         return OptimizeResult("unknown", "SOLVER_UNKNOWN",
-                              f"Çözücü karar veremedi ({opt.reason_unknown()}).",
+                              f"Solver could not decide ({opt.reason_unknown()}).",
                               sense=sense_str, meta=_meta(t0, seed, timeout_ms))
 
     value = handle.value()
@@ -414,29 +417,29 @@ def optimize(
         text = str(value)
         if "oo" in text or "*oo" in text:
             return OptimizeResult("unbounded", "UNBOUNDED",
-                                  f"Amaç {'üstten' if is_max else 'alttan'} sınırsız (optimum yok).",
+                                  f"The objective is unbounded {'above' if is_max else 'below'} (no optimum).",
                                   sense=sense_str, meta=_meta(t0, seed, timeout_ms))
         return OptimizeResult("optimal", "OPEN_BOUND",
-                              f"En iyi değer {'supremum' if is_max else 'infimum'} = {text} "
-                              f"(açık sınır; tam ulaşılamaz).",
+                              f"Best value {'supremum' if is_max else 'infimum'} = {text} "
+                              f"(open bound; not exactly attainable).",
                               objective_value=text, witness=_witness(opt.model(), symbols),
                               sense=sense_str, meta=_meta(t0, seed, timeout_ms))
     return OptimizeResult("optimal", "OPTIMAL",
-                          f"En iyi ({sense_str}) '{objective}' = {py}.",
+                          f"Optimal ({sense_str}) '{objective}' = {py}.",
                           objective_value=py, witness=_witness(opt.model(), symbols),
                           sense=sense_str, meta=_meta(t0, seed, timeout_ms))
 
 
 @dataclass
 class MaxSatResult:
-    """`max_satisfy` çıktısı: zorunlu kısıtları sağlayıp EN ÇOK (ağırlıklı) yumuşak
-    kısıtı sağlayan çözüm (MaxSAT)."""
+    """Output of `max_satisfy`: a solution satisfying the hard constraints while
+    satisfying the MOST (weighted) soft constraints (MaxSAT)."""
 
     status: str                              # optimal|unsat|unknown|error
     reason_code: str
     explanation: str
-    satisfied: list[int] = field(default_factory=list)     # sağlanan soft indeksleri
-    unsatisfied: list[int] = field(default_factory=list)   # sağlanamayan soft indeksleri
+    satisfied: list[int] = field(default_factory=list)     # indices of satisfied soft constraints
+    unsatisfied: list[int] = field(default_factory=list)   # indices of unsatisfied soft constraints
     satisfied_weight: Any = 0
     total_weight: Any = 0
     witness: dict[str, Any] | None = None
@@ -451,22 +454,24 @@ def max_satisfy(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> MaxSatResult:
-    """Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağla.
+    """Satisfy the mandatory (`hard`) constraints while satisfying the MOST
+    (weighted) `soft` constraints.
 
-    Aşırı-kısıtlı/çelişen isteklerde "hepsini değil, en iyisini" bulur (MaxSAT).
-    `weights` verilmezse her soft kısıt 1 ağırlıkta. `hard` sağlanamıyorsa `unsat`.
+    For over-constrained/conflicting requests, finds "the best, not all" (MaxSAT).
+    If `weights` is not given, each soft constraint has weight 1. If `hard` cannot
+    be satisfied, `unsat`.
     """
     t0 = time.perf_counter()
     if not isinstance(hard, list) or not isinstance(soft, list) or len(soft) == 0:
         return MaxSatResult("error", "GUARDRAIL_VIOLATION",
-                            "hard liste, soft en az bir öğeli liste olmalı",
+                            "hard must be a list, soft must be a list with at least one item",
                             meta=_meta(t0, seed, timeout_ms))
     if weights is None:
         weights = [1] * len(soft)
     elif (not isinstance(weights, list) or len(weights) != len(soft)
           or not all(isinstance(w, int) and w > 0 for w in weights)):
         return MaxSatResult("error", "GUARDRAIL_VIOLATION",
-                            "weights, soft ile aynı uzunlukta pozitif tam sayılar olmalı",
+                            "weights must be positive integers of the same length as soft",
                             meta=_meta(t0, seed, timeout_ms))
     try:
         validate_input([*hard, *soft])
@@ -491,11 +496,11 @@ def max_satisfy(
     result = opt.check()
     if result == z3.unsat:
         return MaxSatResult("unsat", "HARD_INFEASIBLE",
-                            "Zorunlu (hard) kısıtlar birlikte sağlanamıyor; çözüm yok.",
+                            "The mandatory (hard) constraints cannot be satisfied together; no solution.",
                             total_weight=sum(weights), meta=_meta(t0, seed, timeout_ms))
     if result != z3.sat:
         return MaxSatResult("unknown", "SOLVER_UNKNOWN",
-                            f"Çözücü karar veremedi ({opt.reason_unknown()}).",
+                            f"Solver could not decide ({opt.reason_unknown()}).",
                             total_weight=sum(weights), meta=_meta(t0, seed, timeout_ms))
 
     model = opt.model()
@@ -507,7 +512,7 @@ def max_satisfy(
     total_w = sum(weights)
     return MaxSatResult(
         "optimal", "OPTIMAL",
-        f"{len(satisfied)}/{len(soft)} yumuşak kısıt sağlandı (ağırlık {sat_w}/{total_w}).",
+        f"{len(satisfied)}/{len(soft)} soft constraints satisfied (weight {sat_w}/{total_w}).",
         satisfied, unsatisfied, sat_w, total_w, _witness(model, symbols),
         _meta(t0, seed, timeout_ms),
     )
@@ -516,10 +521,10 @@ def max_satisfy(
 def equivalent(
     a: str, b: str, *, timeout_ms: int = DEFAULT_TIMEOUT_MS, seed: int = DEFAULT_SEED,
 ) -> ReasoningResult:
-    """İki ifade mantıksal olarak DENK mi? (her modelde aynı doğruluk değeri).
+    """Are the two expressions logically EQUIVALENT? (same truth value in every model).
 
-    Yöntem: `a XOR b` tatmin edilemez (UNSAT) ise denk. SAT ise farklılaştıkları
-    bir atama (witness) döner.
+    Method: equivalent if `a XOR b` is unsatisfiable (UNSAT). If SAT, returns an
+    assignment (witness) where they differ.
     """
     t0 = time.perf_counter()
     err, z3_list, symbols = _prepare([a, b], t0, seed, timeout_ms)
@@ -531,11 +536,11 @@ def equivalent(
     result = solver.check()
     if result == z3.unsat:
         return ReasoningResult("equivalent", "EQUIVALENT",
-                               "İki ifade mantıksal olarak denk (her atamada aynı doğruluk değeri).",
+                               "The two expressions are logically equivalent (same truth value under every assignment).",
                                None, _meta(t0, seed, timeout_ms))
     if result == z3.sat:
         return ReasoningResult("not_equivalent", "NOT_EQUIVALENT",
-                               "Denk değil; ikisinin farklı doğruluk değeri aldığı bir atama var.",
+                               "Not equivalent; there is an assignment where the two take different truth values.",
                                _witness(solver.model(), symbols), _meta(t0, seed, timeout_ms))
     return _unknown(solver, t0, seed, timeout_ms)
 
@@ -543,10 +548,11 @@ def equivalent(
 def classify(
     formula: str, *, timeout_ms: int = DEFAULT_TIMEOUT_MS, seed: int = DEFAULT_SEED,
 ) -> ReasoningResult:
-    """Bir formülü sınıflandır: **totoloji** (her zaman doğru), **çelişki** (her
-    zaman yanlış) ya da **olumsal** (contingent — bazen doğru bazen yanlış).
+    """Classify a formula: **tautology** (always true), **contradiction** (always
+    false), or **contingent** (sometimes true, sometimes false).
 
-    Olumsal ise witness: onu doğru-kılan ve yanlış-kılan birer atama.
+    If contingent, witness: one assignment that makes it true and one that makes it
+    false.
     """
     t0 = time.perf_counter()
     err, z3_list, symbols = _prepare([formula], t0, seed, timeout_ms)
@@ -555,26 +561,26 @@ def classify(
     z = z3_list[0]
     sat_solver = solver_config(timeout_ms, seed)
     sat_solver.add(z)
-    r_sat = sat_solver.check()                 # doğru-kılan atama var mı?
+    r_sat = sat_solver.check()                 # is there a true-making assignment?
     false_solver = solver_config(timeout_ms, seed)
     false_solver.add(z3.Not(z))
-    r_false = false_solver.check()             # yanlış-kılan atama var mı?
+    r_false = false_solver.check()             # is there a false-making assignment?
 
     if r_sat == z3.unknown or r_false == z3.unknown:
         return ReasoningResult("unknown", "SOLVER_UNKNOWN",
-                               "Çözücü karar veremedi.", None, _meta(t0, seed, timeout_ms))
+                               "Solver could not decide.", None, _meta(t0, seed, timeout_ms))
     if r_sat == z3.unsat:
         return ReasoningResult("contradiction", "CONTRADICTION",
-                               "Çelişki: ifade hiçbir atamada doğru değil (her zaman yanlış).",
+                               "Contradiction: the expression is not true under any assignment (always false).",
                                None, _meta(t0, seed, timeout_ms))
     if r_false == z3.unsat:
         return ReasoningResult("tautology", "TAUTOLOGY",
-                               "Totoloji: ifade her atamada doğru (her zaman doğru).",
+                               "Tautology: the expression is true under every assignment (always true).",
                                None, _meta(t0, seed, timeout_ms))
     witness = {
-        "doğru_kılan": _witness(sat_solver.model(), symbols),
-        "yanlış_kılan": _witness(false_solver.model(), symbols),
+        "true_witness": _witness(sat_solver.model(), symbols),
+        "false_witness": _witness(false_solver.model(), symbols),
     }
     return ReasoningResult("contingent", "CONTINGENT",
-                           "Olumsal: bazı atamalarda doğru, bazılarında yanlış.",
+                           "Contingent: true under some assignments, false under others.",
                            witness, _meta(t0, seed, timeout_ms))

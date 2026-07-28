@@ -2,24 +2,26 @@
 mathhead.core.translate
 ========================
 
-Girdi ifadesi -> Z3 nesnesi çevirimi (parsing + translation).
+Input expression -> Z3 object translation (parsing + translation).
 
-Tasarım (ADR-0009/0010/0013): Python `ast` ile ayrıştır, düğümleri **beyaz
-liste** ile süz, **iki geçişte** çevir (infer: sort çıkarımı + scope; build: Z3).
+Design (ADR-0009/0010/0013): parse with Python `ast`, filter nodes through a
+**whitelist**, translate in **two passes** (infer: sort inference + scope; build: Z3).
 
-v1.2 dili (fragment):
+v1.2 language (fragment):
   * Boolean: `and`, `or`, `not`, `implies(a,b)`, `iff(a,b)`, `xor(a,b)`
-  * Nicelik belirteçleri: `forall(x, gövde)`, `exists(x, gövde)`
-  * **Yüklemler / ilişkiler (yorumsuz):** `Man(x)`, `Loves(a, b)` — birey (sort U)
-    üzerinden Bool döndürür. **Bireyler:** ad olan sabit/değişkenler (`socrates`).
-    (Klasik silogizmi mümkün kılar.)
-  * Aritmetik: `+`, `-`, `*` (DOĞRUSAL); Karşılaştırma: `< <= == != >= >` (zincir)
-  * Üç sort: `bool`, sayısal (`Int`/`Real`; ondalık varsa Real), `ind` (birey/U).
-    Sort bağlamdan çıkarılır; çelişki -> ParseError (sessiz varsayım yok).
+  * Quantifiers: `forall(x, body)`, `exists(x, body)`
+  * **Predicates / relations (uninterpreted):** `Man(x)`, `Loves(a, b)` — return
+    Bool over individuals (sort U). **Individuals:** named constants/variables
+    (`socrates`). (Makes the classical syllogism possible.)
+  * Arithmetic: `+`, `-`, `*` (LINEAR); Comparison: `< <= == != >= >` (chained)
+  * Three sorts: `bool`, numeric (`Int`/`Real`; Real if a decimal is present), `ind`
+    (individual/U). The sort is inferred from context; a conflict -> ParseError (no
+    silent assumptions).
 
-Sınır (v1.2): yüklem argümanları **birey adı** olmalı (yorumsuz fonksiyon terimleri
-`f(x)` ve yüklem-içi aritmetik henüz yok). Nicelik belirteçleri + yüklemler FOL'u
-yarı-karar verilebilir yapar; Z3 `unknown` dönebilir (dürüstçe raporlanır).
+Limit (v1.2): predicate arguments must be an **individual name** (uninterpreted
+function terms `f(x)` and arithmetic inside predicates are not yet supported).
+Quantifiers + predicates make FOL semi-decidable; Z3 may return `unknown` (reported
+honestly).
 """
 from __future__ import annotations
 
@@ -32,7 +34,7 @@ import z3
 _BOOL_FUNCS = {"implies", "iff", "xor"}
 _QUANTIFIERS = {"forall", "exists"}
 
-# Bireyler (individuals) için yorumsuz sort. Aynı adla yeniden çağrı aynı sortu verir.
+# Uninterpreted sort for individuals. Re-declaring with the same name yields the same sort.
 _U = z3.DeclareSort("U")
 
 _CMP = {
@@ -46,14 +48,14 @@ _CMP = {
 
 
 class ParseError(ValueError):
-    """Girdi grameri ihlal edildi. Guardrail: net hata, sessiz varsayım YOK."""
+    """Input grammar violated. Guardrail: clear error, NO silent assumptions."""
 
 
 def parse(expression: str) -> ast.Expression:
     try:
         return ast.parse(expression, mode="eval")
     except SyntaxError as exc:
-        raise ParseError(f"sözdizimi hatası: {exc.msg}") from exc
+        raise ParseError(f"syntax error: {exc.msg}") from exc
 
 
 def _has_float(tree: ast.AST) -> bool:
@@ -69,22 +71,22 @@ def _contains_name(node: ast.AST) -> bool:
 def _need(produced: str, expected: str, node: ast.AST) -> None:
     if produced != expected:
         raise ParseError(
-            f"tür uyuşmazlığı: '{expected}' beklenirken '{produced}' bulundu "
+            f"type mismatch: expected '{expected}' but found '{produced}' "
             f"({type(node).__name__})"
         )
 
 
 class _Translator:
-    """İki geçişli çevirmen: infer (sort) + build (Z3). Serbest semboller ve
-    yüklemler bir problem (ifade kümesi) boyunca paylaşılır."""
+    """Two-pass translator: infer (sort) + build (Z3). Free symbols and predicates
+    are shared across a problem (set of expressions)."""
 
     def __init__(self, has_real: bool):
         self.has_real = has_real
-        self.sorts: dict[str, str] = {}      # serbest değişken -> "bool"|"num"|"ind"
-        self.symbols: dict[str, Any] = {}    # serbest değişken -> z3 sabiti
-        self.preds: dict[str, int] = {}      # yüklem adı -> arite
-        self._pred_funcs: dict[str, Any] = {}  # yüklem adı -> z3.Function
-        self.bound: dict[int, str] = {}      # id(quantifier düğümü) -> çözülmüş sort
+        self.sorts: dict[str, str] = {}      # free variable -> "bool"|"num"|"ind"
+        self.symbols: dict[str, Any] = {}    # free variable -> z3 constant
+        self.preds: dict[str, int] = {}      # predicate name -> arity
+        self._pred_funcs: dict[str, Any] = {}  # predicate name -> z3.Function
+        self.bound: dict[int, str] = {}      # id(quantifier node) -> resolved sort
         self._counter = itertools.count()
 
     def _make_const(self, name: str, sort: str) -> Any:
@@ -101,7 +103,7 @@ class _Translator:
                 return scope
         return None
 
-    # ================= PASS 1: SORT ÇIKARIMI ==================
+    # ================= PASS 1: SORT INFERENCE ==================
     def infer(self, node: ast.AST, expected: str, env: list[dict]) -> None:
         if isinstance(node, ast.BoolOp):
             _need("bool", expected, node)
@@ -115,22 +117,22 @@ class _Translator:
                 _need("num", expected, node)
                 self.infer(node.operand, "num", env)
             else:
-                raise ParseError(f"desteklenmeyen tekli operatör: {type(node.op).__name__}")
+                raise ParseError(f"unsupported unary operator: {type(node.op).__name__}")
         elif isinstance(node, ast.Compare):
             _need("bool", expected, node)
             self.infer(node.left, "num", env)
             for op, comp in zip(node.ops, node.comparators):
                 if type(op) not in _CMP:
-                    raise ParseError(f"desteklenmeyen karşılaştırma: {type(op).__name__}")
+                    raise ParseError(f"unsupported comparison: {type(op).__name__}")
                 self.infer(comp, "num", env)
         elif isinstance(node, ast.BinOp):
             _need("num", expected, node)
             if not isinstance(node.op, (ast.Add, ast.Sub, ast.Mult)):
-                raise ParseError(f"yalnızca +, -, * desteklenir ({type(node.op).__name__} değil)")
+                raise ParseError(f"only +, -, * are supported (not {type(node.op).__name__})")
             self.infer(node.left, "num", env)
             self.infer(node.right, "num", env)
             if isinstance(node.op, ast.Mult) and _contains_name(node.left) and _contains_name(node.right):
-                raise ParseError("doğrusal olmayan çarpım (değişken*değişken) desteklenmiyor")
+                raise ParseError("nonlinear product (variable*variable) is not supported")
         elif isinstance(node, ast.Call):
             self._infer_call(node, expected, env)
         elif isinstance(node, ast.Name):
@@ -141,59 +143,59 @@ class _Translator:
             elif isinstance(node.value, (int, float)):
                 _need("num", expected, node)
             else:
-                raise ParseError(f"desteklenmeyen sabit: {node.value!r}")
+                raise ParseError(f"unsupported constant: {node.value!r}")
         else:
-            raise ParseError(f"izin verilmeyen ifade düğümü: {type(node).__name__}")
+            raise ParseError(f"disallowed expression node: {type(node).__name__}")
 
     def _assign(self, name: str, sort: str, env: list[dict]) -> None:
         if name in self.preds:
-            raise ParseError(f"'{name}' bir yüklem; aynı zamanda değişken olamaz")
+            raise ParseError(f"'{name}' is a predicate; it cannot also be a variable")
         scope = self._scope_of(name, env)
         table = scope if scope is not None else self.sorts
         current = table.get(name)
         if current is None:
             table[name] = sort
         elif current != sort:
-            raise ParseError(f"'{name}' hem '{current}' hem '{sort}' olarak kullanılamaz")
+            raise ParseError(f"'{name}' cannot be used as both '{current}' and '{sort}'")
 
     def _infer_call(self, node: ast.Call, expected: str, env: list[dict]) -> None:
         if not isinstance(node.func, ast.Name):
-            raise ParseError("yalnızca ad ile fonksiyon çağrısına izin var")
+            raise ParseError("only name-based function calls are allowed")
         fname = node.func.id
         if node.keywords or any(isinstance(a, ast.Starred) for a in node.args):
-            raise ParseError("fonksiyon çağrısında keyword/yıldız argüman yok")
+            raise ParseError("no keyword/star arguments in a function call")
 
         if fname in _BOOL_FUNCS:
             _need("bool", expected, node)
             if len(node.args) != 2:
-                raise ParseError(f"{fname} tam 2 argüman ister")
+                raise ParseError(f"{fname} requires exactly 2 arguments")
             self.infer(node.args[0], "bool", env)
             self.infer(node.args[1], "bool", env)
         elif fname in _QUANTIFIERS:
             _need("bool", expected, node)
             if len(node.args) != 2 or not isinstance(node.args[0], ast.Name):
-                raise ParseError(f"{fname}(değişken, gövde) bekler; 1. argüman değişken adı olmalı")
+                raise ParseError(f"{fname}(variable, body) expected; the 1st argument must be a variable name")
             var = node.args[0].id
             scope: dict[str, str | None] = {var: None}
             env.append(scope)
             self.infer(node.args[1], "bool", env)
             env.pop()
-            self.bound[id(node)] = scope[var] or "ind"  # kullanılmadıysa birey say
+            self.bound[id(node)] = scope[var] or "ind"  # if unused, treat as individual
         else:
-            # Yorumsuz yüklem: P(bireyler...) -> Bool
+            # Uninterpreted predicate: P(individuals...) -> Bool
             _need("bool", expected, node)
             if fname in self.sorts or self._scope_of(fname, env) is not None:
-                raise ParseError(f"'{fname}' bir değişken; aynı zamanda yüklem olamaz")
+                raise ParseError(f"'{fname}' is a variable; it cannot also be a predicate")
             arity = len(node.args)
             if self.preds.get(fname, arity) != arity:
-                raise ParseError(f"'{fname}' yüklemi farklı arite ile kullanıldı")
+                raise ParseError(f"predicate '{fname}' used with a different arity")
             self.preds[fname] = arity
             for arg in node.args:
                 if not isinstance(arg, ast.Name):
-                    raise ParseError(f"v1.2: '{fname}' argümanları birey adı (değişken/sabit) olmalı")
+                    raise ParseError(f"v1.2: '{fname}' arguments must be individual names (variables/constants)")
                 self.infer(arg, "ind", env)
 
-    # ==================== PASS 2: İNŞA ========================
+    # ==================== PASS 2: BUILD ========================
     def build(self, node: ast.AST, env: list[dict]) -> Any:
         if isinstance(node, ast.BoolOp):
             parts = [self.build(v, env) for v in node.values]
@@ -228,7 +230,7 @@ class _Translator:
             if isinstance(node.value, int):
                 return z3.RealVal(node.value) if self.has_real else z3.IntVal(node.value)
             return z3.RealVal(node.value)
-        raise ParseError(f"izin verilmeyen ifade düğümü: {type(node).__name__}")
+        raise ParseError(f"disallowed expression node: {type(node).__name__}")
 
     def _build_compare(self, node: ast.Compare, env: list[dict]) -> Any:
         prev = self.build(node.left, env)
@@ -257,7 +259,7 @@ class _Translator:
             body = self.build(node.args[1], env)
             env.pop()
             return z3.ForAll([const], body) if fname == "forall" else z3.Exists([const], body)
-        # Yorumsuz yüklem
+        # Uninterpreted predicate
         arity = self.preds[fname]
         if fname not in self._pred_funcs:
             self._pred_funcs[fname] = z3.Function(fname, *([_U] * arity), z3.BoolSort())
@@ -265,8 +267,8 @@ class _Translator:
 
 
 def translate_all(expressions: list[str]) -> tuple[list[Any], dict[str, Any]]:
-    """Bir ifade listesini ortak bağlamda çevirir (paylaşımlı serbest semboller,
-    yüklemler ve bireyler). Returns: (z3_ifadeleri, serbest_semboller)."""
+    """Translates a list of expressions in a shared context (shared free symbols,
+    predicates and individuals). Returns: (z3_expressions, free_symbols)."""
     trees = [parse(e) for e in expressions]
     has_real = any(_has_float(t) for t in trees)
     tr = _Translator(has_real)
@@ -277,10 +279,11 @@ def translate_all(expressions: list[str]) -> tuple[list[Any], dict[str, Any]]:
 
 
 def translate_objective(constraints: list[str], objective: str) -> tuple[list[Any], Any, dict[str, Any]]:
-    """Kısıtları (bool) ve bir amaç ifadesini (SAYISAL) ortak bağlamda çevirir.
+    """Translates the constraints (bool) and an objective expression (NUMERIC) in a
+    shared context.
 
-    Optimizasyon için: amaçtaki değişkenler kısıtlardakilerle aynı Z3 sabitleri
-    olmalı. Returns: (kısıt_z3_listesi, amaç_z3, semboller).
+    For optimization: the variables in the objective must be the same Z3 constants
+    as those in the constraints. Returns: (constraint_z3_list, objective_z3, symbols).
     """
     c_trees = [parse(c) for c in constraints]
     o_tree = parse(objective)
@@ -288,14 +291,14 @@ def translate_objective(constraints: list[str], objective: str) -> tuple[list[An
     tr = _Translator(has_real)
     for tree in c_trees:
         tr.infer(tree.body, "bool", [])
-    tr.infer(o_tree.body, "num", [])            # amaç sayısaldır
+    tr.infer(o_tree.body, "num", [])            # the objective is numeric
     c_z3 = [tr.build(tree.body, []) for tree in c_trees]
     o_z3 = tr.build(o_tree.body, [])
     return c_z3, o_z3, tr.symbols
 
 
 def to_z3(expression: str, symbols: dict[str, Any] | None = None, sorts: dict | None = None) -> Any:
-    """Tek bir ifadeyi Z3'e çevirir (geri uyumluluk sarmalayıcısı)."""
+    """Translates a single expression to Z3 (backward-compatibility wrapper)."""
     exprs, syms = translate_all([expression])
     if symbols is not None:
         symbols.update(syms)

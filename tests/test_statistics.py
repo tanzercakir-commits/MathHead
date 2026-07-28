@@ -1,8 +1,8 @@
 """
-Olasılık & istatistik (ROADMAP Aşama 7) — betimsel istatistik (mean/variance/
-std/median) + adlandırılmış dağılımlar (E/Var/std, cdf/pmf).
+Probability & statistics (ROADMAP Phase 7) — descriptive statistics (mean/variance/
+std/median) + named distributions (E/Var/std, cdf/pmf).
 
-Betimsel sonuçlar tam/rasyonel; dağılımlar sembolik/tam. Best + worst + dürüstlük.
+Descriptive results exact/rational; distributions symbolic/exact. Best + worst + honesty.
 """
 from mathhead.compute import (
     distribution,
@@ -15,7 +15,7 @@ from mathhead.compute import (
 _DATA = ["2", "4", "4", "4", "5", "5", "7", "9"]
 
 
-# ------------------------------ betimsel ---------------------------------- #
+# ------------------------------ descriptive ---------------------------------- #
 def test_mean():
     assert mean(_DATA).result == "5"
 
@@ -25,7 +25,7 @@ def test_variance_population():
 
 
 def test_variance_sample():
-    # örneklem varyansı (n-1) — yığından farklı
+    # sample variance (n-1) — differs from population
     assert variance(_DATA, sample=True).result == "32/7"
 
 
@@ -34,7 +34,7 @@ def test_std_population():
 
 
 def test_median_even():
-    # 8 gözlem -> ortadaki ikinin ortalaması (4+5)/2 = 9/2
+    # 8 observations -> average of the middle two (4+5)/2 = 9/2
     assert median(_DATA).result == "9/2"
 
 
@@ -50,7 +50,7 @@ def test_variance_sample_needs_two():
     assert variance(["5"], sample=True).status == "error"
 
 
-# ------------------------------ dağılımlar -------------------------------- #
+# ------------------------------ distributions -------------------------------- #
 def test_distribution_normal_symbolic():
     r = distribution("normal", ["mu", "sigma"])
     assert r.status == "ok"
@@ -65,7 +65,7 @@ def test_distribution_binomial_moments():
 
 
 def test_distribution_binomial_cdf_pmf():
-    # P(X<=3) ve pmf@3 (tam kesir)
+    # P(X<=3) and pmf@3 (exact fraction)
     r = distribution("binomial", ["10", "1/2"], at="3")
     assert r.result["cdf_at"] == "11/64"
     assert r.result["density_at"] == "15/128"
@@ -82,11 +82,11 @@ def test_distribution_unknown_rejected():
 
 
 def test_distribution_wrong_param_count_rejected():
-    # normal iki parametre ister
+    # normal requires two parameters
     assert distribution("normal", ["0"]).status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_statistics_determinism():
     for _ in range(5):
         assert mean(_DATA).result == "5"

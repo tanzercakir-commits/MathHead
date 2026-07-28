@@ -1,12 +1,12 @@
 """
-MaxSAT: zorunlu (hard) kısıtları sağlayıp EN ÇOK (ağırlıklı) yumuşak (soft)
-kısıtı sağlamak. Aşırı-kısıtlı / çelişen isteklerin çözümü.
+MaxSAT: satisfy the mandatory (hard) constraints while satisfying the MOST
+(weighted) soft constraints. Resolution of over-constrained / conflicting requests.
 """
 from mathhead.core.logic import max_satisfy
 
 
 def test_two_of_three_soft():
-    # p ve not p birlikte olmaz -> en fazla 2/3 (biri + q)
+    # p and not p can't both hold -> at most 2/3 (one of them + q)
     r = max_satisfy([], ["p", "not(p)", "q"])
     assert r.status == "optimal"
     assert r.satisfied_weight == 2
@@ -22,7 +22,7 @@ def test_conflicting_soft_under_hard():
 def test_weights_prefer_heavier_constraint():
     r = max_satisfy([], ["p", "not(p)"], weights=[3, 1])
     assert r.status == "optimal"
-    assert r.satisfied == [0]          # p (ağırlık 3) tercih edilir
+    assert r.satisfied == [0]          # p (weight 3) preferred
     assert r.satisfied_weight == 3
 
 
@@ -39,4 +39,4 @@ def test_hard_infeasible_is_unsat():
 
 def test_bad_weights_and_empty_soft_rejected():
     assert max_satisfy([], []).status == "error"
-    assert max_satisfy([], ["p", "q"], weights=[1]).status == "error"   # uzunluk uyuşmaz
+    assert max_satisfy([], ["p", "q"], weights=[1]).status == "error"   # length mismatch

@@ -1,8 +1,8 @@
 """
-v1 DAVRANIŞ SPESİFİKASYONU — best-case / worst-case senaryolar (gerçek Z3).
+v1 BEHAVIOR SPECIFICATION — best-case / worst-case scenarios (real Z3).
 
-Bunlar motorun v1 sözleşmesidir ve YEŞİL kalmalıdır. Kaynak: proje prensibi
-"iyi tasarlanmış otomatik testler (best/worst case)".
+These are the engine's v1 contract and must stay GREEN. Source: project principle
+"well-designed automated tests (best/worst case)".
 """
 
 from mathhead.core import check_consistency, check_entailment, find_model
@@ -25,7 +25,7 @@ def test_non_entailment_returns_counterexample():
 def test_arithmetic_non_entailment_counterexample():
     r = check_entailment(["x > 0"], "x > 5")
     assert r.status == "invalid"
-    assert 0 < r.witness["x"] <= 5  # öncülü sağlar, sonucu çürütür
+    assert 0 < r.witness["x"] <= 5  # satisfies the premise, refutes the conclusion
 
 
 def test_contradiction_is_unsat_with_core():
@@ -59,7 +59,7 @@ def test_iff_and_xor_are_contradictory():
     assert r.status == "unsat"
 
 
-# ------------------- WORST CASE / guardrails / dürüstlük ------------------- #
+# ------------------- WORST CASE / guardrails / honesty ------------------- #
 def test_nonlinear_multiplication_is_rejected():
     r = check_consistency(["x*y > 0"])
     assert r.status == "error"
@@ -73,7 +73,7 @@ def test_syntax_error_is_rejected():
 
 
 def test_inconsistent_sort_is_rejected():
-    # 'p' aynı problemde hem Bool (and) hem Int (>) olamaz -> sessiz varsayım yok
+    # 'p' cannot be both Bool (and) and Int (>) in the same problem -> no silent assumption
     r = check_consistency(["p and (p > 3)"])
     assert r.status == "error"
     assert r.reason_code == "PARSE_ERROR"
@@ -89,10 +89,10 @@ def test_unknown_and_error_are_not_conclusive():
     assert check_consistency(["("]).is_conclusive() is False
 
 
-# --------------------------- DETERMİNİZM (duvar #3) ------------------------ #
+# --------------------------- DETERMINISM (wall #3) ------------------------ #
 def test_verdict_determinism_same_input():
-    # GARANTİ: aynı girdi -> aynı VERDICT (status + reason). Tanık bir örnektir
-    # (birden çok karşıörnek varsa değişebilir; bkz. ADR-0019).
+    # GUARANTEE: same input -> same VERDICT (status + reason). The witness is one example
+    # (may change if there are multiple counterexamples; see ADR-0019).
     query = (["x > 0", "x < 10"], "x < 5")  # invalid
     first = check_entailment(*query)
     assert first.status == "invalid"

@@ -1,7 +1,7 @@
 [project]
 name = "mathhead"
 version = "0.2.0"
-description = "AI'ın MCP üzerinden kullanabileceği, first-order logic temelli, deterministik matematik akıl yürütme ve ispat motoru."
+description = "A deterministic, first-order-logic-based math reasoning and proof engine that AI can use over MCP."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
@@ -21,21 +21,21 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
-# Mimari karar: tek bir "FOL motoru" yazmak yerine kanıtlanmış çözücüleri
-# orkestre ediyoruz (bkz. DECISIONS.md ADR-0001/0002).
+# Architectural decision: instead of writing a single "FOL engine" we orchestrate
+# proven solvers (see DECISIONS.md ADR-0001/0002).
 dependencies = [
-    "z3-solver>=4.13",   # SMT çözücü (FOL + teoriler) -> mantık çekirdeği (v1)
-    "sympy>=1.12",       # CAS (sembolik hesap) -> hesaplama katmanı (v2+)
-    "mcp[cli]>=1.10",    # Model Context Protocol sunucu SDK'sı (FastMCP)
+    "z3-solver>=4.13",   # SMT solver (FOL + theories) -> logic core (v1)
+    "sympy>=1.12",       # CAS (symbolic computation) -> compute layer (v2+)
+    "mcp[cli]>=1.10",    # Model Context Protocol server SDK (FastMCP)
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "pytest-timeout>=2.3",   # worst-case (zaman aşımı) testleri için guardrail
-    "pytest-cov>=5.0",       # kapsam (coverage) raporu
-    "ruff>=0.6",             # lint (statik guardrail)
-    "hypothesis>=6.0",       # property-based (özellik temelli) testler
+    "pytest-timeout>=2.3",   # guardrail for worst-case (timeout) tests
+    "pytest-cov>=5.0",       # coverage report
+    "ruff>=0.6",             # lint (static guardrail)
+    "hypothesis>=6.0",       # property-based tests
 ]
 
 [project.scripts]
@@ -56,7 +56,7 @@ packages = ["src/mathhead"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-timeout = 30            # hiçbir test 30 sn'yi geçemez (non-determinizm/hang guardrail)
+timeout = 30            # no test may exceed 30 s (non-determinism/hang guardrail)
 
 [tool.coverage.run]
 source = ["src/mathhead"]

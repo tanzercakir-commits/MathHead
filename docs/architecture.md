@@ -1,34 +1,35 @@
-# MathHead — Mimari
+# MathHead — Architecture
 
-Katmanlı hibrit. Her katmanın **tek** sorumluluğu var; dış dünya motora yalnızca
-MCP katmanından dokunur. Kararların gerekçesi `../DECISIONS.md`'de.
+Layered hybrid. Each layer has a **single** responsibility; the outside world
+touches the engine only through the MCP layer. The rationale for the decisions is
+in `../DECISIONS.md`.
 
-## Katman şeması
+## Layer diagram
 
 ```mermaid
 flowchart TD
-    AI["AI / Claude<br/>(MCP istemcisi)"] -->|araç çağrısı| S["server/<br/>MCP arayüzü · tek sözleşme"]
-    S --> G["guardrails/ · ÇİT<br/>girdi doğrulama · timeout · seed"]
-    G --> R["router/<br/>yönlendirme"]
-    R -->|mantık| C["core/ · Z3 (SMT)<br/>entailment · consistency · model"]
-    R -->|hesap · v2+| K["compute/ · SymPy (CAS)"]
+    AI["AI / Claude<br/>(MCP client)"] -->|tool call| S["server/<br/>MCP interface · single contract"]
+    S --> G["guardrails/ · GUARDRAIL<br/>input validation · timeout · seed"]
+    G --> R["router/<br/>routing"]
+    R -->|logic| C["core/ · Z3 (SMT)<br/>entailment · consistency · model"]
+    R -->|compute · v2+| K["compute/ · SymPy (CAS)"]
     C --> RES["ReasoningResult"]
     K --> RES
     RES --> S
     S --> AI
 ```
 
-## Katman sorumlulukları
+## Layer responsibilities
 
-| Katman | Yapar | YAPMAZ (sınırı) | Dosya |
+| Layer | Does | DOES NOT (its boundary) | File |
 |---|---|---|---|
-| `server/` | MCP araçlarını yayınlar, çıktıyı sözlüğe çevirir | İş mantığı içermez | `server/mcp_server.py` |
-| `guardrails/` | Girdiyi doğrular, çözücüyü sınırlar/deterministik yapar | Matematik çözmez | `guardrails/__init__.py` |
-| `router/` | Görevi doğru çözücü + ilkele yönlendirir (kurallı) | "Sezgiyle" seçmez | `router/__init__.py` |
-| `core/` | Z3 ile entailment / consistency / model | Girdi ayrıştırmasını *tek başına* yapmaz (translate) | `core/logic.py`, `core/translate.py` |
-| `compute/` | (v2+) SymPy ile solve/simplify/kalkülüs | v1'de boş (rezerve) | `compute/__init__.py` |
+| `server/` | Publishes the MCP tools, converts output to a dict | Holds no business logic | `server/mcp_server.py` |
+| `guardrails/` | Validates input, bounds/determinizes the solver | Does not solve math | `guardrails/__init__.py` |
+| `router/` | Routes the task to the right solver + primitive (rule-based) | Does not choose "by intuition" | `router/__init__.py` |
+| `core/` | entailment / consistency / model via Z3 | Does not do input parsing *on its own* (translate) | `core/logic.py`, `core/translate.py` |
+| `compute/` | (v2+) solve/simplify/calculus via SymPy | Empty in v1 (reserved) | `compute/__init__.py` |
 
-## İstek yaşam döngüsü (request lifecycle)
+## Request lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -39,24 +40,24 @@ sequenceDiagram
     participant Z3 as core / Z3
     AI->>MCP: entailment(premises, conclusion)
     MCP->>GR: validate_input()
-    alt girdi geçersiz / çit ihlali
-        GR-->>AI: status=error (net gerekçe, tahmin YOK)
-    else geçerli
+    alt input invalid / guardrail violation
+        GR-->>AI: status=error (clear reason, NO guessing)
+    else valid
         GR->>RT: route("entailment", payload)
         RT->>Z3: (⋀ premises) ∧ ¬conclusion  UNSAT?
-        Z3-->>RT: unsat=valid · sat=karşıörnek · unknown
+        Z3-->>RT: unsat=valid · sat=counterexample · unknown
         RT-->>MCP: ReasoningResult
         MCP-->>AI: {status, witness, explanation, meta}
     end
 ```
 
-## Determinizm nasıl garanti edilir?
+## How is determinism guaranteed?
 
-- **Sabit tohum (seed)** + **tek iş parçacığı**: Z3 yapılandırması `solver_config()`
-  ile sabitlenir → aynı girdi, aynı arama yolu, aynı çıktı.
-- **Zaman aşımı (timeout)**: worst-case sınırı; süre dolarsa `unknown` (hata değil).
-- **İzlenebilir `meta`**: her yanıt hangi çözücü/sürüm/seed/süre ile üretildiğini
-  taşır → sonuç *yeniden üretilebilir*.
+- **Fixed seed** + **single thread**: the Z3 configuration is pinned via
+  `solver_config()` → same input, same search path, same output.
+- **Timeout**: a worst-case bound; if time runs out, `unknown` (not an error).
+- **Traceable `meta`**: every response carries which solver/version/seed/time
+  produced it → the result is *reproducible*.
 
-> Bu üç mekanizma, senin **3. duvarına** (non-determinizm) mimari cevaptır:
-> non-determinizmi yok saymıyoruz, çitle sınırlıyoruz.
+> These three mechanisms are the architectural answer to your **3rd wall**
+> (non-determinism): we do not ignore non-determinism, we bound it with a guardrail.

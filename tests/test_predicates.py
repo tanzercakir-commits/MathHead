@@ -1,14 +1,14 @@
 """
-v1.2 — yorumsuz yüklemler (predicates) + bireyler: gerçek ilişkisel FOL.
+v1.2 — uninterpreted predicates + individuals: true relational FOL.
 
-Buradaki bayrak testi klasik silogizmdir: bir mantık motorunun "first-order"
-olduğunu gösteren kanonik örnek.
+The flagship test here is the classic syllogism: the canonical example showing
+that a logic engine is "first-order".
 """
 from mathhead.core import check_consistency, check_entailment
 
 
 def test_classic_syllogism():
-    # Tüm insanlar ölümlüdür; Sokrates insandır  ⊨  Sokrates ölümlüdür
+    # All men are mortal; Socrates is a man  ⊨  Socrates is mortal
     r = check_entailment(
         ["forall(x, implies(Man(x), Mortal(x)))", "Man(socrates)"],
         "Mortal(socrates)",
@@ -41,15 +41,15 @@ def test_direct_contradiction_is_unsat():
 
 
 def test_quantified_contradiction_is_sound():
-    # P(a) ve ∀x.¬P(x) çelişir. Motor 'unsat' (doğru) ya da 'unknown' (dürüst)
-    # demeli; ASLA 'sat' (yanlış) dememeli.
+    # P(a) and ∀x.¬P(x) contradict. Engine must say 'unsat' (correct) or 'unknown' (honest);
+    # must NEVER say 'sat' (wrong).
     r = check_consistency(["P(a)", "forall(x, not(P(x)))"])
     assert r.status in ("unsat", "unknown")
 
 
 # --------------------------- guardrail / sort ----------------------------- #
 def test_predicate_argument_must_be_individual():
-    r = check_consistency(["P(2)"])  # sayı birey değil
+    r = check_consistency(["P(2)"])  # number is not an individual
     assert r.status == "error"
     assert r.reason_code == "PARSE_ERROR"
 
@@ -59,5 +59,5 @@ def test_inconsistent_arity_rejected():
 
 
 def test_predicate_and_variable_name_clash_rejected():
-    # 'p' aynı problemde hem yüklem hem değişken olamaz
+    # 'p' can't be both a predicate and a variable in the same problem
     assert check_consistency(["p", "p(a)"]).status == "error"

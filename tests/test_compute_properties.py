@@ -1,10 +1,10 @@
 """
-Sağlamlaştırma-1 (ROADMAP Aşama 2) — hesap katmanı için property-based
-(özellik temelli) testler + determinizm denetimi + parser fuzz.
+Hardening-1 (ROADMAP Phase 2) — property-based tests for the compute layer +
+determinism check + parser fuzz.
 
-Amaç: motorun *güvenilirliği*. Rastgele girdilerde (a) hiç çökmeme (güvenlik:
-beyaz-liste sızıntısı yok), (b) matematiksel değişmezlerin korunması, (c) aynı
-girdi → aynı çıktı (determinizm; ADR-0019).
+Goal: the engine's *reliability*. On random inputs (a) never crash (safety:
+no whitelist leak), (b) preservation of mathematical invariants, (c) same
+input → same output (determinism; ADR-0019).
 """
 import hypothesis.strategies as st
 from hypothesis import assume, given, settings
@@ -26,7 +26,7 @@ from mathhead.compute import (
 _CFG = settings(max_examples=60, deadline=None)
 _OK_OR_ERR = {"ok", "error"}
 
-# --- stratejiler --------------------------------------------------------- #
+# --- strategies --------------------------------------------------------- #
 _cell = st.integers(min_value=-9, max_value=9).map(str)
 _row2 = st.lists(_cell, min_size=2, max_size=2)
 _mat2 = st.lists(_row2, min_size=2, max_size=2)
@@ -44,11 +44,11 @@ def _extend(ch):
 _exprs = st.recursive(st.sampled_from(["x", "y", "2", "3"]), _extend, max_leaves=5)
 
 
-# ------------------------------ çökme yok (fuzz) -------------------------- #
+# ------------------------------ no crash (fuzz) -------------------------- #
 @_CFG
 @given(st.text(max_size=30))
 def test_scalar_ops_never_crash(s):
-    # Girdi ne olursa olsun: ok|error döner, exception fırlatmaz (güvenlik değişmezi).
+    # Whatever the input: returns ok|error, does not throw an exception (safety invariant).
     assert simplify(s).status in _OK_OR_ERR
     assert solve(s, "x").status in _OK_OR_ERR
     assert differentiate(s, "x").status in _OK_OR_ERR
@@ -60,16 +60,16 @@ def test_scalar_ops_never_crash(s):
 @_CFG
 @given(st.lists(st.lists(st.text(max_size=6), min_size=1, max_size=3), min_size=1, max_size=3))
 def test_matrix_ops_never_crash(m):
-    # Düzensiz/kötücül/çöp hücreler bile çökmez (ragged, __import__, boş...).
+    # Even irregular/malicious/garbage cells don't crash (ragged, __import__, empty...).
     assert determinant(m).status in _OK_OR_ERR
     assert matrix_rank(m).status in _OK_OR_ERR
 
 
-# --------------------- matematiksel değişmezler --------------------------- #
+# --------------------- mathematical invariants --------------------------- #
 @_CFG
 @given(_mat2, _mat2)
 def test_det_multiplicative(a, b):
-    # det(A·B) = det(A)·det(B)  (temel özdeşlik, iki araç çapraz kontrol)
+    # det(A·B) = det(A)·det(B)  (basic identity, two tools cross-check)
     prod = matrix_multiply(a, b)
     assert prod.status == "ok"
     assert int(determinant(prod.result).result) == \
@@ -87,7 +87,7 @@ def test_det_transpose_invariant(a):
 @_CFG
 @given(_mat2, st.lists(_cell, min_size=2, max_size=2))
 def test_matsolve_roundtrip(a, x):
-    # Tekil olmayan A ve seçili x için b=A·x kur; Ax=b çöz → x'i geri ver.
+    # For non-singular A and chosen x build b=A·x; solve Ax=b → recover x.
     assume(int(determinant(a).result) != 0)
     xcol = [[xi] for xi in x]
     b = matrix_multiply(a, xcol).result           # 2×1
@@ -99,17 +99,17 @@ def test_matsolve_roundtrip(a, x):
 @_CFG
 @given(_exprs)
 def test_simplify_idempotent(s):
-    # simplify(simplify(e)) == simplify(e)  (kararlı kanonik form)
+    # simplify(simplify(e)) == simplify(e)  (stable canonical form)
     r1 = simplify(s)
     assert r1.status == "ok"
     assert simplify(r1.result).result == r1.result
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 @_CFG
 @given(_mat2)
 def test_matrix_determinism(a):
-    # Aynı girdi → aynı çıktı (det, rank, özdeğer). Verdict deterministik.
+    # Same input → same output (det, rank, eigenvalue). Verdict deterministic.
     d0 = determinant(a).result
     r0 = matrix_rank(a).result
     e0 = eigenvalues(a).result

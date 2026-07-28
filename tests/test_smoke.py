@@ -1,6 +1,6 @@
 """
-Duman testi (smoke test): iskelet import edilebilir mi ve dönüş sözleşmesi
-(ReasoningResult contract) yerinde mi. Bunlar İSKELET aşamasında bile GEÇMELİDİR.
+Smoke test: can the skeleton be imported and is the return contract
+(ReasoningResult contract) in place. These MUST PASS even at the SKELETON stage.
 """
 import importlib.util
 
@@ -16,7 +16,7 @@ def test_reasoning_result_contract():
     assert isinstance(r.meta, dict)
 
     unknown = ReasoningResult(status="unknown", reason_code="SOLVER_TIMEOUT", explanation="")
-    assert unknown.is_conclusive() is False  # unknown/error kesin sonuç DEĞİL
+    assert unknown.is_conclusive() is False  # unknown/error is NOT a definitive result
 
 
 def test_core_primitives_exist_and_callable():
@@ -27,7 +27,7 @@ def test_core_primitives_exist_and_callable():
 
 
 @pytest.mark.skipif(
-    importlib.util.find_spec("mcp") is None, reason="mcp SDK kurulu değil (opsiyonel)"
+    importlib.util.find_spec("mcp") is None, reason="mcp SDK not installed (optional)"
 )
 def test_server_module_imports():
     mod = importlib.import_module("mathhead.server.mcp_server")

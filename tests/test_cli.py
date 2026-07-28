@@ -1,4 +1,4 @@
-"""CLI davranış testleri — `cli.main` doğrudan çağrılır (çıktı + çıkış kodu)."""
+"""CLI behavior tests — `cli.main` is called directly (output + exit code)."""
 import json
 
 from mathhead import cli

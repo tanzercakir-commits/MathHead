@@ -1,9 +1,9 @@
 """
-LLM-tuzak benchmark regresyon çiti (ROADMAP Track C4).
+LLM-trap benchmark regression fence (ROADMAP Track C4).
 
-`benchmarks/run.py` harness'ını çalıştırır ve HER tuzağın MathHead tarafından
-doğru adjuke edildiğini (yakalandığını) zorlar. Bu, motorun "AI'ın işini
-denetler" değer önerisinin ileride sessizce bozulmasına karşı çittir.
+Runs the `benchmarks/run.py` harness and enforces that EVERY trap is correctly
+adjudicated (caught) by MathHead. This is a fence against the engine's "audits
+the AI's work" value proposition silently breaking in the future.
 """
 import sys
 from pathlib import Path
@@ -24,10 +24,10 @@ def test_trap_suite_nonempty():
 @pytest.mark.parametrize("row", _ROWS, ids=[r["id"] for r in _ROWS])
 def test_each_trap_is_caught(row):
     assert row["caught"], (
-        f"{row['id']} KAÇIRILDI — beklenen {row['expect']}, gelen {row['got']}"
+        f"{row['id']} MISSED — expected {row['expect']}, got {row['got']}"
     )
 
 
 def test_full_catch_rate():
     caught = sum(r["caught"] for r in _ROWS)
-    assert caught == len(_ROWS), f"yakalama oranı {caught}/{len(_ROWS)} — %100 olmalı"
+    assert caught == len(_ROWS), f"catch rate {caught}/{len(_ROWS)} — must be 100%"

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-MathHead — performans benchmark iskeleti (ROADMAP Aşama 5 [S]).
+MathHead — performance benchmark skeleton (ROADMAP Phase 5 [S]).
 
-Temsili işlemleri N kez çalıştırır, medyan/ortalama süreyi (ms) tablolar. Amaç:
-bir *taban çizgisi* (baseline) tutmak ve büyük regresyonları görünür kılmak.
+Runs representative operations N times, tabulates median/mean time (ms). Goal:
+keep a *baseline* and make large regressions visible.
 
-Not: Süre ortama bağlıdır — bu bir test *kapısı* DEĞİLDİR (CI'da süre eşiği yok);
-yalnızca ölçüm/gözlem aracıdır. Regresyon çiti için: `tests/test_golden.py`.
+Note: Time depends on the environment — this is NOT a test *gate* (no time threshold in CI);
+it's only a measurement/observation tool. For a regression fence: `tests/test_golden.py`.
 
-Kullanım:
-    python scripts/benchmark.py            # varsayılan N
+Usage:
+    python scripts/benchmark.py            # default N
     python scripts/benchmark.py --n 50
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ from dataclasses import asdict
 
 from mathhead.router import route
 
-# (etiket, task, payload) — hızlı ama temsili bir kesit (her katman)
+# (label, task, payload) — a fast but representative slice (each layer)
 WORKLOAD = [
     ("logic/entailment", "entailment", {"premises": ["p", "implies(p,q)"], "conclusion": "q"}),
     ("logic/consistency", "consistency", {"statements": ["x>2", "x<5", "x<10"]}),
@@ -41,7 +41,7 @@ WORKLOAD = [
 
 
 def bench(n: int = 20) -> list[dict]:
-    """Her işi n kez koşar; süreleri (ms) toplar. Test/CI için n küçük verilebilir."""
+    """Runs each job n times; collects times (ms). n can be small for test/CI."""
     rows = []
     for label, task, payload in WORKLOAD:
         times = []
@@ -63,15 +63,15 @@ def bench(n: int = 20) -> list[dict]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="MathHead benchmark")
-    ap.add_argument("--n", type=int, default=20, help="tekrar sayısı (varsayılan 20)")
+    ap.add_argument("--n", type=int, default=20, help="repetitions (default 20)")
     args = ap.parse_args()
     rows = bench(args.n)
-    print(f"{'işlem':24} {'durum':14} {'medyan(ms)':>12} {'ort(ms)':>10} {'min(ms)':>10}")
+    print(f"{'operation':24} {'status':14} {'median(ms)':>12} {'mean(ms)':>10} {'min(ms)':>10}")
     print("-" * 74)
     for r in rows:
         print(f"{r['label']:24} {r['status']:14} {r['median_ms']:>12} {r['mean_ms']:>10} {r['min_ms']:>10}")
     print("-" * 74)
-    print(f"toplam medyan: {round(sum(r['median_ms'] for r in rows), 2)} ms  (N={args.n})")
+    print(f"total median: {round(sum(r['median_ms'] for r in rows), 2)} ms  (N={args.n})")
 
 
 if __name__ == "__main__":

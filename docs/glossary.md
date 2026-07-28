@@ -1,54 +1,54 @@
-# MathHead — Sözlük (Glossary)
+# MathHead — Glossary
 
-Projede geçen terimler, kısa ve Türkçe. Amaç: yeni bir oturum (ya da yeni bir
-kişi/AI) bağlama hızlı girsin (duvar #1'e karşı).
+Terms that appear in the project, kept brief. Goal: a new session (or a new
+person/AI) gets into context quickly (against wall #1).
 
-- **FOL (First-Order Logic / Birinci Dereceden Mantık):** Nesneler, yüklemler
-  (predicate) ve `∀/∃` nicelik belirteçleri içeren mantık. Önermeler mantığından
-  daha ifadeli.
+- **FOL (First-Order Logic):** Logic with objects, predicates, and `∀/∃`
+  quantifiers. More expressive than propositional logic.
 
-- **Önermeler mantığı (propositional logic):** Yalnızca doğru/yanlış değişkenler
-  ve `and/or/not/implies/iff`. FOL'un nicelik belirteci olmayan alt kümesi. v1'in
-  çekirdek parçası.
+- **Propositional logic:** Only true/false variables and `and/or/not/implies/iff`.
+  The quantifier-free subset of FOL. A core piece of v1.
 
-- **SMT (Satisfiability Modulo Theories):** SAT'ın üstüne *teoriler* (aritmetik,
-  eşitlik, diziler...) ekleyen karar problemi. **Z3** bir SMT çözücüsüdür. Bizim
-  "FOL + hazır teoriler" cümlemizin teknik adı budur.
+- **SMT (Satisfiability Modulo Theories):** A decision problem that adds
+  *theories* (arithmetic, equality, arrays...) on top of SAT. **Z3** is an SMT
+  solver. This is the technical name for our "FOL + built-in theories" phrasing.
 
-- **CAS (Computer Algebra System / Bilgisayar Cebir Sistemi):** Sembolik
-  hesaplama (sadeleştirme, denklem çözme, türev/integral). **SymPy** bir CAS'tır.
-  MathHead'de *hesap* katmanı (v2+).
+- **CAS (Computer Algebra System):** Symbolic computation (simplification,
+  equation solving, derivative/integral). **SymPy** is a CAS. In MathHead, the
+  *compute* layer (v2+).
 
-- **entailment (mantıksal gerektirme, `⊨`):** Öncüller doğruyken sonucun *zorunlu*
-  doğru olması. Kontrol yöntemi: `(öncüller) ∧ ¬sonuç` **UNSAT** mı?
+- **entailment (logical consequence, `⊨`):** The conclusion being *necessarily*
+  true when the premises are true. Check method: is `(premises) ∧ ¬conclusion`
+  **UNSAT**?
 
-- **satisfiability (sat / tatmin edilebilirlik):** Bir formülü doğru yapan en az
-  bir atama var mı? Varsa **SAT**, yoksa **UNSAT**.
+- **satisfiability (sat):** Is there at least one assignment that makes a formula
+  true? If so **SAT**, otherwise **UNSAT**.
 
-- **model:** Bir formülü doğru kılan somut değişken ataması (ör. `x = 3`). SAT'ın
-  tanığı (witness).
+- **model:** A concrete variable assignment that makes a formula true (e.g.
+  `x = 3`). The witness of SAT.
 
-- **karşıörnek (counterexample):** Bir iddiayı *çürüten* somut atama. entailment
-  geçersizse motor bunu döndürür.
+- **counterexample:** A concrete assignment that *refutes* a claim. When
+  entailment is invalid, the engine returns this.
 
-- **unsat core:** Bir kümeyi çelişkili yapan *en küçük* suçlu alt küme. Neden
-  tutarsız olduğunu gösterir.
+- **unsat core:** The *smallest* culprit subset that makes a set contradictory.
+  Shows why it is inconsistent.
 
-- **decidability (karar verilebilirlik):** Bir problemi *her zaman* sonlandırıp
-  yanıtlayan algoritma var mı? Önermeler mantığı karar verilebilir; genel FOL
-  **yarı**-karar verilebilir (semi-decidable) → motor bazen `unknown` döner.
+- **decidability:** Is there an algorithm that *always* terminates and answers a
+  problem? Propositional logic is decidable; general FOL is **semi**-decidable
+  → the engine sometimes returns `unknown`.
 
-- **guardrail (çit):** Motorun aşamayacağı sert sınır (boyut, süre, sembol).
-  Kullanıcının "çitin dışına çıkmamalı" maddesinin karşılığı.
+- **guardrail:** A hard limit the engine cannot cross (size, time, symbols). The
+  counterpart of the user's "must not step outside the guardrail" requirement.
 
-- **determinizm:** Aynı girdi → aynı çıktı. Sabit tohum + zaman aşımı + tek iş
-  parçacığı ile sağlanır.
+- **determinism:** Same input → same output. Ensured by a fixed seed + timeout +
+  single thread.
 
-- **MCP (Model Context Protocol):** AI istemcilerinin (ör. Claude) dış araçlara
-  standart biçimde bağlandığı protokol. MathHead buradan yayınlanır.
+- **MCP (Model Context Protocol):** The protocol through which AI clients (e.g.
+  Claude) connect to external tools in a standard way. MathHead is published
+  through it.
 
-- **ADR (Architecture Decision Record):** Bir mimari kararı gerekçesiyle saklayan
-  kısa kayıt. `DECISIONS.md`'de tutulur.
+- **ADR (Architecture Decision Record):** A short record that stores an
+  architectural decision with its rationale. Kept in `DECISIONS.md`.
 
-- **vertical slice (dikey dilim):** Uçtan uca (arayüzden çekirdeğe) *çalışan* dar
-  bir özellik. v1 stratejimiz.
+- **vertical slice:** A narrow feature that *works* end to end (from interface to
+  core). Our v1 strategy.

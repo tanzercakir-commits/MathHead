@@ -1,19 +1,21 @@
 """
-mathhead.core.nl — Doğal dil → formal (ROADMAP I2). "2. duvar"a (fazla varsayım)
-doğrudan panzehir.
+mathhead.core.nl — Natural language → formal (ROADMAP I2). A direct antidote to
+"wall #2" (excessive assumptions).
 
-**Tasarım ilkesi — TANI-YA-DA-REDDET (recognize-or-refuse):** MathHead tam bir
-doğal dil ayrıştırıcısı DEĞİLDİR (o iş LLM'in; ve orada tam da savaştığımız
-"varsayım" hatası doğar). Burada yalnızca **kurallı, şeffaf, sınırlı** bir alt küme
-tanınır; tanınmayan/belirsiz girdide **tahmin edilmez**, dürüstçe reddedilir.
+**Design principle — RECOGNIZE-OR-REFUSE:** MathHead is NOT a full natural-language
+parser (that job belongs to the LLM; and it is exactly there that the "assumption"
+error is born). Only a **rule-based, transparent, bounded** subset is recognized
+here; on unrecognized/ambiguous input it **does not guess** — it refuses honestly.
 
-**Round-trip (geri-çeviri) doğrulaması — yıldız özellik:** girdi NL → formal görev
-üretilir, sonra formal → NL **yeniden ifade** (`restatement`) verilir. Böylece
-çağıran (AI/insan) "MathHead ne anladı?"yı GÖRÜP güvenmeden ÖNCE onaylar. Yanlış
-anlama, sessiz varsayıma dönüşmeden yakalanır.
+**Round-trip (back-translation) verification — the star feature:** input NL → a
+formal task is produced, then formal → NL **restatement** (`restatement`) is
+returned. This lets the caller (AI/human) SEE "what did MathHead understand?" and
+confirm it BEFORE trusting it. A misreading is caught before it turns into a silent
+assumption.
 
-Girdi TR + EN karışık desteklenir (kullanıcı Türkçe yazıyor). Tanınan işlemler:
-türev, integral, limit, çözme, çarpanlara ayırma, asallık, EBOB/gcd, denklik.
+Mixed TR + EN input is supported (the user writes in Turkish). Recognized
+operations: derivative, integral, limit, solve, factorization, primality, GCD,
+equivalence.
 """
 from __future__ import annotations
 
@@ -38,7 +40,7 @@ def _meta(t0: float) -> dict[str, Any]:
     return {"engine": "nl-rules", "elapsed_ms": round((time.perf_counter() - t0) * 1000, 3)}
 
 
-# Sözcük → sembol (deterministik, sınırlı). Sıra önemli (uzun kalıp önce).
+# Word → symbol (deterministic, bounded). Order matters (longer patterns first).
 _PHRASES: list[tuple[str, str]] = [
     (r"\bkarekök(?:ü)?\s+", "sqrt "), (r"\bsquare\s+root\s+of\s+", "sqrt "),
     (r"\bküpü?\b", "**3"), (r"\bcubed\b", "**3"),
@@ -52,11 +54,11 @@ _PHRASES: list[tuple[str, str]] = [
 
 
 def _normalize(expr: str) -> str:
-    """Sözcük-işleçleri sembole çevirir + `sqrt X` → `sqrt(X)` sarar. Sınırlı, şeffaf."""
+    """Converts word-operators to symbols + wraps `sqrt X` → `sqrt(X)`. Bounded, transparent."""
     s = expr.strip().strip(".?!").strip()
     for pat, rep in _PHRASES:
         s = re.sub(pat, rep, s, flags=re.IGNORECASE)
-    # 'sqrt X' → 'sqrt(X)' (tek terim)
+    # 'sqrt X' → 'sqrt(X)' (single term)
     s = re.sub(r"\bsqrt\s+([A-Za-z0-9_]+)", r"sqrt(\1)", s)
     return re.sub(r"\s+", " ", s).strip()
 
@@ -70,29 +72,32 @@ def _point(word: str) -> str:
     return _normalize(word)
 
 
-# (görev, restatement üretici) — her kalıp bir eşleştirici döndürür.
+# (task, restatement builder) — each pattern returns a matcher.
 def _restate(task: str, p: dict[str, Any]) -> str:
     if task == "differentiate":
-        o = f" {p['order']}. mertebeden" if p.get("order", 1) != 1 else ""
-        return f"'{p['expression']}' ifadesinin '{p['symbol']}'e göre{o} türevi"
+        o = f" (order {p['order']})" if p.get("order", 1) != 1 else ""
+        return f"the derivative of '{p['expression']}' with respect to '{p['symbol']}'{o}"
     if task == "integrate":
-        return f"'{p['expression']}' ifadesinin '{p['symbol']}'e göre integrali"
+        return f"the integral of '{p['expression']}' with respect to '{p['symbol']}'"
     if task == "limit":
-        return f"'{p['expression']}' ifadesinin '{p['symbol']}' → {p['point']} limiti"
+        return f"the limit of '{p['expression']}' as '{p['symbol']}' → {p['point']}"
     if task == "solve":
-        return f"'{p['equation']}' denkleminin '{p['symbol']}' için çözümü"
+        return f"the solution of '{p['equation']}' for '{p['symbol']}'"
     if task == "factorize":
-        return f"{p['n']} sayısının asal çarpanlarına ayrılması"
+        return f"the prime factorization of {p['n']}"
     if task == "gcd":
-        return f"{p['a']} ile {p['b']} sayılarının en büyük ortak böleni (EBOB)"
+        return f"the greatest common divisor (GCD) of {p['a']} and {p['b']}"
     if task == "is_prime":
-        return f"{p['n']} sayısının asal olup olmadığı"
+        return f"whether {p['n']} is prime"
     if task == "verify_equality":
-        return f"'{p['left']}' ile '{p['right']}' ifadelerinin denk olup olmadığı"
+        return f"whether '{p['left']}' and '{p['right']}' are equivalent"
     return f"{task}({p})"
 
 
-# Regex kalıpları: (desen, görev, gruplardan payload üretici).
+# Regex patterns: (pattern, task, payload builder from groups).
+# NOTE: Turkish keywords in these patterns (türev, ifadesinin, göre, asal mı, ile,
+# en büyük ortak bölen, ...) are INPUT-matching data — kept to preserve the
+# bilingual TR+EN feature. Do not translate them.
 _PATTERNS: list[tuple[str, str, Any]] = [
     (r"(?:(\d+)\.?\s*(?:mertebeden|order)\s+)?(?:türev(?:i)?|derivative)\s+(?:of\s+)?(.+?)\s+"
      r"(?:with\s+respect\s+to|göre|için)\s+([A-Za-z]\w*)",
@@ -133,15 +138,16 @@ _PATTERNS: list[tuple[str, str, Any]] = [
 
 
 def interpret(text: str) -> NLResult:
-    """Doğal dildeki bir matematik ifadesini formal göreve çevirir (tanı-ya-da-reddet).
+    """Translates a natural-language math statement into a formal task (recognize-or-refuse).
 
     ok + UNDERSTOOD → `interpretation` {task, payload, restatement}; `restatement`
-    MathHead'in ne anladığını NL olarak yeniden ifade eder (ONAYLA-sonra-güven).
-    unknown + AMBIGUOUS → birden çok yorum. error + UNRECOGNIZED → tanınmadı (tahmin YOK).
+    restates what MathHead understood in NL (CONFIRM-then-trust).
+    unknown + AMBIGUOUS → multiple interpretations. error + UNRECOGNIZED → not
+    recognized (NO guessing).
     """
     t0 = time.perf_counter()
     if not isinstance(text, str) or not text.strip():
-        return NLResult("error", "PARSE_ERROR", "boş girdi.", None, _meta(t0))
+        return NLResult("error", "PARSE_ERROR", "empty input.", None, _meta(t0))
     raw = text.strip()
     matches = []
     for pat, task, build in _PATTERNS:
@@ -155,18 +161,19 @@ def interpret(text: str) -> NLResult:
 
     if not matches:
         return NLResult("error", "UNRECOGNIZED",
-                        "tanınmadı — tahmin edilmez. Desteklenen: türev/integral/limit/"
-                        "çözme/çarpanlara ayırma/asallık/EBOB/denklik. Formal gramer de "
-                        "kullanılabilir (bkz. docs/mcp-api.md).", None, _meta(t0))
-    # Farklı GÖREVLERE eşleşme varsa belirsiz (dürüst)
+                        "not recognized — no guessing. Supported: derivative/integral/limit/"
+                        "solve/factorization/primality/GCD/equivalence. A formal grammar may "
+                        "also be used (see docs/mcp-api.md).", None, _meta(t0))
+    # If matches map to different TASKS, it is ambiguous (honest)
     distinct = {t for t, _ in matches}
     if len(distinct) > 1:
         opts = [{"task": t, "payload": p, "restatement": _restate(t, p)} for t, p in matches]
         return NLResult("unknown", "AMBIGUOUS",
-                        "birden çok yorum mümkün — lütfen netleştir ya da formal yaz.",
+                        "multiple interpretations are possible — please clarify or write it "
+                        "formally.",
                         {"candidates": opts}, _meta(t0))
     task, payload = matches[0]
     restatement = _restate(task, payload)
     return NLResult("ok", "UNDERSTOOD",
-                    f"Anladığım: {restatement}. (Güvenmeden ÖNCE bunu onayla.)",
+                    f"Understood: {restatement}. (Confirm this BEFORE trusting it.)",
                     {"task": task, "payload": payload, "restatement": restatement}, _meta(t0))

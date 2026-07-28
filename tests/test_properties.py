@@ -1,7 +1,7 @@
 """
-Property-based (özellik temelli) testler — `hypothesis` ile rastgele formüller
-üretip DEĞİŞMEZLERİ (invariants) doğrular. Amaç: motorun *güvenilirliği* —
-hiç çökmemesi, araçların birbiriyle tutarlı olması, türeticinin sağlamlığı.
+Property-based tests — generate random formulas with `hypothesis` and check
+INVARIANTS. Goal: the engine's *reliability* — never crashing, tools being
+consistent with each other, soundness of the prover.
 """
 import hypothesis.strategies as st
 from hypothesis import given, settings
@@ -24,18 +24,18 @@ def _extend(children):
     )
 
 
-# Rastgele iyi-biçimli önermeler mantığı formülü (birkaç değişken üzerinde).
+# Random well-formed propositional logic formula (over a few variables).
 formulas = st.recursive(st.sampled_from(_VARS), _extend, max_leaves=6)
 
 _KNOWN = {"valid", "invalid", "sat", "unsat", "unknown", "error"}
 _CFG = settings(max_examples=60, deadline=None)
 
 
-# ------------------------------ çökme yok --------------------------------- #
+# ------------------------------ no crash --------------------------------- #
 @_CFG
 @given(st.text(max_size=40))
 def test_never_crashes_on_arbitrary_text(s):
-    # Girdi ne olursa olsun: bilinen bir statü döner, exception fırlatmaz.
+    # Whatever the input: returns a known status, doesn't throw an exception.
     assert check_consistency([s]).status in _KNOWN
 
 
@@ -45,11 +45,11 @@ def test_simplify_never_crashes(s):
     assert simplify(s).status in {"ok", "error"}
 
 
-# ------------------ araçlar arası tutarlılık (soundness) ------------------- #
+# ------------------ cross-tool consistency (soundness) ------------------- #
 @_CFG
 @given(formulas, formulas)
 def test_entailment_iff_negation_unsat(a, b):
-    # A ⊨ B  ⟺  {A, ¬B} tutarsız  (mantığın temel özdeşliği; iki araç çapraz kontrol)
+    # A ⊨ B  ⟺  {A, ¬B} inconsistent  (fundamental logic identity; two tools cross-checked)
     ent = check_entailment([a], b)
     cons = check_consistency([a, f"not({b})"])
     assert (ent.status == "valid") == (cons.status == "unsat")
@@ -70,19 +70,19 @@ def test_enumerate_iff_consistency(a):
 @_CFG
 @given(formulas)
 def test_verdict_determinism(a):
-    # GARANTİ: aynı girdi -> aynı VERDICT (status). Tanık (witness) bir örnektir;
-    # birden çok geçerli model varsa hangisinin döndüğü değişebilir (bkz. ADR-0019).
+    # GUARANTEE: same input -> same VERDICT (status). The witness is one example;
+    # if multiple valid models exist, which one is returned may vary (see ADR-0019).
     first = check_consistency([a]).status
     for _ in range(3):
         assert check_consistency([a]).status == first
 
 
-# ------------------------- türetici sağlamlığı ---------------------------- #
+# ------------------------- prover soundness ---------------------------- #
 @_CFG
 @given(formulas, formulas)
 def test_prover_never_proves_invalid(a, b):
     p = prove_entailment([a], b)
-    if p.proof_steps is not None:                     # bir türetim kurulduysa
-        assert check_entailment([a], b).status == "valid"   # gerçekten geçerli olmalı
+    if p.proof_steps is not None:                     # if a derivation was built
+        assert check_entailment([a], b).status == "valid"   # must actually be valid
     if p.used_premises is not None:
-        assert all(i == 0 for i in p.used_premises)   # tek öncül var (indeks 0)
+        assert all(i == 0 for i in p.used_premises)   # only one premise (index 0)

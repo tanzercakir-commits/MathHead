@@ -1,8 +1,8 @@
 """
-Çok değişkenli analiz (ROADMAP Aşama 6) — gradyan/Jacobian/Hessian, belirli
-integral, toplam/çarpım (Σ/Π), sıradan diferansiyel denklem (ODE).
+Multivariable analysis (ROADMAP Phase 6) — gradient/Jacobian/Hessian, definite
+integral, sum/product (Σ/Π), ordinary differential equation (ODE).
 
-Best-case + worst-case (çözülemez ODE, kötücül girdi) + dürüstlük + determinizm.
+Best-case + worst-case (unsolvable ODE, malicious input) + honesty + determinism.
 """
 from mathhead.compute import (
     definite_integral,
@@ -41,7 +41,7 @@ def test_hessian_basic():
 
 
 def test_hessian_symmetric():
-    # Hessian simetriktir: H[0][1] == H[1][0]
+    # Hessian is symmetric: H[0][1] == H[1][0]
     r = hessian("x**3 + x*y**2", ["x", "y"])
     assert r.result[0][1] == r.result[1][0]
 
@@ -58,7 +58,7 @@ def test_definite_integral_infinite():
 
 # ------------------------------ summation --------------------------------- #
 def test_summation_closed_form():
-    # Σ_{i=1}^{n} i = n(n+1)/2 = n²/2 + n/2  (kapalı form)
+    # Σ_{i=1}^{n} i = n(n+1)/2 = n²/2 + n/2  (closed form)
     assert summation("i", "i", "1", "n").result == "n**2/2 + n/2"
 
 
@@ -88,7 +88,7 @@ def test_ode_second_order_harmonic():
 
 
 def test_ode_d_form():
-    # D(y,1) notasyonu da kabul edilir: y' = x·y -> C1·e^(x²/2)
+    # D(y,1) notation is also accepted: y' = x·y -> C1·e^(x²/2)
     r = solve_ode("D(y,1) - x*y", "y", "x")
     assert r.status == "ok"
     assert "exp(x**2/2)" in r.result
@@ -104,7 +104,7 @@ def test_ode_malicious_rejected():
     assert solve_ode("__import__('os')", "y", "x").status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_multivariable_determinism():
     for _ in range(5):
         assert gradient("x**2*y", ["x", "y"]).result == ["2*x*y", "x**2"]

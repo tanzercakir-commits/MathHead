@@ -1,10 +1,10 @@
 """
-Doğrulama katmanı II (ROADMAP I1) — kalkülüs & matris iddia türleri:
+Verification layer II (ROADMAP I1) — calculus & matrix claim types:
 verify_derivative / verify_integral / verify_limit / verify_series /
 verify_matrix_identity.
 
-AI'ın "türev/integral/limit/seri/matris" iddialarını bağımsız denetler.
-Best + worst + dürüst kenar durumları (+C sabit farkı, sembolik matris).
+Independently audits the AI's "derivative/integral/limit/series/matrix" claims.
+Best + worst + honest edge cases (+C constant difference, symbolic matrix).
 """
 from mathhead.core.verify import (
     verify_derivative,
@@ -41,7 +41,7 @@ def test_integral_correct():
 
 
 def test_integral_constant_tolerated():
-    # +C: x²+5 de geçerli antitürev (dürüst — sabit farkı hoş görülür)
+    # +C: x²+5 is also a valid antiderivative (honest — constant difference tolerated)
     assert verify_integral("2*x", "x", "x**2 + 5").status == "valid"
 
 
@@ -70,7 +70,7 @@ def test_limit_wrong():
 
 # ------------------------------ verify_series ----------------------------- #
 def test_series_correct():
-    # exp(x) 3. mertebe: 1 + x + x²/2
+    # exp(x) 3rd order: 1 + x + x²/2
     assert verify_series("exp(x)", "x", "0", 3, "x**2/2 + x + 1").status == "valid"
 
 
@@ -85,7 +85,7 @@ def test_matrix_identity_equal():
 
 
 def test_matrix_identity_symbolic_equal():
-    # a+a = 2a (sembolik denklik yakalanır)
+    # a+a = 2a (symbolic equivalence detected)
     assert verify_matrix_identity([["a + a"]], [["2*a"]]).status == "valid"
 
 
@@ -98,10 +98,10 @@ def test_matrix_identity_different_cell():
 def test_matrix_identity_dimension_mismatch():
     r = verify_matrix_identity([["1", "2"]], [["1"], ["2"]])
     assert r.status == "invalid"
-    assert "boyut" in r.explanation
+    assert "dimensions" in r.explanation
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_verify_calculus_determinism():
     for _ in range(5):
         assert verify_derivative("x**3", "x", "3*x**2").status == "valid"

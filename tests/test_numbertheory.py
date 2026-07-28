@@ -1,9 +1,9 @@
 """
-Sayı teorisi (ROADMAP Aşama 3) — gcd/lcm, asallık, çarpanlara ayırma,
-modüler ters, Çin Kalan Teoremi (CRT), doğrusal Diophantine.
+Number theory (ROADMAP Phase 3) — gcd/lcm, primality, factorization,
+modular inverse, Chinese Remainder Theorem (CRT), linear Diophantine.
 
-Best-case (bilinen değer) + worst-case (ters yok, çözümsüz sistem, sembol) +
-dürüstlük (çözüm yok → boş / hata, gizleme yok).
+Best-case (known value) + worst-case (no inverse, unsolvable system, symbol) +
+honesty (no solution → empty / error, no hiding).
 """
 from mathhead.compute import (
     chinese_remainder,
@@ -26,7 +26,7 @@ def test_lcm_basic():
 
 
 def test_gcd_accepts_ast_power():
-    # Girdi ast-whitelist ile süzülür: "2**10" = 1024 -> gcd(1024,48)=16
+    # Input filtered via ast whitelist: "2**10" = 1024 -> gcd(1024,48)=16
     assert gcd("2**10", 48).result == 16
 
 
@@ -42,7 +42,7 @@ def test_is_prime_true():
 
 
 def test_is_prime_false_composite():
-    # 91 = 7·13 (gözle asal görünür ama değil)
+    # 91 = 7·13 (looks prime at a glance but isn't)
     assert is_prime(91).result is False
 
 
@@ -58,7 +58,7 @@ def test_factorize_360():
 
 
 def test_factorize_one_is_empty():
-    # 1'in asal çarpanı yok -> boş liste (dürüst)
+    # 1 has no prime factors -> empty list (honest)
     assert factorize(1).result == []
 
 
@@ -74,11 +74,11 @@ def test_modinv_exists():
 
 
 def test_modinv_none_honest_error():
-    # gcd(4,8)=4 ≠ 1 -> ters yok, uydurma yok
+    # gcd(4,8)=4 ≠ 1 -> no inverse, no fabrication
     r = modular_inverse(4, 8)
     assert r.status == "error"
     assert r.reason_code == "COMPUTE_FAILED"
-    assert "tersi yok" in r.explanation
+    assert "no inverse" in r.explanation
 
 
 # --------------------------- chinese_remainder ---------------------------- #
@@ -90,10 +90,10 @@ def test_crt_solvable():
 
 
 def test_crt_inconsistent_honest_error():
-    # mod 4 ≡1 ve mod 6 ≡2 bağdaşmaz -> çözüm yok
+    # mod 4 ≡1 and mod 6 ≡2 incompatible -> no solution
     r = chinese_remainder([4, 6], [1, 2])
     assert r.status == "error"
-    assert "çözüm yok" in r.explanation
+    assert "no solution" in r.explanation
 
 
 def test_crt_length_mismatch_rejected():
@@ -109,7 +109,7 @@ def test_diophantine_parametric():
 
 
 def test_diophantine_no_solution():
-    # gcd(2,4)=2 ∤ 5 -> tam sayı çözüm yok (boş liste, dürüst)
+    # gcd(2,4)=2 ∤ 5 -> no integer solution (empty list, honest)
     r = linear_diophantine(2, 4, 5)
     assert r.status == "ok"
     assert r.result == []
@@ -119,7 +119,7 @@ def test_diophantine_both_zero_rejected():
     assert linear_diophantine(0, 0, 5).status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_numbertheory_determinism():
     for _ in range(5):
         assert factorize(360).result == [

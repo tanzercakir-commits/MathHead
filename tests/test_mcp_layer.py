@@ -1,10 +1,10 @@
 """
-MCP katmanı sözleşme testi (ROADMAP Aşama 8 [S]) — her `@mcp.tool()` aracı
-gerçekten çağrılır ve geçerli bir statü döndürür. Ayrıca kayıtlı araç kümesi ile
-bu testin kapsadığı küme SENKRON tutulur (yeni araç buraya eklenmezse kırılır).
+MCP layer contract test (ROADMAP Phase 8 [S]) — every `@mcp.tool()` tool is
+actually called and returns a valid status. Also, the registered tool set and
+the set this test covers are kept IN SYNC (breaks if a new tool isn't added here).
 
-Bu, MCP arayüzünün router'a doğru bağlandığını uçtan uca (in-process) doğrular
-ve server katmanının test kapsamını tamamlar. Canlı stdio testi: Aşama 11.
+This verifies end-to-end (in-process) that the MCP interface is wired correctly
+to the router and completes the server layer's test coverage. Live stdio test: Phase 11.
 """
 import asyncio
 
@@ -18,9 +18,9 @@ _VALID_STATUS = {
     "optimal", "unbounded", "verified", "refuted",
 }
 
-# Her araç için temsili argümanlar (MCP imzasına göre kwargs).
+# Representative arguments for each tool (kwargs per MCP signature).
 ARGS = {
-    # mantık
+    # logic
     "entailment": {"premises": ["p", "implies(p,q)"], "conclusion": "q"},
     "consistency": {"statements": ["x>2", "x<5"]},
     "model": {"statements": ["x>2"]},
@@ -30,11 +30,11 @@ ARGS = {
     "enumerate_models": {"statements": ["p or q"], "limit": 5},
     "optimize": {"constraints": ["x>=0", "x<=10"], "objective": "x", "sense": "max"},
     "max_satisfy": {"hard": ["p"], "soft": ["not(p)"], "weights": None},
-    # eşitsizlik & nonlineer (Z3 NRA)
+    # inequality & nonlinear (Z3 NRA)
     "prove_inequality": {"goal": "x**2 + y**2 >= 2*x*y", "assumptions": None},
     "prove_nonnegative": {"expression": "x**2 - 2*x + 1", "assumptions": None},
     "find_real_solution": {"constraints": ["x**2 + y**2 == 1", "x == y"]},
-    # doğrulama katmanı (Track C)
+    # verification layer (Track C)
     "verify_equality": {"left": "sin(x)**2 + cos(x)**2", "right": "1"},
     "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
     "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
@@ -48,7 +48,7 @@ ARGS = {
     "check_certificate": {"certificate": {"kind": "subset_sum", "numbers": [3, 4, 2],
                                           "target": 9, "indices": [0, 1, 2]}},
     "interpret_natural": {"text": "derivative of x**3 with respect to x"},
-    # hesap
+    # compute
     "simplify": {"expression": "x + x"},
     "solve": {"equation": "x**2 == 4", "symbol": "x"},
     "differentiate": {"expression": "x**3", "symbol": "x", "order": 1},
@@ -56,7 +56,7 @@ ARGS = {
     "limit": {"expression": "sin(x)/x", "symbol": "x", "point": "0", "direction": "both"},
     "series": {"expression": "exp(x)", "symbol": "x", "point": "0", "order": 5},
     "solve_system": {"equations": ["x+y==10", "x-y==2"], "symbols": ["x", "y"]},
-    # lineer cebir
+    # linear algebra
     "determinant": {"matrix": [["1", "2"], ["3", "4"]]},
     "matrix_inverse": {"matrix": [["1", "2"], ["3", "4"]]},
     "eigenvalues": {"matrix": [["2", "0"], ["0", "3"]]},
@@ -67,7 +67,7 @@ ARGS = {
     "rref": {"matrix": [["1", "2"], ["2", "4"]]},
     "nullspace": {"matrix": [["1", "2"], ["2", "4"]]},
     "lu_decomposition": {"matrix": [["4", "3"], ["6", "3"]]},
-    # sayı teorisi
+    # number theory
     "gcd": {"a": "48", "b": "36"},
     "lcm": {"a": "4", "b": "6"},
     "is_prime": {"n": "97"},
@@ -75,14 +75,14 @@ ARGS = {
     "modular_inverse": {"a": "3", "m": "11"},
     "chinese_remainder": {"moduli": ["3", "5", "7"], "residues": ["2", "3", "2"]},
     "linear_diophantine": {"a": "3", "b": "6", "c": "9"},
-    # kombinatorik
+    # combinatorics
     "permutations": {"n": "10", "k": "3"},
     "combinations": {"n": "10", "k": "3"},
     "factorial": {"n": "6"},
     "partition_count": {"n": "10"},
     "solve_recurrence": {"recurrence": "y(n)=2*y(n-1)", "func": "y", "var": "n",
                          "initial": {"0": "1"}},
-    # çok değişkenli
+    # multivariable
     "gradient": {"expression": "x**2*y", "variables": ["x", "y"]},
     "jacobian": {"expressions": ["x*y", "x+y"], "variables": ["x", "y"]},
     "hessian": {"expression": "x**2*y", "variables": ["x", "y"]},
@@ -90,13 +90,13 @@ ARGS = {
     "summation": {"expression": "i", "index": "i", "lower": "1", "upper": "n"},
     "product": {"expression": "i", "index": "i", "lower": "1", "upper": "5"},
     "solve_ode": {"equation": "y' = y", "func": "y", "var": "x"},
-    # olasılık & istatistik
+    # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},
     "standard_deviation": {"data": ["2", "4", "6"], "sample": False},
     "median": {"data": ["3", "1", "2"]},
     "distribution": {"name": "poisson", "params": ["2"], "at": None},
-    # Track B (küçük ölçek, hızlı)
+    # Track B (small scale, fast)
     "pythagorean_coloring": {"n": 10},
     "pigeonhole": {"n": 4},
     "van_der_waerden": {"n": 8, "k": 3, "colors": 2},
@@ -111,7 +111,7 @@ def _registered_names():
 
 
 def test_args_cover_all_registered_tools():
-    # Kayıtlı her araç burada temsil edilmeli (yeni araç eklenince test uyarır).
+    # Every registered tool must be represented here (test warns when a new tool is added).
     registered = _registered_names()
     covered = set(ARGS)
     assert registered == covered, (

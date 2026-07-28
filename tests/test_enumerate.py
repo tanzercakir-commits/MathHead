@@ -1,5 +1,5 @@
 """
-Model numaralandırma (all-SAT): bir formülün tüm / çoklu farklı modelleri.
+Model enumeration (all-SAT): all / multiple distinct models of a formula.
 """
 from mathhead.core.logic import enumerate_models
 
@@ -26,7 +26,7 @@ def test_xor_has_exactly_two_models():
 def test_unbounded_hits_limit_not_exhaustive():
     r = enumerate_models(["x > 0"], limit=5)
     assert r.count == 5
-    assert r.exhaustive is False   # sonsuz alan; daha fazlası var
+    assert r.exhaustive is False   # infinite domain; more exist
 
 
 def test_contradiction_has_no_models():

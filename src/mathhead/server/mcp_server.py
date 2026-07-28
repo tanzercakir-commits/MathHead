@@ -2,15 +2,15 @@
 mathhead.server.mcp_server
 ==========================
 
-MathHead'in MCP (Model Context Protocol) arayüzü. AI istemcisi (ör. Claude)
-motorun yeteneklerine SADECE buradaki araçlar (tools) üzerinden erişir. Bu
-katman "net protokol & API tanımı" prensibinin uygulama noktasıdır.
+MathHead's MCP (Model Context Protocol) interface. An AI client (e.g. Claude)
+accesses the engine's capabilities ONLY through the tools defined here. This
+layer is where the "clear protocol & API definition" principle is applied.
 
-SDK: `mcp` (FastMCP), Python 3.10+. Kurulum: `pip install "mcp[cli]"`.
-Çalıştırma (yerel): `mathhead-server`  ya da  `python -m mathhead.server.mcp_server`
+SDK: `mcp` (FastMCP), Python 3.10+. Install: `pip install "mcp[cli]"`.
+Run (locally): `mathhead-server`  or  `python -m mathhead.server.mcp_server`
 
-Akış: server -> router -> (guardrails + core/Z3). Araç imzaları ve dönüş şekli
-docs/mcp-api.md ile birebir aynıdır (ADR-0004: erken donduruldu).
+Flow: server -> router -> (guardrails + core/Z3). Tool signatures and return
+shape match docs/mcp-api.md exactly (ADR-0004: frozen early).
 """
 from __future__ import annotations
 
@@ -19,9 +19,9 @@ from typing import Any
 
 try:
     from mcp.server.fastmcp import FastMCP
-except ImportError as exc:  # guardrail: bağımlılık yoksa net mesaj
+except ImportError as exc:  # guardrail: a clear message if the dependency is missing
     raise SystemExit(
-        "MCP SDK bulunamadı. Kurulum: pip install 'mcp[cli]'  (bkz. pyproject.toml)"
+        "MCP SDK not found. Install: pip install 'mcp[cli]'  (see pyproject.toml)"
     ) from exc
 
 from mathhead.router import route
@@ -31,144 +31,145 @@ mcp = FastMCP("MathHead")
 
 @mcp.tool()
 def entailment(premises: list[str], conclusion: str) -> dict[str, Any]:
-    """Öncüller sonucu MANTIKSAL OLARAK gerektirir mi? (premises ⊨ conclusion)
+    """Do the premises LOGICALLY entail the conclusion? (premises ⊨ conclusion)
 
-    Dönüş: ReasoningResult sözlüğü. status ∈ {valid, invalid, unknown, error}.
-    invalid ise `witness` bir karşıörnek (counterexample) içerir.
-    İfade grameri için: docs/mcp-api.md.
+    Returns: a ReasoningResult dict. status ∈ {valid, invalid, unknown, error}.
+    If invalid, `witness` contains a counterexample.
+    For the expression grammar: docs/mcp-api.md.
     """
     return asdict(route("entailment", {"premises": premises, "conclusion": conclusion}))
 
 
 @mcp.tool()
 def consistency(statements: list[str]) -> dict[str, Any]:
-    """Bu ifadeler AYNI ANDA doğru olabilir mi? (tutarlılık / satisfiability)
+    """Can these statements ALL be true at once? (consistency / satisfiability)
 
-    Dönüş: status ∈ {sat, unsat, unknown, error}. sat ise `witness` örnek bir
-    atama (model); unsat ise çelişen alt küme (unsat core) döner.
+    Returns: status ∈ {sat, unsat, unknown, error}. If sat, `witness` is an
+    example assignment (model); if unsat, the conflicting subset (unsat core).
     """
     return asdict(route("consistency", {"statements": statements}))
 
 
 @mcp.tool()
 def model(statements: list[str]) -> dict[str, Any]:
-    """İfadeleri sağlayan SOMUT bir örnek (değişken ataması) döndürür.
+    """Returns a CONCRETE example (variable assignment) satisfying the statements.
 
-    Dönüş: status ∈ {sat, unsat, unknown, error}. sat ise `witness` = model.
+    Returns: status ∈ {sat, unsat, unknown, error}. If sat, `witness` = the model.
     """
     return asdict(route("find_model", {"statements": statements}))
 
 
 @mcp.tool()
 def prove(premises: list[str], conclusion: str) -> dict[str, Any]:
-    """Öncüller sonucu gerektiriyorsa NEDEN gösterir — minimal çekirdek + adım adım türetim.
+    """If the premises entail the conclusion, shows WHY — minimal core + step-by-step derivation.
 
-    valid: `used_premises` (gerekli öncüller) + `proof_steps` (önerme/yüklem/evrensel
-    parçası için kurulur; kurulamazsa Z3 kararı korunur). invalid: `witness` karşıörnek.
+    valid: `used_premises` (the required premises) + `proof_steps` (built for the
+    propositional/predicate/universal part; if it cannot be built, the Z3 verdict is
+    kept). invalid: `witness` counterexample.
     """
     return asdict(route("prove", {"premises": premises, "conclusion": conclusion}))
 
 
 @mcp.tool()
 def equivalent(a: str, b: str) -> dict[str, Any]:
-    """İki ifade mantıksal olarak DENK mi? (her atamada aynı doğruluk değeri)
+    """Are two expressions logically EQUIVALENT? (same truth value under every assignment)
 
-    status ∈ {equivalent, not_equivalent, unknown, error}. not_equivalent ise
-    `witness` = ikisinin farklı doğruluk değeri aldığı bir atama.
+    status ∈ {equivalent, not_equivalent, unknown, error}. If not_equivalent,
+    `witness` = an assignment where the two take different truth values.
     """
     return asdict(route("equivalent", {"a": a, "b": b}))
 
 
 @mcp.tool()
 def classify(formula: str) -> dict[str, Any]:
-    """Bir formülü sınıflandır: totoloji / çelişki / olumsal (contingent).
+    """Classify a formula: tautology / contradiction / contingent.
 
-    status ∈ {tautology, contradiction, contingent, unknown, error}. contingent
-    ise `witness` = onu doğru-kılan ve yanlış-kılan birer atama.
+    status ∈ {tautology, contradiction, contingent, unknown, error}. If contingent,
+    `witness` = one assignment that makes it true and one that makes it false.
     """
     return asdict(route("classify", {"formula": formula}))
 
 
 @mcp.tool()
 def enumerate_models(statements: list[str], limit: int = 10) -> dict[str, Any]:
-    """İfadeleri sağlayan FARKLI modelleri (en fazla `limit`) numaralandırır.
+    """Enumerates the DISTINCT models satisfying the statements (at most `limit`).
 
-    Dönüş: `models` (liste), `count`, `exhaustive` (True = tüm modeller bulundu;
-    False = sınıra ulaşıldı, sonsuz alanda daha fazlası olabilir).
+    Returns: `models` (list), `count`, `exhaustive` (True = all models found;
+    False = the limit was reached, and there may be more in an infinite space).
     """
     return asdict(route("enumerate", {"statements": statements, "limit": limit}))
 
 
 @mcp.tool()
 def optimize(constraints: list[str], objective: str, sense: str = "max") -> dict[str, Any]:
-    """Kısıtları sağlayıp sayısal `objective`'i en büyük/küçük (`sense`) yapan çözümü bul.
+    """Find the solution that satisfies the constraints and maximizes/minimizes (`sense`) the numeric `objective`.
 
-    Dönüş: status ∈ {optimal, unbounded, unsat, unknown, error}; optimal ise
-    `objective_value` + `witness` (optimumu sağlayan atama). (Z3 Optimize çekirdeği.)
+    Returns: status ∈ {optimal, unbounded, unsat, unknown, error}; if optimal,
+    `objective_value` + `witness` (the assignment achieving the optimum). (Z3 Optimize core.)
     """
     return asdict(route("optimize", {"constraints": constraints, "objective": objective, "sense": sense}))
 
 
 @mcp.tool()
 def max_satisfy(hard: list[str], soft: list[str], weights: list[int] | None = None) -> dict[str, Any]:
-    """Zorunlu (`hard`) kısıtları sağlayıp EN ÇOK (ağırlıklı) `soft` kısıtı sağla (MaxSAT).
+    """Satisfy the mandatory (`hard`) constraints and AS MANY (weighted) `soft` constraints as possible (MaxSAT).
 
-    Aşırı-kısıtlı/çelişen isteklerde "hepsi değil, en iyisi". Dönüş: `status`;
-    optimal ise `satisfied`/`unsatisfied` (soft indeksleri), `satisfied_weight` /
-    `total_weight`, `witness`. `hard` sağlanamazsa `unsat`.
+    For over-constrained/conflicting requests, "not all, but the best". Returns: `status`;
+    if optimal, `satisfied`/`unsatisfied` (soft indices), `satisfied_weight` /
+    `total_weight`, `witness`. If `hard` cannot be satisfied, `unsat`.
     """
     return asdict(route("maxsat", {"hard": hard, "soft": soft, "weights": weights}))
 
 
-# ----------------- Eşitsizlik ispatı & nonlineer (Z3 NRA) ----------------- #
+# ----------------- Inequality proof & nonlinear (Z3 NRA) ------------------ #
 @mcp.tool()
 def prove_inequality(goal: str, assumptions: list[str] | None = None) -> dict[str, Any]:
-    """`goal` eşitsizliği TÜM gerçel değerler için (varsayımlar altında) geçerli mi?
+    """Does the `goal` inequality hold for ALL real values (under the assumptions)?
 
-    Z3 NRA (nonlinear real): valid → her yerde doğru; invalid → `witness` karşıörnek;
-    unknown → karar verilemedi (dürüst). Ör: `"x**2 + y**2 >= 2*x*y"` → valid.
+    Z3 NRA (nonlinear real): valid → true everywhere; invalid → `witness` counterexample;
+    unknown → could not be decided (honest). E.g. `"x**2 + y**2 >= 2*x*y"` → valid.
     """
     return asdict(route("prove_inequality", {"goal": goal, "assumptions": assumptions}))
 
 
 @mcp.tool()
 def prove_nonnegative(expression: str, assumptions: list[str] | None = None) -> dict[str, Any]:
-    """`expression ≥ 0` her gerçel değer için (varsayımlar altında) geçerli mi?
+    """Does `expression ≥ 0` hold for every real value (under the assumptions)?
 
-    Kareler-toplamı benzeri negatif-olmama iddiaları (ör. `x**2 - 2*x + 1`).
+    Sum-of-squares-like non-negativity claims (e.g. `x**2 - 2*x + 1`).
     """
     return asdict(route("prove_nonnegative", {"expression": expression, "assumptions": assumptions}))
 
 
 @mcp.tool()
 def find_real_solution(constraints: list[str]) -> dict[str, Any]:
-    """Doğrusal-olmayan kısıt kümesini GERÇEL sayılarda sağlayan bir nokta bulur.
+    """Finds a point in the REALS satisfying a set of nonlinear constraints.
 
-    sat → `witness` somut çözüm; unsat → gerçel çözüm yok; unknown → karar yok.
-    Ör: `["x**2 + y**2 == 1", "x == y"]` → sat.
+    sat → `witness` a concrete solution; unsat → no real solution; unknown → no decision.
+    E.g. `["x**2 + y**2 == 1", "x == y"]` → sat.
     """
     return asdict(route("find_real_solution", {"constraints": constraints}))
 
 
-# ------------- Doğrulama katmanı (AI muhakeme denetçisi) ------------------ #
+# --------------- Verification layer (AI reasoning auditor) ---------------- #
 @mcp.tool()
 def verify_equality(left: str, right: str) -> dict[str, Any]:
-    """İki ifade DENK mi? (AI'ın "= şuna eşittir" iddiasını bağımsız denetler.)
+    """Are two expressions EQUIVALENT? (independently checks an AI's "= equals this" claim.)
 
-    valid → denk; `EQUAL_ON_COMMON_DOMAIN` → denk AMA tanım kümeleri ayrışıyor
-    (domain tuzağı, `details.domain_caveat`). invalid → `details.counterexample`.
-    unknown → karar verilemedi. Ör: `(x**2-1)/(x-1)` vs `x+1` → domain uyarısı.
+    valid → equivalent; `EQUAL_ON_COMMON_DOMAIN` → equivalent BUT the domains differ
+    (a domain trap, `details.domain_caveat`). invalid → `details.counterexample`.
+    unknown → could not be decided. E.g. `(x**2-1)/(x-1)` vs `x+1` → domain warning.
     """
     return asdict(route("verify_equality", {"left": left, "right": right}))
 
 
 @mcp.tool()
 def verify_solution(equation: str, symbol: str, claimed: list[str]) -> dict[str, Any]:
-    """`claimed` değerleri `equation`'ın çözümü MÜ ve TAM MI? (AI'ın çözüm iddiası.)
+    """Are the `claimed` values solutions of `equation`, and are they COMPLETE? (an AI's solution claim.)
 
-    valid → doğru + tam; invalid → `SOLUTION_INCORRECT` (yanlış değer) ya da
-    `SOLUTION_INCOMPLETE` (`details.missing` kaçan çözümler); unknown → değerler
-    tutar ama tamlık doğrulanamadı (ör. transandantal). Ör: x²=4, {2} → eksik (-2).
+    valid → correct + complete; invalid → `SOLUTION_INCORRECT` (wrong value) or
+    `SOLUTION_INCOMPLETE` (`details.missing` the missed solutions); unknown → the values
+    hold but completeness could not be verified (e.g. transcendental). E.g. x²=4, {2} → incomplete (-2).
     """
     return asdict(route("verify_solution", {"equation": equation, "symbol": symbol,
                                             "claimed": claimed}))
@@ -176,32 +177,32 @@ def verify_solution(equation: str, symbol: str, claimed: list[str]) -> dict[str,
 
 @mcp.tool()
 def verify_steps(steps: list[str]) -> dict[str, Any]:
-    """Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur.
+    """In a chain of expressions, is each step EQUIVALENT to the previous — finds the first bad transition.
 
-    (AI'ın adım adım çözümünü "not verir".) valid → tümü denk; invalid →
-    `details.first_bad_step` (1-tabanlı) + karşıörnek. Ör: `(x+1)**2` → `x**2+1`
-    HATALI (2. adımda kırılır).
+    (It "grades" an AI's step-by-step solution.) valid → all equivalent; invalid →
+    `details.first_bad_step` (1-based) + counterexample. E.g. `(x+1)**2` → `x**2+1`
+    is WRONG (breaks at step 2).
     """
     return asdict(route("verify_steps", {"steps": steps}))
 
 
 @mcp.tool()
 def cross_check(left: str, right: str) -> dict[str, Any]:
-    """`left = right` iddiasını Z3 VE SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
+    """Verifies the `left = right` claim INDEPENDENTLY with Z3 AND SymPy; seeks consensus.
 
-    İki bağımsız motorun anlaşması, tek-motorlu rakiplerin veremeyeceği güven
-    sinyalidir. `CONSENSUS_EQUAL`/`CONSENSUS_NOT_EQUAL` → mutabakat; `ENGINES_DISAGREE`
-    → motorlar çelişiyor (genelde domain/tanım kümesi tuzağı — insana bayrak);
-    `SINGLE_ENGINE` → yalnız biri karar verdi (ör. transandantal → yalnız SymPy).
+    Agreement between two independent engines is a trust signal that single-engine
+    rivals cannot provide. `CONSENSUS_EQUAL`/`CONSENSUS_NOT_EQUAL` → consensus; `ENGINES_DISAGREE`
+    → the engines conflict (usually a domain trap — flag for a human);
+    `SINGLE_ENGINE` → only one decided (e.g. transcendental → SymPy only).
     """
     return asdict(route("cross_check", {"left": left, "right": right}))
 
 
 @mcp.tool()
 def verify_derivative(expression: str, symbol: str, claimed: str, order: int = 1) -> dict[str, Any]:
-    """`d^order/d{symbol}^order (expression)` gerçekten `claimed` mı? (AI türev iddiası.)
+    """Is `d^order/d{symbol}^order (expression)` really `claimed`? (an AI derivative claim.)
 
-    valid → doğru; invalid → `details.correct` doğru türev + karşıörnek; unknown.
+    valid → correct; invalid → `details.correct` the correct derivative + counterexample; unknown.
     """
     return asdict(route("verify_derivative", {"expression": expression, "symbol": symbol,
                                               "claimed": claimed, "order": order}))
@@ -209,9 +210,9 @@ def verify_derivative(expression: str, symbol: str, claimed: str, order: int = 1
 
 @mcp.tool()
 def verify_integral(expression: str, symbol: str, claimed: str) -> dict[str, Any]:
-    """`∫ expression d{symbol}` gerçekten `claimed` mı? (+C sabit farkı hoş görülür.)
+    """Is `∫ expression d{symbol}` really `claimed`? (a +C constant difference is tolerated.)
 
-    Dürüst yöntem: `claimed`'ın türevi `expression`'a eşit mi bakılır.
+    Honest method: it checks whether the derivative of `claimed` equals `expression`.
     """
     return asdict(route("verify_integral", {"expression": expression, "symbol": symbol,
                                             "claimed": claimed}))
@@ -219,7 +220,7 @@ def verify_integral(expression: str, symbol: str, claimed: str) -> dict[str, Any
 
 @mcp.tool()
 def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> dict[str, Any]:
-    """`lim {symbol}→{point} expression` gerçekten `claimed` mı? (`point`/`claimed` `oo` olabilir.)"""
+    """Is `lim {symbol}→{point} expression` really `claimed`? (`point`/`claimed` may be `oo`.)"""
     return asdict(route("verify_limit", {"expression": expression, "symbol": symbol,
                                          "point": point, "claimed": claimed}))
 
@@ -227,72 +228,72 @@ def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> dict
 @mcp.tool()
 def verify_series(expression: str, symbol: str, point: str, order: int,
                   claimed: str) -> dict[str, Any]:
-    """`expression`'ın `{symbol}={point}` civarı `order`. mertebe Taylor açılımı `claimed` mı?"""
+    """Is the order-`order` Taylor expansion of `expression` around `{symbol}={point}` really `claimed`?"""
     return asdict(route("verify_series", {"expression": expression, "symbol": symbol,
                                           "point": point, "order": order, "claimed": claimed}))
 
 
 @mcp.tool()
 def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> dict[str, Any]:
-    """İki matris (sembolik hücreler dahil) EŞİT mi? Boyut/ilk farklı hücre raporlanır."""
+    """Are two matrices (including symbolic cells) EQUAL? Dimension/first differing cell is reported."""
     return asdict(route("verify_matrix_identity", {"left": left, "right": right}))
 
 
 @mcp.tool()
 def interpret_natural(text: str) -> dict[str, Any]:
-    """Doğal dildeki matematik ifadesini FORMAL göreve çevirir (tanı-ya-da-reddet).
+    """Turns a natural-language math expression into a FORMAL task (recognize-or-reject).
 
-    "2. duvara" (fazla varsayım) panzehir: TAHMİN ETMEZ. ok+`UNDERSTOOD` →
-    `interpretation` {task, payload, **restatement**} — restatement, ne anlaşıldığının
-    NL yeniden ifadesidir (GÜVENMEDEN ÖNCE onayla, sonra o task+payload'ı çağır).
-    unknown+`AMBIGUOUS` → birden çok yorum; error+`UNRECOGNIZED` → tanınmadı (formal yaz).
-    Bilingual (TR+EN): türev/integral/limit/çözme/çarpanlara ayırma/asallık/EBOB/denklik.
+    An antidote to "wall #2" (over-assumption): it does NOT GUESS. ok+`UNDERSTOOD` →
+    `interpretation` {task, payload, **restatement**} — the restatement is an NL
+    re-statement of what was understood (CONFIRM BEFORE TRUSTING, then call that task+payload).
+    unknown+`AMBIGUOUS` → multiple interpretations; error+`UNRECOGNIZED` → not recognized (write it formally).
+    Bilingual (TR+EN): derivative/integral/limit/solving/factoring/primality/GCD/equivalence.
     """
     return asdict(route("interpret_natural", {"text": text}))
 
 
 @mcp.tool()
 def check_certificate(certificate: dict[str, Any]) -> dict[str, Any]:
-    """Bir sonucu ÜRETEN motordan (Z3/SymPy) BAĞIMSIZ, yalnız stdlib ile doğrular.
+    """Verifies a result INDEPENDENTLY of the engine that PRODUCED it (Z3/SymPy), using stdlib only.
 
-    "Bize güvenme, checker'ı çalıştır." status: `verified` (tutuyor) / `refuted`
-    (sonuç YANLIŞ) / `error`. Türler: `subset_sum`, `graph_coloring`, `solution`,
-    `not_equal`, `inequality_counterexample`. Aritmetik mümkünse tam (Fraction),
-    değilse sayısal (float+tolerans, `exact=false`).
+    "Don't trust us, run the checker." status: `verified` (holds) / `refuted`
+    (result is WRONG) / `error`. Kinds: `subset_sum`, `graph_coloring`, `solution`,
+    `not_equal`, `inequality_counterexample`. Arithmetic is exact when possible (Fraction),
+    otherwise numeric (float+tolerance, `exact=false`).
     """
     return asdict(route("check_certificate", {"certificate": certificate}))
 
 
-# --------------------------- Hesap (SymPy) -------------------------------- #
+# -------------------------- Computation (SymPy) --------------------------- #
 @mcp.tool()
 def simplify(expression: str) -> dict[str, Any]:
-    """Bir cebirsel ifadeyi sadeleştirir (ör. 'sin(x)**2 + cos(x)**2' -> '1')."""
+    """Simplifies an algebraic expression (e.g. 'sin(x)**2 + cos(x)**2' -> '1')."""
     return asdict(route("simplify", {"expression": expression}))
 
 
 @mcp.tool()
 def solve(equation: str, symbol: str) -> dict[str, Any]:
-    """Bir denklemi bir değişken için çözer (ör. 'x**2 == 4', symbol='x')."""
+    """Solves an equation for a variable (e.g. 'x**2 == 4', symbol='x')."""
     return asdict(route("solve", {"equation": equation, "symbol": symbol}))
 
 
 @mcp.tool()
 def differentiate(expression: str, symbol: str, order: int = 1) -> dict[str, Any]:
-    """İfadenin `symbol`'e göre `order`. mertebeden türevini alır."""
+    """Takes the order-th derivative of the expression with respect to `symbol`."""
     return asdict(route("differentiate", {"expression": expression, "symbol": symbol, "order": order}))
 
 
 @mcp.tool()
 def integrate(expression: str, symbol: str) -> dict[str, Any]:
-    """İfadenin `symbol`'e göre belirsiz integralini alır (+C)."""
+    """Takes the indefinite integral of the expression w.r.t. `symbol` (+C)."""
     return asdict(route("integrate", {"expression": expression, "symbol": symbol}))
 
 
 @mcp.tool()
 def limit(expression: str, symbol: str, point: str = "0", direction: str = "both") -> dict[str, Any]:
-    """`symbol` → `point` iken ifadenin limiti. direction: both | + | - (tek yön).
+    """Limit of the expression as `symbol` → `point`. direction: both | + | - (one-sided).
 
-    `point` sonsuz olabilir ("oo" / "-oo"). Ör: 'sin(x)/x', x→0 = 1; '1/x', x→oo = 0.
+    `point` may be infinite ("oo" / "-oo"). E.g. 'sin(x)/x', x→0 = 1; '1/x', x→oo = 0.
     """
     return asdict(route("limit", {"expression": expression, "symbol": symbol,
                                   "point": point, "direction": direction}))
@@ -300,9 +301,9 @@ def limit(expression: str, symbol: str, point: str = "0", direction: str = "both
 
 @mcp.tool()
 def series(expression: str, symbol: str, point: str = "0", order: int = 6) -> dict[str, Any]:
-    """İfadenin `symbol`=`point` etrafında `order`. mertebeden Taylor/seri açılımı.
+    """Taylor/series expansion of the expression around `symbol`=`point` to order `order`.
 
-    Ör: 'exp(x)', x=0, order=5 → 'x**4/24 + x**3/6 + x**2/2 + x + 1'.
+    E.g. 'exp(x)', x=0, order=5 → 'x**4/24 + x**3/6 + x**2/2 + x + 1'.
     """
     return asdict(route("series", {"expression": expression, "symbol": symbol,
                                    "point": point, "order": order}))
@@ -310,206 +311,206 @@ def series(expression: str, symbol: str, point: str = "0", order: int = 6) -> di
 
 @mcp.tool()
 def solve_system(equations: list[str], symbols: list[str]) -> dict[str, Any]:
-    """Bir denklem SİSTEMİNİ birden çok değişken için çözer.
+    """Solves a SYSTEM of equations for multiple variables.
 
-    Dönüş: `result` = çözüm sözlükleri listesi. Boş liste = çözüm yok; birden çok
-    sözlük = birden çok çözüm; serbest değişken parametrik olarak görünür (dürüst).
+    Returns: `result` = a list of solution dicts. Empty list = no solution; multiple
+    dicts = multiple solutions; free variables appear parametrically (honest).
     """
     return asdict(route("solve_system", {"equations": equations, "symbols": symbols}))
 
 
-# -------------------------- Lineer cebir (matris) ------------------------- #
+# ----------------------- Linear algebra (matrices) ------------------------ #
 @mcp.tool()
 def determinant(matrix: list[list[str]]) -> dict[str, Any]:
-    """Kare bir matrisin determinantı. Hücreler sayısal veya sembolik olabilir.
+    """Determinant of a square matrix. Cells may be numeric or symbolic.
 
-    Ör: [["1","2"],["3","4"]] → "-2"; [["a","b"],["c","d"]] → "a*d - b*c".
+    E.g. [["1","2"],["3","4"]] → "-2"; [["a","b"],["c","d"]] → "a*d - b*c".
     """
     return asdict(route("determinant", {"matrix": matrix}))
 
 
 @mcp.tool()
 def matrix_inverse(matrix: list[list[str]]) -> dict[str, Any]:
-    """Kare bir matrisin tersi (A⁻¹). Tekil (singular, det=0) ise DÜRÜSTÇE hata.
+    """Inverse of a square matrix (A⁻¹). If singular (det=0), an HONEST error.
 
-    Dönüş: `result` = ters matris (satır listeleri). Tersinir değilse status=error.
+    Returns: `result` = the inverse matrix (row lists). If not invertible, status=error.
     """
     return asdict(route("matrix_inverse", {"matrix": matrix}))
 
 
 @mcp.tool()
 def eigenvalues(matrix: list[list[str]]) -> dict[str, Any]:
-    """Kare bir matrisin özdeğerleri (eigenvalue) + cebirsel katlılık (multiplicity).
+    """Eigenvalues of a square matrix + algebraic multiplicity.
 
-    Dönüş: `result` = [{"value": ..., "multiplicity": n}, ...]. Karmaşık/irrasyonel
-    değerler tam formda döner (ör. "I", "sqrt(2)"); değer str'e göre sıralı.
+    Returns: `result` = [{"value": ..., "multiplicity": n}, ...]. Complex/irrational
+    values are returned in exact form (e.g. "I", "sqrt(2)"); sorted by value as str.
     """
     return asdict(route("eigenvalues", {"matrix": matrix}))
 
 
 @mcp.tool()
 def matrix_rank(matrix: list[list[str]]) -> dict[str, Any]:
-    """Bir matrisin rankı (doğrusal bağımsız satır/sütun sayısı). Kare olması şart değil."""
+    """Rank of a matrix (number of linearly independent rows/columns). Need not be square."""
     return asdict(route("matrix_rank", {"matrix": matrix}))
 
 
 @mcp.tool()
 def matrix_multiply(a: list[list[str]], b: list[list[str]]) -> dict[str, Any]:
-    """İki matrisin çarpımı A·B. İç boyutlar (A sütun = B satır) uyumsuzsa dürüst hata."""
+    """Product of two matrices A·B. If inner dimensions (A columns = B rows) mismatch, an honest error."""
     return asdict(route("matrix_multiply", {"a": a, "b": b}))
 
 
 @mcp.tool()
 def matrix_solve(matrix: list[list[str]], rhs: list[str]) -> dict[str, Any]:
-    """`A x = b` doğrusal sistemini matris formunda çözer.
+    """Solves the linear system `A x = b` in matrix form.
 
-    Dönüş: `result` = çözüm sözlükleri (`x0,x1,...`). Boş = çözüm yok (tutarsız);
-    serbest değişken parametrik görünür (dürüst).
+    Returns: `result` = solution dicts (`x0,x1,...`). Empty = no solution (inconsistent);
+    free variables appear parametrically (honest).
     """
     return asdict(route("matrix_solve", {"matrix": matrix, "rhs": rhs}))
 
 
 @mcp.tool()
 def eigenvectors(matrix: list[list[str]]) -> dict[str, Any]:
-    """Özdeğer + cebirsel katlılık + özvektör(ler). Özdeğere göre sıralı (determinizm)."""
+    """Eigenvalue + algebraic multiplicity + eigenvector(s). Sorted by eigenvalue (determinism)."""
     return asdict(route("eigenvectors", {"matrix": matrix}))
 
 
 @mcp.tool()
 def rref(matrix: list[list[str]]) -> dict[str, Any]:
-    """İndirgenmiş satır eşelon form (RREF) + pivot sütun indeksleri."""
+    """Reduced row echelon form (RREF) + pivot column indices."""
     return asdict(route("rref", {"matrix": matrix}))
 
 
 @mcp.tool()
 def nullspace(matrix: list[list[str]]) -> dict[str, Any]:
-    """Boş uzayın (null space / çekirdek) bir tabanı. Boş liste = yalnız sıfır (trivial)."""
+    """A basis of the null space (kernel). Empty list = only zero (trivial)."""
     return asdict(route("nullspace", {"matrix": matrix}))
 
 
 @mcp.tool()
 def lu_decomposition(matrix: list[list[str]]) -> dict[str, Any]:
-    """LU ayrıştırma: A = P·L·U. Dönüş: `L`, `U` matrisleri + `perm` (satır takasları)."""
+    """LU decomposition: A = P·L·U. Returns: `L`, `U` matrices + `perm` (row swaps)."""
     return asdict(route("lu_decomposition", {"matrix": matrix}))
 
 
-# ---------------------------- Sayı teorisi -------------------------------- #
+# ----------------------------- Number theory ------------------------------ #
 @mcp.tool()
 def gcd(a: str, b: str) -> dict[str, Any]:
-    """İki tam sayının en büyük ortak böleni (GCD)."""
+    """Greatest common divisor of two integers (GCD)."""
     return asdict(route("gcd", {"a": a, "b": b}))
 
 
 @mcp.tool()
 def lcm(a: str, b: str) -> dict[str, Any]:
-    """İki tam sayının en küçük ortak katı (LCM)."""
+    """Least common multiple of two integers (LCM)."""
     return asdict(route("lcm", {"a": a, "b": b}))
 
 
 @mcp.tool()
 def is_prime(n: str) -> dict[str, Any]:
-    """`n` asal mı? (deterministik asallık testi). Dönüş: `result` = true/false."""
+    """Is `n` prime? (deterministic primality test). Returns: `result` = true/false."""
     return asdict(route("is_prime", {"n": n}))
 
 
 @mcp.tool()
 def factorize(n: str) -> dict[str, Any]:
-    """`n`'i asal çarpanlarına ayırır. Dönüş: `[{"prime":p,"exponent":e}, ...]` (artan)."""
+    """Factorizes `n` into primes. Returns: `[{"prime":p,"exponent":e}, ...]` (ascending)."""
     return asdict(route("factorize", {"n": n}))
 
 
 @mcp.tool()
 def modular_inverse(a: str, m: str) -> dict[str, Any]:
-    """`a`'nın `m` modülünde çarpımsal tersi. Yoksa (gcd(a,m)≠1) dürüst hata."""
+    """Multiplicative inverse of `a` modulo `m`. If none (gcd(a,m)≠1), an honest error."""
     return asdict(route("modular_inverse", {"a": a, "m": m}))
 
 
 @mcp.tool()
 def chinese_remainder(moduli: list[str], residues: list[str]) -> dict[str, Any]:
-    """Çin Kalan Teoremi (CRT): x ≡ residues[i] (mod moduli[i]). Bağdaşmazsa dürüst hata.
+    """Chinese Remainder Theorem (CRT): x ≡ residues[i] (mod moduli[i]). If incompatible, an honest error.
 
-    Dönüş: `result` = {"x": ..., "modulus": ...} (en küçük negatif-olmayan çözüm).
+    Returns: `result` = {"x": ..., "modulus": ...} (smallest non-negative solution).
     """
     return asdict(route("chinese_remainder", {"moduli": moduli, "residues": residues}))
 
 
 @mcp.tool()
 def linear_diophantine(a: str, b: str, c: str) -> dict[str, Any]:
-    """`a·x + b·y = c` denklemini TAM SAYILARDA çözer (parametre `t_0`).
+    """Solves the equation `a·x + b·y = c` over INTEGERS (parameter `t_0`).
 
-    Boş liste = tam sayı çözüm yok (gcd(a,b) ∤ c) — dürüst.
+    Empty list = no integer solution (gcd(a,b) ∤ c) — honest.
     """
     return asdict(route("linear_diophantine", {"a": a, "b": b, "c": c}))
 
 
-# ------------------------ Kombinatorik & ayrık ---------------------------- #
+# ------------------------ Combinatorics & discrete ------------------------ #
 @mcp.tool()
 def permutations(n: str, k: str) -> dict[str, Any]:
-    """P(n,k) — `n` nesneden `k`'lı sıralı seçim sayısı (k>n ise 0)."""
+    """P(n,k) — the number of ordered selections of `k` from `n` objects (0 if k>n)."""
     return asdict(route("permutations", {"n": n, "k": k}))
 
 
 @mcp.tool()
 def combinations(n: str, k: str) -> dict[str, Any]:
-    """C(n,k) — `n` nesneden `k`'lı sırasız seçim sayısı (binom katsayısı)."""
+    """C(n,k) — the number of unordered selections of `k` from `n` objects (binomial coefficient)."""
     return asdict(route("combinations", {"n": n, "k": k}))
 
 
 @mcp.tool()
 def factorial(n: str) -> dict[str, Any]:
-    """n! — ilk `n` pozitif tam sayının çarpımı (0! = 1)."""
+    """n! — the product of the first `n` positive integers (0! = 1)."""
     return asdict(route("factorial", {"n": n}))
 
 
 @mcp.tool()
 def partition_count(n: str) -> dict[str, Any]:
-    """p(n) — `n`'i pozitif tam sayı toplamı olarak yazma yollarının sayısı."""
+    """p(n) — the number of ways to write `n` as a sum of positive integers."""
     return asdict(route("partition_count", {"n": n}))
 
 
 @mcp.tool()
 def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
                      initial: dict[str, str] | None = None) -> dict[str, Any]:
-    """Doğrusal özyineleme bağıntısını KAPALI FORMA çözer.
+    """Solves a linear recurrence relation to CLOSED FORM.
 
-    Ör: `recurrence="y(n) = y(n-1) + y(n-2)"`, `initial={"0":"0","1":"1"}` →
-    Fibonacci kapalı formu. Kapalı form yoksa (ör. doğrusal olmayan) dürüst hata.
+    E.g. `recurrence="y(n) = y(n-1) + y(n-2)"`, `initial={"0":"0","1":"1"}` →
+    the closed form of Fibonacci. If there is no closed form (e.g. nonlinear), an honest error.
     """
     return asdict(route("solve_recurrence", {"recurrence": recurrence, "func": func,
                                              "var": var, "initial": initial}))
 
 
-# --------------------- Çok değişkenli analiz ------------------------------ #
+# ------------------------- Multivariable calculus ------------------------- #
 @mcp.tool()
 def gradient(expression: str, variables: list[str]) -> dict[str, Any]:
-    """∇f — `expression`'ın her değişkene göre kısmi türevleri (liste)."""
+    """∇f — partial derivatives of `expression` w.r.t. each variable (list)."""
     return asdict(route("gradient", {"expression": expression, "variables": variables}))
 
 
 @mcp.tool()
 def jacobian(expressions: list[str], variables: list[str]) -> dict[str, Any]:
-    """Jacobian matrisi — vektör-değerli fonksiyonun kısmi türev matrisi."""
+    """Jacobian matrix — the partial-derivative matrix of a vector-valued function."""
     return asdict(route("jacobian", {"expressions": expressions, "variables": variables}))
 
 
 @mcp.tool()
 def hessian(expression: str, variables: list[str]) -> dict[str, Any]:
-    """Hessian matrisi — skaler fonksiyonun ikinci kısmi türev matrisi (simetrik)."""
+    """Hessian matrix — the second partial-derivative matrix of a scalar function (symmetric)."""
     return asdict(route("hessian", {"expression": expression, "variables": variables}))
 
 
 @mcp.tool()
 def definite_integral(expression: str, symbol: str, lower: str, upper: str) -> dict[str, Any]:
-    """Belirli integral ∫ₐᵇ f dx. Sınırlar sonsuz olabilir ("oo"/"-oo")."""
+    """Definite integral ∫ₐᵇ f dx. Bounds may be infinite ("oo"/"-oo")."""
     return asdict(route("definite_integral", {"expression": expression, "symbol": symbol,
                                               "lower": lower, "upper": upper}))
 
 
 @mcp.tool()
 def summation(expression: str, index: str, lower: str, upper: str) -> dict[str, Any]:
-    """Toplam Σ — `index`=lower..upper için `expression` toplamı (kapalı form olabilir).
+    """Summation Σ — sum of `expression` for `index`=lower..upper (may be closed form).
 
-    Ör: `"i", "i", "1", "n"` → `n**2/2 + n/2`.
+    E.g. `"i", "i", "1", "n"` → `n**2/2 + n/2`.
     """
     return asdict(route("summation", {"expression": expression, "index": index,
                                       "lower": lower, "upper": upper}))
@@ -517,114 +518,114 @@ def summation(expression: str, index: str, lower: str, upper: str) -> dict[str, 
 
 @mcp.tool()
 def product(expression: str, index: str, lower: str, upper: str) -> dict[str, Any]:
-    """Çarpım Π — `index`=lower..upper için `expression` çarpımı."""
+    """Product Π — product of `expression` for `index`=lower..upper."""
     return asdict(route("product", {"expression": expression, "index": index,
                                     "lower": lower, "upper": upper}))
 
 
 @mcp.tool()
 def solve_ode(equation: str, func: str = "y", var: str = "x") -> dict[str, Any]:
-    """Sıradan diferansiyel denklemi (ODE) çözer. Türev: `y'`, `y''` (üs işareti).
+    """Solves an ordinary differential equation (ODE). Derivative: `y'`, `y''` (prime).
 
-    Ör: `"y' = y"` → `Eq(y(x), C1*exp(x))`. Çözülemezse dürüst hata.
+    E.g. `"y' = y"` → `Eq(y(x), C1*exp(x))`. If it cannot be solved, an honest error.
     """
     return asdict(route("solve_ode", {"equation": equation, "func": func, "var": var}))
 
 
-# --------------------- Olasılık & istatistik ------------------------------ #
+# ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:
-    """Bir sayı listesinin aritmetik ortalaması (tam/rasyonel)."""
+    """Arithmetic mean of a list of numbers (exact/rational)."""
     return asdict(route("mean", {"data": data}))
 
 
 @mcp.tool()
 def variance(data: list[str], sample: bool = False) -> dict[str, Any]:
-    """Varyans. sample=True → örneklem (n-1); aksi halde yığın (n)."""
+    """Variance. sample=True → sample (n-1); otherwise population (n)."""
     return asdict(route("variance", {"data": data, "sample": sample}))
 
 
 @mcp.tool()
 def standard_deviation(data: list[str], sample: bool = False) -> dict[str, Any]:
-    """Standart sapma = √varyans (sample seçeneği variance ile aynı)."""
+    """Standard deviation = √variance (the sample option is the same as variance)."""
     return asdict(route("standard_deviation", {"data": data, "sample": sample}))
 
 
 @mcp.tool()
 def median(data: list[str]) -> dict[str, Any]:
-    """Ortanca. Çift sayıda gözlemde ortadaki ikinin ortalaması."""
+    """Median. With an even number of observations, the mean of the middle two."""
     return asdict(route("median", {"data": data}))
 
 
 @mcp.tool()
 def distribution(name: str, params: list[str], at: str | None = None) -> dict[str, Any]:
-    """Adlandırılmış dağılımın E[X]/Var/std (sembolik/tam) özellikleri.
+    """E[X]/Var/std (symbolic/exact) properties of a named distribution.
 
-    `at` verilirse `P(X ≤ at)` (cdf) + yoğunluk/pmf eklenir. Desteklenen:
+    If `at` is given, `P(X ≤ at)` (cdf) + density/pmf are added. Supported:
     normal(mu,sigma), binomial(n,p), poisson(lambda), exponential(rate),
     uniform(a,b), bernoulli(p), geometric(p).
     """
     return asdict(route("distribution", {"name": name, "params": params, "at": at}))
 
 
-# ------------------- Frontier / Track B (SAT indirgeme) ------------------- #
+# ------------------- Frontier / Track B (SAT reduction) ------------------- #
 @mcp.tool()
 def pythagorean_coloring(n: int) -> dict[str, Any]:
-    """{1..n}'i 2 renge, tek renkli Pythagoras üçlüsü olmadan boyamayı dener.
+    """Tries to 2-color {1..n} with no monochromatic Pythagorean triple.
 
-    Track B gösterimi: sat -> boyama bulundu; unsat -> imkânsızlık ispatı.
-    (2016'da n=7825'i çözen ~200 TB'lık ispatın aynı kodlaması; küçük ölçek.)
+    A Track B demonstration: sat -> a coloring was found; unsat -> an impossibility proof.
+    (The same encoding as the ~200 TB proof that settled n=7825 in 2016; small scale.)
     """
     return asdict(route("pythagorean_coloring", {"n": n}))
 
 
 @mcp.tool()
 def pigeonhole(n: int) -> dict[str, Any]:
-    """`n+1` güvercinin `n` kutuya sığamayacağını ispatlar (güvercin yuvası ilkesi)."""
+    """Proves that `n+1` pigeons cannot fit into `n` holes (the pigeonhole principle)."""
     return asdict(route("pigeonhole", {"n": n}))
 
 
 @mcp.tool()
 def van_der_waerden(n: int, k: int, colors: int = 2) -> dict[str, Any]:
-    """{1..n}'i `colors` renge, tek renkli k-terimli aritmetik dizi olmadan boyamayı dener.
+    """Tries to `colors`-color {1..n} with no monochromatic k-term arithmetic progression.
 
-    van der Waerden sayısı W(colors,k) hesabının çekirdeği: `unsat` -> n ≥ W (ispat).
-    Bilinen W değerleri bu yöntemle hesaplandı; büyük/açık değerler `unknown` döner.
+    The core of computing the van der Waerden number W(colors,k): `unsat` -> n ≥ W (a proof).
+    Known W values were computed with this method; large/open values return `unknown`.
     """
     return asdict(route("van_der_waerden", {"n": n, "k": k, "colors": colors}))
 
 
 @mcp.tool()
 def schur_number(n: int, colors: int) -> dict[str, Any]:
-    """{1..n}'i `colors` sum-free renge bölmeyi dener (Schur sayısı S(colors) çekirdeği).
+    """Tries to partition {1..n} into `colors` sum-free colors (the core of the Schur number S(colors)).
 
-    `unsat` -> n > S(colors) (ispat). Bilinen: S(2)=4, S(3)=13, S(4)=44, S(5)=160;
-    S(6) açık.
+    `unsat` -> n > S(colors) (a proof). Known: S(2)=4, S(3)=13, S(4)=44, S(5)=160;
+    S(6) is open.
     """
     return asdict(route("schur_number", {"n": n, "colors": colors}))
 
 
 @mcp.tool()
 def graph_coloring(edges: list[list[int]], colors: int, n: int | None = None) -> dict[str, Any]:
-    """Grafı `colors` renge boyar (komşular farklı). NP-tam graph k-coloring.
+    """Colors a graph with `colors` colors (neighbors differ). NP-complete graph k-coloring.
 
-    `sat` → boyama (BAĞIMSIZ doğrulanmış, `meta.verified`); `unsat` → kromatik
-    sayı > colors. Köşeler 1-indeksli; kenarlar `[[u,v],...]`.
+    `sat` → a coloring (INDEPENDENTLY verified, `meta.verified`); `unsat` → chromatic
+    number > colors. Vertices are 1-indexed; edges `[[u,v],...]`.
     """
     return asdict(route("graph_coloring", {"edges": edges, "colors": colors, "n": n}))
 
 
 @mcp.tool()
 def subset_sum(numbers: list[int], target: int) -> dict[str, Any]:
-    """`numbers`'ın bir alt kümesi `target`'a toplanır mı? (NP-tam subset-sum).
+    """Does a subset of `numbers` sum to `target`? (NP-complete subset-sum).
 
-    `sat` → toplayan alt küme (BAĞIMSIZ doğrulanmış sertifika); `unsat` → yok.
+    `sat` → the summing subset (an INDEPENDENTLY verified certificate); `unsat` → none.
     """
     return asdict(route("subset_sum", {"numbers": numbers, "target": target}))
 
 
 def main() -> None:
-    """Sunucuyu stdio üzerinden başlatır (yerel MCP istemcileri için)."""
+    """Starts the server over stdio (for local MCP clients)."""
     mcp.run(transport="stdio")
 
 

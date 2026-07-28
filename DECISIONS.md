@@ -1,273 +1,272 @@
-# MathHead — Karar Günlüğü (ADR)
+# MathHead — Decision Log (ADR)
 
-> **Bu dosyanın işi:** Projenin yönünü belirleyen kararları *gerekçesiyle* saklamak.
-> Senin çalışma prensiplerindeki **1. duvara** (bağlam kaybı — "devir teslim
-> belgesine hiç girmeyen düzinelerce küçük tasarım kararı") doğrudan panzehir.
-> Küçük görünen bir karar bile buraya yazılır; böylece 6 ay sonra "neden böyle
-> yapmıştık?" sorusunun cevabı kaybolmaz.
+> **This file's job:** to store the decisions that shape the project's direction *with their rationale*.
+> A direct antidote to **wall #1** in your working principles (context loss — "dozens of small design
+> decisions that never make it into the handover document"). Even a decision that looks small is
+> written here; so that 6 months later the answer to "why did we do it this way?" isn't lost.
 >
-> **Format (ADR = Architecture Decision Record):** her karar; Durum, Bağlam,
-> Karar, Sonuçlar. Kararlar *değiştirilmez*; fikir değişirse yeni ADR açıp eskisini
-> "yerini alan" (superseded) diye işaretleriz.
+> **Format (ADR = Architecture Decision Record):** each decision has Status, Context,
+> Decision, Consequences. Decisions are *not changed*; if the thinking changes, we open a new ADR and
+> mark the old one as "superseded".
 
 ---
 
-## ADR-0001 — Sıfırdan FOL motoru yerine kanıtlanmış çözücü orkestrasyonu
+## ADR-0001 — Orchestrating a proven solver instead of a from-scratch FOL engine
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** "First-order logic temelli" motor iki yolla kurulabilir: (a) resolution/
-  unification çekirdeğini sıfırdan yazmak, (b) olgun bir çözücüyü sarmalamak.
-- **Karar:** (b). Sıfırdan yazmak öğretici ama yavaş, hataya açık ve bakım yükü
-  ağır; olgun çözücüler on yılların mühendisliğini taşıyor.
-- **Sonuçlar:** Hız ve güvenilirlik kazanılır; "motorun içini birebir biz yazdık"
-  öğrenme değeri feda edilir. Çözücü bir bağımlılık olur (sürüm yönetimi gerekir).
+- **Status:** Accepted · 2026-07-28
+- **Context:** A "first-order-logic-based" engine can be built two ways: (a) writing a resolution/
+  unification core from scratch, (b) wrapping a mature solver.
+- **Decision:** (b). Writing from scratch is instructive but slow, error-prone, and a heavy
+  maintenance burden; mature solvers carry decades of engineering.
+- **Consequences:** We gain speed and reliability; we give up the learning value of "we wrote the
+  engine's internals ourselves". The solver becomes a dependency (version management is needed).
 
-## ADR-0002 — Mantık çekirdeği = Z3 (SMT), hesap = SymPy (CAS)
+## ADR-0002 — Logic core = Z3 (SMT), compute = SymPy (CAS)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** İki farklı iş var — *akıl yürütme/ispat* (bir ifade geçerli mi) ve
-  *hesap* (integral/denklem çöz). Tek araç ikisini de iyi yapmıyor.
-- **Karar:** Akıl yürütme için **Z3** (FOL + teoriler, deterministik, güçlü).
-  Sembolik hesap için **SymPy**. İkisi ayrı katman, router ile bağlanır.
-- **Sonuçlar:** Her iş doğru araca gider. İki bağımlılık + bir yönlendirme katmanı
-  maliyeti doğar; buna karşılık her alanda "en iyi araç" kullanılır. v1 yalnızca
-  Z3'ü hayata geçirir; SymPy v2'ye ertelenir.
+- **Status:** Accepted · 2026-07-28
+- **Context:** There are two different jobs — *reasoning/proof* (is a statement valid) and
+  *compute* (solve integrals/equations). No single tool does both well.
+- **Decision:** **Z3** for reasoning (FOL + theories, deterministic, powerful).
+  **SymPy** for symbolic compute. The two are separate layers, connected by the router.
+- **Consequences:** Each job goes to the right tool. It incurs the cost of two dependencies + one
+  routing layer; in exchange, the "best tool" is used in each domain. v1 only brings
+  Z3 to life; SymPy is deferred to v2.
 
-## ADR-0003 — Dil = Python, MCP SDK = FastMCP
+## ADR-0003 — Language = Python, MCP SDK = FastMCP
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Motor MCP üzerinden AI'a açılacak. Ekosistem uyumu önemli.
-- **Karar:** **Python** — çünkü resmi MCP SDK (`mcp[cli]`, FastMCP), `z3-solver`
-  ve `sympy` birinci sınıf Python desteğine sahip. Sunucu FastMCP `@mcp.tool()`
-  desenini kullanır, `stdio` taşımasıyla yerel çalışır.
-- **Sonuçlar:** En düşük sürtünme, en olgun kütüphane zinciri. Python'un çalışma
-  zamanı hızı bir maliyet; ama darboğaz çözücü (C++ Z3), Python değil.
+- **Status:** Accepted · 2026-07-28
+- **Context:** The engine will be exposed to AI over MCP. Ecosystem fit matters.
+- **Decision:** **Python** — because the official MCP SDK (`mcp[cli]`, FastMCP), `z3-solver`,
+  and `sympy` all have first-class Python support. The server uses the FastMCP `@mcp.tool()`
+  pattern and runs locally over the `stdio` transport.
+- **Consequences:** The lowest friction, the most mature library chain. Python's runtime
+  speed is a cost; but the bottleneck is the solver (C++ Z3), not Python.
 
-## ADR-0004 — Dış API/sözleşme erken dondurulur
+## ADR-0004 — External API/contract frozen early
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Non-determinizm ve bağlam kaybı, en çok *sözleşme kayması* olarak
-  zarar veriyor (bir oturumda imza değişiyor, sonraki oturum uyumsuz kalıyor).
-- **Karar:** `ReasoningResult` çıktı şekli ve MCP araç imzaları v0'da dondurulur.
-  Çekirdek gövdesi sonra doldurulur ama *dış yüzey* değişmez. Değişmesi gerekirse
-  yeni ADR şarttır.
-- **Sonuçlar:** İskelet ile MVP arasında kararlılık; testler ve istemciler erken
-  yazılabilir. Esneklik bir miktar azalır — bilinçli takas.
+- **Status:** Accepted · 2026-07-28
+- **Context:** Non-determinism and context loss do the most harm as *contract drift*
+  (a signature changes in one session, the next session is left incompatible).
+- **Decision:** The `ReasoningResult` output shape and the MCP tool signatures are frozen in v0.
+  The core body is filled in later, but the *external surface* doesn't change. If it must
+  change, a new ADR is required.
+- **Consequences:** Stability between the skeleton and the MVP; tests and clients can be written
+  early. Flexibility decreases somewhat — a deliberate trade-off.
 
-## ADR-0005 — v1 kapsamı = "Akıl Yürütme Denetçisi" (dar dikey dilim)
+## ADR-0005 — v1 scope = "Reasoning Checker" (narrow vertical slice)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Vizyon geniş (ileriye dönük, en çok ihtiyaç duyulan alan) ama v1'in
-  "dar & sağlam" olması istendi.
-- **Karar:** v1 = üç ilkel (`entailment`, `consistency`, `model`) + önerme mantığı
-  ve doğrusal aritmetik parçası. Nicelik belirteçleri, hesap ve ispat üretimi
-  sonraki sürümlere.
-- **Sonuçlar:** Uçtan uca çalışan sağlam bir zemin; frontier vizyon `Plan.md`'de
-  korunur, bugünkü iş küçük tutulur.
+- **Status:** Accepted · 2026-07-28
+- **Context:** The vision is broad (forward-looking, the most-needed area) but v1 was
+  wanted to be "narrow & solid".
+- **Decision:** v1 = three primitives (`entailment`, `consistency`, `model`) + the propositional-logic
+  and linear-arithmetic fragment. Quantifiers, compute, and proof generation
+  go to later releases.
+- **Consequences:** A solid, end-to-end working foundation; the frontier vision is preserved in
+  `Plan.md`, while today's work is kept small.
 
-## ADR-0006 — `unknown` / `error` birinci sınıf çıktıdır
+## ADR-0006 — `unknown` / `error` are first-class output
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** FOL yarı-karar verilebilir; çözücü kimi girdide karar veremez.
-- **Karar:** Motor "bilmiyorum"u açıkça `unknown` olarak döner; guardrail ihlali
-  `error` olur. Sonuç asla uydurulmaz.
-- **Sonuçlar:** İstemci (AI) belirsizliği görebilir ve buna göre davranır; motor
-  güvenilir kalır. "Her zaman bir cevap" beklentisinden vazgeçilir — kasıtlı.
+- **Status:** Accepted · 2026-07-28
+- **Context:** FOL is semi-decidable; on some inputs the solver can't decide.
+- **Decision:** The engine returns "I don't know" explicitly as `unknown`; a guardrail violation
+  becomes `error`. A result is never fabricated.
+- **Consequences:** The client (AI) can see the uncertainty and act accordingly; the engine
+  stays trustworthy. The expectation of "always an answer" is given up — deliberately.
 
-## ADR-0007 — Girdi grameri kısıtlıdır (whitelist)
+## ADR-0007 — The input grammar is restricted (whitelist)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Serbest metin girdisi hem enjeksiyon hem "fazla varsayım" riski.
-- **Karar:** Motor yalnızca açıkça tanımlı gramerin (bkz. `docs/mcp-api.md`) izin
-  verdiği ifadeleri kabul eder; gerisini `error` ile reddeder.
-- **Sonuçlar:** Güvenli ve öngörülebilir yüzey; başlangıçta ifade gücü sınırlı.
-  Gramer, ihtiyaç kanıtlandıkça ADR ile genişletilir.
+- **Status:** Accepted · 2026-07-28
+- **Context:** Free-text input is both an injection and an "over-assumption" risk.
+- **Decision:** The engine only accepts expressions permitted by the explicitly defined grammar
+  (see `docs/mcp-api.md`); it rejects the rest with `error`.
+- **Consequences:** A safe and predictable surface; expressive power is limited at first.
+  The grammar is extended via ADR as the need is proven.
 
-## ADR-0008 — Frontier problem çözümü (Track B) birinci sınıf Kuzey Yıldızı'dır
+## ADR-0008 — Solving frontier problems (Track B) is a first-class North Star
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** İlk taslak "açık matematik çözmeyi hedeflemiyoruz" diyordu; proje
-  sahibi bunu hedeflemek *istediğini* net söyledi. SMT/SAT çözücülerinin açık
-  problemleri fiilen çözdüğü sicil de var (Boolean Pythagorean Triples 2016,
-  Keller 7. boyut 2020, Schur 5 2017).
-- **Karar:** "Zor/açık problemlere saldırı" birinci sınıf hedeftir (Track B);
-  kapsamı dürüstçe sınırlıdır: sonlu/kombinatoryal satisfiability'e indirgenebilen
-  sorular + ispat doğrulama/formalleştirme. Track B, doğrulanabilir çekirdek
-  (Track A) üstüne kurulur ve v3+'ta başlar. v1 hâlâ Track A'dır.
-- **Sonuçlar:** İddia yükselir ama sahte vaat yok; "çözdüm" ancak bağımsız
-  doğrulanabilir sertifika ile geçerli. Sertifika üretimi/arama ileride yeni ADR
-  ile mimariye eklenecek.
+- **Status:** Accepted · 2026-07-28
+- **Context:** The first draft said "we're not aiming to solve open mathematics"; the project
+  owner clearly stated they *do* want to aim for it. There is also a track record of SMT/SAT solvers
+  actually solving open problems (Boolean Pythagorean Triples 2016,
+  Keller dimension 7 2020, Schur 5 2017).
+- **Decision:** "Attacking hard/open problems" is a first-class goal (Track B);
+  its scope is honestly bounded: questions reducible to finite/combinatorial satisfiability
+  + proof verification/formalization. Track B is built on top of the verifiable core
+  (Track A) and starts at v3+. v1 is still Track A.
+- **Consequences:** The claim is raised but there's no false promise; "I solved it" is only valid
+  with an independently verifiable certificate. Certificate generation/search will be added to the
+  architecture later via a new ADR.
 
-## ADR-0009 — Girdi ayrıştırma: elle parser yerine Python `ast` + beyaz liste
+## ADR-0009 — Input parsing: Python `ast` + whitelist instead of a hand-written parser
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** v1 bir girdi diline ihtiyaç duydu. Elle lexer/grammar yazmak zaman
-  alır ve hata/saldırı yüzeyi geniştir.
-- **Karar:** Girdiyi Python ifade sözdizimiyle al, `ast.parse(mode="eval")` ile
-  ayrıştır, düğümleri **beyaz liste** ile süz. İzinli: `and/or/not`,
-  `implies/iff/xor`, `+ - *` (doğrusal), karşılaştırmalar, `Int`/`Bool`. Sort
-  bağlamdan çıkarılır; çelişki → `PARSE_ERROR`.
-- **Sonuçlar:** Olgun ayrıştırıcı; öncelik/parantez bedava; saldırı yüzeyi
-  beyaz listeyle dar. Bedeli: dil "Python'umsu" (`==`, `!=`; implies/iff fonksiyon
-  biçiminde). v1 parçası **karar verilebilir** seçildi (Presburger + önermeler)
-  → çoğunlukla kesin sonuç, az "unknown".
+- **Status:** Accepted · 2026-07-28
+- **Context:** v1 needed an input language. Writing a lexer/grammar by hand takes time
+  and has a wide error/attack surface.
+- **Decision:** Take input in Python expression syntax, parse it with `ast.parse(mode="eval")`,
+  and filter the nodes with a **whitelist**. Permitted: `and/or/not`,
+  `implies/iff/xor`, `+ - *` (linear), comparisons, `Int`/`Bool`. The sort
+  is inferred from context; a conflict → `PARSE_ERROR`.
+- **Consequences:** A mature parser; precedence/parentheses for free; the attack surface is
+  narrowed by the whitelist. The cost: the language is "Python-ish" (`==`, `!=`; implies/iff in function
+  form). The v1 fragment was chosen to be **decidable** (Presburger + propositions)
+  → mostly definite results, little "unknown".
 
-## ADR-0010 — Nicelik belirteçleri (∀/∃) + Real; iki geçişli çevirmen
+## ADR-0010 — Quantifiers (∀/∃) + Real; a two-pass translator
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** v1.1, FOL'u gerçekten "first-order" yapmak için `∀`/`∃` ve Real
-  istedi. Nicelik belirteci bağlı değişken tanıtır; sortu gövdeden belli olur
-  (inşadan önce) ve serbest değişkenle çakışmamalı (variable capture).
-- **Karar:** Çevirmen iki geçişe ayrıldı — (1) infer: kapsamlı (scoped) sort
-  çıkarımı, (2) build: Z3 inşası. Bağlı sabitlere benzersiz iç ad (mangling) →
-  capture yok. Sayısal alan: problemde ondalık varsa Real, yoksa Int.
-- **Sonuçlar:** Gerçek FOL ifade gücü. Bedeli: karar-verilebilirlik zayıflar,
-  bazı formüllerde `unknown` mümkün (dürüstçe raporlanır; **soundness** korunur —
-  motor asla yanlış cevap üretmez). Int/Real karışımı ve yüklem sembolleri
-  sonraki sürümlere.
+- **Status:** Accepted · 2026-07-28
+- **Context:** v1.1 wanted `∀`/`∃` and Real to make FOL genuinely "first-order". A quantifier
+  introduces a bound variable; its sort is determined from the body
+  (before construction) and it must not collide with a free variable (variable capture).
+- **Decision:** The translator was split into two passes — (1) infer: scoped sort
+  inference, (2) build: Z3 construction. A unique internal name (mangling) for bound constants →
+  no capture. Numeric domain: Real if there's a decimal in the problem, otherwise Int.
+- **Consequences:** Real FOL expressive power. The cost: decidability weakens,
+  `unknown` is possible on some formulas (reported honestly; **soundness** is preserved —
+  the engine never produces a wrong answer). Int/Real mixing and predicate symbols
+  go to later releases.
 
-## ADR-0011 — Hesap katmanı: SymPy + ast-whitelist (mantıktan ayrı)
+## ADR-0011 — Compute layer: SymPy + ast-whitelist (separate from logic)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** v2, "problem çözme" için sembolik hesap (çöz/sadeleştir/türev/
-  integral) istedi. Bu, mantık/ispat (Z3) ile aynı iş değil.
-- **Karar:** Ayrı `compute/` katmanı, **SymPy** ile. Girdi yine Python `ast` +
-  beyaz liste ile süzülür (`sympify`/`eval` güvensizliği KULLANILMAZ). Ayrı
-  `ComputeResult` sözleşmesi. Router aynı; yalnızca yeni görev adları eklendi.
-- **Sonuçlar:** Her iş doğru araca gider (mantık→Z3, hesap→SymPy). Güvenlik
-  beyaz-listeyle korunur (ör. `__import__` reddedilir). SymPy kapalı formda
-  çözemezse dürüstçe değerlendirilmemiş sonuç döner.
+- **Status:** Accepted · 2026-07-28
+- **Context:** v2 wanted symbolic compute (solve/simplify/derivative/integral) for "problem
+  solving". This is not the same job as logic/proof (Z3).
+- **Decision:** A separate `compute/` layer, with **SymPy**. Input is still filtered with Python `ast` +
+  a whitelist (the insecurity of `sympify`/`eval` is NOT used). A separate
+  `ComputeResult` contract. The router is the same; only new task names were added.
+- **Consequences:** Each job goes to the right tool (logic→Z3, compute→SymPy). Security
+  is preserved with the whitelist (e.g. `__import__` is rejected). If SymPy can't solve in closed
+  form, it returns an honestly unevaluated result.
 
-## ADR-0012 — Track B tohumu: programatik indirgeme (frontier/)
+## ADR-0012 — Track B seed: programmatic reduction (frontier/)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Track B vizyonunu (zor/açık problemlere saldırı) somut ve çalışır
-  göstermek gerekiyordu. Kullanıcı girdi dili bunun için uygun değil (problem
-  kodlaması programatik olmalı).
-- **Karar:** Ayrı `frontier/` katmanı; problemleri doğrudan Z3'e kodlar
-  (Boolean Pythagorean renklendirme, güvercin yuvası). Çıktı yine ortak
-  `ReasoningResult`. İki MCP aracı eklendi.
-- **Sonuçlar:** "Problemi satisfiability'e indirgeme" yöntemi çalışır halde.
-  DÜRÜSTLÜK: küçük örnekler ünlü sonuçların *kendisi* değil, **aynı yöntemdir**
-  (n=7825 sınırı ~200 TB; biz küçük n). Guardrail: büyük n → unknown/error.
+- **Status:** Accepted · 2026-07-28
+- **Context:** The Track B vision (attacking hard/open problems) needed to be shown concretely and
+  working. The user input language isn't suitable for this (the problem
+  encoding must be programmatic).
+- **Decision:** A separate `frontier/` layer; it encodes problems directly into Z3
+  (Boolean Pythagorean coloring, pigeonhole). The output is still the shared
+  `ReasoningResult`. Two MCP tools were added.
+- **Consequences:** The "reduce a problem to satisfiability" method is working.
+  HONESTY: small examples are not the famous results *themselves*, but **the same method**
+  (the n=7825 bound is ~200 TB; we use small n). Guardrail: large n → unknown/error.
 
-## ADR-0013 — Yorumsuz yüklemler + bireyler (3. sort: U)
+## ADR-0013 — Uninterpreted predicates + individuals (3rd sort: U)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Gerçek ilişkisel FOL (silogizm: "tüm insanlar ölümlü…") için yüklem
-  (`P(x)`) ve birey (`socrates`) gerekiyordu; önceki dil yalnızca Bool + sayısaldı.
-- **Karar:** Üçüncü sort `U` (birey/individual, `z3.DeclareSort`). Yorumsuz
-  yüklemler `z3.Function(..., BoolSort())`. v1.2'de yüklem argümanları yalnızca
-  birey adı (yorumsuz fonksiyon terimleri `f(x)` ve yüklem-içi aritmetik henüz
-  yok). Sort çıkarımı 3 yönlü; ad çakışmaları (yüklem↔değişken) reddedilir.
-- **Sonuçlar:** Klasik silogizm ve kural uygulama çalışır. Bedeli: karar-
-  verilebilirlik daha da zayıflar; `unknown` mümkün, **soundness** korunur.
-  Fonksiyon terimleri sonraki sürüme.
+- **Status:** Accepted · 2026-07-28
+- **Context:** Genuine relational FOL (the syllogism: "all men are mortal…") needed predicates
+  (`P(x)`) and individuals (`socrates`); the earlier language was only Bool + numeric.
+- **Decision:** A third sort `U` (individual, `z3.DeclareSort`). Uninterpreted
+  predicates as `z3.Function(..., BoolSort())`. In v1.2 predicate arguments are only
+  individual names (uninterpreted function terms `f(x)` and arithmetic inside predicates aren't
+  there yet). Sort inference is 3-way; name collisions (predicate↔variable) are rejected.
+- **Consequences:** The classical syllogism and rule application work. The cost: decidability
+  weakens further; `unknown` is possible, **soundness** is preserved.
+  Function terms go to the next release.
 
-## ADR-0014 — İspat üretimi: Z3 verdict + minimal çekirdek + ND türetimi
+## ADR-0014 — Proof generation: Z3 verdict + minimal core + ND derivation
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** "Geçerli" yetmez; bilim/eğitim için NEDEN (adım adım) gerekir.
-  Z3'ün ham ispat nesneleri insan-okur değildir.
-- **Karar:** `core/proof.py` — üç katman: (1) Z3 sağlam verdict, (2) minimal
-  öncül çekirdeği (unsat core), (3) önerme + yüklem + evrensel parçası için ileri
-  zincirleme **doğal tümdengelim** (modus ponens, ∧-ayıklama, iff-ayıklama,
-  evrensel örnekleme). Türetici SAĞLAM (yalnızca geçerli kurallar).
-- **Sonuçlar:** Klasik silogizm adım adım gösterilir. DÜRÜSTLÜK: türetici bu
-  parçayla sınırlı; aritmetik / `or`-`not` / varoluşsal için türetim kurulamaz →
-  "Z3 doğruladı ama adım adım türetim yok" (verdict yine sağlam). Yeni MCP aracı
+- **Status:** Accepted · 2026-07-28
+- **Context:** "Valid" isn't enough; science/education need the WHY (step by step).
+  Z3's raw proof objects aren't human-readable.
+- **Decision:** `core/proof.py` — three layers: (1) Z3's sound verdict, (2) a minimal
+  premise core (unsat core), (3) forward-chaining **natural deduction** for the propositional +
+  predicate + universal fragment (modus ponens, ∧-elimination, iff-elimination,
+  universal instantiation). The deriver is SOUND (only valid rules).
+- **Consequences:** The classical syllogism is shown step by step. HONESTY: the deriver is limited
+  to this fragment; for arithmetic / `or`-`not` / existential no derivation can be built →
+  "Z3 confirmed it but there's no step-by-step derivation" (the verdict is still sound). New MCP tool
   `prove`, CLI `mathhead prove`.
 
-## ADR-0015 — İspat üreticisini genişletme (MT, ayrık tasım, RAA)
+## ADR-0015 — Extending the proof generator (MT, disjunctive syllogism, RAA)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** İlk türetici yalnızca ileri zincirleme (MP, ∧, iff, ∀) yapıyordu;
-  `not`/`or` içeren birçok geçerli çıkarımı adım adım kuramıyordu.
-- **Karar:** Kural kümesi genişletildi: modus tollens, ayrık tasım (disjunctive
-  syllogism), çift olumsuzlama, De Morgan (¬(A∨B)). Ayrıca ikinci strateji:
-  doğrudan bulunamazsa **çelişkiden ispat (RAA)** — ¬sonuç varsayılıp çelişki
-  aranır. Böylece "durum ayrımı" (proof by cases) gibi dolaylı ispatlar çıkar.
-- **Sonuçlar:** Kapsam belirgin genişledi. Hâlâ yok: varoluşsal (∃) eleme,
-  aritmetik türetim → bunlarda Z3 kararı korunur (adımsız). Türetici sağlam kalır.
+- **Status:** Accepted · 2026-07-28
+- **Context:** The first deriver only did forward chaining (MP, ∧, iff, ∀);
+  it couldn't build many valid inferences involving `not`/`or` step by step.
+- **Decision:** The rule set was extended: modus tollens, disjunctive
+  syllogism, double negation, De Morgan (¬(A∨B)). Also a second strategy:
+  if a direct one can't be found, **proof by contradiction (RAA)** — assume ¬conclusion and look for a
+  contradiction. This yields indirect proofs like "proof by cases".
+- **Consequences:** Coverage widened noticeably. Still absent: existential (∃) elimination,
+  arithmetic derivation → for those Z3's decision is retained (without steps). The deriver stays sound.
 
-## ADR-0016 — İspat üreticisine varoluşsal (∃) akıl yürütme
+## ADR-0016 — Existential (∃) reasoning in the proof generator
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Klasik FOL doğal tümdengelim için `∃` şarttı; türetici yalnızca
-  önerme + evrensel yapabiliyordu.
-- **Karar:** **∃-eleme** (taze/fresh tanık sabiti; her `∃` bir kez elenir, tanık
-  bireyler kümesine eklenir → `∀`-eleme onu da kullanır) + **∃-giriş** (hedef
-  `∃x.ψ` ise, bir birey `t` için `ψ[t]` türetildiyse ispatlanır). Taze sabitler
-  çakışmayacak biçimde üretilir; türetici sağlam kalır (her sonuç ayrıca Z3 ile
-  doğrulanır).
-- **Sonuçlar:** `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` gibi çıkarımlar adım adım çıkar.
-  Hâlâ yok: aritmetik türetim, bazı içiçe/karışık nicelik desenleri → Z3 kararı
-  korunur.
+- **Status:** Accepted · 2026-07-28
+- **Context:** `∃` was essential for classical FOL natural deduction; the deriver could only
+  do propositional + universal.
+- **Decision:** **∃-elimination** (a fresh witness constant; each `∃` is eliminated once, the witness
+  is added to the set of individuals → `∀`-elimination uses it too) + **∃-introduction** (if the goal
+  is `∃x.ψ` and `ψ[t]` was derived for some individual `t`, it is proven). Fresh constants
+  are generated so as not to collide; the deriver stays sound (each result is also verified with
+  Z3).
+- **Consequences:** Inferences like `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` come out step by step.
+  Still absent: arithmetic derivation, some nested/mixed quantifier patterns → Z3's decision
+  is retained.
 
-## ADR-0017 — Optimizasyon: Z3 Optimize (optimization modulo theories)
+## ADR-0017 — Optimization: Z3 Optimize (optimization modulo theories)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Kısıtları sağlayan HERHANGİ bir çözüm değil, bir amacı en iyileyen
-  çözüm gerektiğinde (planlama / kaynak dağıtımı vb.) SAT yetmez.
-- **Karar:** `logic.optimize` — `z3.Optimize` çekirdeği; kısıtlar (bool) + sayısal
-  amaç ortak bağlamda çevrilir (`translate.translate_objective`). max/min.
-- **Sonuçlar:** Lineer amaç/kısıtlarda optimal + tanık döner. Dürüst kenar
-  durumlar ayrı ayrı raporlanır: `unbounded` (sınırsız), `unsat` (uygun çözüm
-  yok), açık-sınır (supremum/infimum ε ile, tam ulaşılamaz).
+- **Status:** Accepted · 2026-07-28
+- **Context:** When you need not just ANY solution satisfying the constraints, but the solution that
+  optimizes an objective (planning / resource allocation, etc.), SAT isn't enough.
+- **Decision:** `logic.optimize` — a `z3.Optimize` core; constraints (bool) + numeric
+  objective are translated in a shared context (`translate.translate_objective`). max/min.
+- **Consequences:** For linear objectives/constraints it returns the optimum + witness. Honest edge
+  cases are reported separately: `unbounded`, `unsat` (no feasible
+  solution), open-bound (supremum/infimum via ε, not exactly attainable).
 
-## ADR-0018 — MaxSAT: yumuşak/ağırlıklı kısıtlar (z3.Optimize.add_soft)
+## ADR-0018 — MaxSAT: soft/weighted constraints (z3.Optimize.add_soft)
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Gerçek problemler çoğu zaman aşırı-kısıtlı/çelişkili — hepsini
-  sağlamak imkânsız; "en çoğunu (ya da en yüksek ağırlıklıyı) sağla" gerekir.
-- **Karar:** `logic.max_satisfy` — `z3.Optimize.add_soft`. Zorunlu (hard)
-  kısıtlar `add`, tercih edilen (soft) kısıtlar `add_soft(w)`. Sağlanan soft'lar
-  modelde değerlendirilip raporlanır.
-- **Sonuçlar:** Ağırlıklı MaxSAT çalışır (ağır kısıt tercih edilir). `hard`
-  sağlanamazsa `unsat`. Optimize (ADR-0017) ile aynı aileden farklı bir soru.
+- **Status:** Accepted · 2026-07-28
+- **Context:** Real problems are often over-constrained/conflicting — satisfying all of them
+  is impossible; you need to "satisfy the most (or the highest-weighted)".
+- **Decision:** `logic.max_satisfy` — `z3.Optimize.add_soft`. Mandatory (hard)
+  constraints via `add`, preferred (soft) constraints via `add_soft(w)`. The satisfied softs are
+  evaluated in the model and reported.
+- **Consequences:** Weighted MaxSAT works (the heavier constraint is preferred). If `hard`
+  can't be satisfied, `unsat`. A different question from the same family as Optimize (ADR-0017).
 
-## ADR-0019 — Determinizm: verdict garantidir, tanık bir örnektir
+## ADR-0019 — Determinism: the verdict is guaranteed, the witness is an example
 
-- **Durum:** Kabul edildi · 2026-07-28
-- **Bağlam:** Property-based test (`hypothesis`), `check_consistency`'nin aynı
-  girdide farklı TANIK (model) döndürebildiğini yakaladı: birden çok geçerli model
-  varsa (ör. `iff(q,r)` → `{q:T,r:T}` veya `{q:F,r:F}`) Z3 çağrılar arası
-  farklısını seçebiliyor. Yani "aynı girdi → aynı çıktı" iddiası tanık düzeyinde
-  tutmuyordu.
-- **Karar:** Garanti kesinleştirildi: **verdict (status: valid/invalid/sat/unsat…)
-  deterministiktir**; **tanık (witness) geçerli bir örnektir** (birden çok çözümde
-  hangisi döndüğü değişebilir). Ayrıca kısıtlanmamış (don't-care) değişkenler
-  kanonik varsayılana (False/0) sabitlenir.
-- **Sonuçlar:** İddia artık dürüst ve property testiyle doğrulanıyor. Tam kanonik
-  tanık (lex-min) maliyetli olduğu için tercih edilmedi; asıl garanti olan
-  *cevabın* kararlılığı korunur.
-
----
-
-## ADR-0020 — Denklik kararında `.equals()` yerine deterministik yol
-
-- **Durum:** Kabul · 2026-07-28
-- **Bağlam:** Doğrulama katmanı (Track C — `verify_equality`, `verify_steps`,
-  `cross_check`) iki ifadenin denkliğini SymPy `expr.equals(other)` ile kontrol
-  ediyordu. Çapraz denetim geliştirilirken görüldü ki `.equals()` **içsel olarak
-  RASTGELE sayısal örnekleme** yapıyor: `sqrt(x**2)` vs `x` çağrıdan çağrıya
-  `None`/`False` arası değişiyor. Bu, projenin çekirdek ilkesi **determinizm**e
-  (aynı girdi → aynı verdict; ADR-0019) aykırı.
-- **Karar:** `.equals()` denklik kararından ÇIKARILDI. Ortak deterministik
-  yardımcı `verify._equal_verdict`: (1) `simplify(sol − sağ) == 0` → denk;
-  (2) sabit-nokta karşıörnek taraması → değilse `not_equal` + kanıt;
-  (3) aksi halde `undecided`. Tümü deterministik.
-- **Sonuçlar:** Verdict artık kararlı (10/10 aynı) **ve daha güçlü** (not_equal
-  artık somut karşıörnek taşır). Bedel: simplify'ın çözemediği bazı denklikler
-  `undecided` döner — ama bu, "flaky doğru"dan yeğ: dürüst bilinmezlik ilkeyle
-  uyumlu. `verify_equality`/`verify_steps`/`cross_check` bu yardımcıyı paylaşır.
+- **Status:** Accepted · 2026-07-28
+- **Context:** A property-based test (`hypothesis`) caught that `check_consistency` could return a
+  different WITNESS (model) on the same input: when there are multiple valid models
+  (e.g. `iff(q,r)` → `{q:T,r:T}` or `{q:F,r:F}`), Z3 can pick a different one between
+  calls. So the "same input → same output" claim didn't hold at the witness
+  level.
+- **Decision:** The guarantee was made precise: **the verdict (status: valid/invalid/sat/unsat…)
+  is deterministic**; **the witness is a valid example** (which one is returned can vary when there are
+  multiple solutions). Also, unconstrained (don't-care) variables
+  are pinned to a canonical default (False/0).
+- **Consequences:** The claim is now honest and verified by property testing. A fully canonical
+  witness (lex-min) was not chosen because it's costly; the stability of the *answer*, which is the
+  actual guarantee, is preserved.
 
 ---
 
-<!-- Yeni karar şablonu:
-## ADR-XXXX — başlık
-- **Durum:** Öneri | Kabul | Yerini aldı (ADR-YYYY) · YYYY-AA-GG
-- **Bağlam:** …
-- **Karar:** …
-- **Sonuçlar:** …
+## ADR-0020 — A deterministic path instead of `.equals()` in the equivalence decision
+
+- **Status:** Accepted · 2026-07-28
+- **Context:** The verification layer (Track C — `verify_equality`, `verify_steps`,
+  `cross_check`) checked the equivalence of two expressions with SymPy `expr.equals(other)`.
+  While developing the cross-check it was seen that `.equals()` does **RANDOM numeric sampling
+  internally**: `sqrt(x**2)` vs `x` varied between `None`/`False` from call to call.
+  This is contrary to the project's core principle of **determinism**
+  (same input → same verdict; ADR-0019).
+- **Decision:** `.equals()` was REMOVED from the equivalence decision. A shared deterministic
+  helper `verify._equal_verdict`: (1) `simplify(left − right) == 0` → equivalent;
+  (2) a fixed-point counterexample scan → if not, `not_equal` + evidence;
+  (3) otherwise `undecided`. All deterministic.
+- **Consequences:** The verdict is now stable (10/10 identical) **and stronger** (not_equal
+  now carries a concrete counterexample). The cost: some equivalences that simplify can't resolve
+  return `undecided` — but that beats a "flaky correct": honest uncertainty is consistent with the
+  principle. `verify_equality`/`verify_steps`/`cross_check` share this helper.
+
+---
+
+<!-- New decision template:
+## ADR-XXXX — title
+- **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD
+- **Context:** …
+- **Decision:** …
+- **Consequences:** …
 -->

@@ -1,7 +1,7 @@
 """
-API referansı güncelliği (ROADMAP Aşama 8 [S]) — `docs/api-reference.md` daima
-MCP'ye kayıtlı araçlarla senkron olmalı. Yeni araç eklenip doküman
-üretilmezse bu test kırılır (`python scripts/gen_api_reference.py`).
+API reference freshness (ROADMAP Phase 8 [S]) — `docs/api-reference.md` must
+always stay in sync with the tools registered with MCP. If a new tool is added
+without regenerating the doc, this test breaks (`python scripts/gen_api_reference.py`).
 """
 import sys
 from pathlib import Path
@@ -15,6 +15,6 @@ def test_api_reference_up_to_date():
     generated = gen_api_reference.generate()
     on_disk = gen_api_reference._OUT.read_text(encoding="utf-8")
     assert on_disk == generated, (
-        "docs/api-reference.md güncel değil — "
-        "`python scripts/gen_api_reference.py` çalıştır ve işle."
+        "docs/api-reference.md is out of date — "
+        "run `python scripts/gen_api_reference.py` and commit."
     )

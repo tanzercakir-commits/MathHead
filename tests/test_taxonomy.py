@@ -1,15 +1,15 @@
 """
-Sağlamlaştırma-2 (ROADMAP Aşama 5) — durum & hata taksonomisi denetimi.
+Hardening-2 (ROADMAP Phase 5) — status & error taxonomy audit.
 
-Her araç yalnızca `docs/error-taxonomy.md`'de belgelenen `status` ve
-`reason_code` değerlerini döndürmeli. Bu test taksonomiyi ZORLAR: yeni/belgesiz
-bir kod sızarsa kırılır (doküman + test birlikte güncellenmeli).
+Every tool must return only the `status` and `reason_code` values documented in
+`docs/error-taxonomy.md`. This test ENFORCES the taxonomy: if a new/undocumented
+code leaks through, it breaks (doc + test must be updated together).
 """
 from dataclasses import asdict
 
 from mathhead.router import route
 
-# --- Kanonik kümeler (docs/error-taxonomy.md ile birebir) ----------------- #
+# --- Canonical sets (verbatim from docs/error-taxonomy.md) ---------------- #
 ALLOWED_STATUS = frozenset({
     "unknown", "error",
     "valid", "invalid",
@@ -18,7 +18,7 @@ ALLOWED_STATUS = frozenset({
     "equivalent", "not_equivalent",
     "optimal", "unbounded",
     "ok",
-    "verified", "refuted",          # bağımsız sertifika denetleyicisi (Track C2)
+    "verified", "refuted",          # independent certificate checker (Track C2)
 })
 
 ALLOWED_REASON = frozenset({
@@ -28,22 +28,22 @@ ALLOWED_REASON = frozenset({
     "COUNTEREXAMPLE_FOUND", "NO_MODEL", "PROVEN_IMPOSSIBLE", "NO_COLORING",
     "INFEASIBLE", "HARD_INFEASIBLE", "PARSE_ERROR", "COMPUTE_FAILED",
     "GUARDRAIL_VIOLATION", "SOLVER_TIMEOUT", "SOLVER_UNKNOWN", "UNEXPECTED_SAT",
-    # doğrulama katmanı (Track C)
+    # verification layer (Track C)
     "EQUAL", "NOT_EQUAL", "EQUAL_ON_COMMON_DOMAIN", "UNDECIDED",
     "SOLUTION_VERIFIED", "SOLUTION_INCOMPLETE", "SOLUTION_INCORRECT",
     "COMPLETENESS_UNKNOWN", "STEPS_VALID", "STEP_INVALID",
-    # çapraz denetim (Track C3)
+    # cross-check (Track C3)
     "CONSENSUS_EQUAL", "CONSENSUS_NOT_EQUAL", "ENGINES_DISAGREE",
     "SINGLE_ENGINE", "CROSS_UNDECIDED",
-    # bağımsız sertifika (Track C2)
+    # independent certificate (Track C2)
     "CERTIFICATE_VALID", "CERTIFICATE_INVALID",
-    # doğal dil → formal (I2)
+    # natural language → formal (I2)
     "UNDERSTOOD", "AMBIGUOUS", "UNRECOGNIZED",
 })
 
 _ERROR_STATUS = {"error"}
 
-# --- Temsili çağrılar: her araç ailesi + başarı/hata yolları -------------- #
+# --- Representative calls: each tool family + success/error paths --------- #
 CALLS = [
     ("entailment", {"premises": ["p", "implies(p,q)"], "conclusion": "q"}),
     ("entailment", {"premises": ["p"], "conclusion": "q"}),
@@ -61,10 +61,10 @@ CALLS = [
     ("optimize", {"constraints": ["x>=0"], "objective": "x", "sense": "max"}),
     ("maxsat", {"hard": ["p"], "soft": ["not(p)"], "weights": None}),
     ("prove_inequality", {"goal": "x**2 >= 0"}),
-    ("prove_inequality", {"goal": "x**2 >= x"}),        # invalid -> karşıörnek
+    ("prove_inequality", {"goal": "x**2 >= x"}),        # invalid -> counterexample
     ("prove_nonnegative", {"expression": "x**2 - 2*x + 1"}),
     ("find_real_solution", {"constraints": ["x**2 == -1"]}),   # unsat
-    # compute — başarı + hata
+    # compute — success + error
     ("simplify", {"expression": "x+x"}),
     ("simplify", {"expression": "foo(x)"}),
     ("solve", {"equation": "x**2==4", "symbol": "x"}),
@@ -74,15 +74,15 @@ CALLS = [
     ("series", {"expression": "exp(x)", "symbol": "x", "point": "0", "order": 5}),
     ("solve_system", {"equations": ["x+y==10", "x-y==2"], "symbols": ["x", "y"]}),
     ("determinant", {"matrix": [["1", "2"], ["3", "4"]]}),
-    ("matrix_inverse", {"matrix": [["1", "2"], ["2", "4"]]}),   # tekil -> COMPUTE_FAILED
+    ("matrix_inverse", {"matrix": [["1", "2"], ["2", "4"]]}),   # singular -> COMPUTE_FAILED
     ("eigenvalues", {"matrix": [["2", "0"], ["0", "3"]]}),
-    ("matrix_multiply", {"a": [["1", "2"]], "b": [["1", "2"]]}),  # boyut -> PARSE_ERROR
+    ("matrix_multiply", {"a": [["1", "2"]], "b": [["1", "2"]]}),  # dimension -> PARSE_ERROR
     ("matrix_solve", {"matrix": [["1", "1"], ["1", "-1"]], "rhs": ["10", "2"]}),
     ("rref", {"matrix": [["1", "2"], ["2", "4"]]}),
     ("nullspace", {"matrix": [["1", "2"], ["2", "4"]]}),
     ("gcd", {"a": "48", "b": "36"}),
-    ("gcd", {"a": "x", "b": "2"}),                               # sembol -> PARSE_ERROR
-    ("modular_inverse", {"a": "4", "m": "8"}),                   # ters yok -> COMPUTE_FAILED
+    ("gcd", {"a": "x", "b": "2"}),                               # symbol -> PARSE_ERROR
+    ("modular_inverse", {"a": "4", "m": "8"}),                   # no inverse -> COMPUTE_FAILED
     ("factorize", {"n": "360"}),
     ("chinese_remainder", {"moduli": ["3", "5", "7"], "residues": ["2", "3", "2"]}),
     ("linear_diophantine", {"a": "3", "b": "6", "c": "9"}),
@@ -100,7 +100,7 @@ CALLS = [
     ("graph_coloring", {"edges": [[1, 2], [2, 3], [1, 3]], "colors": 2}),   # unsat
     ("subset_sum", {"numbers": [3, 4, 2], "target": 9}),
     ("subset_sum", {"numbers": [3, 4, 2], "target": 100}),                  # unsat
-    # doğrulama katmanı (Track C) — valid/invalid/unknown yolları
+    # verification layer (Track C) — valid/invalid/unknown paths
     ("verify_equality", {"left": "sin(x)**2 + cos(x)**2", "right": "1"}),
     ("verify_equality", {"left": "(x**2-1)/(x-1)", "right": "x+1"}),        # domain caveat
     ("verify_equality", {"left": "2*x", "right": "3*x"}),                   # not equal
@@ -133,25 +133,25 @@ def _results():
 
 def test_all_status_in_taxonomy():
     for task, r in _results():
-        assert r["status"] in ALLOWED_STATUS, f"{task}: belgesiz status {r['status']!r}"
+        assert r["status"] in ALLOWED_STATUS, f"{task}: undocumented status {r['status']!r}"
 
 
 def test_all_reason_codes_in_taxonomy():
     for task, r in _results():
         rc = r.get("reason_code")
-        assert rc in ALLOWED_REASON, f"{task}: belgesiz reason_code {rc!r}"
+        assert rc in ALLOWED_REASON, f"{task}: undocumented reason_code {rc!r}"
 
 
 def test_error_status_has_no_fabricated_result():
-    # Dürüstlük değişmezi: error -> uydurma 'result' yok (None ya da boş).
+    # Honesty invariant: error -> no fabricated 'result' (None or empty).
     for task, r in _results():
         if r["status"] in _ERROR_STATUS and "result" in r:
             assert r["result"] in (None, [], {}, ""), \
-                f"{task}: error olmasına rağmen result dolu ({r['result']!r})"
+                f"{task}: result is populated despite error ({r['result']!r})"
 
 
 def test_sweep_covers_success_and_error():
-    # Tarama hem başarı hem hata yolunu gerçekten görmeli (test anlamlı kalsın).
+    # The sweep must actually exercise both the success and the error path (keep it meaningful).
     statuses = {r["status"] for _, r in _results()}
     assert "error" in statuses
     assert statuses & {"ok", "valid", "sat", "optimal"}

@@ -1,4 +1,4 @@
-"""Mantık çekirdeği (reasoning core) — Z3 tabanlı deterministik ilkeller."""
+"""Reasoning core — Z3-based deterministic primitives."""
 
 from mathhead.core.logic import (
     ReasoningResult,

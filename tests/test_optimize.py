@@ -1,6 +1,6 @@
 """
-Optimizasyon (optimization modulo theories, Z3 Optimize): kısıtlar altında bir
-sayısal amacı en büyük/küçük yapmak. unbounded / infeasible dürüstçe raporlanır.
+Optimization (optimization modulo theories, Z3 Optimize): maximizing/minimizing a
+numeric objective under constraints. unbounded / infeasible reported honestly.
 """
 from mathhead.core.logic import optimize
 

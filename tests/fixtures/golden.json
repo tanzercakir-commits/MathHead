@@ -1,5 +1,5 @@
 {
-  "_comment": "Golden senaryolar — bilinen girdi→çıktı kilidi (regresyon çiti). Her giriş route(task,payload) sonucunu 'expect' ile kıyaslar; yalnız verilen alanlar denetlenir. Deterministik olmayan alan (witness) KULLANILMAZ.",
+  "_comment": "Golden scenarios — known input→output lock (regression fence). Each entry compares the route(task,payload) result against 'expect'; only the given fields are checked. The non-deterministic field (witness) is NOT USED.",
   "cases": [
     {"name": "entailment-modus-ponens", "task": "entailment",
      "payload": {"premises": ["p", "implies(p,q)"], "conclusion": "q"},

@@ -2,19 +2,20 @@
 MathHead
 ========
 
-AI'ın (ör. Claude) MCP üzerinden çağırabileceği, first-order logic temelli,
-DETERMINISTIK bir matematik akıl yürütme ve ispat motoru.
+A DETERMINISTIC, first-order-logic-based mathematical reasoning and proof
+engine that an AI (e.g. Claude) can invoke over MCP.
 
-Temel fikir: LLM'ler mantık/ispatta güvenilmez (non-deterministik, varsayıma
-açık). MathHead bu işi gerçek, deterministik bir motora (SMT çözücü Z3 +
-sembolik hesap SymPy) devrederek "uydurma" payını düşürür.
+Core idea: LLMs are unreliable at logic/proof (non-deterministic, prone to
+unwarranted assumptions). MathHead delegates that work to a real,
+deterministic engine (the SMT solver Z3 + symbolic computation via SymPy),
+reducing the room for "making things up".
 
-Katmanlar (bkz. docs/architecture.md):
-    server/     -> MCP arayüzü (dış dünya ile tek sözleşme)
-    router/     -> gelen problemi doğru çözücüye yönlendirir
-    core/       -> mantık çekirdeği (Z3 sarmalayıcı) [v1 odağı]
-    compute/    -> sembolik hesap (SymPy)            [v2+]
-    guardrails/ -> çit: girdi doğrulama, zaman aşımı, determinizm ayarları
+Layers (see docs/architecture.md):
+    server/     -> MCP interface (the single contract with the outside world)
+    router/     -> routes the incoming problem to the right solver
+    core/       -> logic kernel (Z3 wrapper)         [v1 focus]
+    compute/    -> symbolic computation (SymPy)      [v2+]
+    guardrails/ -> the fence: input validation, timeouts, determinism settings
 """
 
 __version__ = "0.2.0"

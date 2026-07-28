@@ -1,749 +1,783 @@
 # MathHead — Progress / ChangeLog
 
-> **Bu dosyanın işi:** NE yaptık, NE ZAMAN, NEDEN — ekleme-only (append-only)
-> günlük. En yeni en üstte. Küçük tasarım kararlarının *gerekçesi* `DECISIONS.md`'ye,
-> yapılan işin *özeti* buraya.
+> **This file's job:** WHAT we did, WHEN, WHY — an append-only log. Newest on top.
+> The *rationale* of small design decisions goes to `DECISIONS.md`, the *summary* of
+> the work done goes here.
 
 ---
 
-## 2026-07-28 — I2 · doğal dil → formal (tanı-ya-da-reddet + round-trip)
+## 2026-07-28 — Repo language → English (developer-experience hardening)
 
-**Yapıldı**
+**Context:** The user requires the project repo language to be English ("proje repo dili
+ingilizce olması lazım"). Everything that is prose or user-facing is now English;
+structural/identifier layers are untouched.
 
-- Yeni `core/nl.py` + `interpret`: kurallı, bilingual (TR+EN) NL→formal.
-  **Tasarım ilkesi TANI-YA-DA-REDDET** (tahmin yok — "2. duvar"/fazla varsayıma
-  panzehir). Round-trip: formal→NL `restatement` ("ne anladım", onayla-sonra-güven).
-- Uçtan uca: router (1) + MCP (**70 araç**) + CLI (`interpret`) + `tests/test_nl.py`
-  (18) + 3 reason_code (UNDERSTOOD/AMBIGUOUS/UNRECOGNIZED) → **523/523 yeşil**.
+**Done**
 
-**Doğrulandı (dürüstlük merkezde)**
+- **Translated to English:** all docstrings, comments, user-facing strings
+  (explanation/reason messages), CLI help/labels/metavars, docs (`*.md`), the
+  package `description` (PyPI-visible), and data-file prose (`llm_traps.json`
+  categories + `_comment` + `llm_error`, `golden.json` `_comment`).
+- **Anglicized output dict keys** (for a fully-English API surface):
+  `classify` witnesses `doğru_kılan`/`yanlış_kılan` → `true_witness`/`false_witness`;
+  frontier `kirmizi_sayisi`/`mavi_sayisi`/`guvercin`/`kutu` →
+  `red_count`/`blue_count`/`pigeons`/`holes` (also fixed a latent `"not"`→`"note"` key typo).
+- **Fixed source↔test string couplings** exposed by the sweep: proof rule names
+  (`ayrık tasım`→`disjunctive syllogism`, `çelişkiden ispat (RAA)`→`proof by
+  contradiction (RAA)`, `varoluşsal ...`→`existential ...`, etc.), plus
+  `not invertible` / `no inverse` / `no solution` / `parametric` / `dimensions`.
+- Regenerated `docs/api-reference.md` from the English docstrings (freshness test green).
+- Full suite re-run after every batch → **523/523 green**.
 
-- TR postfix ("x**3 ifadesinin x e göre türevi"), TR EBOB postfix, EN öntakılı
-  hepsi anlaşılıyor; `restatement` ne anlaşıldığını geri-ifade ediyor.
-- **TAHMİN YOK:** tanınmayan cümle → `UNRECOGNIZED` (interpretation=None); salt
-  ifade ("x squared plus one") reddediliyor; iki-yorumlu ("factorize 91 is 91
-  prime") → `AMBIGUOUS` (aday listesi, netleştir). Sonsuz kelimesi → oo.
+**Kept on purpose (NOT a translation gap):** the **bilingual TR+EN NL input** feature.
+`core/nl.py` keeps its Turkish input regex patterns (türev/ifadesinin/göre/…); the TR
+input examples in `test_nl.py`, `test_taxonomy.py`, `README.md`, and this log are the
+feature being demonstrated/tested, not untranslated prose.
 
-**Not:** MathHead tam NL ayrıştırıcı OLMAYA çalışmıyor (o LLM'in işi + varsayım
-kaynağı); yalnız şeffaf, sınırlı, onaylanabilir bir köprü. Dürüst kapsam.
+**Honest walls / notes**
 
-**Sıradaki:** I3 tam türetim ispat denetimi (kural bazlı).
+- CI gate (`.github/workflows/ci.yml`) is **pytest-only** → green (523).
+- `ruff check .` reports **26 pre-existing `E702`** (compact `stmt; stmt` argparse style
+  in `cli.py`) — present at HEAD, never a CI gate, author's deliberate style. Left as-is
+  to keep this change scoped to the language conversion (no unrelated code churn). Flagged
+  here as an optional future cleanup.
 
-## 2026-07-28 — I1 · doğrulama katmanı II (kalkülüs & matris iddiaları)
+**Next:** resume the approved D–K roadmap at **I3** (full derivation proof check).
 
-**Bağlam:** Kullanıcı D–K roadmap'ini (a) onayladı, önerilen sırayla (I→D→…→K),
-"iş disiplini bozulmasın, kalite>hız" vurgusuyla. İlk aşama: I1.
+## 2026-07-28 — I2 · natural language → formal (recognize-or-reject + round-trip)
 
-**Yapıldı**
+**Done**
 
-- `core/verify.py` genişledi: `verify_derivative`, `verify_integral`, `verify_limit`,
-  `verify_series`, `verify_matrix_identity`. Ortak deterministik `_equal_verdict`
-  (ADR-0020) yeniden kullanıldı; yeni reason_code YOK (EQUAL/NOT_EQUAL/UNDECIDED).
-- Uçtan uca: router (5) + MCP (**69 araç**) + CLI (`verify-derivative/integral/
-  limit/series/matrix`) + `tests/test_verify_calculus.py` (20) → **505/505 yeşil**.
+- New `core/nl.py` + `interpret`: rule-based, bilingual (TR+EN) NL→formal.
+  **Design principle RECOGNIZE-OR-REJECT** (no guessing — antidote to "wall #2"/
+  over-assumption). Round-trip: formal→NL `restatement` ("what I understood", confirm-then-trust).
+- End to end: router (1) + MCP (**70 tools**) + CLI (`interpret`) + `tests/test_nl.py`
+  (18) + 3 reason_code (UNDERSTOOD/AMBIGUOUS/UNRECOGNIZED) → **523/523 green**.
 
-**Doğrulandı (dürüst kenar durumları)**
+**Verified (honesty at the center)**
 
-- Türev/limit/seri yanlışta `details.correct` doğru değeri verir.
-- **integral +C dürüstlüğü:** `∫2x = x²+5` de geçerli (türev-alıp-karşılaştır →
-  sabit farkı hoş görülür). `verify_matrix_identity` sembolik (`a+a=2a`) yakalar,
-  boyut/ilk-farklı-hücre raporlar. Kötücül girdi reddedilir.
+- TR postfix ("x**3 ifadesinin x e göre türevi"), TR GCD postfix, EN prefix — all
+  understood; `restatement` restates what was understood.
+- **NO GUESSING:** an unrecognized sentence → `UNRECOGNIZED` (interpretation=None); a bare
+  expression ("x squared plus one") is rejected; a two-reading input ("factorize 91 is 91
+  prime") → `AMBIGUOUS` (candidate list, clarify). The infinity word → oo.
 
-**Sıradaki (önerilen sıra):** I2 doğal dil→formal (🔴). Not: I2 "2. duvar"a
-doğrudan; dikkatli + dürüst round-trip ile.
+**Note:** MathHead is NOT trying to be a full NL parser (that's the LLM's job + a source
+of assumptions); only a transparent, limited, confirmable bridge. Honest scope.
 
-## 2026-07-28 — Track C4 · LLM-tuzak benchmark (TÜM C TAMAM 🎉)
+**Next:** I3 full derivation proof check (rule-based).
 
-**Yapıldı**
+## 2026-07-28 — I1 · verification layer II (calculus & matrix claims)
 
-- `benchmarks/llm_traps.json` (14 tuzak) + `benchmarks/run.py` harness +
-  `tests/test_benchmark_traps.py` (regresyon çiti) + `docs/benchmark-results.md`.
-- Tuzaklar → MathHead adjuke eder: eksik/yanlış çözüm, yanlış özdeşlik, domain
-  tuzağı, yanlış eşitsizlik, kök dalı, hatalı adım, asallık, aritmetik, modüler,
-  Diophantine. → **477/477 yeşil**.
+**Context:** The user approved the D–K roadmap (option a), in the suggested order (I→D→…→K),
+emphasizing "don't break work discipline, quality>speed". First phase: I1.
 
-**Öne geçiren (ölçülü)**
+**Done**
 
-- **Yakalama oranı %100 (14/14).** MathHead her klasik LLM hata desenini doğru
-  düzeltici verdict'le yakalıyor.
-- **Yanlış-pozitif YOK:** "doğru_pozitif" kontrolü (`sin²+cos²=1`) doğru işaretlenmiyor
-  — yalnız hatayı yakalamıyoruz, doğruyu da bozmuyoruz.
-- **DÜRÜST çerçeve:** yeniden-üretilebilir gösterim (MathHead'in adjuke doğruluğu),
-  canlı LLM A/B DEĞİL — o kullanıcının gerçek modelle koşacağı iş.
+- `core/verify.py` extended: `verify_derivative`, `verify_integral`, `verify_limit`,
+  `verify_series`, `verify_matrix_identity`. Reused the shared deterministic `_equal_verdict`
+  (ADR-0020); NO new reason_code (EQUAL/NOT_EQUAL/UNDECIDED).
+- End to end: router (5) + MCP (**69 tools**) + CLI (`verify-derivative/integral/
+  limit/series/matrix`) + `tests/test_verify_calculus.py` (20) → **505/505 green**.
 
-**🎉 TRACK C (öne geçiren yön) TAMAM:** C1 doğrulayıcı · C2 bağımsız sertifika ·
-C3 çapraz denetim · C4 benchmark. Motor: **64 MCP aracı, 477 test.** MathHead artık
-"AI muhakemesinin bağımsız yargıcı" — hata yakalar, kanıtı çözücüden bağımsız
-doğrulanır, iki motorla çapraz onaylar, üstünlüğü ölçülü.
+**Verified (honest edge cases)**
 
-**Sıradaki (kullanıcıda):** ürünleştirme (PyPI 0.2.0 / release / tutorial) ya da
-yeni bir yön çağrısı.
+- On a wrong derivative/limit/series, `details.correct` gives the correct value.
+- **integral +C honesty:** `∫2x = x²+5` is also valid (differentiate-and-compare →
+  the constant difference is tolerated). `verify_matrix_identity` catches symbolic cases
+  (`a+a=2a`), reports dimension/first-differing-cell. Malicious input is rejected.
 
-## 2026-07-28 — Track C2 · BAĞIMSIZ SERTİFİKA denetleyicisi ("bize güvenme")
+**Next (suggested order):** I2 natural language→formal (🔴). Note: I2 targets "wall #2"
+directly; with a careful + honest round-trip.
 
-**Yapıldı**
+## 2026-07-28 — Track C4 · LLM-trap benchmark (ALL OF C DONE 🎉)
 
-- Yeni `mathhead/certificate.py` (bilerek `core` DIŞINDA) + `check_certificate`:
-  bir sonucu ÜRETEN motordan bağımsız, yalnız **stdlib** (`ast`+`fractions`) ile
-  yeniden doğrular → `verified`/`refuted`. Mümkünse tam (Fraction), aksi halde
-  sayısal (float+tolerans, `exact=false`, dürüst).
-- Uçtan uca: router (1) + MCP (**64 araç**) + CLI (`check-certificate`, JSON) +
-  `tests/test_certificate.py` (13) + yeni statü `verified/refuted` + 2 reason_code.
-  → **461/461 yeşil**.
+**Done**
 
-**Öne geçiren (kanıt)**
+- `benchmarks/llm_traps.json` (14 traps) + `benchmarks/run.py` harness +
+  `tests/test_benchmark_traps.py` (regression fence) + `docs/benchmark-results.md`.
+- Traps → MathHead adjudicates: missing/wrong solution, wrong identity, domain
+  trap, wrong inequality, root branch, faulty step, primality, arithmetic, modular,
+  Diophantine. → **477/477 green**.
 
-- **BAĞIMSIZLIK ALT-SÜREÇLE KANITLANDI:** `import mathhead.certificate` sonrası
-  `z3`/`sympy` `sys.modules`'te YOK. Checker gerçekten motordan bağımsız.
-- Uçtan uca döngü: Z3 subset_sum çözer → tanık bağımsız checker'da `verified`.
-  Türler tam aritmetikle: `x²-x @ ½ = -¼ < 0` (eşitsizlik karşıörneği), `2x≠3x @1`.
-- Dürüstlük: transandantal (`sin(x)@0`) → sayısal, `exact=false`; kötücül → red.
+**Differentiating (measured)**
 
-**Sıradaki (Track C):** C4 benchmark (LLM-tuzak seti + ölçülü üstünlük). SON C.
+- **Catch rate 100% (14/14).** MathHead catches every classic LLM error pattern with the
+  correct corrective verdict.
+- **NO false positives:** the "true_positive" control (`sin²+cos²=1`) is not flagged as
+  wrong — we don't just catch errors, we also don't break correct answers.
+- **HONEST framing:** a reproducible demonstration (MathHead's adjudication accuracy),
+  NOT a live LLM A/B — that's work the user would run with a real model.
 
-## 2026-07-28 — Track C3 · çapraz denetim (Z3 ⋈ SymPy) + determinizm düzeltmesi
+**🎉 TRACK C (the differentiating direction) DONE:** C1 verifier · C2 independent certificate ·
+C3 cross-check · C4 benchmark. Engine: **64 MCP tools, 477 tests.** MathHead is now
+"the independent judge of AI reasoning" — it catches errors, its certificate is verified
+independently of the solver, it cross-confirms with two engines, and its edge is measured.
 
-**Yapıldı**
+**Next (on the user):** productization (PyPI 0.2.0 / release / tutorial) or a call for
+a new direction.
 
-- Yeni `core/crosscheck.py` + `cross_check`: bir denklik iddiasını Z3 ve SymPy
-  ile BAĞIMSIZ doğrular; mutabakat/anlaşmazlık/tek-motor raporlar.
-- Uçtan uca: router (1) + MCP (**63 araç**) + CLI (`cross-check`) +
-  `tests/test_crosscheck.py` (7) + 5 yeni reason_code (taksonomi). → **447/447**.
+## 2026-07-28 — Track C2 · INDEPENDENT CERTIFICATE checker ("don't trust us")
 
-**Öne geçiren (ampirik)**
+**Done**
 
-- Özdeşlik `(x+1)²=x²+2x+1` → **CONSENSUS_EQUAL** (iki motor anlaşıyor).
-- **Domain tuzağı** `(x²-1)/(x-1)` vs `x+1` → **ENGINES_DISAGREE** (SymPy 'equal',
-  Z3 x=1'de 'not_equal') — iki bağımsız tanık ince konuyu açığa çıkardı.
-- Transandantal `sin²+cos²=1` → **SINGLE_ENGINE** (Z3 desteklemez, dürüst).
+- New `mathhead/certificate.py` (deliberately OUTSIDE `core`) + `check_certificate`:
+  re-verifies a result independently of the engine that PRODUCED it, using only the
+  **stdlib** (`ast`+`fractions`) → `verified`/`refuted`. Exact when possible (Fraction),
+  otherwise numeric (float+tolerance, `exact=false`, honest).
+- End to end: router (1) + MCP (**64 tools**) + CLI (`check-certificate`, JSON) +
+  `tests/test_certificate.py` (13) + new status `verified/refuted` + 2 reason_code.
+  → **461/461 green**.
 
-**BUG→FIX (determinizm, ADR-0020):** `.equals()` içsel rastgele örnekleme yapıyor
-(`sqrt(x²)` vs `x` çağrılar arası değişiyordu). Denklik kararı `.equals()`'ten
-arındırıldı → ortak deterministik `verify._equal_verdict` (simplify + sabit-nokta
-karşıörnek). `verify_equality`/`verify_steps`/`cross_check` paylaşır; 10/10 kararlı.
-Çekirdek ilke (determinizm) korundu ve verdict güçlendi (karşıörnekli).
+**Differentiating (evidence)**
 
-**Sıradaki (Track C):** C2 bağımsız sertifika · C4 benchmark.
+- **INDEPENDENCE PROVEN VIA SUBPROCESS:** after `import mathhead.certificate`,
+  `z3`/`sympy` are NOT in `sys.modules`. The checker is genuinely engine-independent.
+- End-to-end loop: Z3 solves subset_sum → the witness is `verified` in the independent checker.
+  Kinds with exact arithmetic: `x²-x @ ½ = -¼ < 0` (inequality counterexample), `2x≠3x @1`.
+- Honesty: transcendental (`sin(x)@0`) → numeric, `exact=false`; malicious → rejected.
 
-## 2026-07-28 — Track C1 · DOĞRULAMA KATMANI (öne geçiren yön — AI muhakeme denetçisi)
+**Next (Track C):** C4 benchmark (LLM-trap set + measured edge). The LAST C.
 
-**Yön kararı:** Kullanıcı "bizi öne geçiren şeye odaklan" dedi → seçim: ham hesapta
-değil **güven**de öne geçmek. Ürünü "başka bir CAS"tan AI iddialarının bağımsız
-*yargıcı*na çeviren doğrulama katmanı (ROADMAP Track C).
+## 2026-07-28 — Track C3 · cross-check (Z3 ⋈ SymPy) + determinism fix
 
-**Yapıldı**
+**Done**
 
-- Yeni modül `core/verify.py` + `VerifyResult`: `verify_equality`,
+- New `core/crosscheck.py` + `cross_check`: verifies an equivalence claim INDEPENDENTLY
+  with Z3 and SymPy; reports consensus/disagreement/single-engine.
+- End to end: router (1) + MCP (**63 tools**) + CLI (`cross-check`) +
+  `tests/test_crosscheck.py` (7) + 5 new reason_code (taxonomy). → **447/447**.
+
+**Differentiating (empirical)**
+
+- Identity `(x+1)²=x²+2x+1` → **CONSENSUS_EQUAL** (both engines agree).
+- **Domain trap** `(x²-1)/(x-1)` vs `x+1` → **ENGINES_DISAGREE** (SymPy 'equal',
+  Z3 'not_equal' at x=1) — two independent witnesses exposed the subtle issue.
+- Transcendental `sin²+cos²=1` → **SINGLE_ENGINE** (Z3 doesn't support it, honest).
+
+**BUG→FIX (determinism, ADR-0020):** `.equals()` does internal random sampling
+(`sqrt(x²)` vs `x` varied between calls). The equivalence decision was purged of `.equals()`
+→ shared deterministic `verify._equal_verdict` (simplify + fixed-point counterexample).
+`verify_equality`/`verify_steps`/`cross_check` share it; 10/10 stable.
+The core principle (determinism) was preserved and the verdict got stronger (with counterexample).
+
+**Next (Track C):** C2 independent certificate · C4 benchmark.
+
+## 2026-07-28 — Track C1 · VERIFICATION LAYER (differentiating direction — AI reasoning auditor)
+
+**Direction decision:** The user said "focus on what sets us ahead" → the choice: get ahead
+on **trust**, not raw compute. A verification layer that turns the product from "just another
+CAS" into an independent *judge* of AI claims (ROADMAP Track C).
+
+**Done**
+
+- New module `core/verify.py` + `VerifyResult`: `verify_equality`,
   `verify_solution`, `verify_steps`.
-- Uçtan uca: router (3) + MCP (**62 araç**) + CLI (`verify-eq/verify-solution/
-  verify-steps`) + `tests/test_verify.py` (15) → **438/438 yeşil**. 10 yeni
-  reason_code taksonomiye + api-reference'a işlendi.
+- End to end: router (3) + MCP (**62 tools**) + CLI (`verify-eq/verify-solution/
+  verify-steps`) + `tests/test_verify.py` (15) → **438/438 green**. 10 new
+  reason_code added to the taxonomy + api-reference.
 
-**Doğrulandı (öne geçiren özellikler = naif kontrolün kaçırdıkları)**
+**Verified (differentiating features = what naive checking misses)**
 
-- **DOMAIN tuzağı:** `(x²-1)/(x-1)` vs `x+1` → `EQUAL_ON_COMMON_DOMAIN` + `x=1`
-  ayrışma uyarısı (sembolik "eşit" ama x=1'de tanımsız — yakalandı).
-- **TAMLIK:** `x²=4, {2}` → `SOLUTION_INCOMPLETE` (-2 kaçtı); `{2,3}` →
-  `SOLUTION_INCORRECT` (3 yanlış); `x+sin(x)=0, {0}` → `COMPLETENESS_UNKNOWN`
-  (değer doğru ama tümü doğrulanamaz — dürüst).
-- **ADIM:** `(x+1)²=x²+1` → `STEP_INVALID` ilk geçişte + karşıörnek x=1.
+- **DOMAIN trap:** `(x²-1)/(x-1)` vs `x+1` → `EQUAL_ON_COMMON_DOMAIN` + `x=1`
+  divergence warning (symbolically "equal" but undefined at x=1 — caught).
+- **COMPLETENESS:** `x²=4, {2}` → `SOLUTION_INCOMPLETE` (-2 missed); `{2,3}` →
+  `SOLUTION_INCORRECT` (3 is wrong); `x+sin(x)=0, {0}` → `COMPLETENESS_UNKNOWN`
+  (the value is correct but not all can be verified — honest).
+- **STEP:** `(x+1)²=x²+1` → `STEP_INVALID` at the first transition + counterexample x=1.
 
-**Sıradaki (Track C):** C2 bağımsız sertifika · C3 çapraz denetim (Z3⋈SymPy) ·
-C4 benchmark. Kullanıcı yönü onayladı ("amaçtan sapmayalım").
+**Next (Track C):** C2 independent certificate · C3 cross-check (Z3⋈SymPy) ·
+C4 benchmark. The user approved the direction ("let's not drift from the goal").
 
-## 2026-07-28 — Aşama 11 [S] · büyük sağlamlaştırma + RC (SON AŞAMA — 1–11 TAMAM 🎉)
+## 2026-07-28 — Phase 11 [S] · big hardening + RC (LAST PHASE — 1–11 DONE 🎉)
 
-**Yapıldı**
+**Done**
 
-- **Canlı MCP entegrasyon testi** (`tests/test_mcp_live.py`): sunucuyu GERÇEK bir
-  alt süreç olarak `stdio` üzerinden başlatır, MCP istemcisiyle el sıkışır, 59+
-  aracı listeler ve 5 katmandan araç çağırıp JSON yanıtı doğrular. Todo T8 (canlı
-  stdio) fiilen kapandı.
-- **Sözleşme denetimi** (`tests/test_contract.py`, 59): HER araç `status +
-  reason_code + explanation + meta(elapsed_ms)` sözleşmesine uyuyor — makine
-  denetimi (biri bozarsa kırılır).
-- **Sürüm dondurma (RC):** `0.1.0 → 0.2.0` (pyproject + `__init__`); CHANGELOG
-  `[0.2.0] — 2026-07-28` olarak finalize edildi. Ruff temizliği (13 otomatik
-  düzeltme). → **417/417 yeşil**, kapsam %87.
+- **Live MCP integration test** (`tests/test_mcp_live.py`): starts the server as a REAL
+  subprocess over `stdio`, handshakes with an MCP client, lists 59+ tools, and calls tools
+  from 5 layers, verifying the JSON response. Todo T8 (live stdio) is effectively closed.
+- **Contract check** (`tests/test_contract.py`, 59): EVERY tool conforms to the
+  `status + reason_code + explanation + meta(elapsed_ms)` contract — a machine check
+  (breaks if one violates it).
+- **Version freeze (RC):** `0.1.0 → 0.2.0` (pyproject + `__init__`); CHANGELOG
+  finalized as `[0.2.0] — 2026-07-28`. Ruff cleanup (13 auto-fixes). → **417/417 green**,
+  87% coverage.
 
-**Doğrulandı**
+**Verified**
 
-- Tam yığın uçtan uca çalışıyor: subprocess → JSON-RPC → FastMCP → router →
-  Z3/SymPy. "Canlı stdio bağlantısı" artık test-güvenceli.
-- 1–11 aşamalarının hepsi bitti: **24→59 araç, 146→417 test.** Motor üç ayakta
-  (mantık/Z3 · hesap/SymPy · Track B/SAT) sağlam.
+- The full stack works end to end: subprocess → JSON-RPC → FastMCP → router →
+  Z3/SymPy. "Live stdio connection" is now test-assured.
+- All of phases 1–11 are done: **24→59 tools, 146→417 tests.** The engine stands solid
+  on three legs (logic/Z3 · compute/SymPy · Track B/SAT).
 
-**Sıradaki (kullanıcıda):** ürünleştirme — PyPI yayını (0.2.0), GitHub release,
-tutorial. Motor tarafı ROADMAP'te tamam; yeni yön kullanıcının çağrısına bağlı.
+**Next (on the user):** productization — PyPI publish (0.2.0), GitHub release,
+tutorial. The engine side is done in the ROADMAP; a new direction depends on the user's call.
 
-## 2026-07-28 — Aşama 10 · Track B genişleme + doğrulanabilir sertifika
+## 2026-07-28 — Phase 10 · Track B extension + verifiable certificate
 
-**Yapıldı**
+**Done**
 
-- 2 yeni NP-tam indirgeme: `graph_coloring` (graf k-boyama), `subset_sum`.
-- **Doğrulanabilir sertifika:** `sat` tanığı Z3'ten BAĞIMSIZ, saf Python'da
-  yeniden denetlenir → `meta.verified=true`. Denetim başarısızsa `UNEXPECTED_SAT`
-  hatası (kodlama-hatası çiti).
-- Uçtan uca: router (2) + MCP (**59 araç**) + CLI (`graph-coloring/subset-sum`) +
-  `tests/test_frontier.py` (+8) → **357/357 yeşil**. API ref + taksonomi + mcp-layer
-  güncel.
+- 2 new NP-complete reductions: `graph_coloring` (graph k-coloring), `subset_sum`.
+- **Verifiable certificate:** the `sat` witness is re-checked INDEPENDENTLY of Z3, in
+  pure Python → `meta.verified=true`. If the check fails, an `UNEXPECTED_SAT`
+  error (an encoding-bug fence).
+- End to end: router (2) + MCP (**59 tools**) + CLI (`graph-coloring/subset-sum`) +
+  `tests/test_frontier.py` (+8) → **357/357 green**. API ref + taxonomy + mcp-layer
+  up to date.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- K3 → 3 renk sat (doğrulanmış), 2 renk unsat; K4 → 3 renk unsat (kromatik 4).
-  `subset_sum([3,34,4,12,5,2],9)` → `{3,4,2}` (doğrulanmış); `→100` unsat.
-- **DÜRÜST ASİMETRİ:** `unsat` için bağımsız DRAT/LRAT sertifikası DIMACS+drat-trim
-  hattı ister → DUVAR olarak `docs/track-b-results.md`'de belgelendi. Olumlu kanıt
-  çözücüden bağımsız doğrulanıyor; olumsuz kanıt Z3 kararı (DRAT gelecek iş).
+- K3 → 3 colors sat (verified), 2 colors unsat; K4 → 3 colors unsat (chromatic 4).
+  `subset_sum([3,34,4,12,5,2],9)` → `{3,4,2}` (verified); `→100` unsat.
+- **HONEST ASYMMETRY:** an independent DRAT/LRAT certificate for `unsat` needs a
+  DIMACS+drat-trim pipeline → documented as a WALL in `docs/track-b-results.md`. Positive
+  evidence is verified independently of the solver; negative evidence is Z3's decision (DRAT is future work).
 
-**Sıradaki:** Aşama 11 [S] — canlı MCP entegrasyon testi + sözleşme denetimi +
-sürüm dondurma (RC). SON AŞAMA.
+**Next:** Phase 11 [S] — live MCP integration test + contract check + version freeze (RC). LAST PHASE.
 
-## 2026-07-28 — Aşama 9 · eşitsizlik ispatı & nonlineer (Z3 NRA)
+## 2026-07-28 — Phase 9 · inequality proof & nonlinear (Z3 NRA)
 
-**Yapıldı**
+**Done**
 
-- Yeni modül `core/inequality.py`: nonlineer ast→Z3 çevirici (Real, `**` polinom,
-  karşılaştırma + bağlaçlar) + 3 işlem: `prove_inequality`, `prove_nonnegative`,
-  `find_real_solution`. Yöntem: `∀x.P(x)` → `¬P(x)` UNSAT (ret-ile-ispat).
-- Uçtan uca: router (3) + MCP (**57 araç**) + CLI (`prove-inequality/
+- New module `core/inequality.py`: a nonlinear ast→Z3 translator (Real, `**` polynomial,
+  comparisons + connectives) + 3 operations: `prove_inequality`, `prove_nonnegative`,
+  `find_real_solution`. Method: `∀x.P(x)` → `¬P(x)` UNSAT (proof-by-refutation).
+- End to end: router (3) + MCP (**57 tools**) + CLI (`prove-inequality/
   prove-nonnegative/real-solve`) + `tests/test_inequality.py` (15) →
-  **345/345 yeşil**. API referansı + taksonomi + mcp-layer testleri güncellendi.
+  **345/345 green**. API reference + taxonomy + mcp-layer tests updated.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- **AM-GM** `x²+y²≥2xy` → valid; `x²+1≥2x` → valid; varsayım altında `x>0,y>0 ⊨
-  x+y>0` → valid. Yanlış `x²≥x` → karşıörnek `x=0.5`. Çember∩doğru → gerçel
-  çözüm `±√2/2`; `x²=-1` → gerçel çözüm yok.
-- Dürüstlük: non-bool hedef / değişken üs (nonpolinom) / kötücül → red;
-  NRA `unknown` birinci sınıf. Yeni reason_code yok (taksonomi sabit).
+- **AM-GM** `x²+y²≥2xy` → valid; `x²+1≥2x` → valid; under assumptions `x>0,y>0 ⊨
+  x+y>0` → valid. False `x²≥x` → counterexample `x=0.5`. Circle∩line → real
+  solution `±√2/2`; `x²=-1` → no real solution.
+- Honesty: non-bool target / variable exponent (non-polynomial) / malicious → rejected;
+  NRA `unknown` is first-class. No new reason_code (taxonomy fixed).
 
-**Sıradaki:** Aşama 10 — Track B genişletme + doğrulanabilir UNSAT sertifikası
-(DRAT/LRAT).
+**Next:** Phase 10 — Track B extension + verifiable UNSAT certificate (DRAT/LRAT).
 
-## 2026-07-28 — Aşama 8 [S] · sağlamlaştırma-3 (coverage + API ref + benchmark çiti)
+## 2026-07-28 — Phase 8 [S] · hardening-3 (coverage + API ref + benchmark fence)
 
-**Yapıldı**
+**Done**
 
-- **Kapsam:** `pytest-cov` + `[tool.coverage]` (branch). `tests/test_mcp_layer.py`
-  (55): 54 MCP aracını uçtan uca (in-process) çağırır + kayıtlı kümeyle senkron
-  tutar (yeni araç eklenince kırılır). Kapsam **%85 → %87**; `mcp_server.py`
-  %67→%97, `router` %82→%98.
-- **Otomatik API referansı:** `scripts/gen_api_reference.py` MCP'ye kayıtlı
-  araçlardan `docs/api-reference.md` (54 araç) üretir; `test_api_reference.py`
-  güncelliği zorlar (tek doğruluk kaynağı = kayıtlı araçlar).
-- **Benchmark çiti:** katastrofik yavaşlama için cömert 10 sn üst sınır testi
-  (zamanlama titrekliği değil, O(2^n)/hang yakalar). → **330/330 yeşil**.
+- **Coverage:** `pytest-cov` + `[tool.coverage]` (branch). `tests/test_mcp_layer.py`
+  (55): calls the 54 MCP tools end to end (in-process) + keeps them in sync with the
+  registered set (breaks when a new tool is added). Coverage **85% → 87%**; `mcp_server.py`
+  67%→97%, `router` 82%→98%.
+- **Auto API reference:** `scripts/gen_api_reference.py` generates `docs/api-reference.md`
+  (54 tools) from the MCP-registered tools; `test_api_reference.py` enforces freshness
+  (single source of truth = the registered tools).
+- **Benchmark fence:** a generous 10 s upper-bound test for catastrophic slowdown
+  (catches O(2^n)/hang, not timing jitter). → **330/330 green**.
 
-**Doğrulandı**
+**Verified**
 
-- Betimsel kapsam artışı gerçek: MCP sarmalayıcıları artık uçtan uca test ediliyor
-  (router'a doğru bağlı). Kalan açık satırlar çoğunlukla ender hata dalları.
-- API referansı deterministik üretiliyor (kayıt sırası); doküman = kod.
+- The coverage gain is genuine: the MCP wrappers are now tested end to end (correctly wired
+  to the router). The remaining uncovered lines are mostly rare error branches.
+- The API reference is generated deterministically (registration order); docs = code.
 
-**Sıradaki:** Aşama 9 — eşitsizlik ispatı & nonlineer (Z3 NRA + SOS).
+**Next:** Phase 9 — inequality proof & nonlinear (Z3 NRA + SOS).
 
-## 2026-07-28 — Aşama 7 · olasılık & istatistik (mean/var/std/median + distribution)
+## 2026-07-28 — Phase 7 · probability & statistics (mean/var/std/median + distribution)
 
-**Yapıldı**
+**Done**
 
-- 5 yeni işlem: betimsel `mean`, `variance` (yığın/örneklem), `standard_deviation`,
-  `median` (tam/rasyonel) + birleşik `distribution` (sympy.stats, 7 dağılım).
-- Uçtan uca: router (5) + MCP (**54 araç**) + CLI (`mean/variance/std/median/
-  distribution`) + `tests/test_statistics.py` (15) → **273/273 yeşil**.
+- 5 new operations: descriptive `mean`, `variance` (population/sample), `standard_deviation`,
+  `median` (exact/rational) + a unified `distribution` (sympy.stats, 7 distributions).
+- End to end: router (5) + MCP (**54 tools**) + CLI (`mean/variance/std/median/
+  distribution`) + `tests/test_statistics.py` (15) → **273/273 green**.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- mean=5, yığın var=4, örneklem var=32/7, std=2, ortanca 9/2 (tam kesir).
-- `binomial(10,½)@3` → E=5, Var=5/2, cdf=11/64, pmf=15/128; `normal(μ,σ)` sembolik
+- mean=5, population var=4, sample var=32/7, std=2, median 9/2 (exact fraction).
+- `binomial(10,½)@3` → E=5, Var=5/2, cdf=11/64, pmf=15/128; `normal(μ,σ)` symbolic
   → E=μ, Var=σ²; `P(Z≤1.96)` exact (erfc), ≈0.975.
-- Dürüstlük: sembolik veri / bilinmeyen dağılım / yanlış parametre sayısı → red.
+- Honesty: symbolic data / unknown distribution / wrong parameter count → rejected.
 
-**Sıradaki:** Aşama 8 [S] — coverage + benchmark regresyon çiti + doküman
-konsolidasyonu.
+**Next:** Phase 8 [S] — coverage + benchmark regression fence + documentation consolidation.
 
-## 2026-07-28 — Aşama 6 · çok değişkenli analiz (grad/Jacobian/Hessian/∫/Σ/Π/ODE)
+## 2026-07-28 — Phase 6 · multivariable analysis (grad/Jacobian/Hessian/∫/Σ/Π/ODE)
 
-**Yapıldı**
+**Done**
 
-- 7 yeni işlem: `gradient`, `jacobian`, `hessian`, `definite_integral`,
+- 7 new operations: `gradient`, `jacobian`, `hessian`, `definite_integral`,
   `summation`, `product`, `solve_ode` (ODE, `dsolve`).
-- `solve_ode` için güvenli mini-ayrıştırıcı: `y'`/`y''` (üs işareti) → `D(y,k)` →
-  `Derivative`; `=`→`==`; whitelist dışı ad/çağrı reddedilir.
-- Uçtan uca: router (7) + MCP (**49 araç**) + CLI (`gradient/jacobian/hessian/
-  defint/sum/product/ode`) + `tests/test_multivariable.py` (16) → **258/258 yeşil**.
+- A safe mini-parser for `solve_ode`: `y'`/`y''` (prime marks) → `D(y,k)` →
+  `Derivative`; `=`→`==`; non-whitelisted name/call is rejected.
+- End to end: router (7) + MCP (**49 tools**) + CLI (`gradient/jacobian/hessian/
+  defint/sum/product/ode`) + `tests/test_multivariable.py` (16) → **258/258 green**.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- `∇(x²y+sin y)=[2xy, x²+cos y]`; Hessian simetrik; `∫₀³x²=9`, `∫₀^∞e^{-x}=1`;
-  `Σ_{1}^{n} i = n²/2+n/2` (kapalı form); `Π_{1}^{5} i = 120`.
+- `∇(x²y+sin y)=[2xy, x²+cos y]`; Hessian symmetric; `∫₀³x²=9`, `∫₀^∞e^{-x}=1`;
+  `Σ_{1}^{n} i = n²/2+n/2` (closed form); `Π_{1}^{5} i = 120`.
 - ODE: `y'=y → C1·e^x`; `y''+y=0 → C1 sin+C2 cos`; `y'=xy → C1·e^{x²/2}`.
-- Dürüstlük: çözülemeyen ODE (`y''=y²x`) → COMPUTE_FAILED; kötücül/tanımsız →
-  reddedilir.
+- Honesty: unsolvable ODE (`y''=y²x`) → COMPUTE_FAILED; malicious/undefined →
+  rejected.
 
-**Sıradaki:** Aşama 7 — olasılık & istatistik (dağılımlar, beklenen değer/varyans).
+**Next:** Phase 7 — probability & statistics (distributions, expected value/variance).
 
-## 2026-07-28 — Aşama 5 [S] · sağlamlaştırma-2 (taksonomi + golden + benchmark)
+## 2026-07-28 — Phase 5 [S] · hardening-2 (taxonomy + golden + benchmark)
 
-**Yapıldı**
+**Done**
 
-- **Hata taksonomisi:** `docs/error-taxonomy.md` — tüm `status`/`reason_code`
-  kanonik listesi. `tests/test_taxonomy.py` (4): 44 temsili çağrıyı tarar, her
-  kodu belgelenen kümeye karşı zorlar + "error → uydurma result yok" değişmezi.
-- **Golden fixtures:** `tests/fixtures/golden.json` (32 senaryo) + veri-güdümlü
-  `tests/test_golden.py` — bilinen çıktıların sessizce bozulmasına karşı çit.
-- **Benchmark:** `scripts/benchmark.py` (taban çizgisi, süre eşiği yok) + duman
-  testi. → **242/242 yeşil**.
+- **Error taxonomy:** `docs/error-taxonomy.md` — the canonical list of all `status`/`reason_code`
+  values. `tests/test_taxonomy.py` (4): scans 44 representative calls, enforces every code
+  against the documented set + the "error → no fabricated result" invariant.
+- **Golden fixtures:** `tests/fixtures/golden.json` (32 scenarios) + a data-driven
+  `tests/test_golden.py` — a fence against silent breakage of known outputs.
+- **Benchmark:** `scripts/benchmark.py` (baseline, no time threshold) + a smoke
+  test. → **242/242 green**.
 
-**Doğrulandı**
+**Verified**
 
-- Taban çizgisi (N=15, medyan): en yavaş `recurrence` ~43ms, `pigeonhole` ~8ms,
-  gerisi <4ms. Sayı teorisi <0.1ms.
-- Yanlış alarm çürütüldü: `classify('or(...)')` "hatası" aslında geçersiz gramerdi
-  (`or` Python'da infix); doğru form `p or not(p)` → tautology. Araç sağlam.
-- Yeni araç/CLI yok (bilinçli sağlamlaştırma). API yüzeyi 42 araçta sabit.
+- Baseline (N=15, median): the slowest is `recurrence` ~43ms, `pigeonhole` ~8ms,
+  the rest <4ms. Number theory <0.1ms.
+- A false alarm was debunked: the `classify('or(...)')` "error" was actually invalid grammar
+  (`or` is infix in Python); the correct form `p or not(p)` → tautology. The tool is sound.
+- No new tool/CLI (deliberate hardening). The API surface stays fixed at 42 tools.
 
-**Sıradaki:** Aşama 6 — çok değişkenli analiz (gradyan/Jacobian/Hessian/belirli
-integral/seri toplam/ODE).
+**Next:** Phase 6 — multivariable analysis (gradient/Jacobian/Hessian/definite
+integral/series sum/ODE).
 
-## 2026-07-28 — Aşama 4 · kombinatorik & ayrık (perm/comb/factorial/partition/recurrence)
+## 2026-07-28 — Phase 4 · combinatorics & discrete (perm/comb/factorial/partition/recurrence)
 
-**Yapıldı**
+**Done**
 
-- 5 yeni işlem: `permutations`, `combinations`, `factorial`, `partition_count`,
-  `solve_recurrence` (doğrusal özyineleme kapalı-form, `rsolve`).
-- `solve_recurrence` için güvenli mini-ayrıştırıcı: `func(...)` çağrıları + `var`
-  + aritmetik; `=`→`==` normalizasyonu; whitelist dışı ad/çağrı reddedilir.
-- Uçtan uca: router (5) + MCP (**42 araç**) + CLI (`perm/comb/factorial/
-  partitions/recurrence`) + `tests/test_combinatorics.py` (18) → **205/205 yeşil**.
+- 5 new operations: `permutations`, `combinations`, `factorial`, `partition_count`,
+  `solve_recurrence` (linear recurrence closed-form, `rsolve`).
+- A safe mini-parser for `solve_recurrence`: `func(...)` calls + `var`
+  + arithmetic; `=`→`==` normalization; non-whitelisted name/call is rejected.
+- End to end: router (5) + MCP (**42 tools**) + CLI (`perm/comb/factorial/
+  partitions/recurrence`) + `tests/test_combinatorics.py` (18) → **205/205 green**.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
 - `P(10,3)=720`, `C(10,3)=120`, `10!`, `p(10)=42`, `p(100)=190569292`.
-- **Fibonacci** `y(n)=y(n-1)+y(n-2)` → Binet kapalı formu; `Fib(10)=55` ikame ile
-  doğrulandı. `y(n)=2y(n-1)` → `2**n`.
-- Dürüstlük: doğrusal olmayan `y(n)=y(n-1)**2` → kapalı form yok (COMPUTE_FAILED);
-  `k>n` → 0; kötücül/tanımsız ad → reddedilir.
+- **Fibonacci** `y(n)=y(n-1)+y(n-2)` → Binet closed form; `Fib(10)=55` verified by
+  substitution. `y(n)=2y(n-1)` → `2**n`.
+- Honesty: nonlinear `y(n)=y(n-1)**2` → no closed form (COMPUTE_FAILED);
+  `k>n` → 0; malicious/undefined name → rejected.
 
-**Not (bug→fix):** `ast.parse(mode="eval")` `=` kabul etmiyordu (atama). Tek `=`,
-`==`'e normalize edildi → Compare işleyicisi devraldı. Ampirik yakalandı.
+**Note (bug→fix):** `ast.parse(mode="eval")` didn't accept `=` (assignment). A single `=`
+was normalized to `==` → the Compare handler took over. Caught empirically.
 
-**Sıradaki:** Aşama 5 [S] — hata taksonomisi + golden fixtures + benchmark iskeleti.
+**Next:** Phase 5 [S] — error taxonomy + golden fixtures + benchmark skeleton.
 
-## 2026-07-28 — Aşama 3 · sayı teorisi (gcd/lcm/asal/factorize/modinv/CRT/Diophantine)
+## 2026-07-28 — Phase 3 · number theory (gcd/lcm/prime/factorize/modinv/CRT/Diophantine)
 
-**Yapıldı**
+**Done**
 
-- 7 yeni işlem: `gcd`, `lcm`, `is_prime`, `factorize`, `modular_inverse`,
-  `chinese_remainder` (CRT), `linear_diophantine`. Girdi güvenli tam sayı
-  (`_parse_int`: ast-whitelist + tam sayı denetimi; "2**10" serbest, sembol yok).
-- Uçtan uca: router (7 görev) + MCP (**37 araç**) + CLI (`gcd/lcm/isprime/
+- 7 new operations: `gcd`, `lcm`, `is_prime`, `factorize`, `modular_inverse`,
+  `chinese_remainder` (CRT), `linear_diophantine`. Input is safe integers
+  (`_parse_int`: ast-whitelist + integer check; "2**10" allowed, no symbols).
+- End to end: router (7 tasks) + MCP (**37 tools**) + CLI (`gcd/lcm/isprime/
   factorize/modinv/crt/diophantine`) + `tests/test_numbertheory.py` (18) →
-  **187/187 yeşil**. Docs güncel.
+  **187/187 green**. Docs up to date.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
 - `factorize(360)=2³·3²·5`; `is_prime(91)=False` (7·13); `CRT([3,5,7],[2,3,2])→23
   (mod 105)`; `Diophantine 3x+6y=9 → (3-2t₀, t₀)`.
-- Dürüstlük: `modular_inverse(4,8)` → ters yok (gcd≠1); CRT `[4,6],[1,2]` →
-  bağdaşmaz; `Diophantine 2x+4y=5` → boş liste (gcd(2,4)∤5); `factorize(1)=[]`.
+- Honesty: `modular_inverse(4,8)` → no inverse (gcd≠1); CRT `[4,6],[1,2]` →
+  incompatible; `Diophantine 2x+4y=5` → empty list (gcd(2,4)∤5); `factorize(1)=[]`.
 
-**Sıradaki:** Aşama 4 — kombinatorik & ayrık (permütasyon/kombinasyon, binom,
+**Next:** Phase 4 — combinatorics & discrete (permutation/combination, binomial,
 partition, recurrence).
 
-## 2026-07-28 — Aşama 2 [S] · sağlamlaştırma-1 (property + determinizm + fuzz)
+## 2026-07-28 — Phase 2 [S] · hardening-1 (property + determinism + fuzz)
 
-**Yapıldı**
+**Done**
 
-- `tests/test_compute_properties.py` (8 property testi): hesap katmanı için
-  matematiksel değişmezler + parser fuzz + determinizm denetimi.
-- Değişmezler: `det(A·B)=det(A)·det(B)`, `det(Aᵀ)=det(A)`, `Ax=b` roundtrip,
-  `simplify` idempotent. Fuzz: rastgele/kötücül metin & düzensiz matris → çökme
-  yok, yalnız `ok|error`. → **169/169 yeşil**, 3 hypothesis tohumunda kararlı.
+- `tests/test_compute_properties.py` (8 property tests): mathematical invariants for the
+  compute layer + parser fuzz + determinism check.
+- Invariants: `det(A·B)=det(A)·det(B)`, `det(Aᵀ)=det(A)`, `Ax=b` roundtrip,
+  `simplify` idempotent. Fuzz: random/malicious text & malformed matrices → no crash,
+  only `ok|error`. → **169/169 green**, stable across 3 hypothesis seeds.
 
-**Doğrulandı**
+**Verified**
 
-- Güvenlik değişmezi property testiyle de doğrulandı: beyaz-liste dışı hiçbir
-  girdi kod çalıştırmıyor / exception sızdırmıyor.
-- Yeni araç/CLI yok (bilinçli — bu bir sağlamlaştırma aşaması). API yüzeyi sabit.
+- The security invariant was also verified by property testing: no non-whitelisted
+  input runs code / leaks an exception.
+- No new tool/CLI (deliberate — this is a hardening phase). The API surface stays fixed.
 
-**Sıradaki:** Aşama 3 — sayı teorisi (gcd/lcm, asal, factorize, modüler ters/CRT,
+**Next:** Phase 3 — number theory (gcd/lcm, prime, factorize, modular inverse/CRT,
 Diophantine).
 
-## 2026-07-28 — Aşama 1 · lineer cebiri tamamla (matmul/Ax=b/eigvec/rref/nullspace/LU)
+## 2026-07-28 — Phase 1 · complete linear algebra (matmul/Ax=b/eigvec/rref/nullspace/LU)
 
-**Yapıldı**
+**Done**
 
-- 6 yeni işlem: `matrix_multiply`, `matrix_solve` (Ax=b matris formu),
-  `eigenvectors`, `rref` (+pivotlar), `nullspace`, `lu_decomposition`.
-- Uçtan uca: router (6 görev) + MCP (**30 araç**) + CLI (`matmul`/`matsolve`/
+- 6 new operations: `matrix_multiply`, `matrix_solve` (Ax=b matrix form),
+  `eigenvectors`, `rref` (+pivots), `nullspace`, `lu_decomposition`.
+- End to end: router (6 tasks) + MCP (**30 tools**) + CLI (`matmul`/`matsolve`/
   `eigenvectors`/`rref`/`nullspace`/`lu`) + `tests/test_linalg.py` (15) →
-  **161/161 yeşil**. Docs güncel.
+  **161/161 green**. Docs up to date.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- `Ax=b`: benzersiz `{x0:6,x1:4}`; **tutarsız → boş liste** (uydurma yok);
-  **sonsuz → parametrik** `{x0: "3 - x1", x1: "x1"}` + açıklamada "parametrik".
-- matmul boyut uyumsuz (`A.cols≠B.rows`) → hata; nullspace tam-rank → trivial
-  (boş); LU → L alt/U üst üçgen. Özvektörler özdeğere göre sıralı (determinizm).
+- `Ax=b`: unique `{x0:6,x1:4}`; **inconsistent → empty list** (no fabrication);
+  **infinite → parametric** `{x0: "3 - x1", x1: "x1"}` + "parametric" in the explanation.
+- matmul dimension mismatch (`A.cols≠B.rows`) → error; nullspace full-rank → trivial
+  (empty); LU → L lower/U upper triangular. Eigenvectors sorted by eigenvalue (determinism).
 
-**Sıradaki:** Aşama 2 [S] — determinizm denetimi + property test genişletme +
-parser fuzz. (Hedef: Aşama 11'e kadar otonom.)
+**Next:** Phase 2 [S] — determinism check + property test expansion +
+parser fuzz. (Target: autonomous up to Phase 11.)
 
-## 2026-07-28 — lineer cebir / matris (det / inverse / eigenvalues / rank)
+## 2026-07-28 — linear algebra / matrix (det / inverse / eigenvalues / rank)
 
-**Yapıldı**
+**Done**
 
-- Hesap katmanına matris çekirdeği: `determinant`, `matrix_inverse`,
-  `eigenvalues` (+ cebirsel katlılık), `matrix_rank`. Girdi `list[list[str]]`,
-  her hücre ast-whitelist ile süzülür → sembolik hücre serbest.
-- Uçtan uca: `router` (4 yeni görev) + MCP (**24 araç — dört yeni**) + CLI
-  (`det`/`inverse`/`eigenvals`/`rank`, MATLAB-tarzı `"1,2;3,4"` dizgisi) +
-  `tests/test_matrix.py` (18 test) → **146/146 yeşil**. Docs güncel.
+- A matrix core in the compute layer: `determinant`, `matrix_inverse`,
+  `eigenvalues` (+ algebraic multiplicity), `matrix_rank`. Input `list[list[str]]`,
+  each cell filtered through the ast-whitelist → symbolic cells allowed.
+- End to end: `router` (4 new tasks) + MCP (**24 tools — four new**) + CLI
+  (`det`/`inverse`/`eigenvals`/`rank`, MATLAB-style `"1,2;3,4"` string) +
+  `tests/test_matrix.py` (18 tests) → **146/146 green**. Docs up to date.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- `det[[a,b],[c,d]] = a*d - b*c` (sembolik çalışıyor); `inv[[1,2],[3,4]] =
-  [[-2,1],[3/2,-1/2]]`; döndürme matrisinin özdeğerleri `±i` (karmaşık, tam form);
-  kusurlu (defective) matriste tek özdeğer **katlılık 2** (gizlenmez).
-- **Dürüstlük:** tekil matris (`[[1,2],[2,4]]`, det=0) → ters uydurulmaz,
-  `COMPUTE_FAILED` + "tersinir değil" mesajı. Kare-değil determinant → reddedilir.
-- Güvenlik değişmezi korundu: hücrede `__import__` → reddedilir.
-- Determinizm: özdeğerler `value`'ya göre sıralı → çağrılar arası kararlı (ADR-0019).
+- `det[[a,b],[c,d]] = a*d - b*c` (symbolic works); `inv[[1,2],[3,4]] =
+  [[-2,1],[3/2,-1/2]]`; the rotation matrix's eigenvalues `±i` (complex, exact form);
+  in a defective matrix the single eigenvalue has **multiplicity 2** (not hidden).
+- **Honesty:** a singular matrix (`[[1,2],[2,4]]`, det=0) → no fabricated inverse,
+  `COMPUTE_FAILED` + "not invertible" message. A non-square determinant → rejected.
+- The security invariant is preserved: `__import__` in a cell → rejected.
+- Determinism: eigenvalues sorted by `value` → stable across calls (ADR-0019).
 
-**Sıradaki (gelecek oturum):** matris çarpımı + `Ax=b` (lineer sistem matris
-formu) + özvektör (eigenvector); ya da ispat/mantık tarafını derinleştirme.
-(Ürün/PyPI akşam kullanıcıda.)
+**Next (future session):** matrix multiplication + `Ax=b` (linear system matrix
+form) + eigenvector; or deepening the proof/logic side.
+(Product/PyPI is the user's evening.)
 
-## 2026-07-28 — kalkülüs & sistemler (limit / series / solve_system)
+## 2026-07-28 — calculus & systems (limit / series / solve_system)
 
-**Yapıldı**
+**Done**
 
-- Hesap katmanı (SymPy) genişledi: `limit` (sonlu/sonsuz nokta + tek yön `+`/`-`),
-  `series` (bir nokta etrafında `order`. mertebe Taylor açılımı, `removeO`),
-  `solve_system` (çok değişkenli sistem; doğrusal + doğrusal olmayan).
-- Uçtan uca bağlandı: `router` (3 yeni görev) + MCP (**20 araç — üç yeni**) +
-  CLI (`limit`, `series`, `solve-system`) + `tests/test_calculus.py` (18 test)
-  → **128/128 yeşil**. Docs: `mcp-api.md`, `README.md`, `CHANGELOG.md` güncel.
+- The compute layer (SymPy) expanded: `limit` (finite/infinite point + one-sided `+`/`-`),
+  `series` (Taylor expansion to `order`-th order around a point, `removeO`),
+  `solve_system` (multivariable system; linear + nonlinear).
+- Wired end to end: `router` (3 new tasks) + MCP (**20 tools — three new**) +
+  CLI (`limit`, `series`, `solve-system`) + `tests/test_calculus.py` (18 tests)
+  → **128/128 green**. Docs: `mcp-api.md`, `README.md`, `CHANGELOG.md` up to date.
 
-**Doğrulandı (dürüst duvarlar ampirik)**
+**Verified (honest walls, empirical)**
 
-- `lim x→0 sin(x)/x = 1`, `lim x→∞ 1/x = 0`, `lim n→∞ (1+1/n)^n = e` (bilinen
-  sabit yeniden üretildi); `exp(x)` 5. mertebe Taylor doğru.
-- `solve_system` **dürüst**: çelişen sistem → boş liste (uydurma yok); doğrusal
-  olmayan (çember ∩ doğru) → iki çözüm; serbest değişken → parametrik.
-- Güvenlik değişmezi korundu: beyaz-liste dışı çağrı (`__import__`) reddedilir.
+- `lim x→0 sin(x)/x = 1`, `lim x→∞ 1/x = 0`, `lim n→∞ (1+1/n)^n = e` (a known
+  constant reproduced); `exp(x)` 5th-order Taylor correct.
+- `solve_system` is **honest**: a contradictory system → empty list (no fabrication); nonlinear
+  (circle ∩ line) → two solutions; free variable → parametric.
+- The security invariant is preserved: a non-whitelisted call (`__import__`) is rejected.
 
-**Sıradaki (gelecek oturum):** lineer cebir (matris) — determinant, özdeğer,
-tersini alma. (Ürün/PyPI akşam kullanıcıda.)
+**Next (future session):** linear algebra (matrix) — determinant, eigenvalue,
+inversion. (Product/PyPI is the user's evening.)
 
-## 2026-07-28 — mantıksal denklik & sınıflandırma
+## 2026-07-28 — logical equivalence & classification
 
-**Yapıldı**
+**Done**
 
-- `logic.equivalent` (A ≡ B; `a XOR b` UNSAT ise denk) + `logic.classify`
-  (totoloji / çelişki / olumsal). Router + MCP (**17. araç — iki yeni**) + CLI
-  (`equiv`, `classify`) + testler → **110/110 yeşil**.
-- `not_equivalent`'ta farklılaşma tanığı; `contingent`'te doğru + yanlış tanık.
+- `logic.equivalent` (A ≡ B; equivalent if `a XOR b` is UNSAT) + `logic.classify`
+  (tautology / contradiction / contingent). Router + MCP (**17th tool — two new**) + CLI
+  (`equiv`, `classify`) + tests → **110/110 green**.
+- For `not_equivalent`, a differentiating witness; for `contingent`, a true + false witness.
 
-**Sıradaki (gelecek oturumlar):** performans; daha çok property; (ürün akşam sende).
+**Next (future sessions):** logical equivalence/classification; performance; (product is your evening).
 
-## 2026-07-28 — sağlamlaştırma: property-based test (hypothesis)
+## 2026-07-28 — hardening: property-based tests (hypothesis)
 
-**Yapıldı**
+**Done**
 
-- `tests/test_properties.py`: `hypothesis` ile rastgele formüllerde değişmezler —
-  hiç çökmeme, `A⊨B ⟺ {A,¬B} tutarsız`, öz-gerektirme, `enumerate ⟺ consistency`,
-  türetici sağlamlığı. `hypothesis` dev bağımlılığı eklendi.
-- **Property testi GERÇEK bir zayıflık yakaladı:** tanık (model) çağrılar arası
-  değişebiliyordu (birden çok geçerli model). Determinizm iddiası kesinleştirildi:
-  **verdict garantidir, tanık bir örnektir** (ADR-0019); don't-care'ler kanonik
-  varsayılana sabitlendi. `PRINCIPLES` / `Plan` güncellendi.
-- **103/103 yeşil** (7 property testi dahil).
+- `tests/test_properties.py`: invariants over random formulas with `hypothesis` —
+  never crashing, `A⊨B ⟺ {A,¬B} inconsistent`, self-entailment, `enumerate ⟺ consistency`,
+  derivation soundness. Added `hypothesis` as a dev dependency.
+- **Property testing caught a REAL weakness:** the witness (model) could vary between
+  calls (multiple valid models). The determinism claim was made precise:
+  **the verdict is guaranteed, the witness is an example** (ADR-0019); don't-cares were
+  pinned to a canonical default. `PRINCIPLES` / `Plan` updated.
+- **103/103 green** (including 7 property tests).
 
-**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans.
+**Next (future sessions):** logical equivalence/classification; performance.
 
-## 2026-07-28 — MaxSAT (yumuşak/ağırlıklı kısıtlar)
+## 2026-07-28 — MaxSAT (soft/weighted constraints)
 
-**Yapıldı**
+**Done**
 
-- `logic.max_satisfy` + `MaxSatResult`: zorunlu (hard) kısıtları sağlayıp EN ÇOK
-  (ağırlıklı) yumuşak (soft) kısıtı sağla (`z3.Optimize.add_soft`). Router + MCP
-  (**15. araç**) + CLI (`mathhead maxsat`) + testler → **96/96 yeşil**.
-- Ağırlıklı seçim doğrulandı (ağır kısıt tercih edilir); `hard` sağlanamazsa unsat.
-- Yeni karar: ADR-0018.
+- `logic.max_satisfy` + `MaxSatResult`: satisfy the mandatory (hard) constraints and satisfy
+  the MOST (weighted) soft constraints (`z3.Optimize.add_soft`). Router + MCP
+  (**15th tool**) + CLI (`mathhead maxsat`) + tests → **96/96 green**.
+- Weighted selection verified (the heavier constraint is preferred); if `hard` can't be satisfied, unsat.
+- New decision: ADR-0018.
 
-**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
-(ürün/yayın akşam, sende).
+**Next (future sessions):** logical equivalence/classification; performance;
+(product/release in the evening, on you).
 
-## 2026-07-28 — optimizasyon (Z3 Optimize / MaxSMT)
+## 2026-07-28 — optimization (Z3 Optimize / MaxSMT)
 
-**Yapıldı**
+**Done**
 
-- `logic.optimize` + `OptimizeResult` + `translate.translate_objective`: kısıtlar
-  altında sayısal amacı max/min (`z3.Optimize`). Router + MCP (**14. araç**) + CLI
-  (`mathhead optimize`) + testler → **90/90 yeşil**.
-- Dürüst kenar durumlar: `unbounded` (sınırsız), `unsat` (infeasible), açık-sınır
-  (ε — supremum/infimum tam ulaşılamaz).
-- Yeni karar: ADR-0017.
+- `logic.optimize` + `OptimizeResult` + `translate.translate_objective`: max/min a numeric
+  objective under constraints (`z3.Optimize`). Router + MCP (**14th tool**) + CLI
+  (`mathhead optimize`) + tests → **90/90 green**.
+- Honest edge cases: `unbounded`, `unsat` (infeasible), open-bound
+  (ε — supremum/infimum not exactly attainable).
+- New decision: ADR-0017.
 
-**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
-(ürün/yayın akşam, sende).
+**Next (future sessions):** logical equivalence/classification; performance;
+(product/release in the evening, on you).
 
-## 2026-07-28 — model numaralandırma (all-SAT)
+## 2026-07-28 — model enumeration (all-SAT)
 
-**Yapıldı**
+**Done**
 
-- `logic.enumerate_models` + `ModelSet`: bir formülü sağlayan FARKLI modelleri
-  (bloklama-cümlesiyle) say. `exhaustive` bayrağı dürüst: tümü mü, sınır mı.
-- Router + MCP (**13. araç**) + CLI (`mathhead enumerate`) + testler → **84/84**.
+- `logic.enumerate_models` + `ModelSet`: count the DISTINCT models satisfying a formula
+  (via blocking clauses). The `exhaustive` flag is honest: all of them, or a limit.
+- Router + MCP (**13th tool**) + CLI (`mathhead enumerate`) + tests → **84/84**.
 
-**Dürüstlük:** Sonsuz alanda (sınırsız Int/Real) `exhaustive=False` — "daha
-fazlası olabilir" açıkça belirtilir.
+**Honesty:** Over an infinite domain (unbounded Int/Real) `exhaustive=False` — "there
+could be more" is stated explicitly.
 
-**Sıradaki (gelecek oturumlar):** mantıksal denklik/sınıflandırma; performans;
-(ürün/yayın akşam, sende).
+**Next (future sessions):** logical equivalence/classification; performance;
+(product/release in the evening, on you).
 
-## 2026-07-28 — v3.2 · ispat üreticisine ∃ (varoluşsal) akıl yürütme
+## 2026-07-28 — v3.2 · existential (∃) reasoning in the proof generator
 
-**Yapıldı**
+**Done**
 
-- `core/proof.py`: **∃-eleme** (taze tanık sabiti; `∀`-eleme onu da kullanır) +
-  **∃-giriş** (hedef `∃x.ψ`, `ψ[t]` türetildiyse). Bağlam/witness yönetimi.
-- `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` gibi çıkarımlar adım adım. Testler + regresyon
-  → **78/78 yeşil**.
-- Yeni karar: ADR-0016. Klasik FOL doğal tümdengelim parçası büyük ölçüde tamam.
+- `core/proof.py`: **∃-elimination** (a fresh witness constant; `∀`-elimination uses it too) +
+  **∃-introduction** (goal `∃x.ψ`, if `ψ[t]` was derived). Context/witness management.
+- Inferences like `∃x P(x), ∀x(P→Q) ⊨ ∃x Q(x)` step by step. Tests + regression
+  → **78/78 green**.
+- New decision: ADR-0016. The classical FOL natural-deduction fragment is largely complete.
 
-**Dürüstlük:** Aritmetik türetim ve bazı karışık nicelik desenleri hâlâ yok →
-Z3 kararı korunur (adımsız).
+**Honesty:** Arithmetic derivation and some mixed quantifier patterns are still absent →
+Z3's decision is retained (without steps).
 
-**Sıradaki (gelecek oturumlar):** ispatı LaTeX/metin dışa verme; performans;
-(yayın akşam, sende).
+**Next (future sessions):** exporting the proof to LaTeX/text; performance;
+(release in the evening, on you).
 
-## 2026-07-28 — v3.1 · ispat üreticisi genişletildi (RAA + MT/DS)
+## 2026-07-28 — v3.1 · proof generator extended (RAA + MT/DS)
 
-**Yapıldı**
+**Done**
 
-- `core/proof.py` kural kümesi: modus tollens, ayrık tasım, çift olumsuzlama,
-  De Morgan; + ikinci strateji **çelişkiden ispat (RAA)** → durum ayrımı (proof
-  by cases) gibi dolaylı ispatlar adım adım çıkıyor.
-- Testler (MT / DS / RAA / De Morgan) + regresyon → **76/76 yeşil**.
-- Yeni karar: ADR-0015.
+- `core/proof.py` rule set: modus tollens, disjunctive syllogism, double negation,
+  De Morgan; + a second strategy, **proof by contradiction (RAA)** → indirect proofs like
+  proof by cases come out step by step.
+- Tests (MT / DS / RAA / De Morgan) + regression → **76/76 green**.
+- New decision: ADR-0015.
 
-**Dürüstlük:** Varoluşsal (∃) eleme ve aritmetik türetim hâlâ yok → Z3 kararı
-korunur (adımsız).
+**Honesty:** Existential (∃) elimination and arithmetic derivation are still absent → Z3's decision
+is retained (without steps).
 
-**Sıradaki (gelecek oturumlar):** ∃-eleme; GitHub release + PyPI (akşam, sende).
+**Next (future sessions):** ∃-elimination; GitHub release + PyPI (in the evening, on you).
 
-## 2026-07-28 — v3 · ispat üretimi (adım adım) (aynı oturum)
+## 2026-07-28 — v3 · proof generation (step by step) (same session)
 
-**Yapıldı**
+**Done**
 
-- `core/proof.py`: entailment + NEDEN. (1) minimal öncül çekirdeği (unsat core),
-  (2) ileri zincirleme **doğal tümdengelim** türetimi (modus ponens, ∧-ayıklama,
-  iff, evrensel örnekleme). Klasik silogizm adım adım.
-- Yeni MCP aracı `prove` (**12. araç**) + CLI `mathhead prove` + testler → **72/72**.
-- Yeni karar: ADR-0014.
+- `core/proof.py`: entailment + WHY. (1) minimal premise core (unsat core),
+  (2) forward-chaining **natural deduction** derivation (modus ponens, ∧-elimination,
+  iff, universal instantiation). Classical syllogism step by step.
+- New MCP tool `prove` (**12th tool**) + CLI `mathhead prove` + tests → **72/72**.
+- New decision: ADR-0014.
 
-**Dürüstlük:** Türetici önerme + yüklem + evrensel parçasıyla sınırlı; aritmetik /
-`or`-`not` / varoluşsal için türetim kurulamaz → Z3 kararı korunur, adımsız
-("türetim yok" denir).
+**Honesty:** The deriver is limited to the propositional + predicate + universal fragment;
+for arithmetic / `or`-`not` / existential no derivation can be built → Z3's decision is retained,
+without steps (it says "no derivation").
 
-**Sıradaki (gelecek oturumlar):** türeticiyi genişletme (or-elim, varoluşsal);
-GitHub release; PyPI (senin evden).
+**Next (future sessions):** extending the deriver (or-elim, existential);
+GitHub release; PyPI (from your home).
 
-## 2026-07-28 — Optimizasyon denemesi · simetri kırma (dürüst: karışık sonuç)
+## 2026-07-28 — Optimization attempt · symmetry breaking (honest: mixed result)
 
-**Yapıldı**
+**Done**
 
-- `frontier`'a renk-simetri kırma eklendi (opsiyonel `symmetry_break`; doğruluk
-  teste kilitli). Ölçüm: küçük/UNSAT'ta hızlandırdı; **SAT'ta yavaşlattı**
-  (S(4)=44: 35s → 48s); W(2,5) 2-renkte değişmedi (faktör 2).
-- **Dürüst sonuç:** naif simetri kırma duvarı (S(4)=45, W(2,6)) AŞMADI →
-  varsayılan **kapalı**. Gerçek duvar araştırma-düzeyi SAT teknikleri ister.
-  Detay: `docs/track-b-results.md`.
+- Color-symmetry breaking added to `frontier` (optional `symmetry_break`; correctness
+  locked to tests). Measurement: it sped up small/UNSAT cases; **slowed down SAT**
+  (S(4)=44: 35s → 48s); W(2,5) at 2 colors unchanged (factor 2).
+- **Honest result:** naive symmetry breaking did NOT get past the wall (S(4)=45, W(2,6)) →
+  default is **off**. The real wall needs research-grade SAT techniques.
+  Detail: `docs/track-b-results.md`.
 
-**Sıradaki (gelecek oturumlar):** ürünleşme (PyPI); farklı hızlandırma teknikleri.
+**Next (future sessions):** productization (PyPI); different speedup techniques.
 
-## 2026-07-28 — Track B · Schur sayıları (bilinen değerler yeniden üretildi)
+## 2026-07-28 — Track B · Schur numbers (known values reproduced)
 
-**Yapıldı**
+**Done**
 
-- `frontier.schur_number_coloring`: {1..n} r-renk sum-free bölme. Router + MCP
-  (**11. araç**) + CLI (`mathhead schur n r`) + testler → **65/65 yeşil**.
-- Dürüst saldırı: S(2)=4, S(3)=13 **tam** yeniden üretildi (n=5, n=14 imkânsızlık
-  ispatları); S(4) için S(4) ≥ 44 doğrulandı (n=44 sat, ~25 sn), üst sınır (n=45)
-  duvara takıldı. Detay: `docs/track-b-results.md`.
+- `frontier.schur_number_coloring`: r-color sum-free partition of {1..n}. Router + MCP
+  (**11th tool**) + CLI (`mathhead schur n r`) + tests → **65/65 green**.
+- Honest attack: S(2)=4, S(3)=13 reproduced **exactly** (n=5, n=14 impossibility
+  proofs); for S(4), S(4) ≥ 44 was verified (n=44 sat, ~25 s), the upper bound (n=45)
+  hit the wall. Detail: `docs/track-b-results.md`.
 
-**Dürüst sonuç:** S(5)=160 ve açık S(6) bu ortamda erişilemez. Sahte zafer yok.
+**Honest result:** S(5)=160 and the open S(6) are unreachable in this environment. No false victory.
 
-**Sıradaki (gelecek oturumlar):** PyPI paketi; ölçek/çözücü; v3 ispat üretimi.
+**Next (future sessions):** PyPI package; scale/solver; v3 proof generation.
 
-## 2026-07-28 — Track B · van der Waerden (bilinen değerler yeniden üretildi)
+## 2026-07-28 — Track B · van der Waerden (known values reproduced)
 
-**Yapıldı**
+**Done**
 
-- `frontier.van_der_waerden_coloring`: {1..n} r-renk, tek renkli k-terimli
-  aritmetik dizi olmadan boyama. Router + MCP (**10. araç**) + CLI
-  (`mathhead vdw n k`) + testler → **61/61 yeşil**.
-- **Açık-problem sınıfına dürüst saldırı** (kullanıcı isteği): motor W(2,3)=9,
-  W(2,4)=35, **W(2,5)=178** değerlerini AYNI SAT yöntemiyle **yeniden üretti**
-  (her biri gerçek imkânsızlık ispatı; W(2,5) ~61 sn). Detay + dürüst
+- `frontier.van_der_waerden_coloring`: an r-color coloring of {1..n} with no monochromatic
+  k-term arithmetic progression. Router + MCP (**10th tool**) + CLI
+  (`mathhead vdw n k`) + tests → **61/61 green**.
+- **An honest attack on the open-problem class** (user request): the engine **reproduced**
+  the values W(2,3)=9, W(2,4)=35, **W(2,5)=178** with the SAME SAT method
+  (each a genuine impossibility proof; W(2,5) ~61 s). Detail + honest
   compute-wall: `docs/track-b-results.md`.
 
-**Dürüst sonuç:** Açık bir problem ÇÖZÜLMEDİ (W(2,6)=1132 ve açık W(2,7) bu
-ortamın ötesinde). Ama araştırma değerleri doğrulanabilir biçimde üretildi ve
-duvarın yeri şeffafça gösterildi. Sahte zafer yok.
+**Honest result:** No open problem was SOLVED (W(2,6)=1132 and the open W(2,7) are beyond
+this environment). But research values were produced verifiably and the location of the
+wall was shown transparently. No false victory.
 
-**Sıradaki (gelecek oturumlar):** PyPI paketi; ölçek/çözücü iyileştirme; v3 ispat üretimi.
+**Next (future sessions):** PyPI package; scale/solver improvement; v3 proof generation.
 
-## 2026-07-28 — CLI · terminal arayüzü (aynı oturum)
+## 2026-07-28 — CLI · terminal interface (same session)
 
-**Yapıldı**
+**Done**
 
 - `mathhead` CLI (argparse): entail / consistent / model / simplify / solve /
-  diff / integrate / pigeonhole / pythagorean; `--json`; anlamlı çıkış kodları
-  (0 sonuç, 1 hata, 2 unknown). Aynı `router`'a bağlı ince kabuk.
-- `pyproject` script girişi (`mathhead`); README + CI rozeti. → **56/56 yeşil**.
+  diff / integrate / pigeonhole / pythagorean; `--json`; meaningful exit codes
+  (0 result, 1 error, 2 unknown). A thin shell wired to the same `router`.
+- `pyproject` script entry (`mathhead`); README + CI badge. → **56/56 green**.
 
-**Sıradaki (gelecek oturumlar):** PyPI paketi, fonksiyon terimleri, v3 ispat üretimi.
+**Next (future sessions):** PyPI package, function terms, v3 proof generation.
 
-## 2026-07-28 — v1.2 · yüklemler + bireyler (aynı oturum)
+## 2026-07-28 — v1.2 · predicates + individuals (same session)
 
-**Yapıldı**
+**Done**
 
-- `translate`: üçüncü sort `U` (birey) + yorumsuz yüklemler (`Man(x)`, `Loves(a,b)`).
-- Klasik silogizm çalışır: `∀x.(Man(x)→Mortal(x))`, `Man(socrates)` ⊨ `Mortal(socrates)`.
-- Ad çakışması / arite / argüman-sort denetimleri (net reddeder). Yeni MCP aracı
-  YOK (dil zenginleşti; mevcut 3 mantık aracı kapsıyor).
-- Testler: silogizm + ilişkisel + çelişki + guardrail → **51/51 yeşil**.
-- Yeni karar: ADR-0013.
+- `translate`: a third sort `U` (individual) + uninterpreted predicates (`Man(x)`, `Loves(a,b)`).
+- The classical syllogism works: `∀x.(Man(x)→Mortal(x))`, `Man(socrates)` ⊨ `Mortal(socrates)`.
+- Name-collision / arity / argument-sort checks (rejects cleanly). NO new MCP tool
+  (the language got richer; the existing 3 logic tools cover it).
+- Tests: syllogism + relational + contradiction + guardrail → **51/51 green**.
+- New decision: ADR-0013.
 
-**Karar:** v1.2'de yüklem argümanları yalnızca birey; fonksiyon terimleri (`f(x)`)
-sonraki sürüme. Yüklem+quantifier undecidability'i artırır; `unknown` mümkün,
-soundness korunur.
+**Decision:** In v1.2 predicate arguments are individuals only; function terms (`f(x)`)
+go to the next release. Predicates+quantifiers increase undecidability; `unknown` is possible,
+soundness is preserved.
 
-**Sıradaki (gelecek oturumlar — acele yok):** yorumsuz fonksiyon terimleri;
-v3 ispat üretimi; Track B derinleştirme (graph coloring/Schur); ürünleştirme
-(PyPI paketi, CLI, README rozetleri, kullanım kılavuzu).
+**Next (future sessions — no rush):** uninterpreted function terms;
+v3 proof generation; deepening Track B (graph coloring/Schur); productization
+(PyPI package, CLI, README badges, usage guide).
 
-## 2026-07-28 — v2.1 · Track B tohumu (aynı oturum)
+## 2026-07-28 — v2.1 · Track B seed (same session)
 
-**Yapıldı**
+**Done**
 
-- `frontier/`: problemi SAT'a indirgeme demoları — Boolean Pythagorean
-  renklendirme + güvercin yuvası (pigeonhole) imkânsızlık ispatı.
-- 2 MCP aracı (toplam **9**). Testler: üretilen boyamanın **bağımsız doğrulaması**
-  (tek renkli üçlü yok) + PHP ispatı → **42/42 yeşil**.
-- Yeni karar: ADR-0012.
+- `frontier/`: demos of reducing a problem to SAT — Boolean Pythagorean
+  coloring + pigeonhole impossibility proof.
+- 2 MCP tools (**9** total). Tests: **independent verification** of the generated coloring
+  (no monochromatic triple) + PHP proof → **42/42 green**.
+- New decision: ADR-0012.
 
-**Karar:** Track B "yöntem"i çalışır (indirgeme → Z3). Dürüstlük: küçük ölçek;
-ünlü sonuçların kendisi değil, aynı yöntem. Dış sözleşme DEĞİŞMEDİ.
+**Decision:** The Track B "method" works (reduction → Z3). Honesty: small scale;
+not the famous results themselves, but the same method. The external contract did NOT change.
 
-**Sıradaki:** ölçek/CDCL sınırları, daha çok indirgeme (graph coloring, Schur),
-veya v1.2 (yüklem sembolleri).
+**Next:** scale/CDCL limits, more reductions (graph coloring, Schur),
+or v1.2 (predicate symbols).
 
-## 2026-07-28 — v2 · hesap katmanı (SymPy) (aynı oturum)
+## 2026-07-28 — v2 · compute layer (SymPy) (same session)
 
-**Yapıldı**
+**Done**
 
-- `compute/`: ast-whitelist → SymPy çevirici (`sympify`/`eval` YOK — güvenlik).
-- 4 işlem: `simplify`, `solve`, `differentiate`, `integrate` + `ComputeResult`.
-- `router` compute görevlerini yönlendiriyor; MCP'ye 4 yeni araç (toplam **7**).
-- Testler: hesap + güvenlik (`__import__` / bilinmeyen fonksiyon reddi) →
-  **37/37 yeşil**.
-- Yeni karar: ADR-0011.
+- `compute/`: ast-whitelist → SymPy translator (NO `sympify`/`eval` — security).
+- 4 operations: `simplify`, `solve`, `differentiate`, `integrate` + `ComputeResult`.
+- `router` routes compute tasks; 4 new tools in MCP (**7** total).
+- Tests: compute + security (`__import__` / rejection of unknown functions) →
+  **37/37 green**.
+- New decision: ADR-0011.
 
-**Karar:** Hesap, mantıktan ayrı katman; girdi yine beyaz-liste. SymPy kapalı
-formda çözemezse dürüstçe değerlendirilmemiş sonuç. Dış sözleşme (mevcut araçlar)
-DEĞİŞMEDİ.
+**Decision:** Compute is a layer separate from logic; input is still whitelisted. If SymPy
+can't solve in closed form, an honestly unevaluated result. The external contract (existing tools)
+did NOT change.
 
-**Sıradaki:** Track B tohumu (kombinatoryal problemi SAT'a indirgeme) / T9.
+**Next:** Track B seed (reducing a combinatorial problem to SAT) / T9.
 
-## 2026-07-28 — v1.1 · nicelik belirteçleri + Real (aynı oturum)
+## 2026-07-28 — v1.1 · quantifiers + Real (same session)
 
-**Yapıldı**
+**Done**
 
-- `translate` iki geçişe ayrıldı (infer/sort + build); kapsam (scope) yönetimi.
-- `forall(x, …)` / `exists(x, …)`: bağlı sabit mangling → değişken yakalama yok.
-- Real sayı desteği: ondalık sabit varsa numeric domain = Real (yoksa Int).
-- `logic` artık `translate_all` kullanıyor (paylaşımlı bağlam + doğru domain).
-- Real model değeri okunur (`3/2` → `1.5`).
-- Testler: quantifier + Real + capture + **soundness** (∀∃'de asla yanlış cevap;
-  gerekirse `unknown`) → **25/25 yeşil**.
-- Yeni karar: ADR-0010.
+- `translate` split into two passes (infer/sort + build); scope management.
+- `forall(x, …)` / `exists(x, …)`: bound-constant mangling → no variable capture.
+- Real number support: if there's a decimal constant, numeric domain = Real (otherwise Int).
+- `logic` now uses `translate_all` (shared context + correct domain).
+- The Real model value is read (`3/2` → `1.5`).
+- Tests: quantifier + Real + capture + **soundness** (never a wrong answer under ∀∃;
+  `unknown` if needed) → **25/25 green**.
+- New decision: ADR-0010.
 
-**Karar:** Nicelik belirteçleri karar-verilebilirliği zayıflatır; `unknown`
-birinci sınıf, **soundness** korunur. Dış sözleşme (ReasoningResult, MCP) DEĞİŞMEDİ.
+**Decision:** Quantifiers weaken decidability; `unknown` is first-class, **soundness**
+is preserved. The external contract (ReasoningResult, MCP) did NOT change.
 
-**Sıradaki:** T9 (explanation zenginleştir) / v2 (SymPy compute).
+**Next:** T9 (enrich explanation) / v2 (SymPy compute).
 
-## 2026-07-28 — v1 · çekirdek çalışır (aynı oturum)
+## 2026-07-28 — v1 · core works (same session)
 
-**Yapıldı**
+**Done**
 
-- `guardrails`: `validate_input` (boyut/derinlik/sözdizimi) + `solver_config`
-  (sabit seed + timeout → determinizm).
-- `core/translate`: Python `ast` tabanlı, beyaz-listeli parser → Z3; sort
-  çıkarımı (Bool/Int); doğrusallık çiti (var*var reddi); zincirli karşılaştırma.
-- `core/logic`: `check_entailment` (¬sonuç UNSAT + karşıörnek), `check_consistency`
-  (sat/unsat + **unsat core**), `find_model`. İzlenebilir `meta`.
-- `router.route` 3 ilkeli bağlar; `mcp_server` → router → core.
-- Testler: best/worst + **determinizm (×50)** + guardrail → **17/17 yeşil**.
-- Canlı MCP: 3 araç kayıtlı (`entailment`/`consistency`/`model`), JSON çıktı temiz.
-- Yeni karar: ADR-0009 (ast-tabanlı parser + karar-verilebilir v1 parçası).
+- `guardrails`: `validate_input` (size/depth/syntax) + `solver_config`
+  (fixed seed + timeout → determinism).
+- `core/translate`: a Python `ast`-based, whitelisted parser → Z3; sort
+  inference (Bool/Int); linearity fence (rejects var*var); chained comparison.
+- `core/logic`: `check_entailment` (¬conclusion UNSAT + counterexample), `check_consistency`
+  (sat/unsat + **unsat core**), `find_model`. Traceable `meta`.
+- `router.route` wires the 3 primitives; `mcp_server` → router → core.
+- Tests: best/worst + **determinism (×50)** + guardrail → **17/17 green**.
+- Live MCP: 3 tools registered (`entailment`/`consistency`/`model`), clean JSON output.
+- New decision: ADR-0009 (ast-based parser + a decidable v1 fragment).
 
-**Karar:** v1 dili bilinçle **karar verilebilir** (Presburger + önermeler);
-Real/∀∃/nonlinear v1.1+'a ertelendi. Dış sözleşme (ReasoningResult, MCP imzaları)
-DEĞİŞMEDİ.
+**Decision:** The v1 language is deliberately **decidable** (Presburger + propositions);
+Real/∀∃/nonlinear deferred to v1.1+. The external contract (ReasoningResult, MCP signatures)
+did NOT change.
 
-**Doğrulandı:** `pytest` 17/17; z3 5.0.0; uçtan uca route → Z3 → JSON.
+**Verified:** `pytest` 17/17; z3 5.0.0; end-to-end route → Z3 → JSON.
 
-**Sıradaki:** T9 (explanation zenginleştir) / v1.1 (Real + nicelik belirteçleri).
+**Next:** T9 (enrich explanation) / v1.1 (Real + quantifiers).
 
-## 2026-07-28 — v0.1 · vizyon düzeltmesi (aynı oturum)
+## 2026-07-28 — v0.1 · vision correction (same session)
 
-**Değişti**
+**Changed**
 
-- Hedef iki hatta ayrıldı: **Track A** (doğrulanabilir çekirdek, yakın vade) +
-  **Track B** (zor/açık problemlere saldırı, Kuzey Yıldızı, v3+). Proje sahibinin
-  geri bildirimi: açık problem çözümü de birinci sınıf hedef olmalı.
-- `Plan.md` §2 yeniden yazıldı (SMT/SAT'ın açık problem çözme siciliyle:
-  Boolean Pythagorean Triples 2016, Keller 7. boyut 2020, Schur 5 2017).
-- Yeni karar: `DECISIONS.md` ADR-0008.
+- The goal split into two tracks: **Track A** (verifiable core, near term) +
+  **Track B** (attack on hard/open problems, the North Star, v3+). The project owner's
+  feedback: solving open problems should also be a first-class goal.
+- `Plan.md` §2 rewritten (with SMT/SAT's track record of solving open problems:
+  Boolean Pythagorean Triples 2016, Keller dimension 7 2020, Schur 5 2017).
+- New decision: `DECISIONS.md` ADR-0008.
 
-**Karar:** Track B kapsamı = satisfiability'e indirgenebilen problemler + ispat
-doğrulama. v1 kapsamı DEĞİŞMEDİ (hâlâ Track A / Akıl Yürütme Denetçisi).
+**Decision:** Track B scope = problems reducible to satisfiability + proof
+verification. The v1 scope did NOT change (still Track A / Reasoning Checker).
 
-## 2026-07-28 — v0 · iskelet & tasarım (bu oturum)
+## 2026-07-28 — v0 · skeleton & design (this session)
 
-**Kuruldu**
+**Set up**
 
-- Proje iskeleti: `src/mathhead/{core, compute, router, guardrails, server}` + `tests/` + `docs/`
-- Dönüş sözleşmesi `ReasoningResult` donduruldu: `status / reason_code / explanation / witness / meta`
-- MCP sunucu iskeleti (FastMCP, 3 araç: `entailment` / `consistency` / `model`) — stub
-- Guardrail sabitleri + imzaları: `validate_input`, `solver_config`
-- Tasarım dosyaları: `Plan.md`, `Todo.md`, `Progress.md`, `PRINCIPLES.md`, `DECISIONS.md`
+- Project skeleton: `src/mathhead/{core, compute, router, guardrails, server}` + `tests/` + `docs/`
+- The return contract `ReasoningResult` frozen: `status / reason_code / explanation / witness / meta`
+- MCP server skeleton (FastMCP, 3 tools: `entailment` / `consistency` / `model`) — stub
+- Guardrail constants + signatures: `validate_input`, `solver_config`
+- Design files: `Plan.md`, `Todo.md`, `Progress.md`, `PRINCIPLES.md`, `DECISIONS.md`
 - `docs/`: `architecture.md`, `mcp-api.md`, `glossary.md`
-- Testler: `test_smoke` (geçer) + `test_logic` (spec, şimdilik `xfail`)
+- Tests: `test_smoke` (passes) + `test_logic` (spec, `xfail` for now)
 
-**Mimari kararlar** (özet — detay `DECISIONS.md`)
+**Architectural decisions** (summary — detail in `DECISIONS.md`)
 
-- ADR-0001: Sıfırdan FOL motoru yerine kanıtlanmış çözücü orkestrasyonu
-- ADR-0002: Mantık çekirdeği = **Z3** (SMT); hesap = **SymPy** (CAS)
-- ADR-0003: Dil = **Python**; MCP SDK = **FastMCP** (`mcp[cli]`)
-- ADR-0004: Dış API/sözleşme **erken dondurulur**
+- ADR-0001: Orchestrating a proven solver instead of a from-scratch FOL engine
+- ADR-0002: Logic core = **Z3** (SMT); compute = **SymPy** (CAS)
+- ADR-0003: Language = **Python**; MCP SDK = **FastMCP** (`mcp[cli]`)
+- ADR-0004: External API/contract **frozen early**
 
-**Doğrulandı**
+**Verified**
 
-- Çekirdek harici bağımlılık olmadan temiz import ediliyor; `ReasoningResult`
-  sözleşmesi ve `is_conclusive()` beklendiği gibi çalışıyor.
+- The core imports cleanly with no external dependency; the `ReasoningResult`
+  contract and `is_conclusive()` work as expected.
 
-**Sıradaki adım:** `Todo` → T1 (guardrails) → T2 (translate) → T3 (entailment).
+**Next step:** `Todo` → T1 (guardrails) → T2 (translate) → T3 (entailment).
 
 ---
 
-<!-- Yeni girdiler bu satırın ÜSTÜNE eklenecek. Şablon:
-## YYYY-AA-GG — vX · başlık
-**Yapıldı** …  **Karar** …  **Doğrulandı** …  **Sıradaki** …
+<!-- New entries are added ABOVE this line. Template:
+## YYYY-MM-DD — vX · title
+**Done** …  **Decision** …  **Verified** …  **Next** …
 -->

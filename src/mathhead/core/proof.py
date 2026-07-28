@@ -1,22 +1,24 @@
 """
-mathhead.core.proof — İspat üretimi (v3.2).
+mathhead.core.proof — Proof generation (v3.2).
 
-`entailment` "geçerli" der ama *neden* söylemez. Bu modül ekler:
+`entailment` says "valid" but does not say *why*. This module adds:
 
-  1) **Minimal çekirdek (used_premises):** sonucun dayandığı öncül alt kümesi
-     (Z3 unsat core). %100 sağlam.
-  2) **Doğal tümdengelim türetimi (natural deduction):** iki strateji —
-     * DOĞRUDAN ileri zincirleme. Kurallar: ∧-ayıklama, modus ponens/tollens,
-       ayrık tasım, iff-ayıklama, çift olumsuzlama, De Morgan, **evrensel
-       örnekleme (∀-eleme)**, **varoluşsal eleme (∃-eleme, tanık sabiti)**,
-       **varoluşsal içe alma (∃-giriş)**.
-     * ÇELİŞKİDEN İSPAT (RAA): doğrudan bulunamazsa ¬sonuç varsayılıp çelişki
-       aranır → "durum ayrımı" gibi dolaylı ispatlar.
+  1) **Minimal core (used_premises):** the subset of premises the conclusion
+     rests on (Z3 unsat core). 100% sound.
+  2) **Natural deduction derivation:** two strategies —
+     * DIRECT forward chaining. Rules: conjunction elimination, modus
+       ponens/tollens, disjunctive syllogism, iff elimination, double negation,
+       De Morgan, **universal instantiation (∀-elimination)**, **existential
+       elimination (∃-elimination, witness constant)**, **existential introduction
+       (∃-introduction)**.
+     * PROOF BY CONTRADICTION (RAA): if a direct one is not found, assume
+       ¬conclusion and look for a contradiction → indirect proofs like "case
+       split".
 
-DÜRÜSTLÜK: Türetici klasik FOL'un önemli bir parçasını kapsar ama tümünü değil
-(aritmetik türetim ve bazı içiçe nicelik desenleri yok). Kuramazsa `unknown`
-DEĞİL — Z3'ün sağlam kararı korunur. Türetici SAĞLAMdır (yalnızca geçerli
-kurallar); ayrıca her sonuç önce Z3 ile doğrulanır.
+HONESTY: the deriver covers a significant part of classical FOL but not all of it
+(no arithmetic derivation and some nested-quantifier patterns). If it cannot build
+one, it is NOT `unknown` — Z3's sound verdict is preserved. The deriver is SOUND
+(only valid rules); moreover every conclusion is first verified with Z3.
 """
 from __future__ import annotations
 
@@ -72,7 +74,7 @@ def _neg_key(node: ast.AST) -> str:
     return _key(_mk_not(node))
 
 
-# --------------------------- ikame (substitution) ------------------------- #
+# --------------------------- substitution --------------------------------- #
 class _Subst(ast.NodeTransformer):
     def __init__(self, var: str, repl_id: str):
         self.var = var
@@ -131,8 +133,8 @@ def _all_names(nodes: list[ast.AST]) -> set[str]:
 
 
 class _Ctx:
-    """Türetim bağlamı: bireyler (∀-eleme için, ∃-eleme ile büyür) + taze tanık
-    üreticisi + bir kez elenmiş ∃'ler."""
+    """Derivation context: individuals (for ∀-elimination, grows with ∃-elimination)
+    + fresh witness generator + once-eliminated ∃'s."""
 
     def __init__(self, individuals: set[str], taken: set[str]):
         self.individuals = set(individuals)
@@ -150,22 +152,22 @@ class _Ctx:
                 return w
 
 
-# ------------------------- ileri zincirleme çekirdek ---------------------- #
+# ------------------------- forward chaining core -------------------------- #
 def _apply_rules(node: ast.AST, known: dict, ctx: _Ctx, add: Callable) -> bool:
     changed = False
     if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):
         for v in node.values:
-            changed |= add(v, "∧-ayıklama", [_key(node)])
+            changed |= add(v, "conjunction elimination", [_key(node)])
     elif isinstance(node, ast.BoolOp) and isinstance(node.op, ast.Or) and len(node.values) == 2:
         a, b = node.values
         if _neg_key(a) in known:
-            changed |= add(b, "ayrık tasım", [_key(node), _neg_key(a)])
+            changed |= add(b, "disjunctive syllogism", [_key(node), _neg_key(a)])
         if _neg_key(b) in known:
-            changed |= add(a, "ayrık tasım", [_key(node), _neg_key(b)])
+            changed |= add(a, "disjunctive syllogism", [_key(node), _neg_key(b)])
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
         inner = node.operand
         if isinstance(inner, ast.UnaryOp) and isinstance(inner.op, ast.Not):
-            changed |= add(inner.operand, "çift olumsuzlama", [_key(node)])
+            changed |= add(inner.operand, "double negation", [_key(node)])
         if isinstance(inner, ast.BoolOp) and isinstance(inner.op, ast.Or):
             for v in inner.values:
                 changed |= add(_mk_not(v), "De Morgan", [_key(node)])
@@ -178,20 +180,20 @@ def _apply_rules(node: ast.AST, known: dict, ctx: _Ctx, add: Callable) -> bool:
                 changed |= add(_mk_not(args[0]), "modus tollens", [_key(node), _neg_key(args[1])])
         elif fid == "iff" and len(args) == 2:
             if _key(args[0]) in known:
-                changed |= add(args[1], "iff-ayıklama", [_key(node), _key(args[0])])
+                changed |= add(args[1], "iff elimination", [_key(node), _key(args[0])])
             if _key(args[1]) in known:
-                changed |= add(args[0], "iff-ayıklama", [_key(node), _key(args[1])])
+                changed |= add(args[0], "iff elimination", [_key(node), _key(args[1])])
         elif fid == "forall" and len(args) == 2 and isinstance(args[0], ast.Name):
             var, bod = args[0].id, args[1]
             for t in sorted(ctx.individuals):
-                changed |= add(_substitute(bod, var, t), f"evrensel örnekleme (x:={t})", [_key(node)])
+                changed |= add(_substitute(bod, var, t), f"universal instantiation (x:={t})", [_key(node)])
         elif fid == "exists" and len(args) == 2 and isinstance(args[0], ast.Name):
             ek = _key(node)
             if ek not in ctx.eliminated:
                 ctx.eliminated.add(ek)
                 witness = ctx.fresh()
                 changed |= add(_substitute(args[1], args[0].id, witness),
-                               f"varoluşsal eleme (tanık {witness})", [ek])
+                               f"existential elimination (witness {witness})", [ek])
     return changed
 
 
@@ -261,7 +263,7 @@ def _new_ctx(premise_nodes: list[ast.AST], goal: ast.AST) -> _Ctx:
 
 def _direct_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | None:
     ctx = _new_ctx(premise_nodes, goal)
-    initial = [(p, "öncül", []) for p in premise_nodes]
+    initial = [(p, "premise", []) for p in premise_nodes]
     goal_key = _key(goal)
 
     def stop(known):
@@ -287,7 +289,7 @@ def _direct_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | N
     steps.append({
         "step": len(steps) + 1,
         "formula": goal_key,
-        "rule": f"varoluşsal içe alma (tanık {witness})",
+        "rule": f"existential introduction (witness {witness})",
         "refs": [num[hit]],
     })
     return steps
@@ -295,8 +297,8 @@ def _direct_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | N
 
 def _raa_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | None:
     ctx = _new_ctx(premise_nodes, goal)
-    initial = [(p, "öncül", []) for p in premise_nodes]
-    initial.append((_mk_not(goal), "varsayım (çelişki için)", []))
+    initial = [(p, "premise", []) for p in premise_nodes]
+    initial.append((_mk_not(goal), "assumption (for contradiction)", []))
     known, result = _saturate(initial, ctx, _find_contradiction)
     if result is None:
         return None
@@ -305,7 +307,7 @@ def _raa_proof(premise_nodes: list[ast.AST], goal: ast.AST) -> list[dict] | None
     steps.append({
         "step": len(steps) + 1,
         "formula": _key(goal),
-        "rule": "çelişkiden ispat (RAA)",
+        "rule": "proof by contradiction (RAA)",
         "refs": [num[kpos], num[kneg]],
     })
     return steps
@@ -333,14 +335,14 @@ def prove_entailment(
     timeout_ms: int = DEFAULT_TIMEOUT_MS,
     seed: int = DEFAULT_SEED,
 ) -> ProofResult:
-    """`premises ⊨ conclusion` mı — ve neden? Z3 verdict + minimal çekirdek +
-    (kurulabiliyorsa) doğrudan ya da çelişkiden (RAA) adım adım türetim."""
+    """Does `premises ⊨ conclusion` hold — and why? Z3 verdict + minimal core +
+    (if constructible) a direct or by-contradiction (RAA) step-by-step derivation."""
     t0 = time.perf_counter()
     verdict = check_entailment(premises, conclusion, timeout_ms=timeout_ms, seed=seed)
 
     if verdict.status == "invalid":
         return ProofResult("invalid", "COUNTEREXAMPLE_FOUND",
-                           "Geçersiz: öncülleri sağlayıp sonucu çürüten bir karşıörnek var.",
+                           "Invalid: there is a counterexample that satisfies the premises but refutes the conclusion.",
                            witness=verdict.witness, meta=_meta(t0, seed, timeout_ms))
     if verdict.status != "valid":
         return ProofResult(verdict.status, verdict.reason_code, verdict.explanation,
@@ -357,17 +359,17 @@ def prove_entailment(
         goal_node = parse(conclusion).body
         steps = _direct_proof(prem_nodes, goal_node)
         if steps is not None:
-            method = "doğrudan"
+            method = "direct"
         else:
             steps = _raa_proof(prem_nodes, goal_node)
-            method = "çelişkiden (RAA)" if steps is not None else ""
-    except Exception:  # noqa: BLE001 - türetim best-effort; verdict yine sağlam
+            method = "indirect (RAA)" if steps is not None else ""
+    except Exception:  # noqa: BLE001 - derivation is best-effort; verdict is still sound
         steps = None
 
     if steps is not None:
-        explanation = f"Geçerli. {len(steps)} adımlık {method} doğal tümdengelim türetimi kuruldu."
+        explanation = f"Valid. Constructed a {len(steps)}-step {method} natural deduction derivation."
     else:
-        explanation = ("Geçerli (Z3 doğruladı). Bu parça için adım adım türetim "
-                       "kurulamadı — minimal çekirdek yine de sonucun dayanağını gösterir.")
+        explanation = ("Valid (Z3 confirmed). A step-by-step derivation could not be built for this "
+                       "fragment — the minimal core still shows what the conclusion rests on.")
     return ProofResult("valid", "ENTAILED", explanation,
                        used_premises=core, proof_steps=steps, meta=_meta(t0, seed, timeout_ms))

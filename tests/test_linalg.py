@@ -1,10 +1,10 @@
 """
-Lineer cebir — tamamlama turu (Aşama 1):
+Linear algebra — completion round (Phase 1):
 matrix_multiply / matrix_solve (Ax=b) / eigenvectors / rref / nullspace /
 lu_decomposition.
 
-Best-case + worst-case (boyut uyumsuz, tutarsız sistem, kare-değil) + dürüstlük
-(parametrik çözüm, trivial boş uzay) + determinizm.
+Best-case + worst-case (dimension mismatch, inconsistent system, non-square) + honesty
+(parametric solution, trivial null space) + determinism.
 """
 from mathhead.compute import (
     eigenvectors,
@@ -29,7 +29,7 @@ def test_matmul_identity():
 
 
 def test_matmul_dim_mismatch_rejected():
-    # A sütun (2) != B satır (1) -> dürüst hata
+    # A columns (2) != B rows (1) -> honest error
     r = matrix_multiply([["1", "2"]], [["1", "2"]])
     assert r.status == "error"
     assert r.reason_code == "PARSE_ERROR"
@@ -43,22 +43,22 @@ def test_matsolve_unique():
 
 
 def test_matsolve_no_solution():
-    # Tutarsız sistem -> boş liste (uydurma yok)
+    # Inconsistent system -> empty list (no fabrication)
     r = matrix_solve([["1", "1"], ["1", "1"]], ["1", "2"])
     assert r.status == "ok"
     assert r.result == []
 
 
 def test_matsolve_infinite_parametric():
-    # Sonsuz çözüm -> serbest değişken parametrik görünür
+    # Infinite solutions -> free variable appears parametrically
     r = matrix_solve([["1", "1"], ["2", "2"]], ["3", "6"])
     assert r.status == "ok"
     assert r.result == [{"x0": "3 - x1", "x1": "x1"}]
-    assert "parametrik" in r.explanation
+    assert "parametric" in r.explanation
 
 
 def test_matsolve_dim_mismatch_rejected():
-    # b uzunluğu satır sayısına eşit değil
+    # length of b is not equal to the number of rows
     assert matrix_solve([["1", "1"], ["1", "-1"]], ["10"]).status == "error"
 
 
@@ -92,7 +92,7 @@ def test_nullspace_rank_deficient():
 
 
 def test_nullspace_trivial():
-    # Tam rank -> yalnız sıfır vektörü -> boş taban (dürüst)
+    # Full rank -> only the zero vector -> empty basis (honest)
     r = nullspace([["1", "0"], ["0", "1"]])
     assert r.status == "ok"
     assert r.result == []
@@ -103,7 +103,7 @@ def test_lu_lower_upper_structure():
     r = lu_decomposition([["4", "3"], ["6", "3"]])
     assert r.status == "ok"
     L, U = r.result["L"], r.result["U"]
-    # L alt üçgen (köşegen 1), U üst üçgen
+    # L lower triangular (diagonal 1), U upper triangular
     assert L[0][1] == "0"
     assert L[0][0] == "1" and L[1][1] == "1"
     assert U[1][0] == "0"
@@ -113,7 +113,7 @@ def test_lu_non_square_rejected():
     assert lu_decomposition([["1", "2", "3"], ["4", "5", "6"]]).status == "error"
 
 
-# ------------------------------ determinizm ------------------------------- #
+# ------------------------------ determinism ------------------------------- #
 def test_linalg_determinism():
     for _ in range(5):
         assert matrix_multiply([["1", "2"], ["3", "4"]], [["5", "6"], ["7", "8"]]).result == \

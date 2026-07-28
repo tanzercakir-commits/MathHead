@@ -1,13 +1,13 @@
 """
-mathhead.router — Yönlendirme katmanı.
+mathhead.router — Routing layer.
 
-Görev: gelen bir görevi DOĞRU çözücü + ilkele yönlendirmek. Karar açık ve kurallı
-(rule-based); "model sezgisiyle" değil. Bu, duvar #3'e (non-determinizm) karşı
-mimari güvenliğin parçasıdır.
+Job: route an incoming task to the RIGHT solver + primitive. The decision is
+explicit and rule-based, not "by model intuition". This is part of the
+architectural safety against wall #3 (non-determinism).
 
-v1: mantık (Z3) — entailment / consistency / find_model.
-v2: hesap (SymPy) — simplify / solve / differentiate / integrate.
-Dış sözleşme (ADR-0004) sabit; yeni yetenekler yalnızca yeni görev adları ekler.
+v1: logic (Z3) — entailment / consistency / find_model.
+v2: computation (SymPy) — simplify / solve / differentiate / integrate.
+The external contract (ADR-0004) is fixed; new capabilities only add new task names.
 """
 from __future__ import annotations
 
@@ -65,12 +65,12 @@ def route(task: str, payload: dict[str, Any]) -> (
     ReasoningResult | ComputeResult | ProofResult | ModelSet | OptimizeResult | MaxSatResult
     | VerifyResult | CertificateResult | NLResult
 ):
-    """Bir görevi uygun çözücü + ilkele yönlendirir.
+    """Routes a task to the appropriate solver + primitive.
 
-    Mantık görevleri (Z3): entailment, consistency, find_model.
-    Hesap görevleri (SymPy): simplify, solve, differentiate, integrate.
+    Logic tasks (Z3): entailment, consistency, find_model.
+    Computation tasks (SymPy): simplify, solve, differentiate, integrate.
     """
-    # --- Mantık çekirdeği (Z3) ---
+    # --- Logic kernel (Z3) ---
     if task == "entailment":
         return check_entailment(payload["premises"], payload["conclusion"], **_opts(payload))
     if task == "consistency":
@@ -97,7 +97,7 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "find_real_solution":
         return find_real_solution(payload["constraints"], **_opts(payload))
 
-    # --- Doğrulama katmanı (AI muhakeme denetçisi) ---
+    # --- Verification layer (AI reasoning auditor) ---
     if task == "verify_equality":
         return verify_equality(payload["left"], payload["right"])
     if task == "verify_solution":
@@ -124,7 +124,7 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "interpret_natural":
         return interpret(payload["text"])
 
-    # --- Hesap katmanı (SymPy) ---
+    # --- Computation layer (SymPy) ---
     if task == "simplify":
         return compute.simplify(payload["expression"])
     if task == "solve":
@@ -162,7 +162,7 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "lu_decomposition":
         return compute.lu_decomposition(payload["matrix"])
 
-    # --- Sayı teorisi (number theory) ---
+    # --- Number theory ---
     if task == "gcd":
         return compute.gcd(payload["a"], payload["b"])
     if task == "lcm":
@@ -178,7 +178,7 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "linear_diophantine":
         return compute.linear_diophantine(payload["a"], payload["b"], payload["c"])
 
-    # --- Kombinatorik & ayrık ---
+    # --- Combinatorics & discrete ---
     if task == "permutations":
         return compute.permutations(payload["n"], payload["k"])
     if task == "combinations":
@@ -193,7 +193,7 @@ def route(task: str, payload: dict[str, Any]) -> (
             payload.get("var", "n"), payload.get("initial"),
         )
 
-    # --- Çok değişkenli analiz (multivariable) ---
+    # --- Multivariable calculus ---
     if task == "gradient":
         return compute.gradient(payload["expression"], payload["variables"])
     if task == "jacobian":
@@ -213,7 +213,7 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.solve_ode(payload["equation"], payload.get("func", "y"),
                                  payload.get("var", "x"))
 
-    # --- Olasılık & istatistik ---
+    # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])
     if task == "variance":
@@ -225,7 +225,7 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "distribution":
         return compute.distribution(payload["name"], payload["params"], payload.get("at"))
 
-    # --- Frontier / Track B (programatik indirgeme -> Z3) ---
+    # --- Frontier / Track B (programmatic reduction -> Z3) ---
     if task == "pythagorean_coloring":
         return frontier.boolean_pythagorean_coloring(payload["n"], **_opts(payload))
     if task == "pigeonhole":
@@ -242,4 +242,4 @@ def route(task: str, payload: dict[str, Any]) -> (
     if task == "subset_sum":
         return frontier.subset_sum(payload["numbers"], payload["target"], **_opts(payload))
 
-    raise ValueError(f"bilinmeyen görev: {task!r}")
+    raise ValueError(f"unknown task: {task!r}")

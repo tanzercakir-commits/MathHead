@@ -1,1 +1,1 @@
-"""MCP sunucu katmanı — motorun dış dünya ile TEK sözleşmesi (protokol)."""
+"""MCP server layer — the engine's SINGLE contract (protocol) with the outside world."""

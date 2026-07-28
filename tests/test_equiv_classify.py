@@ -1,4 +1,4 @@
-"""Mantıksal denklik (`equivalent`) ve sınıflandırma (`classify`)."""
+"""Logical equivalence (`equivalent`) and classification (`classify`)."""
 from mathhead.core.logic import classify, equivalent
 
 
@@ -28,7 +28,7 @@ def test_classify_contradiction():
 def test_classify_contingent_has_both_witnesses():
     r = classify("p and q")
     assert r.status == "contingent"
-    assert "doğru_kılan" in r.witness and "yanlış_kılan" in r.witness
+    assert "true_witness" in r.witness and "false_witness" in r.witness
 
 
 def test_malformed_input_is_error():

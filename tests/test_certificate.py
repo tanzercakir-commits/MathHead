@@ -1,9 +1,9 @@
 """
-Bağımsız sertifika denetleyicisi (ROADMAP Track C2) — check_certificate.
+Independent certificate checker (ROADMAP Track C2) — check_certificate.
 
-Öne geçiren özellik: MathHead'in ÜRETTİĞİ sonuç, o sonucu üreten motordan
-(Z3/SymPy) BAĞIMSIZ, yalnız stdlib bir checker'la yeniden doğrulanabilir.
-En kritik test: modülün z3/sympy'yi FİİLEN yüklemediğini (alt-süreçle) kanıtlamak.
+Distinguishing feature: a result PRODUCED by MathHead can be re-verified with a
+stdlib-only checker, INDEPENDENT of the engine (Z3/SymPy) that produced it.
+Most critical test: proving (via subprocess) that the module does NOT ACTUALLY load z3/sympy.
 """
 import subprocess
 import sys
@@ -12,21 +12,21 @@ from mathhead.certificate import check_certificate as cc
 from mathhead.frontier import subset_sum
 
 
-# ----------------------- BAĞIMSIZLIK (killer kanıt) ----------------------- #
+# ----------------------- INDEPENDENCE (killer proof) ----------------------- #
 def test_checker_is_engine_independent():
-    # mathhead.certificate import edilince z3/sympy sys.modules'e GİRMEMELİ.
+    # When mathhead.certificate is imported, z3/sympy must NOT ENTER sys.modules.
     code = (
         "import sys, mathhead.certificate; "
         "bad=[m for m in ('z3','sympy') if m in sys.modules]; "
         "sys.exit(1 if bad else 0)"
     )
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
-    assert r.returncode == 0, f"checker bağımsız değil, yüklenen: {r.stdout} {r.stderr}"
+    assert r.returncode == 0, f"checker is not independent, loaded: {r.stdout} {r.stderr}"
 
 
-# --------------------------- uçtan uca döngü ------------------------------ #
+# --------------------------- end-to-end loop ------------------------------ #
 def test_end_to_end_subset_sum_then_independent_check():
-    # 1) Motor (Z3) subset_sum çözer  2) tanığı bağımsız checker'a ver  3) tutmalı
+    # 1) Engine (Z3) solves subset_sum  2) give witness to independent checker  3) must hold
     res = subset_sum([3, 34, 4, 12, 5, 2], 9)
     assert res.status == "sat"
     cert = {"kind": "subset_sum", "numbers": [3, 34, 4, 12, 5, 2],
@@ -36,7 +36,7 @@ def test_end_to_end_subset_sum_then_independent_check():
     assert out.verified is True
 
 
-# ------------------------------ türler ------------------------------------ #
+# ------------------------------ kinds ------------------------------------ #
 def test_subset_sum_refuted():
     r = cc({"kind": "subset_sum", "numbers": [3, 4, 2], "target": 9, "indices": [0, 1]})
     assert r.status == "refuted"
@@ -57,22 +57,22 @@ def test_solution_exact_verified_and_refuted():
 
 
 def test_solution_rational_exact():
-    # 1/2 kökü: 2x - 1 = 0  ->  tam (Fraction) doğrulanır
+    # root 1/2: 2x - 1 = 0  ->  exact (Fraction) verified
     r = cc({"kind": "solution", "expression": "2*x - 1", "symbol": "x", "value": "1/2"})
     assert r.status == "verified" and r.exact is True
 
 
 def test_not_equal_counterexample_check():
-    # geçerli karşıörnek: 2x ≠ 3x @ x=1
+    # valid counterexample: 2x ≠ 3x @ x=1
     assert cc({"kind": "not_equal", "left": "2*x", "right": "3*x",
                "point": {"x": "1"}}).status == "verified"
-    # geçersiz karşıörnek: x+x = 2x her yerde -> refuted
+    # invalid counterexample: x+x = 2x everywhere -> refuted
     assert cc({"kind": "not_equal", "left": "x+x", "right": "2*x",
                "point": {"x": "5"}}).status == "refuted"
 
 
 def test_inequality_counterexample_exact():
-    # x²-x @ 1/2 = -1/4 < 0  ->  'x²-x >= 0' iddiasının karşıörneği (tam)
+    # x²-x @ 1/2 = -1/4 < 0  ->  counterexample to the 'x²-x >= 0' claim (exact)
     r = cc({"kind": "inequality_counterexample", "expression": "x**2 - x",
             "point": {"x": "1/2"}, "relation": ">="})
     assert r.status == "verified" and r.exact is True
@@ -80,10 +80,10 @@ def test_inequality_counterexample_exact():
 
 def test_transcendental_is_numerical_not_exact():
     r = cc({"kind": "solution", "expression": "sin(x)", "symbol": "x", "value": "0"})
-    assert r.status == "verified" and r.exact is False   # dürüst: sayısal
+    assert r.status == "verified" and r.exact is False   # honest: numerical
 
 
-# ------------------------------ güvenlik ---------------------------------- #
+# ------------------------------ safety ---------------------------------- #
 def test_malicious_expression_rejected():
     assert cc({"kind": "solution", "expression": "__import__('os')",
                "symbol": "x", "value": "0"}).status == "error"

@@ -1,9 +1,9 @@
 """
-Golden senaryo testleri (ROADMAP Aşama 5 [S]) — veri-güdümlü regresyon çiti.
+Golden scenario tests (ROADMAP Phase 5 [S]) — data-driven regression fence.
 
-`tests/fixtures/golden.json` içindeki her senaryoyu `route(task, payload)` ile
-çalıştırır ve `expect`'teki alanları birebir doğrular (yalnız verilen alanlar).
-Bilinen doğru çıktıların ileride sessizce bozulmasını engeller.
+Runs each scenario in `tests/fixtures/golden.json` via `route(task, payload)`
+and verifies the fields in `expect` exactly (only the given fields).
+Prevents known-correct outputs from silently breaking in the future.
 """
 import json
 from dataclasses import asdict

@@ -314,6 +314,22 @@ def route(task: str, payload: dict[str, Any]) -> (
         return compute.is_isomorphic(payload["edges1"], payload["edges2"],
                                      payload.get("nodes1"), payload.get("nodes2"))
 
+    # --- Number theory II ---
+    if task == "euler_totient":
+        return compute.euler_totient(payload["n"])
+    if task == "mobius":
+        return compute.mobius(payload["n"])
+    if task == "continued_fraction":
+        return compute.continued_fraction(payload["numerator"], payload.get("denominator", 1))
+    if task == "continued_fraction_sqrt":
+        return compute.continued_fraction_sqrt(payload["n"])
+    if task == "quadratic_residue":
+        return compute.quadratic_residue(payload["a"], payload["n"])
+    if task == "primitive_root":
+        return compute.primitive_root(payload["n"])
+    if task == "pell_solution":
+        return compute.pell_solution(payload["n"])
+
     # --- Probability & statistics ---
     if task == "mean":
         return compute.mean(payload["data"])

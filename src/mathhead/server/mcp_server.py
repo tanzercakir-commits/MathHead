@@ -853,6 +853,50 @@ def is_isomorphic(edges1: list, edges2: list, nodes1: list | None = None,
                         {"edges1": edges1, "edges2": edges2, "nodes1": nodes1, "nodes2": nodes2}))
 
 
+# --------------------------- Number theory II ----------------------------- #
+@mcp.tool()
+def euler_totient(n: int) -> dict[str, Any]:
+    """Euler's totient φ(n) — the count of 1..n coprime to n. E.g. φ(12) = 4."""
+    return asdict(route("euler_totient", {"n": n}))
+
+
+@mcp.tool()
+def mobius(n: int) -> dict[str, Any]:
+    """Möbius μ(n): 0 if a squared prime divides n, else (−1)^(#distinct primes). E.g. μ(30) = −1."""
+    return asdict(route("mobius", {"n": n}))
+
+
+@mcp.tool()
+def continued_fraction(numerator: int, denominator: int = 1) -> dict[str, Any]:
+    """Continued-fraction terms of the rational numerator/denominator. E.g. 415/93 → `[4,2,6,7]`."""
+    return asdict(route("continued_fraction",
+                        {"numerator": numerator, "denominator": denominator}))
+
+
+@mcp.tool()
+def continued_fraction_sqrt(n: int) -> dict[str, Any]:
+    """Periodic continued fraction of √n → `{a0, period}`. E.g. √23 → `{a0:4, period:[1,3,1,8]}`."""
+    return asdict(route("continued_fraction_sqrt", {"n": n}))
+
+
+@mcp.tool()
+def quadratic_residue(a: int, n: int) -> dict[str, Any]:
+    """Is `a` a quadratic residue mod `n`? → `{is_residue, jacobi_symbol}` (Legendre when n is prime)."""
+    return asdict(route("quadratic_residue", {"a": a, "n": n}))
+
+
+@mcp.tool()
+def primitive_root(n: int) -> dict[str, Any]:
+    """Smallest primitive root mod `n` (generator of the units), or `null` when none exists (honest)."""
+    return asdict(route("primitive_root", {"n": n}))
+
+
+@mcp.tool()
+def pell_solution(n: int) -> dict[str, Any]:
+    """Fundamental solution of the Pell equation x² − n·y² = 1 → `{x, y}`. E.g. n=13 → `{x:649, y:180}`."""
+    return asdict(route("pell_solution", {"n": n}))
+
+
 # ------------------------ Probability & statistics ------------------------ #
 @mcp.tool()
 def mean(data: list[str]) -> dict[str, Any]:

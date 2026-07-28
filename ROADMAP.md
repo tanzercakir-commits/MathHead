@@ -151,7 +151,8 @@ cross-check + benchmark. MathHead = the independent judge of AI reasoning.
           pseudo-inverse, matrix exp, Jordan form, characteristic polynomial ✅ (103 tools)
 [x] E3 🟡 Graph theory — shortest_path, connected_components, MST, max_flow/min-cut,
           maximum_matching, is_isomorphic ✅ (109 tools; PURE STDLIB, deterministic, no networkx)
-[ ] E4 🟡 Number theory II — continued fractions, quadratic residue, primitive root, Pell, Euler φ / Möbius
+[x] E4 🟡 Number theory II — euler_totient, mobius, continued_fraction (+√n periodic),
+          quadratic_residue, primitive_root, pell_solution ✅ (116 tools)
 [ ] E5 🟡 Combinatorics II — generating functions, inclusion-exclusion, Catalan/Bell/Stirling, Polya
 [ ] E6 [S] Hardening
 ```

@@ -497,6 +497,29 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--edges1", required=True, metavar="JSON")
     p.add_argument("--edges2", required=True, metavar="JSON")
 
+    p = sub.add_parser("totient", help="Euler's totient φ(n)")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("mobius", help="Möbius μ(n)")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("cfrac", help="continued fraction of p/q")
+    p.add_argument("numerator", type=int)
+    p.add_argument("denominator", type=int, nargs="?", default=1)
+
+    p = sub.add_parser("cfrac-sqrt", help="periodic continued fraction of √n")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("quad-residue", help="is a a quadratic residue mod n")
+    p.add_argument("a", type=int)
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("primitive-root", help="smallest primitive root mod n")
+    p.add_argument("n", type=int)
+
+    p = sub.add_parser("pell", help="fundamental Pell solution x²-n·y²=1")
+    p.add_argument("n", type=int)
+
     p = sub.add_parser("mean", help="arithmetic mean")
     p.add_argument("data", nargs="+", metavar="NUMBER")
 
@@ -704,6 +727,14 @@ _DISPATCH = {
                            {"edges": json.loads(a.edges), "left": json.loads(a.left)}),
     "isomorphic": lambda a: ("is_isomorphic",
                              {"edges1": json.loads(a.edges1), "edges2": json.loads(a.edges2)}),
+    "totient": lambda a: ("euler_totient", {"n": a.n}),
+    "mobius": lambda a: ("mobius", {"n": a.n}),
+    "cfrac": lambda a: ("continued_fraction",
+                        {"numerator": a.numerator, "denominator": a.denominator}),
+    "cfrac-sqrt": lambda a: ("continued_fraction_sqrt", {"n": a.n}),
+    "quad-residue": lambda a: ("quadratic_residue", {"a": a.a, "n": a.n}),
+    "primitive-root": lambda a: ("primitive_root", {"n": a.n}),
+    "pell": lambda a: ("pell_solution", {"n": a.n}),
     "mean": lambda a: ("mean", {"data": a.data}),
     "variance": lambda a: ("variance", {"data": a.data, "sample": a.sample}),
     "std": lambda a: ("standard_deviation", {"data": a.data, "sample": a.sample}),

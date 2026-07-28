@@ -139,6 +139,14 @@ ARGS = {
     "maximum_matching": {"edges": [[0, 2], [0, 3], [1, 2]], "left": [0, 1]},
     "is_isomorphic": {"edges1": [[0, 1], [1, 2], [0, 2]], "edges2": [[0, 1], [1, 2], [0, 2]],
                       "nodes1": None, "nodes2": None},
+    # number theory II
+    "euler_totient": {"n": 12},
+    "mobius": {"n": 30},
+    "continued_fraction": {"numerator": 415, "denominator": 93},
+    "continued_fraction_sqrt": {"n": 23},
+    "quadratic_residue": {"a": 2, "n": 7},
+    "primitive_root": {"n": 7},
+    "pell_solution": {"n": 13},
     # probability & statistics
     "mean": {"data": ["2", "4", "6"]},
     "variance": {"data": ["2", "4", "6"], "sample": False},

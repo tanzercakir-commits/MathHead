@@ -4,7 +4,7 @@
 > the tools registered with MCP. DO NOT EDIT BY HAND. To update:
 > `python scripts/gen_api_reference.py`. Contract details: `docs/mcp-api.md`.
 
-Total **109 tools**.
+Total **116 tools**.
 
 ### `entailment(premises, conclusion)`
 
@@ -397,6 +397,34 @@ Maximum bipartite matching (Kuhn). `left` = the left-partition nodes → `{size,
 ### `is_isomorphic(edges1, edges2, nodes1=None, nodes2=None)`
 
 Are two undirected graphs isomorphic? Backtracking + degree pruning (≤10 nodes) → `{isomorphic, mapping}`.
+
+### `euler_totient(n)`
+
+Euler's totient φ(n) — the count of 1..n coprime to n. E.g. φ(12) = 4.
+
+### `mobius(n)`
+
+Möbius μ(n): 0 if a squared prime divides n, else (−1)^(#distinct primes). E.g. μ(30) = −1.
+
+### `continued_fraction(numerator, denominator=1)`
+
+Continued-fraction terms of the rational numerator/denominator. E.g. 415/93 → `[4,2,6,7]`.
+
+### `continued_fraction_sqrt(n)`
+
+Periodic continued fraction of √n → `{a0, period}`. E.g. √23 → `{a0:4, period:[1,3,1,8]}`.
+
+### `quadratic_residue(a, n)`
+
+Is `a` a quadratic residue mod `n`? → `{is_residue, jacobi_symbol}` (Legendre when n is prime).
+
+### `primitive_root(n)`
+
+Smallest primitive root mod `n` (generator of the units), or `null` when none exists (honest).
+
+### `pell_solution(n)`
+
+Fundamental solution of the Pell equation x² − n·y² = 1 → `{x, y}`. E.g. n=13 → `{x:649, y:180}`.
 
 ### `mean(data)`
 

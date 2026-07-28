@@ -2115,6 +2115,161 @@ def is_isomorphic(edges1: list, edges2: list, nodes1: list | None = None,
 
 
 # --------------------------------------------------------------------------- #
+# E4 — number theory II: Euler φ, Möbius μ, continued fractions (rational + √n
+# periodic), quadratic residues, primitive roots, Pell equation. Backed by SymPy's
+# (deterministic) number theory. Non-existence (e.g. no primitive root) is honest.
+# --------------------------------------------------------------------------- #
+def _intarg(x: Any, name: str = "value") -> int:
+    try:
+        return int(x)
+    except (ValueError, TypeError) as exc:
+        raise ComputeError(f"{name} must be an integer, got {x!r}") from exc
+
+
+def euler_totient(n: Any) -> ComputeResult:
+    """Euler's totient φ(n) — the count of integers in 1..n coprime to n. E.g. φ(12) = 4."""
+    t0 = time.perf_counter()
+    try:
+        val = _intarg(n, "n")
+        if val < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("euler_totient", str(exc), t0)
+    result = int(sympy.totient(val))
+    return ComputeResult("ok", "euler_totient", result, f"φ({val}) = {result}.", "OK", _meta(t0))
+
+
+def mobius(n: Any) -> ComputeResult:
+    """Möbius function μ(n): 0 if n has a squared prime factor, else (−1)^(number of prime factors)."""
+    t0 = time.perf_counter()
+    try:
+        val = _intarg(n, "n")
+        if val < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("mobius", str(exc), t0)
+    result = int(sympy.mobius(val))
+    return ComputeResult("ok", "mobius", result, f"μ({val}) = {result}.", "OK", _meta(t0))
+
+
+def continued_fraction(numerator: Any, denominator: Any = 1) -> ComputeResult:
+    """Continued-fraction expansion of the rational numerator/denominator → list of terms.
+
+    E.g. 415/93 → `[4, 2, 6, 7]`.
+    """
+    t0 = time.perf_counter()
+    try:
+        p = _intarg(numerator, "numerator")
+        q = _intarg(denominator, "denominator")
+        if q == 0:
+            raise ComputeError("denominator cannot be 0")
+    except ComputeError as exc:
+        return _error("continued_fraction", str(exc), t0)
+    result = [int(t) for t in sympy.continued_fraction(sympy.Rational(p, q))]
+    return ComputeResult("ok", "continued_fraction", result,
+                         f"[{'; '.join(map(str, result))}] ({p}/{q}).", "OK", _meta(t0))
+
+
+def continued_fraction_sqrt(n: Any) -> ComputeResult:
+    """Periodic continued fraction of √n → `{a0, period}` (empty period if n is a perfect square)."""
+    t0 = time.perf_counter()
+    try:
+        val = _intarg(n, "n")
+        if val < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("continued_fraction_sqrt", str(exc), t0)
+    cf = sympy.continued_fraction_periodic(0, 1, val)
+    a0 = int(cf[0])
+    period = [int(x) for x in cf[1]] if len(cf) > 1 and isinstance(cf[1], list) else []
+    result = {"a0": a0, "period": period}
+    return ComputeResult("ok", "continued_fraction_sqrt", result,
+                         f"√{val} = [{a0}; {period} repeating]" if period else f"√{val} = {a0} (exact).",
+                         "OK", _meta(t0))
+
+
+def quadratic_residue(a: Any, n: Any) -> ComputeResult:
+    """Is `a` a quadratic residue mod `n`? Returns `{is_residue, jacobi_symbol}`.
+
+    For a prime modulus the Jacobi symbol equals the Legendre symbol (+1 residue, −1 non-residue).
+    """
+    from sympy.functions.combinatorial.numbers import jacobi_symbol
+    from sympy.ntheory.residue_ntheory import is_quad_residue
+    t0 = time.perf_counter()
+    try:
+        av = _intarg(a, "a")
+        nv = _intarg(n, "n")
+        if nv < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("quadratic_residue", str(exc), t0)
+    try:
+        is_res = bool(is_quad_residue(av, nv))
+        jac = int(jacobi_symbol(av, nv)) if nv % 2 == 1 else None
+    except Exception as exc:  # noqa: BLE001
+        return _error("quadratic_residue", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    result = {"is_residue": is_res, "jacobi_symbol": jac}
+    return ComputeResult("ok", "quadratic_residue", result,
+                         f"{av} is {'a' if is_res else 'NOT a'} quadratic residue mod {nv}.",
+                         "OK", _meta(t0))
+
+
+def primitive_root(n: Any) -> ComputeResult:
+    """Smallest primitive root modulo `n` (a generator of the group of units), or honest none.
+
+    A primitive root exists only for n = 1, 2, 4, pᵏ, or 2pᵏ (p an odd prime).
+    """
+    from sympy.ntheory.residue_ntheory import primitive_root as _pr
+    t0 = time.perf_counter()
+    try:
+        nv = _intarg(n, "n")
+        if nv < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("primitive_root", str(exc), t0)
+    try:
+        root = _pr(nv)
+    except Exception as exc:  # noqa: BLE001
+        return _error("primitive_root", f"could not compute: {exc}", t0, "COMPUTE_FAILED")
+    if root is None:
+        return ComputeResult("ok", "primitive_root", None,
+                             f"no primitive root exists modulo {nv} (honest).", "OK", _meta(t0))
+    return ComputeResult("ok", "primitive_root", int(root),
+                         f"smallest primitive root mod {nv} = {int(root)}.", "OK", _meta(t0))
+
+
+def pell_solution(n: Any) -> ComputeResult:
+    """Fundamental solution (x, y) of the Pell equation x² − n·y² = 1 (y > 0).
+
+    E.g. n=2 → (3, 2); n=13 → (649, 180). If n is a perfect square, there is no
+    non-trivial solution (honest).
+    """
+    from sympy.solvers.diophantine.diophantine import diop_DN
+    t0 = time.perf_counter()
+    try:
+        nv = _intarg(n, "n")
+        if nv < 1:
+            raise ComputeError("n must be a positive integer")
+    except ComputeError as exc:
+        return _error("pell_solution", str(exc), t0)
+    if sympy.sqrt(nv).is_integer:
+        return ComputeResult("ok", "pell_solution", None,
+                             f"n = {nv} is a perfect square — x² − {nv}y² = 1 has only the trivial "
+                             f"solution (honest).", "OK", _meta(t0))
+    try:
+        sols = diop_DN(nv, 1)
+    except Exception as exc:  # noqa: BLE001
+        return _error("pell_solution", f"could not solve: {exc}", t0, "COMPUTE_FAILED")
+    if not sols:
+        return _error("pell_solution", "no fundamental solution found", t0, "COMPUTE_FAILED")
+    x, y = sols[0]
+    result = {"x": int(x), "y": int(abs(y))}
+    return ComputeResult("ok", "pell_solution", result,
+                         f"fundamental solution: {result['x']}² − {nv}·{result['y']}² = 1.",
+                         "OK", _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
 # Probability & statistics.
 # Descriptive: mean/variance/std/median (data list, exact/rational).
 # Distributions: E[X]/Var/std + P(X≤k)/density via sympy.stats (symbolic, exact).

@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-28 — E4 · number theory II
+
+**Done — 7 new compute tools (116 total):**
+
+- `euler_totient` (φ), `mobius` (μ), `continued_fraction` (rational → term list),
+  `continued_fraction_sqrt` (√n → {a0, period}), `quadratic_residue` (→ {is_residue,
+  jacobi_symbol}), `primitive_root` (smallest, or null if none), `pell_solution`
+  (fundamental x²−n·y²=1). SymPy-backed; used the NON-deprecated import path for the
+  Jacobi symbol (`sympy.functions.combinatorial.numbers`).
+- Wired router + MCP (116 tools) + CLI (`totient`/`mobius`/`cfrac`/`cfrac-sqrt`/
+  `quad-residue`/`primitive-root`/`pell`) + `tests/test_numbertheory2.py` (18) → **782/782 green**.
+
+**Verified:** φ(12)=4, μ(30)=−1, μ(12)=0; CF(415/93)=[4,2,6,7]; √23=[4;(1,3,1,8)];
+2 is a QR mod 7 (jacobi +1), 3 is not (−1); primitive root of 7 is 3; Pell n=13 → (649,180).
+
+**Honesty:** `primitive_root(8)` → null (none exists for 8); `pell_solution(9)` → null
+(perfect square has only the trivial solution) — both stated, not fabricated.
+
+**Next:** E5 — combinatorics II (generating functions, inclusion-exclusion, Catalan/Bell/Stirling, Polya).
+
 ## 2026-07-28 — E3 · graph theory (pure stdlib, deterministic)
 
 **Done — 6 new compute tools (109 total):**

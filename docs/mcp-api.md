@@ -253,6 +253,11 @@ normalize=True)`, `pseudoinverse` (A⁺), `matrix_exponential` (e^A), `jordan_fo
 `maximum_matching(edges, left)` (bipartite, Kuhn), `is_isomorphic(edges1, edges2)` (backtracking,
 ≤10 nodes). Edges are `[u,v]` or `[u,v,weight]`; nodes are ints or strings.
 
+**Number theory II (E4):** `euler_totient(n)` (φ), `mobius(n)` (μ), `continued_fraction(numerator,
+denominator)` (→ term list), `continued_fraction_sqrt(n)` (→ `{a0, period}`), `quadratic_residue(a,
+n)` (→ `{is_residue, jacobi_symbol}`), `primitive_root(n)` (smallest, or `null` if none — honest),
+`pell_solution(n)` (fundamental x²−n·y²=1, or `null` for a perfect square).
+
 **Calculus & systems:** `limit`'s point may be infinite (`point="oo"` / `"-oo"`)
 and `direction` takes `"+"`/`"-"` for a one-sided limit. `series` returns a Taylor
 expansion of order `order` around `point` (`removeO`). `solve_system` returns a

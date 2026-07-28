@@ -39,6 +39,12 @@ ARGS = {
     "verify_solution": {"equation": "x**2==4", "symbol": "x", "claimed": ["2", "-2"]},
     "verify_steps": {"steps": ["(x+1)**2", "x**2 + 2*x + 1"]},
     "cross_check": {"left": "(x+1)**2", "right": "x**2 + 2*x + 1"},
+    "verify_derivative": {"expression": "x**3", "symbol": "x", "claimed": "3*x**2", "order": 1},
+    "verify_integral": {"expression": "2*x", "symbol": "x", "claimed": "x**2"},
+    "verify_limit": {"expression": "sin(x)/x", "symbol": "x", "point": "0", "claimed": "1"},
+    "verify_series": {"expression": "exp(x)", "symbol": "x", "point": "0", "order": 3,
+                      "claimed": "x**2/2 + x + 1"},
+    "verify_matrix_identity": {"left": [["1", "2"], ["3", "4"]], "right": [["1", "2"], ["3", "4"]]},
     "check_certificate": {"certificate": {"kind": "subset_sum", "numbers": [3, 4, 2],
                                           "target": 9, "indices": [0, 1, 2]}},
     # hesap

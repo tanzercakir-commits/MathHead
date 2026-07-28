@@ -4,7 +4,7 @@
 > kayıtlı araçlardan üretilir. ELLE DÜZENLEME. Güncellemek için:
 > `python scripts/gen_api_reference.py`. Sözleşme ayrıntısı: `docs/mcp-api.md`.
 
-Toplam **64 araç**.
+Toplam **69 araç**.
 
 ### `entailment(premises, conclusion)`
 
@@ -69,6 +69,26 @@ Bir ifade zincirinde her adım öncekiyle DENK mi — ilk hatalı geçişi bulur
 ### `cross_check(left, right)`
 
 `left = right` iddiasını Z3 VE SymPy ile BAĞIMSIZ doğrular; mutabakat arar.
+
+### `verify_derivative(expression, symbol, claimed, order=1)`
+
+`d^order/d{symbol}^order (expression)` gerçekten `claimed` mı? (AI türev iddiası.)
+
+### `verify_integral(expression, symbol, claimed)`
+
+`∫ expression d{symbol}` gerçekten `claimed` mı? (+C sabit farkı hoş görülür.)
+
+### `verify_limit(expression, symbol, point, claimed)`
+
+`lim {symbol}→{point} expression` gerçekten `claimed` mı? (`point`/`claimed` `oo` olabilir.)
+
+### `verify_series(expression, symbol, point, order, claimed)`
+
+`expression`'ın `{symbol}={point}` civarı `order`. mertebe Taylor açılımı `claimed` mı?
+
+### `verify_matrix_identity(left, right)`
+
+İki matris (sembolik hücreler dahil) EŞİT mi? Boyut/ilk farklı hücre raporlanır.
 
 ### `check_certificate(certificate)`
 

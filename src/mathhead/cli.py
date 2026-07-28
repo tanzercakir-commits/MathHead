@@ -161,6 +161,26 @@ def _build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("check-certificate", help="sertifikayı bağımsız (stdlib) doğrula")
     p.add_argument("certificate", metavar="JSON", help="sertifika JSON'u (ör. '{\"kind\":\"subset_sum\",...}')")
 
+    p = sub.add_parser("verify-derivative", help="türev iddiasını denetle")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("claimed", metavar="İDDİA"); p.add_argument("--order", type=int, default=1)
+
+    p = sub.add_parser("verify-integral", help="integral iddiasını denetle (+C hoşgörülür)")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("claimed", metavar="İDDİA")
+
+    p = sub.add_parser("verify-limit", help="limit iddiasını denetle")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("--point", default="0"); p.add_argument("--claimed", required=True)
+
+    p = sub.add_parser("verify-series", help="Taylor serisi iddiasını denetle")
+    p.add_argument("expression", metavar="İFADE"); p.add_argument("symbol", metavar="DEĞİŞKEN")
+    p.add_argument("--point", default="0"); p.add_argument("--order", type=int, default=6)
+    p.add_argument("--claimed", required=True)
+
+    p = sub.add_parser("verify-matrix", help="matris özdeşliği denetle ('1,2;3,4')")
+    p.add_argument("left", metavar="SOL"); p.add_argument("right", metavar="SAĞ")
+
     p = sub.add_parser("simplify", help="ifadeyi sadeleştir")
     p.add_argument("expression", metavar="İFADE")
 
@@ -361,6 +381,16 @@ _DISPATCH = {
     "verify-steps": lambda a: ("verify_steps", {"steps": a.steps}),
     "cross-check": lambda a: ("cross_check", {"left": a.left, "right": a.right}),
     "check-certificate": lambda a: ("check_certificate", {"certificate": json.loads(a.certificate)}),
+    "verify-derivative": lambda a: ("verify_derivative", {"expression": a.expression,
+                                    "symbol": a.symbol, "claimed": a.claimed, "order": a.order}),
+    "verify-integral": lambda a: ("verify_integral", {"expression": a.expression,
+                                  "symbol": a.symbol, "claimed": a.claimed}),
+    "verify-limit": lambda a: ("verify_limit", {"expression": a.expression, "symbol": a.symbol,
+                               "point": a.point, "claimed": a.claimed}),
+    "verify-series": lambda a: ("verify_series", {"expression": a.expression, "symbol": a.symbol,
+                                "point": a.point, "order": a.order, "claimed": a.claimed}),
+    "verify-matrix": lambda a: ("verify_matrix_identity", {"left": _matrix(a.left),
+                                "right": _matrix(a.right)}),
     "simplify": lambda a: ("simplify", {"expression": a.expression}),
     "solve": lambda a: ("solve", {"equation": a.equation, "symbol": a.symbol}),
     "diff": lambda a: ("differentiate", {"expression": a.expression, "symbol": a.symbol, "order": a.order}),

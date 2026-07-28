@@ -198,6 +198,47 @@ def cross_check(left: str, right: str) -> dict[str, Any]:
 
 
 @mcp.tool()
+def verify_derivative(expression: str, symbol: str, claimed: str, order: int = 1) -> dict[str, Any]:
+    """`d^order/d{symbol}^order (expression)` gerçekten `claimed` mı? (AI türev iddiası.)
+
+    valid → doğru; invalid → `details.correct` doğru türev + karşıörnek; unknown.
+    """
+    return asdict(route("verify_derivative", {"expression": expression, "symbol": symbol,
+                                              "claimed": claimed, "order": order}))
+
+
+@mcp.tool()
+def verify_integral(expression: str, symbol: str, claimed: str) -> dict[str, Any]:
+    """`∫ expression d{symbol}` gerçekten `claimed` mı? (+C sabit farkı hoş görülür.)
+
+    Dürüst yöntem: `claimed`'ın türevi `expression`'a eşit mi bakılır.
+    """
+    return asdict(route("verify_integral", {"expression": expression, "symbol": symbol,
+                                            "claimed": claimed}))
+
+
+@mcp.tool()
+def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> dict[str, Any]:
+    """`lim {symbol}→{point} expression` gerçekten `claimed` mı? (`point`/`claimed` `oo` olabilir.)"""
+    return asdict(route("verify_limit", {"expression": expression, "symbol": symbol,
+                                         "point": point, "claimed": claimed}))
+
+
+@mcp.tool()
+def verify_series(expression: str, symbol: str, point: str, order: int,
+                  claimed: str) -> dict[str, Any]:
+    """`expression`'ın `{symbol}={point}` civarı `order`. mertebe Taylor açılımı `claimed` mı?"""
+    return asdict(route("verify_series", {"expression": expression, "symbol": symbol,
+                                          "point": point, "order": order, "claimed": claimed}))
+
+
+@mcp.tool()
+def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> dict[str, Any]:
+    """İki matris (sembolik hücreler dahil) EŞİT mi? Boyut/ilk farklı hücre raporlanır."""
+    return asdict(route("verify_matrix_identity", {"left": left, "right": right}))
+
+
+@mcp.tool()
 def check_certificate(certificate: dict[str, Any]) -> dict[str, Any]:
     """Bir sonucu ÜRETEN motordan (Z3/SymPy) BAĞIMSIZ, yalnız stdlib ile doğrular.
 

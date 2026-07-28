@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-28 — I1 · doğrulama katmanı II (kalkülüs & matris iddiaları)
+
+**Bağlam:** Kullanıcı D–K roadmap'ini (a) onayladı, önerilen sırayla (I→D→…→K),
+"iş disiplini bozulmasın, kalite>hız" vurgusuyla. İlk aşama: I1.
+
+**Yapıldı**
+
+- `core/verify.py` genişledi: `verify_derivative`, `verify_integral`, `verify_limit`,
+  `verify_series`, `verify_matrix_identity`. Ortak deterministik `_equal_verdict`
+  (ADR-0020) yeniden kullanıldı; yeni reason_code YOK (EQUAL/NOT_EQUAL/UNDECIDED).
+- Uçtan uca: router (5) + MCP (**69 araç**) + CLI (`verify-derivative/integral/
+  limit/series/matrix`) + `tests/test_verify_calculus.py` (20) → **505/505 yeşil**.
+
+**Doğrulandı (dürüst kenar durumları)**
+
+- Türev/limit/seri yanlışta `details.correct` doğru değeri verir.
+- **integral +C dürüstlüğü:** `∫2x = x²+5` de geçerli (türev-alıp-karşılaştır →
+  sabit farkı hoş görülür). `verify_matrix_identity` sembolik (`a+a=2a`) yakalar,
+  boyut/ilk-farklı-hücre raporlar. Kötücül girdi reddedilir.
+
+**Sıradaki (önerilen sıra):** I2 doğal dil→formal (🔴). Not: I2 "2. duvar"a
+doğrudan; dikkatli + dürüst round-trip ile.
+
 ## 2026-07-28 — Track C4 · LLM-tuzak benchmark (TÜM C TAMAM 🎉)
 
 **Yapıldı**

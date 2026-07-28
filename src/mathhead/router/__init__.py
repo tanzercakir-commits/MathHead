@@ -39,7 +39,12 @@ from mathhead.certificate import CertificateResult, check_certificate
 from mathhead.core.crosscheck import cross_check
 from mathhead.core.verify import (
     VerifyResult,
+    verify_derivative,
     verify_equality,
+    verify_integral,
+    verify_limit,
+    verify_matrix_identity,
+    verify_series,
     verify_solution,
     verify_steps,
 )
@@ -100,6 +105,19 @@ def route(task: str, payload: dict[str, Any]) -> (
         return verify_steps(payload["steps"])
     if task == "cross_check":
         return cross_check(payload["left"], payload["right"])
+    if task == "verify_derivative":
+        return verify_derivative(payload["expression"], payload["symbol"],
+                                 payload["claimed"], payload.get("order", 1))
+    if task == "verify_integral":
+        return verify_integral(payload["expression"], payload["symbol"], payload["claimed"])
+    if task == "verify_limit":
+        return verify_limit(payload["expression"], payload["symbol"],
+                            payload["point"], payload["claimed"])
+    if task == "verify_series":
+        return verify_series(payload["expression"], payload["symbol"],
+                             payload["point"], payload["order"], payload["claimed"])
+    if task == "verify_matrix_identity":
+        return verify_matrix_identity(payload["left"], payload["right"])
     if task == "check_certificate":
         return check_certificate(payload["certificate"])
 

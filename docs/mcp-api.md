@@ -350,6 +350,11 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
 | `verify_solution` | `verify_solution(equation, symbol, claimed)` | `x**2==4`, `x`, `["2"]` → `SOLUTION_INCOMPLETE` (-2 kaçtı) |
 | `verify_steps` | `verify_steps(steps)` | `["(x+1)**2","x**2+1"]` → `STEP_INVALID` (1. geçiş) |
 | `cross_check` | `cross_check(left, right)` | `(x**2-1)/(x-1)` vs `x+1` → `ENGINES_DISAGREE` (domain!) |
+| `verify_derivative` | `verify_derivative(expression, symbol, claimed, order=1)` | `x**3`,`x`,`3*x**2` → `EQUAL` |
+| `verify_integral` | `verify_integral(expression, symbol, claimed)` | `2*x`,`x`,`x**2+5` → `EQUAL` (+C hoşgörülür) |
+| `verify_limit` | `verify_limit(expression, symbol, point, claimed)` | `sin(x)/x`,`x`,`0`,`1` → `EQUAL` |
+| `verify_series` | `verify_series(expression, symbol, point, order, claimed)` | `exp(x)`,`x`,`0`,`3`,`x**2/2+x+1` → `EQUAL` |
+| `verify_matrix_identity` | `verify_matrix_identity(left, right)` | `[[a+a]]` vs `[[2*a]]` → `EQUAL` (sembolik) |
 | `check_certificate` | `check_certificate(certificate)` | `{kind:"subset_sum",...}` → `verified`/`refuted` (BAĞIMSIZ) |
 
 **Neden öne geçirir (naif kontrolün kaçırdıkları):**
@@ -368,6 +373,11 @@ AI bir İDDİA sunar; MathHead bağımsız denetler ve karşıörnek/uyarı veri
   `ENGINES_DISAGREE` (çelişki → ince konu/domain bayrağı), `SINGLE_ENGINE`
   (yalnız biri karar verdi, ör. transandantalde yalnız SymPy). İki bağımsız
   tanığın anlaşması tek-motorlu rakiplerin veremeyeceği güven sinyalidir.
+- `verify_derivative`/`verify_integral`/`verify_limit`/`verify_series`/
+  `verify_matrix_identity` AI'ın kalkülüs/matris iddialarını bağımsız denetler
+  (iddia ≟ bağımsız hesaplanan doğru → `EQUAL`/`NOT_EQUAL`/`UNDECIDED`, `details.correct`
+  doğru değeri verir). `verify_integral` **türev-alıp-karşılaştır** yöntemiyle +C
+  sabit farkını dürüstçe hoş görür.
 - `check_certificate` bir sonucu, onu üreten motordan (Z3/SymPy) **BAĞIMSIZ**,
   yalnız Python **stdlib** ile (`ast`+`fractions`, mümkünse tam aritmetik)
   yeniden doğrular: `verified`/`refuted`. "Bize güvenme, checker'ı çalıştır."

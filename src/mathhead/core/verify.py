@@ -21,14 +21,26 @@ Güvenlik: girdi yine compute katmanının ast-whitelist ayrıştırıcısıyla 
 from __future__ import annotations
 
 import itertools
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
 import sympy
 
-from mathhead.compute import ComputeError, _meta, _parse, _symbol
+from mathhead.compute import (
+    ComputeError,
+    _meta,
+    _parse,
+    _parse_matrix,
+    _parse_point,
+    _symbol,
+)
 
-__all__ = ["verify_equality", "verify_solution", "verify_steps"]
+__all__ = [
+    "verify_equality", "verify_solution", "verify_steps",
+    "verify_limit", "verify_derivative", "verify_integral",
+    "verify_series", "verify_matrix_identity",
+]
 
 _SAMPLE = (0, 1, 2, -1, 3, -2, 5)   # karşıörnek taraması için nokta kümesi
 
@@ -249,4 +261,161 @@ def verify_steps(steps: list[str]) -> VerifyResult:
                             {"undecided_step": undecided_at}, _meta(t0))
     return VerifyResult("valid", "STEPS_VALID",
                         f"{len(exprs)} adımın tüm geçişleri denk (doğrulandı).",
+                        None, _meta(t0))
+
+
+# --------------------------------------------------------------------------- #
+# I1 — daha çok iddia türü: limit / türev / integral / seri / matris özdeşliği.
+# Hepsi "AI'ın iddiası ≟ bağımsız hesaplanan doğru" — deterministik denklikle
+# denetlenir (EQUAL/NOT_EQUAL/UNDECIDED). İntegral: türev-alıp-karşılaştır (dürüst).
+# --------------------------------------------------------------------------- #
+def _from_verdict(op: str, claimed: str, computed_desc: str,
+                  le: Any, re: Any, syms: dict[str, Any], t0: float) -> VerifyResult:
+    """`le` (iddia) ile `re` (hesaplanan) denk mi → ortak VerifyResult üretir."""
+    verdict, cx = _equal_verdict(le, re, syms)
+    if verdict == "equal":
+        return VerifyResult("valid", "EQUAL",
+                            f"{op}: iddia doğru (= {computed_desc}).", None, _meta(t0))
+    if verdict == "not_equal":
+        return VerifyResult("invalid", "NOT_EQUAL",
+                            f"{op}: iddia YANLIŞ. Doğrusu: {computed_desc}. Karşıörnek: {cx}.",
+                            {"claimed": claimed, "correct": computed_desc, "counterexample": cx},
+                            _meta(t0))
+    return VerifyResult("unknown", "UNDECIDED",
+                        f"{op}: kararlaştırılamadı (iddia: {claimed}, hesaplanan: {computed_desc}).",
+                        None, _meta(t0))
+
+
+def verify_derivative(expression: str, symbol: str, claimed: str,
+                      order: int = 1) -> VerifyResult:
+    """`d^order/d{symbol}^order (expression)` gerçekten `claimed` mı? (AI türev iddiası.)"""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(order, int) or order < 1:
+            raise ComputeError("türev mertebesi 1 veya daha büyük tam sayı olmalı")
+        expr = _as_expr(expression, syms)
+        var = _symbol(symbol, syms)
+        claimed_e = _as_expr(claimed, syms)
+    except ComputeError as exc:
+        return _err("verify_derivative", str(exc), t0)
+    try:
+        computed = sympy.diff(expr, var, order)
+    except Exception as exc:  # noqa: BLE001
+        return _err("verify_derivative", f"türev alınamadı: {exc}", t0)
+    return _from_verdict("türev", claimed, str(computed), claimed_e, computed, syms, t0)
+
+
+def verify_integral(expression: str, symbol: str, claimed: str) -> VerifyResult:
+    """`∫ expression d{symbol}` gerçekten `claimed` mı? (sabit farkı hoş görülür.)
+
+    DÜRÜST yöntem: `claimed`'ın türevini alıp `expression`'a eşit mi bakılır
+    (böylece +C belirsizliği doğal olarak aşılır).
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _as_expr(expression, syms)
+        var = _symbol(symbol, syms)
+        claimed_e = _as_expr(claimed, syms)
+    except ComputeError as exc:
+        return _err("verify_integral", str(exc), t0)
+    try:
+        d_claimed = sympy.diff(claimed_e, var)
+    except Exception as exc:  # noqa: BLE001
+        return _err("verify_integral", f"türev alınamadı: {exc}", t0)
+    res = _from_verdict("integral", claimed, f"türevi {d_claimed}", d_claimed, expr, syms, t0)
+    if res.status == "valid":
+        res.explanation = (f"integral: iddia doğru — d/d{symbol}({claimed}) = {expr} "
+                           f"(sabit farkı hoş görülür).")
+    return res
+
+
+def verify_limit(expression: str, symbol: str, point: str, claimed: str) -> VerifyResult:
+    """`lim {symbol}→{point} expression` gerçekten `claimed` mı? (`point`/`claimed` `oo` olabilir.)"""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        expr = _as_expr(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse_point(str(point), syms)
+        claimed_v = _parse_point(str(claimed), syms)
+    except ComputeError as exc:
+        return _err("verify_limit", str(exc), t0)
+    try:
+        actual = sympy.limit(expr, var, pt)
+    except Exception as exc:  # noqa: BLE001
+        return VerifyResult("unknown", "UNDECIDED",
+                            f"limit: bağımsız hesaplanamadı ({exc}).", None, _meta(t0))
+    equal = False
+    try:
+        equal = bool(actual == claimed_v) or bool(sympy.simplify(actual - claimed_v) == 0)
+    except Exception:  # noqa: BLE001
+        equal = bool(actual == claimed_v)
+    if equal:
+        return VerifyResult("valid", "EQUAL",
+                            f"limit: iddia doğru (lim {symbol}→{point} = {actual}).",
+                            None, _meta(t0))
+    return VerifyResult("invalid", "NOT_EQUAL",
+                        f"limit: iddia YANLIŞ. Doğru limit: {actual} (iddia: {claimed}).",
+                        {"claimed": str(claimed), "correct": str(actual)}, _meta(t0))
+
+
+def verify_series(expression: str, symbol: str, point: str, order: int,
+                  claimed: str) -> VerifyResult:
+    """`expression`'ın `{symbol}={point}` civarı `order`. mertebe Taylor açılımı `claimed` mı?"""
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        if not isinstance(order, int) or order < 1:
+            raise ComputeError("order 1 veya daha büyük tam sayı olmalı")
+        expr = _as_expr(expression, syms)
+        var = _symbol(symbol, syms)
+        pt = _parse_point(str(point), syms)
+        claimed_e = _as_expr(claimed, syms)
+    except ComputeError as exc:
+        return _err("verify_series", str(exc), t0)
+    try:
+        computed = expr.series(var, pt, order).removeO()
+    except Exception as exc:  # noqa: BLE001
+        return _err("verify_series", f"seri açılamadı: {exc}", t0)
+    return _from_verdict("seri", claimed, str(computed), claimed_e, computed, syms, t0)
+
+
+def verify_matrix_identity(left: list[list[str]], right: list[list[str]]) -> VerifyResult:
+    """İki matris (sembolik hücreler dahil) EŞİT mi? (AI matris özdeşliği iddiası.)
+
+    Boyut farklıysa `NOT_EQUAL`; aksi halde her hücre deterministik denklikle
+    denetlenir, ilk farklı hücre + karşıörnek raporlanır.
+    """
+    t0 = time.perf_counter()
+    syms: dict[str, Any] = {}
+    try:
+        A = _parse_matrix(left, syms)
+        B = _parse_matrix(right, syms)
+    except ComputeError as exc:
+        return _err("verify_matrix_identity", str(exc), t0)
+    if (A.rows, A.cols) != (B.rows, B.cols):
+        return VerifyResult("invalid", "NOT_EQUAL",
+                            f"matris boyutları farklı: {A.rows}×{A.cols} ≠ {B.rows}×{B.cols}.",
+                            {"left_shape": [A.rows, A.cols], "right_shape": [B.rows, B.cols]},
+                            _meta(t0))
+    undecided = None
+    for i in range(A.rows):
+        for j in range(A.cols):
+            verdict, cx = _equal_verdict(A[i, j], B[i, j], syms)
+            if verdict == "not_equal":
+                return VerifyResult("invalid", "NOT_EQUAL",
+                                    f"matrisler farklı: [{i}][{j}] hücresi eşit değil "
+                                    f"({A[i, j]} ≠ {B[i, j]}).",
+                                    {"cell": [i, j], "left": str(A[i, j]),
+                                     "right": str(B[i, j]), "counterexample": cx}, _meta(t0))
+            if verdict == "undecided" and undecided is None:
+                undecided = [i, j]
+    if undecided is not None:
+        return VerifyResult("unknown", "UNDECIDED",
+                            f"[{undecided[0]}][{undecided[1]}] hücresi kararlaştırılamadı; "
+                            f"gerisi eşit.", {"undecided_cell": undecided}, _meta(t0))
+    return VerifyResult("valid", "EQUAL",
+                        f"matrisler eşit ({A.rows}×{A.cols}, tüm hücreler doğrulandı).",
                         None, _meta(t0))

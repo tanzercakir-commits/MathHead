@@ -6,6 +6,12 @@ Tüm önemli değişiklikler burada tutulur. Sürümleme [SemVer](https://semver
 
 ### Eklendi
 
+- **Doğrulama katmanı II — kalkülüs & matris iddiaları (`verify_derivative`,
+  `verify_integral`, `verify_limit`, `verify_series`, `verify_matrix_identity`):**
+  ROADMAP I1. AI'ın türev/integral/limit/Taylor-seri/matris-özdeşliği iddialarını
+  bağımsız denetler (iddia ≟ hesaplanan doğru). `verify_integral` türev-alıp-
+  karşılaştır yöntemiyle **+C sabit farkını** dürüstçe hoş görür; yanlışta
+  `details.correct` doğru değeri verir. MCP (**69 araç**) + CLI + 20 test.
 - **LLM-tuzak benchmark (Track C4):** `benchmarks/llm_traps.json` (14 klasik LLM
   hata deseni: eksik/yanlış çözüm, yanlış özdeşlik, domain tuzağı, yanlış
   eşitsizlik, kök dalı, hatalı adım, asallık, aritmetik, modüler, Diophantine) +

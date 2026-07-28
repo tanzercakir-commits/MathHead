@@ -113,6 +113,12 @@ CALLS = [
     ("check_certificate", {"certificate": {"kind": "solution", "expression": "x**2 - 4",
                                            "symbol": "x", "value": "3"}}),         # refuted
     ("check_certificate", {"certificate": {"kind": "foo"}}),                # error
+    ("verify_derivative", {"expression": "x**3", "symbol": "x", "claimed": "3*x"}),   # invalid
+    ("verify_integral", {"expression": "2*x", "symbol": "x", "claimed": "x**2"}),     # valid
+    ("verify_limit", {"expression": "sin(x)/x", "symbol": "x", "point": "0", "claimed": "1"}),
+    ("verify_series", {"expression": "exp(x)", "symbol": "x", "point": "0", "order": 3,
+                       "claimed": "x**2 + x + 1"}),                          # invalid
+    ("verify_matrix_identity", {"left": [["1", "2"]], "right": [["1"], ["2"]]}),      # invalid (dim)
 ]
 
 

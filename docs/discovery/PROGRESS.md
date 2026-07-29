@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — Spectral bounds (numerical) + a more robust modular prover
+
+Extended the spectral thread to real-valued BOUNDS, and hardened the modular prover.
+
+**Done — new `spectral_bounds.py`:** the spectral radius (largest eigenvalue, from MathHead)
+evaluated numerically; candidate bounds checked counterexample-first and labeled honestly
+`certainty="numerical_check"` (not a proof). The engine found the classic sandwich
+**average_degree ≤ spectral_radius ≤ max_degree** (survives) and REFUTED the plausible
+`spectral_radius ≤ average_degree` — a single edge on 3 vertices breaks it (λ=1 > ⅔). Exact
+symbolic eigenvalue comparison was unreliable (SymPy's complex-radical forms won't order), so we
+went numeric — and kept it OUT of the default report (per-graph eigenvalue cost).
+
+**Robustness fix:** the modular prover was unified — `discover_and_prove` now always routes
+through `prove_modular_divisibility` (prime m = one induction; composite = factor + CRT) with a
+reliable 2500 ms budget, removing a flaky direct-then-fallback race that occasionally dropped
+`n³−n mod 6` back to unknown under load. Run ~10 s, verdicts stable. ADR-D0013.
+
+3 new tests (discovery suite 82); full suite 1372 green, ruff clean.
+
+**Next:** more surface into the four buckets, or start a heavier track (lemma discovery T / a real
+proof kernel M) — the pipeline stays orderly either way.
+
+---
+
 ## 2026-07-29 — Interestingness (W0): keep subclass-specific laws, drop restricted-universals
 
 A first filter against the "a machine can emit a million trivially-true statements" problem. New

@@ -21,7 +21,6 @@ from dataclasses import dataclass
 from functools import reduce
 from math import gcd
 
-from .judge import judge_induction
 from .strategy import prove_modular_divisibility
 
 
@@ -81,21 +80,18 @@ def first_counterexample(fn, m: int, upto: int):
     return next((n for n in range(upto + 1) if m and fn(n) % m != 0), None)
 
 
-def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: int = 1500):
-    """Discover the modulus, refute counterexample-first, then let MathHead judge the survivor.
-    `judge_timeout_ms` bounds the induction proof (a smaller budget just yields `unknown` sooner —
-    the provable ones here prove in well under a second)."""
+def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: int = 2500):
+    """Discover the modulus, refute counterexample-first, then let MathHead judge the survivor via
+    the modulus-factoring strategy (a prime modulus reduces to a single induction; a composite one
+    factors + CRT). `judge_timeout_ms` bounds each induction — generous enough that the provable
+    prime parts prove reliably, and the unprovable ones return an honest `unknown`."""
     m = discovered_modulus(fn)
     ce = first_counterexample(fn, m, check_upto)
     claim = f"({expr}) % {m} == 0"
     if ce is not None:                                  # (shouldn't happen for a gcd modulus)
         return ArithmeticFinding(expr, m, claim, "refuted", "refuted", "unknown", check_upto)
-    v = judge_induction(claim, timeout_ms=judge_timeout_ms)
-    method = "induction"
-    if v.status != "proved":                            # a single induction stalled — try the
-        alt = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)  # factor+CRT strategy
-        if alt.status == "proved":
-            v, method = alt, "modulus-factoring"
+    v = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)
+    method = "modulus-factoring" if len(v.detail.get("prime_powers", [m])) > 1 else "induction"
     return ArithmeticFinding(
         expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
 
@@ -105,7 +101,7 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
 _RUN_CACHE: dict = {}
 
 
-def run_arithmetic_discovery(check_upto: int = 60, judge_timeout_ms: int = 1500) -> list:
+def run_arithmetic_discovery(check_upto: int = 60, judge_timeout_ms: int = 2500) -> list:
     """Run the full generate → refute → prove loop over the polynomial family."""
     key = (check_upto, judge_timeout_ms)
     if key not in _RUN_CACHE:

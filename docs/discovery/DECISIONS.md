@@ -255,6 +255,27 @@
 
 ---
 
+## ADR-D0013 — Real-valued spectral bounds, numerically checked (honest certainty)
+
+- **Status:** Accepted · 2026-07-29 (spectral bounds; also unifies the modular prover)
+- **Context:** Spectral graph theory's famous facts are BOUNDS on the largest eigenvalue (spectral
+  radius), which is real (often irrational). Exact symbolic comparison proved unreliable — SymPy
+  returns some eigenvalues in unsimplified complex-radical forms that won't order. But the moment
+  identities were exact; we must not blur the two.
+- **Decision:** `spectral_bounds.py` evaluates the spectral radius NUMERICALLY (largest eigenvalue
+  from MathHead's spectrum, to 30 digits, real part) and checks candidate bounds counterexample-
+  first, labeling every result `certainty="numerical_check"` — strong evidence over the sample, NOT
+  a proof. Kept OUT of the default report (its per-graph eigenvalue cost is heavy). Separately, the
+  arithmetic prover was unified: `discover_and_prove` always routes through
+  `prove_modular_divisibility` (a prime modulus is a single induction; a composite one factors +
+  CRT) with a reliable 2500 ms budget — removing a flaky direct-then-fallback race.
+- **Consequences:** The engine discovers the classic sandwich **average_degree ≤ spectral_radius ≤
+  max_degree** (survives) and REFUTES the plausible `spectral_radius ≤ average_degree` (a 3-vertex
+  single edge breaks it: λ=1 > ⅔). Honesty preserved: exact facts stay exact, numerical ones are
+  labeled `numerical_check`. The modular prover is now deterministic and fast (~10 s memoized).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

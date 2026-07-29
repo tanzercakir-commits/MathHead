@@ -70,6 +70,7 @@ from .sequences import (
     discover_closed_form,
     run_sequence_discovery,
 )
+from .spectral_bounds import SpectralBoundFinding, run_spectral_bounds, spectral_radius
 from .spectral import (
     discover_spectral_laws,
     num_distinct_eigenvalues,
@@ -120,6 +121,9 @@ __all__ = [
     "num_distinct_eigenvalues",
     "spectrum_confirms_moments",
     "discover_spectral_laws",
+    "spectral_radius",
+    "run_spectral_bounds",
+    "SpectralBoundFinding",
     "SumIdentityFinding",
     "run_sequence_discovery",
     "discover_closed_form",

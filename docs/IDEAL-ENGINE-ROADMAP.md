@@ -67,11 +67,11 @@ M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_
 
 **Track Q — Karşı-örnek-önce (§6)**
 ```
-Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)
+Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)  ✅ (refute: counterexample-first bounded scan; survivor = no_counterexample_within_bound)
 Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)
 Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama
 Q3   🟡 Model checking + interval arithmetic + sembolik test yolları
-Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)
+Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)  ✅ (minimal: en küçük n, sonra en az kenar; ör. T≤E → K6−e)
 Q5   🔴 Başarısızlık mekanizması çıkarımı ("invariant iki çevrim bir tepe paylaşınca bozuluyor")
 Q6   🔴 Onarılmış konjektür önerisi (ek varsayımla ifade geçerli mi?)
 ```
@@ -128,7 +128,7 @@ AA4 🟡 Bulunan algoritmayı ispata bağla (Track S/M köprüsü)
 
 **Track P — Konjektür üretimi (§4)**
 ```
-P0 🟢 Deneysel örüntü madenciliği: eşitlik/eşitsizlik/monotonluk/periyodiklik/asimptotik/yasak-yapı
+P0 🟢 Deneysel örüntü madenciliği: eşitlik/eşitsizlik/monotonluk/periyodiklik/asimptotik/yasak-yapı  ✅ (alt-sınıf yasaları + eşitsizlik sınırları; ağaç teoremlerini veriden buldu; ADR-D0005)
 P1 🟢 Teorem mutasyonu: varsayım zayıflat / sonuç güçlendir / sabit iyileştir / boyut artır / genelle
 P2 🟡 Tersine mühendislik: ilginç sonucu bul → onu açıklayan daha genel ilkeyi ara
 P3 🟡 Analoji motoru: bir alandaki yapıyı diğerine taşı (graph-cut ↔ submodular...)

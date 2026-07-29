@@ -17,6 +17,11 @@ from .objects import Graph
 
 _BRUTE_MAX_N = 7  # 2^21 labeled graphs at n=7; beyond this brute enumeration is infeasible
 
+# Generation is deterministic, so results are memoized by n (a big speedup for the discovery
+# loop, which regenerates the same small graph sets repeatedly). Callers get a fresh list copy,
+# so they cannot corrupt the cache; the Graph objects are immutable anyway.
+_CACHE: dict = {}
+
 
 def all_pairs(n: int) -> list:
     return [(i, j) for i in range(n) for j in range(i + 1, n)]
@@ -26,7 +31,7 @@ def generate_graphs(n: int) -> list:
     """One representative Graph per isomorphism class on n vertices (in canonical form).
 
     Returned in a deterministic order (sorted by canonical key). Raises ValueError for
-    n > 7 — an honest bound, not a silent truncation.
+    n > 7 — an honest bound, not a silent truncation. Memoized by n.
     """
     if n < 0:
         raise ValueError("n must be >= 0")
@@ -35,15 +40,17 @@ def generate_graphs(n: int) -> list:
             f"brute generation is bounded at n <= {_BRUTE_MAX_N} "
             f"(2^(n choose 2) labeled graphs); orderly generation (McKay) is roadmap N1-opt"
         )
-    pairs = all_pairs(n)
-    m = len(pairs)
-    seen: dict = {}
-    for mask in range(1 << m):
-        edges = frozenset(pairs[b] for b in range(m) if (mask >> b) & 1)
-        key = canonical_key(Graph(n, edges))
-        if key not in seen:
-            seen[key] = graph_from_key(key)
-    return [seen[k] for k in sorted(seen)]
+    if n not in _CACHE:
+        pairs = all_pairs(n)
+        m = len(pairs)
+        seen: dict = {}
+        for mask in range(1 << m):
+            edges = frozenset(pairs[b] for b in range(m) if (mask >> b) & 1)
+            key = canonical_key(Graph(n, edges))
+            if key not in seen:
+                seen[key] = graph_from_key(key)
+        _CACHE[n] = [seen[k] for k in sorted(seen)]
+    return list(_CACHE[n])
 
 
 def count_non_isomorphic(n: int) -> int:

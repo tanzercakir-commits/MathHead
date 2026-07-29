@@ -6,6 +6,43 @@
 
 ---
 
+## 2026-07-29 — P0 + Q0: conjecture generation + counterexample-first — the engine's character
+
+The engine now GENERATES candidate laws and, by default, tries to KILL them before believing —
+the "counterexample-first" stance. This is where discovery stops being bookkeeping.
+
+**Done — new `conjectures.py` (P0) + `refute.py` (Q0):**
+- **`subclass_laws`** — mine O2 laws on a predicate-defined subclass. On **trees** the engine
+  rediscovers classic theorems from data: `num_triangles = 0`, `num_edges = num_vertices - 1`;
+  on **forests** the correct weaker `num_vertices = num_edges + num_components` (NOT E=V-1). Added
+  structural `is_forest`/`is_tree` invariants (cycle detection, not the E=V-C formula — no
+  circularity).
+- **`bound_conjectures`** — propose non-trivial inequalities `A <= B` holding on the sample.
+- **`refute`** (counterexample-first, Q0 + minimal-CE Q4): bounded scan returning the MINIMAL
+  counterexample or an honest `no_counterexample_within_bound` — never "proved".
+
+**The character moment (the milestone):** from graphs with n<=5 the engine proposes 11 plausible
+bounds (all true on <=5 vertices); a bounded attack up to n=6 then **kills exactly one** —
+`num_triangles <= num_edges`, with the minimal counterexample **T=16 > E=14** on 6 vertices (K6
+minus an edge) — while the other 10 survive as bounded-honest. True theorems (`trees: E=V-1`,
+`trees: triangle-free`) survive.
+
+**Fixes on the way (recorded honestly):** the refute loop was regenerating the n<=6 graph set
+per conjecture (~38 s > the 30 s test timeout; the timeout's traceback even crashed pytest's
+renderer). Fixed by **memoizing generation by n** (deterministic) + switching stored predicates
+from lambdas to named closures. Full loop now ~3.6 s.
+
+**Honesty (ADR-D0005):** survivors are `no_counterexample_within_bound`, the handoff to the judge
+(R). The judge (MathHead) is deliberately NOT wired for graph theorems — it isn't the right tool
+there; it enters for the algebraically-reducible survivors. 8 new tests (discovery suite 47);
+full suite 1337 green, ruff clean.
+
+**Next:** R — take a survivor that IS expressible in MathHead's grammar (or move a sub-demo to a
+number-theory domain) and let the judge actually PROVE it — the first real use of MathHead as the
+discovery engine's judge.
+
+---
+
 ## 2026-07-29 — O2: automatic relation discovery — the engine rediscovers the Handshake Lemma
 
 First real *discovery*: the engine finds a true theorem from data (not hardcoded).

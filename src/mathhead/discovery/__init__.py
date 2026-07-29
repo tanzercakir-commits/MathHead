@@ -12,6 +12,9 @@ Layers so far:
   * invariants — property & invariant evaluation (O0/O1)
   * relations  — automatic relation discovery (O2): finds empirical linear laws
                  (e.g. rediscovers the Handshake Lemma) + constant invariants
+  * conjectures— conjecture generation (P0/P1): subclass laws + inequality bounds
+  * refute     — counterexample-first refutation (Q0): minimal counterexample or an honest
+                 'no_counterexample_within_bound' (the judge, MathHead, proves survivors at R)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -22,9 +25,18 @@ that USES the judge, not a part subordinate to it; it may be promoted to a sibli
 later (see docs/discovery/DECISIONS.md, ADR-D0001).
 """
 from .canonical import canonical_graph, canonical_key, is_isomorphic
+from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
-from .invariants import INVARIANTS, NUMERIC_INVARIANTS, evaluate, invariant_vector
+from .invariants import (
+    INVARIANTS,
+    NUMERIC_INVARIANTS,
+    evaluate,
+    invariant_vector,
+    is_forest,
+    is_tree,
+)
 from .objects import Graph, MathObject
+from .refute import RefutationResult, refute
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 
 __all__ = [
@@ -39,7 +51,14 @@ __all__ = [
     "NUMERIC_INVARIANTS",
     "evaluate",
     "invariant_vector",
+    "is_forest",
+    "is_tree",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",
+    "Conjecture",
+    "subclass_laws",
+    "bound_conjectures",
+    "RefutationResult",
+    "refute",
 ]

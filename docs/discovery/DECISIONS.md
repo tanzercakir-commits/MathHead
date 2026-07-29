@@ -86,6 +86,32 @@
 
 ---
 
+## ADR-D0005 — Counterexample-first conjectures: empirical status + minimal counterexample (P0/Q0)
+
+- **Status:** Accepted · 2026-07-29 (Track P0/Q0)
+- **Context:** A discovery engine must generate candidate laws AND resist believing them. The
+  external note is explicit: the default stance toward a conjecture is to try to KILL it before
+  proving it. We also must never present an empirically-observed relation as a theorem.
+- **Decision:** `conjectures.py` generates candidates — subclass linear laws (mine O2 laws on a
+  predicate-defined subclass, e.g. trees) and inequality bounds `A <= B` between numeric
+  invariants that hold on the sample. Every `Conjecture` is `status="empirical"` with an explicit
+  `scope`/`claim`. `refute.py` is the DEFAULT action: a counterexample-first bounded scan that
+  returns the **minimal** counterexample (smallest n, then fewest edges) if refuted, else
+  `no_counterexample_within_bound` — never "proved". Predicates are named closures (not lambdas)
+  so tracebacks render and behaviour is inspectable. Generation is memoized by n (deterministic),
+  so the refute loop doesn't re-enumerate the same graph sets.
+- **Consequences:** The engine visibly earns its beliefs: from n<=5 it proposes 11 plausible
+  bounds, then a bounded attack up to n=6 KILLS exactly the one artifact
+  (`num_triangles <= num_edges`, minimal counterexample T=16 > E=14 on 6 vertices, K6 minus an
+  edge) while the rest survive as bounded-honest. True subclass theorems (`trees: E = V - 1`,
+  `trees: num_triangles = 0`) survive the attack. A survivor is `no_counterexample_within_bound`
+  — the honest handoff to the judge (R): the algebraically-reducible survivors go to MathHead for
+  a real proof; purely combinatorial ones stay empirically-supported until a structural proof is
+  added. This ADR deliberately does NOT claim the judge is wired for graph theorems — it is not;
+  forcing MathHead where it adds nothing would violate the honesty this project is built on.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -83,6 +83,31 @@ def is_connected(g: Graph) -> bool:
     return g.n > 0 and num_components(g) == 1
 
 
+def is_forest(g: Graph) -> bool:
+    """True iff the graph is acyclic. Detected STRUCTURALLY (union-find: an edge joining two
+    already-connected vertices closes a cycle) — deliberately NOT via the E = V - C formula, so
+    the discovery engine can rediscover that formula on forests without circularity."""
+    parent = list(range(g.n))
+
+    def find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for (a, b) in g.edges:
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            return False
+        parent[ra] = rb
+    return True
+
+
+def is_tree(g: Graph) -> bool:
+    """Connected and acyclic."""
+    return is_connected(g) and is_forest(g)
+
+
 # Named registry so the discovery loop can request invariants by name (feature tables, O3).
 INVARIANTS = {
     "num_vertices": num_vertices,
@@ -94,6 +119,8 @@ INVARIANTS = {
     "num_triangles": num_triangles,
     "num_components": num_components,
     "is_connected": is_connected,
+    "is_forest": is_forest,
+    "is_tree": is_tree,
 }
 
 # The integer-valued invariants — the columns the relation miner (O2) runs over. Excludes

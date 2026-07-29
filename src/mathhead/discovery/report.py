@@ -178,8 +178,11 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                 for s, _ in rank(all_items)[:5]]
     report = DiscoveryReport(proved, empirical, refuted, open_bounded,
                              _frontier_confirmations(), meta)
+    from .impact import impact_summary                            # structural impact analysis (X3)
     from .knowledge_graph import from_report as _kg_from_report   # semantic graph of findings (X0)
-    report.meta["knowledge_graph"] = _kg_from_report(report).summary()
+    _kg = _kg_from_report(report)
+    report.meta["knowledge_graph"] = _kg.summary()
+    report.meta["impact"] = impact_summary(_kg)
     return report
 
 
@@ -200,6 +203,11 @@ def render(report: DiscoveryReport) -> str:
     if kg:
         lines.append(f"_knowledge graph: {kg['nodes']} nodes · {kg['edges']} edges "
                      f"({', '.join(f'{k}×{v}' for k, v in sorted(kg['by_kind'].items()))})_")
+    impact = report.meta.get("impact")
+    if impact and impact.get("load_bearing_axioms"):
+        lb = impact["load_bearing_axioms"][0]
+        lines.append(f"_impact: most load-bearing axiom `{lb['axiom']}` supports {lb['supports']} "
+                     f"theorems_")
     lines.append("")
 
     def section(title, items, fmt):

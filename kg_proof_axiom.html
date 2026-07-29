@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MathHead — proof→axiom graph</title>
+<style>
+ body{margin:0;background:#0d1117;color:#e6edf3;font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+ header{padding:18px 20px;border-bottom:1px solid #21262d}
+ h1{margin:0 0 4px;font-size:18px} .sub{color:#8b949e;font-size:13px}
+ .wrap{padding:16px} .mermaid{background:#0d1117}
+ .foot{padding:10px 20px 24px;color:#8b949e;font-size:12px}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+</head><body>
+<header><h1>MathHead discovery — proof → axiom graph</h1>
+<div class="sub">Every kernel-verified theorem and the exact inference rules its proof rests on
+(depends_on). Provenance is mechanical: nothing is hidden.</div></header>
+<div class="wrap"><pre class="mermaid">graph LR
+  theorem_0("(n*(n+1)) % 2 == 0")
+  theorem_1("(n*(n+1)*(n+2)) % 6 == 0")
+  theorem_2("(n*(n+1)*(n+2)*(n+3)) % 24 == 0")
+  theorem_3("(n**2 - n) % 2 == 0")
+  theorem_4("(n**3 - n) % 6 == 0")
+  theorem_5("(n**5 - n) % 30 == 0")
+  theorem_6("(n**7 - n) % 42 == 0")
+  theorem_7("sum_(i=1..n) i = n*(n + 1)/2")
+  theorem_8("sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6")
+  theorem_9("sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4")
+  theorem_10("sum_(i=1..n) 2*i - 1 = n**2")
+  axiom_CRT["CRT"]:::ax
+  axiom_RESIDUE_m_2_["RESIDUE(m=2)"]:::ax
+  axiom_RESIDUE_m_3_["RESIDUE(m=3)"]:::ax
+  axiom_RESIDUE_m_5_["RESIDUE(m=5)"]:::ax
+  axiom_RESIDUE_m_7_["RESIDUE(m=7)"]:::ax
+  axiom_RESIDUE_m_8_["RESIDUE(m=8)"]:::ax
+  axiom_SUM_INDUCTION["SUM_INDUCTION"]:::ax
+  theorem_0 --> axiom_RESIDUE_m_2_
+  theorem_1 --> axiom_CRT
+  theorem_1 --> axiom_RESIDUE_m_2_
+  theorem_1 --> axiom_RESIDUE_m_3_
+  theorem_2 --> axiom_CRT
+  theorem_2 --> axiom_RESIDUE_m_3_
+  theorem_2 --> axiom_RESIDUE_m_8_
+  theorem_3 --> axiom_RESIDUE_m_2_
+  theorem_4 --> axiom_CRT
+  theorem_4 --> axiom_RESIDUE_m_2_
+  theorem_4 --> axiom_RESIDUE_m_3_
+  theorem_5 --> axiom_CRT
+  theorem_5 --> axiom_RESIDUE_m_2_
+  theorem_5 --> axiom_RESIDUE_m_3_
+  theorem_5 --> axiom_RESIDUE_m_5_
+  theorem_6 --> axiom_CRT
+  theorem_6 --> axiom_RESIDUE_m_2_
+  theorem_6 --> axiom_RESIDUE_m_3_
+  theorem_6 --> axiom_RESIDUE_m_7_
+  theorem_7 --> axiom_SUM_INDUCTION
+  theorem_8 --> axiom_SUM_INDUCTION
+  theorem_9 --> axiom_SUM_INDUCTION
+  theorem_10 --> axiom_SUM_INDUCTION
+  classDef ax fill:#1f6feb,color:#fff,stroke:#0d1117;</pre></div>
+<div class="foot">11 kernel-verified theorems · axioms are the trusted primitives (RESIDUE(m), CRT, SUM_INDUCTION) ·
+generated deterministically by knowledge_graph.from_report (Track X0)</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',securityLevel:'loose'});</script>
+</body></html>

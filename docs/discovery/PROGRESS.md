@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-29 — Impact analysis (Track X3): load-bearing axioms, hubs, the open frontier
+
+New `impact.py` runs structural "so what?" analysis over the knowledge graph — all exact graph
+computations, no guessing. `load_bearing_axioms` ranks inference rules by how many theorems depend on
+them (RESIDUE(m=2) supports 6 proofs, CRT 5 — the leverage points: break one and many results move);
+`most_connected` finds the hubs; `open_frontier` ranks OPEN conjectures by how entangled
+(`related_to`) they are with known results — the highest-impact statements to settle next. The report
+header now shows the most load-bearing axiom; `meta.impact` carries the full picture.
+
+Honest scope: this is impact WITHIN the engine's own knowledge — descriptive centrality/leverage.
+Saying "this settles conjecture C from the literature" needs external open-problem ingestion (X1/W2),
+still open. 4 tests (discovery suite 181); full suite **1470 green**, ruff clean. ADR-D0028. Roadmap X3.
+
+**Next:** ingest an external corpus for real novelty checks (X1/W2), or wire failure-memory into the
+loop, or push a new domain surface.
+
+---
+
 ## 2026-07-29 — Knowledge graph (Track X0): findings become a typed semantic graph
 
 Findings stopped being a flat list. New `knowledge_graph.py`: a typed graph where nodes are

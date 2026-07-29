@@ -612,6 +612,26 @@
 
 ---
 
+## ADR-D0028 — Impact analysis is exact graph computation over OWN knowledge, not literature claims
+
+- **Status:** Accepted · 2026-07-29 (X3 — impact analysis)
+- **Context:** X3 asks "what does a result impact — which open problem, which bound, which
+  assumption?" The grand version compares against the mathematical literature, but the engine hasn't
+  ingested one (X1/W2 open). Overclaiming ("this solves conjecture C") would be dishonest.
+- **Decision:** Implement impact as EXACT structural analysis over the engine's own knowledge graph:
+  load-bearing axioms (depends_on in-degree), most-connected hubs (total degree), and the open
+  frontier (open conjectures by related_to entanglement). Every number is a graph count, deterministic
+  and inspectable. Frame it explicitly as impact WITHIN current knowledge; external open-problem
+  ingestion is named as the separate, still-open step.
+- **Consequences:** The engine can now point at its own leverage points — RESIDUE(m=2)/CRT carry most
+  of the proof web, so they are where trust and effort concentrate — and at the unresolved statements
+  most worth settling, all without a shred of overclaim. It is genuinely useful (a researcher sees the
+  load-bearing structure at a glance) and completely honest (counts, not literature assertions). The
+  clean interface (impact over a KnowledgeGraph) means X1/W2 can later add external nodes and the same
+  functions yield literature-aware impact for free.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

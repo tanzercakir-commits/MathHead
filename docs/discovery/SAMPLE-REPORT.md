@@ -4,6 +4,7 @@ _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -
 _kernel v1.0 · axioms: CRT, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _negative knowledge: 4 dead end(s) recorded_
 _knowledge graph: 48 nodes · 123 edges (axiom×7, conjecture×20, counterexample×4, law×6, theorem×11)_
+_impact: most load-bearing axiom `RESIDUE(m=2)` supports 6 theorems_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`

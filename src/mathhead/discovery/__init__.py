@@ -42,6 +42,8 @@ Layers so far:
                  compression/connectivity − triviality, with a per-component breakdown (not learned)
   * knowledge_graph — typed semantic graph of findings + relations (X0): theorem/law/conjecture/
                  counterexample/axiom nodes; depends_on/refuted_by/related_to edges; Mermaid export
+  * impact       — structural impact analysis over the graph (X3): load-bearing axioms, hubs, and the
+                 open frontier (most-entangled unresolved conjectures)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -81,6 +83,7 @@ from .hamiltonicity import (
     hamiltonicity_laws,
     verify_hamiltonicity,
 )
+from .impact import impact_summary, load_bearing_axioms
 from .interestingness import Interestingness
 from .interestingness import rank as rank_interestingness
 from .interestingness import score as score_interestingness
@@ -203,6 +206,8 @@ __all__ = [
     "Node",
     "Edge",
     "knowledge_graph_from_report",
+    "impact_summary",
+    "load_bearing_axioms",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

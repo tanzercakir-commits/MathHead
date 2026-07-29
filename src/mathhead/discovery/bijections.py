@@ -31,6 +31,12 @@ from .partitions import (
     largest_part,
     num_parts,
 )
+from .permutations import (
+    Permutation,
+    generate_permutations,
+    inversions,
+    major_index,
+)
 
 
 def glaisher_odd_to_distinct(p: Partition) -> Partition:
@@ -124,3 +130,46 @@ def certify_conjugation_bijection(max_n: int = 15) -> BijectionCertificate:
 def certify_partition_bijections(max_n: int = 15) -> list:
     """All constructive partition bijection certificates."""
     return [certify_euler_bijection(max_n), certify_conjugation_bijection(max_n)]
+
+
+def foata(p: Permutation) -> Permutation:
+    """Foata's SECOND fundamental transformation Φ, satisfying inv(Φ(w)) = maj(w) — hence a bijection
+    of S_n witnessing the Mahonian equidistribution of inv and maj.
+
+    Built left to right: append each letter a; split the current word into blocks by cutting after
+    every letter ≤ a (if the last letter ≤ a) or after every letter > a (otherwise); cyclically shift
+    each block (last letter to the front); append a."""
+    w = list(p.perm)
+    if len(w) <= 1:
+        return Permutation(tuple(w))
+    gamma = [w[0]]
+    for a in w[1:]:
+        cut_on_le = gamma[-1] <= a
+        blocks, cur = [], []
+        for c in gamma:
+            cur.append(c)
+            if (c <= a) if cut_on_le else (c > a):
+                blocks.append(cur)
+                cur = []
+        if cur:
+            blocks.append(cur)
+        gamma = [x for blk in blocks for x in ([blk[-1], *blk[:-1]])] + [a]
+    return Permutation(tuple(gamma))
+
+
+def certify_mahonian_bijection(max_n: int = 7) -> BijectionCertificate:
+    """Verify Foata's Φ is a bijection of S_n with inv(Φ(π)) = maj(π) for every n ≤ max_n — a
+    constructive proof (bounded) of the inv/maj Mahonian equidistribution."""
+    ok = True
+    for n in range(1, max_n + 1):
+        perms = generate_permutations(n)
+        images = [foata(p).perm for p in perms]
+        if len(set(images)) != len(perms):                # bijection
+            ok = False
+            break
+        if any(inversions(foata(p)) != major_index(p) for p in perms):   # statistic preserved
+            ok = False
+            break
+    return BijectionCertificate(
+        "Mahonian: inv and maj are equidistributed over S_n", max_n, ok,
+        detail="Foata's second fundamental transformation Φ, verified a bijection with inv(Φ(π))=maj(π)")

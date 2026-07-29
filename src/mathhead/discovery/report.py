@@ -166,13 +166,22 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                  "explains": "over all permutations of [n]",
                                  "reason": law.explanation, "status": "structural_argument",
                                  "verified": True})
+    from .bijections import certify_mahonian_bijection
+    _foata = certify_mahonian_bijection(7)                   # Foata's Φ: inv(Φ)=maj (Mahonian)
     for dl in discover_distribution_laws(7):                 # Mahonian / Eulerian distribution facts
         if dl.verified:
             empirical.append({"statement": dl.statement, "status": "empirical",
                               "scope": "permutations S_n (n≤7), distribution-level", "support": None})
-            explanations.append({"identity": dl.statement, "explains": "the distribution over S_n",
-                                 "reason": dl.explanation, "status": "structural_argument",
-                                 "verified": True})
+            if "Mahonian" in dl.statement and _foata.verified:   # upgraded to a verified bijection
+                explanations.append({
+                    "identity": dl.statement, "explains": "the distribution over S_n",
+                    "reason": f"{dl.explanation} — {_foata.detail} (constructive_bijection, verified "
+                              f"n≤{_foata.holds_upto})",
+                    "status": "constructive_bijection", "verified": True})
+            else:
+                explanations.append({"identity": dl.statement, "explains": "the distribution over S_n",
+                                     "reason": dl.explanation, "status": "structural_argument",
+                                     "verified": True})
 
     # fourth object domain: integer partition facts (Euler's distinct=odd, conjugation), upgraded to
     # CONSTRUCTIVE BIJECTIONS where the explicit bijection is verified on the sample

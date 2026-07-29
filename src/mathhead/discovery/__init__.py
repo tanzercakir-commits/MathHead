@@ -45,8 +45,8 @@ Layers so far:
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
   * partitions  — a FOURTH object domain (number-theoretic): p(n) counts (A000041), rediscovers
                  Euler's distinct=odd theorem (A000009) and conjugation symmetry
-  * bijections  — CONSTRUCTIVE bijections proving the partition equidistributions: Glaisher (Euler
-                 distinct=odd) + conjugation, verified injective+onto on the sample (constructive_bijection)
+  * bijections  — CONSTRUCTIVE bijections proving the equidistributions: Glaisher (Euler distinct=odd),
+                 conjugation, and Foata's Φ (Mahonian inv~maj); verified on the sample (constructive_bijection)
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
@@ -81,7 +81,9 @@ from .arithmetic import (
 from .adversarial import RobustnessReport, robustness_report
 from .bijections import (
     BijectionCertificate,
+    certify_mahonian_bijection,
     certify_partition_bijections,
+    foata,
     glaisher_distinct_to_odd,
     glaisher_odd_to_distinct,
 )
@@ -289,6 +291,8 @@ __all__ = [
     "robustness_report",
     "BijectionCertificate",
     "certify_partition_bijections",
+    "certify_mahonian_bijection",
+    "foata",
     "glaisher_odd_to_distinct",
     "glaisher_distinct_to_odd",
     "DiscoveredLaw",

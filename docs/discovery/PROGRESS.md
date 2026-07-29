@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-29 — Foata's bijection: the Mahonian equidistribution now constructively proven too
+
+Extended the constructive-bijection treatment to the permutation Mahonian fact. Implemented Foata's
+SECOND fundamental transformation Φ — and, honestly, PINNED DOWN the exact variant empirically: a
+parametrized search over cut-predicate and shift direction found the one (cut after ≤a when the last
+letter ≤a, else after >a; shift each block's last letter to the front) for which Φ is a bijection of
+S_n with inv(Φ(π)) = maj(π), verified through n=8. The verification IS the correctness check — a wrong
+transformation would fail the bijection/statistic test and never ship.
+
+`certify_mahonian_bijection` verifies it on n≤7; the report upgrades the Mahonian explanation from
+`structural_argument` to `constructive_bijection`. Three equidistributions are now constructively
+proven (Foata/Mahonian, Glaisher/Euler, conjugation) — FORMALLY_SPECIFIED (L3) rose to 10.
+
+2 net new tests (discovery suite 247); full suite **1536 green**, ruff clean. ADR-D0038 (extended).
+
+**Next:** corpus-backed novelty (X1/W2), a deeper kernel, or a fifth domain.
+
+---
+
 ## 2026-07-29 — Constructive bijections: PROVING the partition equidistributions (Glaisher + conjugation)
 
 An equidistribution is best proven by exhibiting a BIJECTION — so the engine now does, and checks it.

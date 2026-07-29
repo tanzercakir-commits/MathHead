@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-07-29 — Proof strategy (S): factor the modulus → prove parts → CRT — proving what one induction couldn't
+
+The judge now has more than one route. New `strategy.py`: `prove_modular_divisibility` factors m
+(MathHead `factorize`), proves each prime power by induction, and combines coprime successes by CRT.
+The arithmetic loop tries a single induction first, then falls back to this strategy.
+
+**What it upgraded (real new proofs):**
+- `n³ − n ≡ 0 (mod 6)` and `n(n+1)(n+2) ≡ 0 (mod 6)` — each `unknown` under one induction — are now
+  **PROVED** via 2·3 + CRT (`certainty=formal_proof`, `method=modulus-factoring`). The report's
+  PROVED arithmetic facts went 2 → 4.
+- The still-hard ones (`n⁵−n mod 30`, `n⁷−n mod 42`, the mod-24 case) stay honestly `unknown` — now
+  the strategy NAMES the blocking prime power (e.g. the mod-3 step of n⁵−n) instead of a bare wall.
+
+Timing kept safe (judge budget 1500 ms, memoized run ~14 s). 4 new tests (discovery suite 77);
+full suite 1367 green, ruff clean. ADR-D0011. First step of the proof-strategy orchestrator (S).
+
+**Next:** more routes in the portfolio (e.g. prove a product-of-consecutives fact by the "one of k
+consecutive is divisible by k" argument) or more surface — all into the same four report buckets.
+
+---
+
 ## 2026-07-29 — Sum identities: discover the formula from data, prove it by induction (2nd arithmetic generator)
 
 A second arithmetic generator, and a richer discover→prove loop: the engine finds a SUM's closed

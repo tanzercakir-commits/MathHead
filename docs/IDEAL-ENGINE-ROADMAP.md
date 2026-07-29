@@ -147,7 +147,7 @@ T3 🟢 Proof dependency graph üretimi (lemma → ana hedef bağlantısı)
 
 **Track S — İspat arama portföyü & orkestrasyon (§7)**
 ```
-S0 🟢 Strateji kayıt defteri (forward/backward, best-first, MCTS, resolution, superposition, rewriting, induction, case-split, symmetry, QE, Gröbner, ILP, exhaustive...)
+S0 🟢 Strateji kayıt defteri (forward/backward, best-first, MCTS, resolution, superposition, rewriting, induction, case-split, symmetry, QE, Gröbner, ILP, exhaustive...)  🟢 İLK STRATEJİ: modül-çarpanlama + CRT (tek tümevarımın çözemediğini ispatlar; direct→fallback mini-portföy; ADR-D0011)
 S1 🟡 Problem sınıflandırıcı (discrete/finite-large/symmetry/existential/polynomial) → portföy seçici
 S2 🟡 Paralel portföy yürütücü + kaynak/bütçe yöneticisi
 S3 🟢 Başarısız stratejilerin kaydı (Track Y'ye besleme)

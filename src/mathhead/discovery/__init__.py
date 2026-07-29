@@ -75,6 +75,7 @@ from .spectral import (
     spectrum,
     spectrum_confirms_moments,
 )
+from .strategy import factor_prime_powers, prove_modular_divisibility
 
 __all__ = [
     "Graph",
@@ -119,4 +120,6 @@ __all__ = [
     "SumIdentityFinding",
     "run_sequence_discovery",
     "discover_closed_form",
+    "prove_modular_divisibility",
+    "factor_prime_powers",
 ]

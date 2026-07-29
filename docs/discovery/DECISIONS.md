@@ -218,6 +218,26 @@
 
 ---
 
+## ADR-D0011 — Proof-strategy orchestration: factor the modulus, prove the parts, combine by CRT
+
+- **Status:** Accepted · 2026-07-29 (Track S)
+- **Context:** A single induction can't prove `p(n) ≡ 0 (mod m)` for many composite m — Z3's step
+  is too hard (n³−n mod 6, n(n+1)(n+2) mod 6 came back `unknown`). But m factors, and the CRT lets
+  us combine coprime parts. The engine should try more than one proof route before giving up.
+- **Decision:** `strategy.py::prove_modular_divisibility` factors m with MathHead's `factorize`,
+  proves each prime power `p^e` by induction (MathHead), and — if ALL parts prove — concludes the
+  composite by CRT (`formal_proof`, reason `PROVED_BY_CRT_FACTORING`). The arithmetic loop now
+  tries a single induction first and falls back to this strategy (a mini portfolio; records the
+  winning `method`). When a part is itself beyond induction it returns `unknown` and NAMES the
+  blocking prime power — never a fabricated proof.
+- **Consequences:** Two facts that a single induction left open are now genuinely PROVED —
+  `n³−n ≡ 0 (mod 6)` and `n(n+1)(n+2) ≡ 0 (mod 6)` (each via 2·3) — lifting the report's PROVED
+  bucket from 2 to 4 arithmetic facts. The still-hard ones (n⁵−n mod 30, n⁷−n mod 42, the mod-24
+  case) stay honestly `unknown`, now with the blocking part named. First step of the proof-strategy
+  orchestrator (S): more than one route, tried in order, honest about the wall.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

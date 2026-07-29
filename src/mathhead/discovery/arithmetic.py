@@ -22,6 +22,7 @@ from functools import reduce
 from math import gcd
 
 from .judge import judge_induction
+from .strategy import prove_modular_divisibility
 
 
 # ------------------------------ polynomial family -------------------------- #
@@ -66,6 +67,7 @@ class ArithmeticFinding:
     verdict: str                  # "proved" | "unknown" | "refuted"  (from the judge)
     certainty: str                # judge certainty (formal_proof / unknown / ...)
     checked_upto: int
+    method: str = "induction"     # "induction" | "modulus-factoring" (the winning strategy)
 
 
 def discovered_modulus(fn, sample=range(1, 20)) -> int:
@@ -79,7 +81,7 @@ def first_counterexample(fn, m: int, upto: int):
     return next((n for n in range(upto + 1) if m and fn(n) % m != 0), None)
 
 
-def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: int = 2000):
+def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: int = 1500):
     """Discover the modulus, refute counterexample-first, then let MathHead judge the survivor.
     `judge_timeout_ms` bounds the induction proof (a smaller budget just yields `unknown` sooner —
     the provable ones here prove in well under a second)."""
@@ -89,8 +91,13 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
     if ce is not None:                                  # (shouldn't happen for a gcd modulus)
         return ArithmeticFinding(expr, m, claim, "refuted", "refuted", "unknown", check_upto)
     v = judge_induction(claim, timeout_ms=judge_timeout_ms)
+    method = "induction"
+    if v.status != "proved":                            # a single induction stalled — try the
+        alt = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)  # factor+CRT strategy
+        if alt.status == "proved":
+            v, method = alt, "modulus-factoring"
     return ArithmeticFinding(
-        expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto)
+        expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
 
 
 # The full run is deterministic; memoize it (each call otherwise re-runs the judge over the whole
@@ -98,7 +105,7 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
 _RUN_CACHE: dict = {}
 
 
-def run_arithmetic_discovery(check_upto: int = 60, judge_timeout_ms: int = 2000) -> list:
+def run_arithmetic_discovery(check_upto: int = 60, judge_timeout_ms: int = 1500) -> list:
     """Run the full generate → refute → prove loop over the polynomial family."""
     key = (check_upto, judge_timeout_ms)
     if key not in _RUN_CACHE:

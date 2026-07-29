@@ -41,6 +41,8 @@ Layers so far:
                  (ω≤χ), the cycle-degree argument (Hamiltonian⟹δ≥2); conclusion checked on the sample
   * epistemic_ladder — one 4-rung solidity axis (AA3): DISCOVERED → EMPIRICALLY_VALIDATED →
                  FORMALLY_SPECIFIED → FORMALLY_PROVED; classifies every finding, honestly
+  * permutations — a THIRD object domain (proves the model generalizes): generate S_n, invariants
+                 (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -144,6 +146,12 @@ from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
+from .permutations import (
+    Permutation,
+    count_permutations,
+    discover_permutation_laws,
+    generate_permutations,
+)
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 from .structural_explanations import structural_explanations
 from .sequences import (
@@ -225,6 +233,10 @@ __all__ = [
     "impact_summary",
     "load_bearing_axioms",
     "structural_explanations",
+    "Permutation",
+    "generate_permutations",
+    "count_permutations",
+    "discover_permutation_laws",
     "LEVELS",
     "classify",
     "ladder_summary",

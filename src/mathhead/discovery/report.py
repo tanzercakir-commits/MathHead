@@ -156,6 +156,17 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     explanations.extend(structural_explanations(
         [g for n in range(max_n + 1) for g in generate_graphs(n)]))
 
+    # third object domain: permutation ensemble laws (discovered + structurally explained)
+    from .permutations import discover_permutation_laws
+    for law in discover_permutation_laws(6):
+        if law.verified:
+            empirical.append({"statement": law.statement, "status": "empirical",
+                              "scope": "permutations S_n (n≤6)", "support": None})
+            explanations.append({"identity": law.statement,
+                                 "explains": "over all permutations of [n]",
+                                 "reason": law.explanation, "status": "structural_argument",
+                                 "verified": True})
+
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":

@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — A THIRD object domain: permutations (the object model generalizes)
+
+The engine's object model was built to extend beyond graphs — this proves it. New `permutations.py`
+gives permutations of {0,…,n−1} the same treatment: generate the whole ensemble S_n (honest bound
+n≤7, pinned to OEIS A000142 = n!), measure exact invariants (inversions, descents, fixed points,
+cycles), and DISCOVER ensemble laws from the data, each with the structural argument that explains it:
+
+- `|S_n| = n!` — counting.
+- `Σ_{π∈S_n} fix(π) = n!` — each of the n positions is fixed in (n−1)! permutations.
+- `Σ_{π∈S_n} inv(π) = n!·C(n,2)/2` — each pair is inverted in half of S_n (π ↔ its reversal pairs
+  inv(π) with C(n,2)−inv(π)).
+
+All three verify on n≤6. Folded into the report: the laws enter DISCOVERED and their reasons the
+EXPLANATIONS section (now 9: 3 algebraic + 3 graph + 3 permutation). Same honest layering as graphs —
+discovered from data, explained structurally, conclusion checked on the sample.
+
+7 tests (discovery suite 209); full suite **1498 green**, ruff clean. ADR-D0032. Roadmap: N/O/P over a
+new object type.
+
+**Next:** more permutation structure (cycle-type distribution, Mahonian inv/maj equidistribution), or
+the research-director orchestrator (AC), or a fourth domain.
+
+---
+
 ## 2026-07-29 — The epistemic ladder (AA3): one honest solidity axis over everything
 
 The engine had accumulated a sprawling certainty vocabulary (empirical, bounded_check, numerical_check,

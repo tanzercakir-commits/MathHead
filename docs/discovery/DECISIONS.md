@@ -702,6 +702,29 @@
 
 ---
 
+## ADR-D0032 — Add a third object domain to validate generality; reuse the honest layering wholesale
+
+- **Status:** Accepted · 2026-07-29 (new object domain — permutations)
+- **Context:** The `MathObject` model and the whole discover → explain → classify pipeline were built
+  claiming generality, but had only two domains (graphs, arithmetic). Untested generality is a claim,
+  not a fact. Permutations are the cleanest third domain: a finite ensemble with exact invariants and
+  classical, explainable ensemble laws.
+- **Decision:** Add `permutations.py` as a `MathObject` subclass with the SAME discipline the graph
+  domain uses — full-ensemble generation with an honest bound (n≤7) pinned to an OEIS oracle (A000142
+  = n!), exact invariants, discovered ensemble laws each carrying a structural explanation whose
+  conclusion is checked on the sample. Reuse the existing report machinery: laws → DISCOVERED,
+  explanations → EXPLANATIONS, rungs → the ladder. No new epistemic categories — the third domain
+  slots into the honest layering unchanged.
+- **Consequences:** Generality is now demonstrated, not asserted — a genuinely different object type
+  (permutations, not graphs) flows through the identical pipeline and lands honestly in the same
+  report. The OEIS pin (A000142) is an independent correctness oracle for generation, exactly as
+  A000088 is for graphs. That the report/ladder/explanations absorbed the new domain with ZERO
+  structural change is the real result: the architecture is domain-agnostic. Sets up further domains
+  (partitions, set systems, posets) as drop-ins, and richer permutation statistics (Mahonian
+  equidistribution) as future depth.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

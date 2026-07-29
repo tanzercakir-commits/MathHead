@@ -3,9 +3,9 @@
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _negative knowledge: 4 dead end(s) recorded_
-_knowledge graph: 55 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×6, theorem×17)_
+_knowledge graph: 58 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×9, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
-_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=22 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -39,13 +39,16 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=22 · FORMALLY_
 - `(connected and n>=3) => Hamiltonian` — counterexample: {'n': 3, 'edges': [(0, 2), (1, 2)]}
 - `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
-## DISCOVERED (empirical — holds on the sample, NOT proven) (6)
+## DISCOVERED (empirical — holds on the sample, NOT proven) (9)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)
 - `trees: num_triangles = 0` — trees (support 14)
 - `trees: num_vertices = num_edges + 1` — trees (support 14)
 - `trees: num_vertices = num_edges + num_components` — trees (support 14)
 - `forests: num_triangles = 0` — forests (support 43)
 - `forests: num_vertices = num_edges + num_components` — forests (support 43)
+- `|S_n| = n!` — permutations S_n (n≤6) (support None)
+- `sum_(π in S_n) fix(π) = n!` — permutations S_n (n≤6) (support None)
+- `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` — permutations S_n (n≤6) (support None)
 
 ## OPEN (survived the attack; unproven — no_counterexample_within_bound) (16)
 - `num_edges <= sum_degrees` — no_counterexample_within_bound
@@ -71,11 +74,14 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=22 · FORMALLY_
 - is_hamiltonian(C5) = True — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 - is_hamiltonian(P4) = False — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 
-## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (6)
+## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (9)
 - `n**2 - n = n*(n - 1)` explains `2 | n**2 - n` — product of 2 consecutive integers ⇒ divisible by 2! = 2
 - `n**3 - n = n*(n - 1)*(n + 1)` explains `6 | n**3 - n` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 - `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` explains `6 | n*(n+1)*(n+2)` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 - `2·|E| = Σ deg(v)` explains `the Handshake Lemma` — double counting the incidences {(v,e): v ∈ e}: summing by vertex gives Σ deg(v), summing by edge gives 2·|E| (each edge has two endpoints) — so they are equal; verified on 208 graphs
 - `ω ≤ χ` explains `why a clique lower-bounds the chromatic number` — the ω pairwise-adjacent vertices of a maximum clique must receive ω DISTINCT colors in any proper coloring, so at least ω colors are needed: χ ≥ ω; verified on the sample
 - `Hamiltonian ⟹ min_degree ≥ 2` explains `a necessary condition for a Hamiltonian cycle` — a Hamiltonian cycle enters and leaves every vertex by two DISTINCT edges, so each vertex has degree ≥ 2; verified on 60 Hamiltonian graphs
+- `|S_n| = n!` explains `over all permutations of [n]` — there are n choices for the first image, n−1 for the next, …, so n! permutations
+- `sum_(π in S_n) fix(π) = n!` explains `over all permutations of [n]` — each of the n positions is fixed in exactly (n−1)! permutations, so the total is n·(n−1)! = n!
+- `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` explains `over all permutations of [n]` — each of the C(n,2) pairs is inverted in exactly half of S_n (π ↔ its reversal pairs inv(π) with C(n,2)−inv(π)), so the total is C(n,2)·n!/2
 

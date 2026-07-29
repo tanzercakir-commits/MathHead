@@ -2,6 +2,7 @@
 
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
+_negative knowledge: 4 dead end(s) recorded_
 
 ## PROVED (formal — by the judge) (11)
 - `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [0b5a07c36f79d3bf]

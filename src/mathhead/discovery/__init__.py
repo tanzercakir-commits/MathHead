@@ -36,6 +36,8 @@ Layers so far:
                  kernel-checked; two judgments — Divides (RESIDUE/CRT) and SumIdentity (SumInduction,
                  rational polys); forge-guarded; rejects false claims
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
+  * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
+                 distill reusable lessons (which witness refutes the most conjectures)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -84,6 +86,12 @@ from .kernel import (
     check,
     prove_divides,
     prove_sum_identity,
+)
+from .failure_memory import (
+    AttemptRecord,
+    FailureMemory,
+    fingerprint,
+    populate_from_refutations,
 )
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .invariants import (
@@ -171,6 +179,10 @@ __all__ = [
     "proof_hash",
     "replay",
     "KERNEL_VERSION",
+    "FailureMemory",
+    "AttemptRecord",
+    "fingerprint",
+    "populate_from_refutations",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

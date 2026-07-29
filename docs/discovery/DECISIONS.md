@@ -545,6 +545,28 @@
 
 ---
 
+## ADR-D0025 — Negative knowledge is a memory layer beside the judge, not part of the trust base
+
+- **Status:** Accepted · 2026-07-29 (Track Y — failure memory)
+- **Context:** The engine refutes conjectures and hits dead ends but forgets them between runs, so a
+  longer research session would re-walk closed branches. Track Y wants a memory of failures. Risk:
+  a "memory" that starts influencing what counts as proved would enlarge the trust base.
+- **Decision:** Keep failure memory strictly an EFFICIENCY/MEMORY layer, never a proof authority.
+  `failure_memory.py` records dead ends under canonical fingerprints (Y1) and offers `seen`
+  (skip-if-already-walked) and `lessons` (Y2 — cluster refuted conjectures by the witness that
+  killed them). It is pure and deterministic; it never mints or blesses a result. The report merely
+  DISPLAYS a negative-knowledge summary. `populate_from_refutations` is tolerant of both dict and
+  dataclass refutation results and reports how many NEW dead ends were learned.
+- **Consequences:** The engine gains reusable negative knowledge — which witnesses are broad refuters,
+  which branches are closed — without touching soundness: a bug in the memory can waste effort but can
+  never make a false theorem pass. The witness-clustering lesson is genuinely reusable (a witness that
+  killed many conjectures should be tried first on new ones), and it is honest about being heuristic.
+  Fingerprint canonicalization means the same dead end truly collides regardless of spelling. Logged
+  next step: wire `seen` into the refute loop so repeats are actually skipped (this increment builds
+  and displays the memory; consuming it in the hot loop is the follow-up).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

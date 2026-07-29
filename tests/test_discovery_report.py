@@ -75,6 +75,13 @@ def test_frontier_laws_land_in_open_and_refuted():
     assert "chromatic_number <= max_degree" in refuted_stmts        # refuted (χ≤Δ)
 
 
+def test_report_records_negative_knowledge_from_refutations():
+    r = run_report(max_n=5)
+    # every refuted finding becomes a recorded dead end (Track Y)
+    assert r.meta["dead_ends"] == len(r.refuted) and r.meta["dead_ends"] >= 3
+    assert "negative knowledge" in render(r)
+
+
 def test_certified_coloring_laws_are_annotated_but_stay_open():
     r = run_report(max_n=5)
     by_stmt = {x["statement"]: x for x in r.open_bounded}

@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Negative knowledge (Track Y): the engine remembers its dead ends
+
+A discovery engine that forgets its failures re-walks them. New `failure_memory.py`: every closed
+branch — a refuted conjecture, a timeout, a useless lemma, a dead-end transform (Y0) — is recorded
+under a canonical FINGERPRINT (Y1: whitespace-normalized, kind-aware content hash), so `seen(...)`
+lets the loop skip a dead end it already walked, and `record` is idempotent. `lessons()` distills
+REUSABLE lessons (Y2): it clusters refuted conjectures by the WITNESS that killed them — a witness
+that refutes many conjectures is a high-value probe to try FIRST on new look-alikes.
+
+Wired into the report: the refutations feed a `FailureMemory`; the header now shows
+`negative knowledge: N dead end(s) recorded` (and the top witness when it refutes more than one).
+`populate_from_refutations` accepts both dict and dataclass refutation results and returns how many
+NEW dead ends were learned (repeats skipped — the whole point). Pure/deterministic; not part of the
+trust base (it's an efficiency-and-memory layer beside the judge).
+
+8 tests (7 failure_memory + 1 report; discovery suite 160); full suite **1448 green**, ruff clean.
+ADR-D0025. Roadmap Y0/Y1/Y2.
+
+**Next:** interestingness scoring (Track W1 — rank findings by novelty/generality/surprise/…), or the
+knowledge-graph schema (X0), or wire failure-memory `seen` into the refute loop to actually skip.
+
+---
+
 ## 2026-07-29 — Kernel fragment widened: a second judgment (SUM identities), sequences now kernel-verified
 
 The kernel grew from one judgment to two. `Theorem` now carries a `kind`: `Divides` (RESIDUE/CRT, as

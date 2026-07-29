@@ -150,8 +150,16 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
             open_bounded.append({"statement": stmt, "status": "unknown"})
 
     from mathhead.guardrails import MAX_STATEMENTS  # noqa: F401  (touch to assert import health)
+    from .failure_memory import FailureMemory, populate_from_refutations
     from .provenance import KERNEL_VERSION
     kernel_axioms = sorted({a for it in proved for a in it.get("axioms", [])})
+
+    # negative knowledge (Track Y): fold the refutations into a failure memory + reusable lessons
+    memory = FailureMemory()
+    populate_from_refutations(
+        memory, [(x["statement"], {"status": "refuted",
+                                   "counterexample": x.get("counterexample", {})}) for x in refuted])
+    top_lesson = memory.lessons()[0] if memory.lessons() else None
     meta = {
         "mathhead_version": getattr(mathhead, "__version__", "?"),
         "solver_seed": 42,
@@ -159,6 +167,8 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         "determinism": "memoized generation + fixed seed -> same report every run",
         "kernel_version": KERNEL_VERSION,
         "kernel_axioms": kernel_axioms,   # every rule/primitive the kernel proofs rest on (M5)
+        "dead_ends": len(memory.records()),                 # negative knowledge recorded (Y)
+        "top_lesson": top_lesson,         # the witness that refutes the most conjectures (Y2)
     }
     return DiscoveryReport(proved, empirical, refuted, open_bounded,
                            _frontier_confirmations(), meta)
@@ -173,6 +183,10 @@ def render(report: DiscoveryReport) -> str:
     if report.meta.get("kernel_axioms"):
         lines.append(f"_kernel v{report.meta.get('kernel_version')} · axioms: "
                      f"{', '.join(report.meta['kernel_axioms'])}_")
+    if report.meta.get("dead_ends"):
+        lesson = report.meta.get("top_lesson") or {}
+        extra = (f"; top witness refutes {lesson['refutes']}" if lesson.get("refutes", 0) > 1 else "")
+        lines.append(f"_negative knowledge: {report.meta['dead_ends']} dead end(s) recorded{extra}_")
     lines.append("")
 
     def section(title, items, fmt):

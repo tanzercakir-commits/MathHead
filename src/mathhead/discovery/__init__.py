@@ -19,6 +19,8 @@ Layers so far:
                  a real verdict (proved by induction / solver-verified / refuted-with-witness)
   * arithmetic — the loop CLOSED end to end (generate → refute → PROVE) in a domain where
                  MathHead is the native judge: discovers modular laws and proves them by induction
+  * report     — one honest run report across both domains (AC2): proved / discovered / refuted /
+                 open, each with an honest status; deterministic
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -56,6 +58,7 @@ from .judge import (
 )
 from .objects import Graph, MathObject
 from .refute import RefutationResult, refute
+from .report import DiscoveryReport, render, run_report
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 
 __all__ = [
@@ -91,4 +94,7 @@ __all__ = [
     "discover_and_prove",
     "discovered_modulus",
     "first_counterexample",
+    "DiscoveryReport",
+    "run_report",
+    "render",
 ]

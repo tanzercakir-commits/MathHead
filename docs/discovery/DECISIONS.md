@@ -159,6 +159,24 @@
 
 ---
 
+## ADR-D0008 — One honest run report across domains (AC2 + provenance)
+
+- **Status:** Accepted · 2026-07-29 (AC2)
+- **Context:** The engine now spans two domains (graphs, arithmetic) with a full pipeline. Its
+  output was scattered across function returns. The document's research loop asks for a single
+  report where "even a failure is a valuable, organized result".
+- **Decision:** `report.py` runs the pipeline across both domains and assembles ONE
+  `DiscoveryReport` with four honest, mutually-exclusive-by-status sections — **PROVED** (formal,
+  by the judge), **REFUTED** (killed, with a minimal counterexample), **DISCOVERED** (empirical,
+  holds on the sample, not proven), **OPEN** (survived the attack, unproven). `render()` emits
+  readable Markdown with provenance (MathHead version, seed, bounds, determinism note).
+  Deterministic (memoized generation + fixed seed → the same report every run).
+- **Consequences:** The engine's honesty is now legible at a glance: a reader sees exactly what is
+  proved vs merely observed vs refuted vs open, never blurred. This is the consolidation that keeps
+  growth orderly — new domains/generators feed the same four honest buckets rather than sprawling.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

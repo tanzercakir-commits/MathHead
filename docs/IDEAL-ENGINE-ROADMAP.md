@@ -209,7 +209,7 @@ Y2 🟢 "Yeniden kullanılabilir ders" çıkarımı (family F için n yerine yap
 ```
 AC0 🟡 Hedef ayrıştırma + strateji seçimi (üst orkestratör)
 AC1 🟡 16-adımlı döngüyü bağla (formalize→örnek→sınır→invariant→konjektür→karşı-örnek→sırala→lema→ispat→sertifika→kernel→bağımsız→literatür→rapor)  🟢 İLK KAPALI DÖNGÜ (aritmetik alan): üret→önce-çürüt→İSPATLA uçtan uca (arithmetic.py; ADR-D0007)
-AC2 🟢 Başarısızlıkta bile değerli çıktı (progress report: neyi çürüttük, neyi N'e kadar doğruladık, hangi lema açık)
+AC2 🟢 Başarısızlıkta bile değerli çıktı (progress report: neyi çürüttük, neyi N'e kadar doğruladık, hangi lema açık)  ✅ (report.run_report: PROVED/REFUTED/DISCOVERED/OPEN; deterministik; ADR-D0008)
 AC3 🟡 Döngüler-arası durum + uzun-soluklu araştırma oturumu
 ```
 

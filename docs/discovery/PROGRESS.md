@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — AC2: one honest run report — consolidation, not sprawl
+
+Tied the two domains into a single organized artifact. New `report.py`: `run_report()` runs the
+whole pipeline (graphs + arithmetic) and assembles a `DiscoveryReport` with four honest sections,
+and `render()` emits Markdown with provenance (version/seed/bounds/determinism). Deterministic.
+
+The current run (graphs n≤6) at a glance:
+- **PROVED (2):** `n(n+1) ≡ 0 mod 2`, `n²−n ≡ 0 mod 2` (formal_proof).
+- **REFUTED (1):** `num_triangles ≤ num_edges` (minimal counterexample T=16 > E=14, n=6).
+- **DISCOVERED (8, empirical):** the Handshake Lemma + the tree/forest laws.
+- **OPEN (15):** graph bounds that survived + arithmetic facts the judge left `unknown`
+  (`n³−n ≡ 0 mod 6`, `n⁵−n ≡ 0 mod 30`, …) — discovered, unproven, honestly labeled.
+
+Every item sits in exactly one bucket by its true status; nothing blurred. This is the
+consolidation that keeps growth ORDERLY — future domains feed the same four honest buckets rather
+than scattering. A rendered sample lives at `docs/discovery/SAMPLE-REPORT.md`. 5 new tests
+(discovery suite 64); full suite 1354 green, ruff clean. ADR-D0008.
+
+**Next:** more surface into the same buckets — widen the arithmetic family or add a spectral graph
+invariant routed through MathHead — the report absorbs it without reshaping.
+
+---
+
 ## 2026-07-29 — Arithmetic domain: the loop CLOSES — generate → refute → PROVE, autonomously
 
 The first fully autonomous loop with a real proof at the end. New `arithmetic.py`: for a family

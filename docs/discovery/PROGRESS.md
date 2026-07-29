@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Distribution-level discoveries: the engine rediscovers MacMahon & Eulerian
+
+A step up from sum laws — the engine now discovers facts about whole DISTRIBUTIONS, not just totals.
+Added `major_index` (maj), `statistic_distribution`, and an independent `eulerian_number` recurrence
+to the permutations domain, then two distribution discoveries verified on n≤7:
+
+- **Mahonian equidistribution** — inv and maj have the SAME distribution over S_n for every n
+  (MacMahon's theorem, rediscovered from data by comparing the two distributions directly).
+- **Eulerian numbers** — the descent distribution matches A(n,k) computed independently from the
+  Eulerian recurrence A(n,k) = (k+1)A(n−1,k) + (n−k)A(n−1,k−1) (OEIS A008292).
+
+Both fold into the report (DISCOVERED + EXPLANATIONS). These are honest: verified exactly on n≤7, with
+the classical argument recorded (MacMahon has a bijective proof; Eulerian the recurrence) but not
+machine-checked — `structural_argument`. The engine finding two named theorems from the raw ensemble
+is the point.
+
+5 tests (discovery suite 214); full suite **1503 green**, ruff clean. ADR-D0033.
+
+**Next:** the research-director orchestrator (AC — cross-cycle state, goal-driven loop), or a fourth
+domain, or push a distribution discovery toward a machine-checked proof.
+
+---
+
 ## 2026-07-29 — A THIRD object domain: permutations (the object model generalizes)
 
 The engine's object model was built to extend beyond graphs — this proves it. New `permutations.py`

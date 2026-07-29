@@ -6,11 +6,15 @@ from mathhead.discovery.permutations import (
     Permutation,
     count_permutations,
     descents,
+    discover_distribution_laws,
     discover_permutation_laws,
+    eulerian_number,
     fixed_points,
     generate_permutations,
     inversions,
+    major_index,
     num_cycles,
+    statistic_distribution,
 )
 
 
@@ -57,3 +61,37 @@ def test_fixed_point_sum_is_n_factorial():
 
 def test_generation_is_deterministic():
     assert [p.perm for p in generate_permutations(4)] == [p.perm for p in generate_permutations(4)]
+
+
+# --- distribution-level discoveries -----------------------------------------------------------
+
+def test_major_index_on_known_permutations():
+    assert major_index(Permutation((0, 1, 2))) == 0        # no descents
+    assert major_index(Permutation((2, 1, 0)) ) == 1 + 2   # descents at positions 1 and 2
+    assert major_index(Permutation((0, 2, 1))) == 2        # single descent at position 2
+
+
+def test_mahonian_equidistribution_of_inv_and_maj():
+    # MacMahon: inv and maj have the SAME distribution over S_n
+    for n in range(1, 7):
+        assert statistic_distribution(inversions, n) == statistic_distribution(major_index, n)
+
+
+def test_eulerian_numbers_match_known_rows():
+    assert [eulerian_number(3, k) for k in range(3)] == [1, 4, 1]
+    assert [eulerian_number(4, k) for k in range(4)] == [1, 11, 11, 1]
+    assert [eulerian_number(5, k) for k in range(5)] == [1, 26, 66, 26, 1]
+
+
+def test_descent_distribution_matches_eulerian_numbers():
+    for n in range(1, 7):
+        dist = statistic_distribution(descents, n)
+        assert dist == {k: eulerian_number(n, k) for k in range(n) if eulerian_number(n, k)}
+
+
+def test_discovered_distribution_laws_verify():
+    laws = discover_distribution_laws(7)
+    assert len(laws) == 2 and all(L.verified and L.explanation for L in laws)
+    assert any("Mahonian" in L.statement for L in laws)
+    assert any("Eulerian" in L.statement for L in laws)
+

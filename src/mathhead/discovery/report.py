@@ -157,7 +157,7 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         [g for n in range(max_n + 1) for g in generate_graphs(n)]))
 
     # third object domain: permutation ensemble laws (discovered + structurally explained)
-    from .permutations import discover_permutation_laws
+    from .permutations import discover_distribution_laws, discover_permutation_laws
     for law in discover_permutation_laws(6):
         if law.verified:
             empirical.append({"statement": law.statement, "status": "empirical",
@@ -165,6 +165,13 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
             explanations.append({"identity": law.statement,
                                  "explains": "over all permutations of [n]",
                                  "reason": law.explanation, "status": "structural_argument",
+                                 "verified": True})
+    for dl in discover_distribution_laws(7):                 # Mahonian / Eulerian distribution facts
+        if dl.verified:
+            empirical.append({"statement": dl.statement, "status": "empirical",
+                              "scope": "permutations S_n (n≤7), distribution-level", "support": None})
+            explanations.append({"identity": dl.statement, "explains": "the distribution over S_n",
+                                 "reason": dl.explanation, "status": "structural_argument",
                                  "verified": True})
 
     for s in run_sequence_discovery():

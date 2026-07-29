@@ -3,9 +3,9 @@
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _negative knowledge: 4 dead end(s) recorded_
-_knowledge graph: 58 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×9, theorem×17)_
+_knowledge graph: 60 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×11, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
-_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=32 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -39,7 +39,7 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_
 - `(connected and n>=3) => Hamiltonian` — counterexample: {'n': 3, 'edges': [(0, 2), (1, 2)]}
 - `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
-## DISCOVERED (empirical — holds on the sample, NOT proven) (9)
+## DISCOVERED (empirical — holds on the sample, NOT proven) (11)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)
 - `trees: num_triangles = 0` — trees (support 14)
 - `trees: num_vertices = num_edges + 1` — trees (support 14)
@@ -49,6 +49,8 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_
 - `|S_n| = n!` — permutations S_n (n≤6) (support None)
 - `sum_(π in S_n) fix(π) = n!` — permutations S_n (n≤6) (support None)
 - `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` — permutations S_n (n≤6) (support None)
+- `inv and maj are equidistributed over S_n  (Mahonian)` — permutations S_n (n≤7), distribution-level (support None)
+- `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` — permutations S_n (n≤7), distribution-level (support None)
 
 ## OPEN (survived the attack; unproven — no_counterexample_within_bound) (16)
 - `num_edges <= sum_degrees` — no_counterexample_within_bound
@@ -74,7 +76,7 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_
 - is_hamiltonian(C5) = True — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 - is_hamiltonian(P4) = False — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 
-## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (9)
+## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (11)
 - `n**2 - n = n*(n - 1)` explains `2 | n**2 - n` — product of 2 consecutive integers ⇒ divisible by 2! = 2
 - `n**3 - n = n*(n - 1)*(n + 1)` explains `6 | n**3 - n` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 - `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` explains `6 | n*(n+1)*(n+2)` — product of 3 consecutive integers ⇒ divisible by 3! = 6
@@ -84,4 +86,6 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=28 · FORMALLY_
 - `|S_n| = n!` explains `over all permutations of [n]` — there are n choices for the first image, n−1 for the next, …, so n! permutations
 - `sum_(π in S_n) fix(π) = n!` explains `over all permutations of [n]` — each of the n positions is fixed in exactly (n−1)! permutations, so the total is n·(n−1)! = n!
 - `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` explains `over all permutations of [n]` — each of the C(n,2) pairs is inverted in exactly half of S_n (π ↔ its reversal pairs inv(π) with C(n,2)−inv(π)), so the total is C(n,2)·n!/2
+- `inv and maj are equidistributed over S_n  (Mahonian)` explains `the distribution over S_n` — MacMahon's theorem: inv and maj are equidistributed permutation statistics (a bijective proof exists). The engine confirms identical distributions on the sample.
+- `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` explains `the distribution over S_n` — the descent distribution satisfies the Eulerian recurrence A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1); computed independently and matched.
 

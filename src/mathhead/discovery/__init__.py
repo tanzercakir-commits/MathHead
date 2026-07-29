@@ -149,8 +149,11 @@ from .report import DiscoveryReport, render, run_report
 from .permutations import (
     Permutation,
     count_permutations,
+    discover_distribution_laws,
     discover_permutation_laws,
+    eulerian_number,
     generate_permutations,
+    statistic_distribution,
 )
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 from .structural_explanations import structural_explanations
@@ -237,6 +240,9 @@ __all__ = [
     "generate_permutations",
     "count_permutations",
     "discover_permutation_laws",
+    "discover_distribution_laws",
+    "statistic_distribution",
+    "eulerian_number",
     "LEVELS",
     "classify",
     "ladder_summary",

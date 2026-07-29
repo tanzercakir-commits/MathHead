@@ -62,6 +62,12 @@ def descents(p: Permutation) -> int:
     return sum(1 for i in range(len(a) - 1) if a[i] > a[i + 1])
 
 
+def major_index(p: Permutation) -> int:
+    """maj(π) = Σ of the (1-indexed) descent positions."""
+    a = p.perm
+    return sum(i + 1 for i in range(len(a) - 1) if a[i] > a[i + 1])
+
+
 def fixed_points(p: Permutation) -> int:
     return sum(1 for i, v in enumerate(p.perm) if i == v)
 
@@ -118,3 +124,66 @@ def discover_permutation_laws(max_n: int = 6) -> list:
         "n! * n*(n-1) / 4"))
 
     return laws
+
+
+# ------------------------------ distribution-level discoveries ------------ #
+def statistic_distribution(stat, n: int) -> dict:
+    """The distribution {value: #permutations} of a statistic over S_n."""
+    dist: dict = {}
+    for p in generate_permutations(n):
+        v = stat(p)
+        dist[v] = dist.get(v, 0) + 1
+    return dist
+
+
+def eulerian_number(n: int, k: int) -> int:
+    """A(n,k) = # permutations of [n] with k descents, via the standard recurrence — computed
+    INDEPENDENTLY of the ensemble so it can cross-check the discovered descent distribution."""
+    if k < 0 or k >= max(n, 1):
+        return 0
+    if n == 0:
+        return 1 if k == 0 else 0
+    row = [1]
+    for m in range(1, n + 1):
+        nxt = [0] * m
+        for j in range(m):
+            left = (j + 1) * row[j] if j < len(row) else 0
+            right = (m - j) * row[j - 1] if 0 < j <= len(row) else 0
+            nxt[j] = left + right
+        row = nxt
+    return row[k] if k < len(row) else 0
+
+
+@dataclass
+class DistributionLaw:
+    statement: str
+    holds_upto: int
+    verified: bool
+    explanation: str
+
+
+def discover_distribution_laws(max_n: int = 7) -> list:
+    """Distribution-level discoveries over S_n (a step beyond sums):
+
+      * Mahonian: inv and maj are EQUIDISTRIBUTED — same distribution for every n.
+      * Eulerian: the descent distribution matches the Eulerian numbers (OEIS A008292)."""
+    ns = range(1, max_n + 1)
+    out = []
+
+    out.append(DistributionLaw(
+        "inv and maj are equidistributed over S_n  (Mahonian)", max_n,
+        all(statistic_distribution(inversions, n) == statistic_distribution(major_index, n)
+            for n in ns),
+        "MacMahon's theorem: inv and maj are equidistributed permutation statistics (a bijective "
+        "proof exists). The engine confirms identical distributions on the sample."))
+
+    out.append(DistributionLaw(
+        "# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)", max_n,
+        all(statistic_distribution(descents, n) == {k: eulerian_number(n, k)
+                                                    for k in range(n) if eulerian_number(n, k)}
+            for n in ns),
+        "the descent distribution satisfies the Eulerian recurrence "
+        "A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1); computed independently and matched."))
+
+    return out
+

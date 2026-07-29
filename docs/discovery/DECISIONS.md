@@ -725,6 +725,29 @@
 
 ---
 
+## ADR-D0033 — Distribution-level discovery: compare whole distributions, cross-check independently
+
+- **Status:** Accepted · 2026-07-29 (permutations depth — Mahonian/Eulerian)
+- **Context:** The engine's discoveries were scalar so far — sums, counts, single invariants. Deep
+  combinatorics lives at the DISTRIBUTION level (how a statistic spreads over the ensemble). Two
+  classic targets sit right there: inv/maj equidistribution (Mahonian) and the descent distribution
+  (Eulerian). The question was how to discover and confirm them honestly.
+- **Decision:** Add distribution machinery — `statistic_distribution` (the full {value: count} map)
+  — and discover by COMPARING distributions: Mahonian is `dist(inv) == dist(maj)` for every n;
+  Eulerian is `dist(descents) == {k: A(n,k)}` where A(n,k) comes from the Eulerian recurrence computed
+  INDEPENDENTLY of the ensemble (a genuine cross-check, not a tautology). Both verified exactly on
+  n≤7. Label them `structural_argument` (the classical proofs — MacMahon's bijection, the recurrence —
+  are recorded but not machine-checked) and fold into the report unchanged.
+- **Consequences:** The engine now finds NAMED theorems (MacMahon equidistribution, the Eulerian
+  triangle) from the raw ensemble — a qualitative step past scalar laws. The Eulerian check is
+  independent (recurrence vs. ensemble), so agreement is real evidence, mirroring the two-authority
+  discipline used elsewhere (kernel vs. checker, backtracking vs. solver). Distribution comparison is
+  a reusable primitive for future equidistribution/symmetric-function discoveries. Honest ceiling
+  noted: these are conclusion-verified structural arguments; a machine-checked bijection is deeper
+  future work.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

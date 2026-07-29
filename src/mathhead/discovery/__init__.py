@@ -32,6 +32,8 @@ Layers so far:
   * graph_proofs — CONSTRUCTIVE certificates for the surviving coloring laws (χ≤Δ+1 via greedy,
                  ω≤χ via a solver-double-confirmed clique); independently re-checked; honestly
                  `constructive_bounded` (witnessed over the sample, NOT a universal ∀G proof yet)
+  * kernel     — minimal LCF-style PROOF KERNEL (M1/M2): a Theorem exists only if a proof TERM
+                 (RESIDUE / CRT rules) is kernel-checked; forge-guarded; rejects false claims
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -71,6 +73,7 @@ from .hamiltonicity import (
     hamiltonicity_laws,
     verify_hamiltonicity,
 )
+from .kernel import CRT, KernelError, Residue, Theorem, check, prove_divides
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
@@ -144,6 +147,12 @@ __all__ = [
     "check_certificate",
     "greedy_coloring",
     "max_clique",
+    "Theorem",
+    "Residue",
+    "CRT",
+    "KernelError",
+    "check",
+    "prove_divides",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

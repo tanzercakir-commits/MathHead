@@ -468,6 +468,35 @@
 
 ---
 
+## ADR-D0022 — A minimal LCF-style proof kernel; residue-exhaustion as the trusted primitive
+
+- **Status:** Accepted · 2026-07-29 (M1/M2 — proof kernel)
+- **Context:** The engine re-checks its modular proofs (ADR-D0016/17), but "re-check" still trusts
+  the checker's ad hoc logic. The ideal-engine thesis (§1) wants a KERNEL: theorems admissible only
+  through a fixed set of inference rules, with a proof represented as a term the kernel validates. A
+  full kernel (proof-term DSL derived from ring + induction axioms, dependent types) is large 🟡/🔴
+  work; the question was how to get a REAL, honest kernel now without faking the depth.
+- **Decision:** Build a minimal LCF-style kernel over the fragment we already decide completely —
+  `Divides(m, p)` for integer polynomials. `Theorem` is forge-guarded (guarded constructor; only the
+  module-private `_mint` builds one, after a rule verifies), so a Theorem value IS a proof-carrying
+  certificate. Two rules: RESIDUE (the kernel runs the full residue sweep — sound and complete for
+  the atomic judgment because p(n) mod m depends only on n mod m for integer p) and CRT (pairwise
+  coprime, same polynomial). The PROVER (`prove_divides`) is explicitly UNTRUSTED and separate: it
+  emits a term; only the kernel's `check` mints the Theorem. Trust base is stated in the module:
+  residue-exhaustion is the trusted PRIMITIVE, not derived from deeper axioms — that is deferred
+  M-track work, and we say so rather than pretending otherwise.
+- **Consequences:** The engine now has a genuine kernel: no false modular theorem can be minted
+  (a false claim fails RESIDUE and raises; the guarded constructor blocks fabrication), and CRT
+  reasoning is enforced structurally (non-coprime moduli / mismatched polynomials rejected). This is
+  a stronger guarantee than the earlier re-check, and it is honestly scoped — the kernel covers the
+  modular-polynomial class, and the residue primitive's own axiomatic derivation is future work. The
+  LCF guard is Python's practical approximation of an abstract type (module encapsulation, documented
+  as such — Python has no true private constructor). Natural next steps: (1) bridge proved arithmetic
+  findings to emit kernel terms → a `kernel_verified` status, with `checker.py` the independent M3
+  second checker; (2) later, widen the fragment and derive RESIDUE from more primitive rules.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

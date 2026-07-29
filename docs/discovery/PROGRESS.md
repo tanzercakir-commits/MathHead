@@ -6,6 +6,37 @@
 
 ---
 
+## 2026-07-29 — A real PROOF KERNEL (M1/M2): theorems exist only if a proof term checks
+
+The deepest step yet toward the "ideal engine" thesis (§1, the trustworthy kernel). New `kernel.py`
+is a minimal LCF-style proof kernel: a `Theorem` can be created ONLY by the kernel's inference rules
+— its constructor is guarded (`Theorem(...)` raises; only the module-private `_mint` builds one), so
+every Theorem in the system is, by construction, the output of a checked rule.
+
+Fragment (honest scope): judgments `Divides(m, p)` = "∀n∈ℤ, m | p(n)" for integer polynomials p, two
+rules — RESIDUE (exhaust residues 0..m−1; a complete, sound decision procedure for the atomic
+judgment) and CRT (compose pairwise-coprime moduli about the same p). A separate, UNTRUSTED prover
+(`prove_divides`) factors m into prime powers, builds the term, and hands it to the kernel — the
+Theorem is only as good as the kernel check.
+
+What the tests pin down: valid proofs mint theorems (6|n³−n, 30|n⁵−n); a FALSE claim is rejected and
+no theorem escapes (4∤n²+1); theorems can't be forged (`Theorem()` raises); CRT enforces its
+side-conditions (rejects non-coprime moduli and mismatched polynomials); non-integer coefficients and
+unknown terms are rejected; the kernel is order-independent.
+
+TRUST BASE stated plainly in the module: sound IF the residue sweep and the CRT rule are sound (a few
+auditable lines). RESIDUE is the trusted primitive — NOT yet derived from ring/induction axioms
+(later M-track). Stdlib-only core, like the independent checker.
+
+10 tests (discovery suite 135); full suite green, ruff clean. ADR-D0022. Roadmap M1/M2.
+
+**Next:** bridge the kernel into the arithmetic pipeline — proved modular findings emit a
+kernel-checked proof term and earn a new `kernel_verified` status (stronger than
+`independently_verified`), with `checker.py` as the independent second checker (M3) cross-checking
+the kernel.
+
+---
+
 ## 2026-07-29 — Certificates surfaced in the report (OPEN coloring laws now show "certified")
 
 Closed the loop from the previous increment: the report's OPEN coloring laws now carry their

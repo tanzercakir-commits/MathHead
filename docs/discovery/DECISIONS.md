@@ -177,6 +177,28 @@
 
 ---
 
+## ADR-D0009 — Spectral invariants: the graph domain's first bridge to MathHead
+
+- **Status:** Accepted · 2026-07-29 (O1 spectral)
+- **Context:** So far graph invariants were pure Python; only the arithmetic domain used MathHead
+  (induction). Spectral graph theory needs eigenvalues — the natural point to bring the graph
+  domain onto MathHead's compute spine — and it unlocks real discoverable identities.
+- **Decision:** The spectral MOMENTS Σλ² , Σλ³ are ordinary fast invariants computed as
+  trace(A²), trace(A³) by integer matmul (exact, instant); they are added to the registry (NOT to
+  the default `NUMERIC_INVARIANTS`, so existing miners are undisturbed). The actual SPECTRUM is
+  computed by **MathHead's `eigenvalues` tool** (`spectral.py`, memoized per graph) and used for
+  genuinely spectral invariants (`num_distinct_eigenvalues`) and — on-thesis — as an INDEPENDENT
+  authority: `spectrum_confirms_moments` checks that MathHead's Σλ^k equals the matmul trace(A^k).
+  The eigenvalue power-sum is evaluated to 40 digits and rounded (it is provably an integer =
+  trace), avoiding slow symbolic simplification of irrational cubes.
+- **Consequences:** First time the graph domain flows through MathHead. `discover_spectral_laws`
+  rediscovers real spectral graph theory from data — **Σλ² = 2·num_edges** and
+  **Σλ³ = 6·num_triangles** — and MathHead's actual eigenvalues independently confirm those
+  moments on every graph n≤5 (the cross-check MathHead was built for). Kept the default miner
+  untouched (spectral moments live in a separate list) so growth stays orderly.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

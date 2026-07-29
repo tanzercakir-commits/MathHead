@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-29 — Spectral invariants: the graph domain's first bridge to MathHead
+
+The graph domain now flows through MathHead's compute spine for the first time — spectral graph
+theory, discovered from data and confirmed by MathHead's eigenvalues.
+
+**Done — new `spectral.py` + spectral moments in `invariants.py`:**
+- Spectral moments Σλ², Σλ³ as fast exact invariants (= trace(A²), trace(A³) by integer matmul),
+  registered but kept OUT of the default `NUMERIC_INVARIANTS` so existing miners are undisturbed.
+- The actual spectrum via **MathHead's `eigenvalues`** tool (memoized per graph) → `spectrum`,
+  `num_distinct_eigenvalues`, and `spectrum_confirms_moments` (MathHead as independent authority).
+
+**What the engine discovered (real spectral graph theory, from data):**
+- **Σλ² = 2·num_edges** and **Σλ³ = 6·num_triangles** (`discover_spectral_laws`).
+- MathHead's actual eigenvalues independently CONFIRM those moments on every graph n≤5 — the
+  cross-check the whole product is built for (three ways agree: matmul trace, MathHead spectrum,
+  structural count).
+
+**Fix on the way:** symbolic `simplify` of Σλ³ (irrational cubes) blew the 30 s test timeout;
+switched to a 40-digit numeric evaluation + round (the sum is provably an integer = trace), and
+took Re() to drop numerical noise. Spectral test ~1.5 s. 5 new tests (discovery suite 69); full
+suite 1359 green, ruff clean. ADR-D0009. Roadmap O1 (spectral) done.
+
+**Next:** more surface into the same four report buckets — a second arithmetic generator, or
+spectral bounds (e.g. spectral radius vs max degree) — without reshaping the pipeline.
+
+---
+
 ## 2026-07-29 — AC2: one honest run report — consolidation, not sprawl
 
 Tied the two domains into a single organized artifact. New `report.py`: `run_report()` runs the

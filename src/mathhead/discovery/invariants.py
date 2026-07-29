@@ -40,6 +40,35 @@ def sum_degrees(g: Graph) -> int:
     return sum(g.degrees())
 
 
+def _adjacency_int(g: Graph) -> list:
+    A = [[0] * g.n for _ in range(g.n)]
+    for (a, b) in g.edges:
+        A[a][b] = 1
+        A[b][a] = 1
+    return A
+
+
+def _trace_of_power(g: Graph, k: int) -> int:
+    """trace(A^k) = Σ λ^k over the adjacency spectrum — computed exactly by integer matmul."""
+    n = g.n
+    a = _adjacency_int(g)
+    m = [row[:] for row in a]
+    for _ in range(k - 1):
+        m = [[sum(m[i][t] * a[t][j] for t in range(n)) for j in range(n)] for i in range(n)]
+    return sum(m[i][i] for i in range(n))
+
+
+def spectral_moment_2(g: Graph) -> int:
+    """Σ λ² over the adjacency spectrum (= trace(A²)). A spectral quantity — the discovery engine
+    is meant to REDISCOVER that it equals 2·|E|, so we don't hardcode that here."""
+    return _trace_of_power(g, 2)
+
+
+def spectral_moment_3(g: Graph) -> int:
+    """Σ λ³ over the adjacency spectrum (= trace(A³)); the engine should find it is 6·(#triangles)."""
+    return _trace_of_power(g, 3)
+
+
 def num_triangles(g: Graph) -> int:
     """Number of 3-cliques (triangles)."""
     n = g.n
@@ -121,6 +150,8 @@ INVARIANTS = {
     "is_connected": is_connected,
     "is_forest": is_forest,
     "is_tree": is_tree,
+    "spectral_moment_2": spectral_moment_2,
+    "spectral_moment_3": spectral_moment_3,
 }
 
 # The integer-valued invariants — the columns the relation miner (O2) runs over. Excludes

@@ -21,6 +21,8 @@ Layers so far:
                  MathHead is the native judge: discovers modular laws and proves them by induction
   * report     — one honest run report across both domains (AC2): proved / discovered / refuted /
                  open, each with an honest status; deterministic
+  * spectral   — the graph domain's first bridge to MathHead: eigenvalues via MathHead, the
+                 spectral identities (Σλ²=2|E|, Σλ³=6·#triangles) discovered from data
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -60,6 +62,12 @@ from .objects import Graph, MathObject
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .spectral import (
+    discover_spectral_laws,
+    num_distinct_eigenvalues,
+    spectrum,
+    spectrum_confirms_moments,
+)
 
 __all__ = [
     "Graph",
@@ -97,4 +105,8 @@ __all__ = [
     "DiscoveryReport",
     "run_report",
     "render",
+    "spectrum",
+    "num_distinct_eigenvalues",
+    "spectrum_confirms_moments",
+    "discover_spectral_laws",
 ]

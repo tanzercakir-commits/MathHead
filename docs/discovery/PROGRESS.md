@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Kernel wired into the arithmetic pipeline: every modular proof is `kernel_verified`
+
+The kernel stopped being standalone. `discover_and_prove` now, for every proved modular finding,
+converts the polynomial (`kernel.poly_from_sympy` — the optional sympy bridge, kept out of the
+stdlib core), emits a proof TERM via `prove_divides`, and lets the LCF kernel mint the Theorem —
+recording `kernel_verified` on the finding. All 7 family laws (n(n+1)…, n³−n mod 6, n⁵−n mod 30,
+n⁷−n mod 42) are now BOTH `independently_verified` (checker.py, the M3 second checker) AND
+`kernel_verified` (M1/M2). The report surfaces `⊢ kernel-verified` beside `✓ independently verified`;
+SAMPLE-REPORT.md regenerated (7 kernel-verified facts).
+
+Why this is stronger than the old flag: `kernel_verified` is proof-CARRYING — a false claim would
+raise inside the kernel (the residue sweep fails, the guarded constructor blocks fabrication), so the
+Theorem's mere existence is the evidence. Two independent confirmations now stand behind each modular
+fact: the orthogonal residue re-check AND the kernel's rule-checked term.
+
+2 net new tests (discovery suite 137); full suite **1426 green**, ruff clean. Extends ADR-D0022.
+
+**Next:** widen the kernel fragment (e.g. derive RESIDUE from more primitive rules, or add a rule
+class for the sum identities), or push into a new track — proof replay / axiom-provenance (M4/M5),
+or the next domain surface.
+
+---
+
 ## 2026-07-29 — A real PROOF KERNEL (M1/M2): theorems exist only if a proof term checks
 
 The deepest step yet toward the "ideal engine" thesis (§1, the trustworthy kernel). New `kernel.py`

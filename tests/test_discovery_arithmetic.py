@@ -50,6 +50,13 @@ def test_every_proof_is_independently_verified():
     assert all(f.independently_verified for f in findings)
 
 
+def test_every_proof_carries_a_kernel_checked_term():
+    # each proved modular law also has a kernel proof TERM the LCF kernel minted (M1/M2) —
+    # stronger than a trust-the-prover flag: a false claim would have raised inside the kernel
+    findings = run_arithmetic_discovery(check_upto=40)
+    assert all(f.kernel_verified for f in findings)
+
+
 def test_overshoot_modulus_is_refuted_counterexample_first():
     # claiming a modulus larger than the truth dies before the judge
     assert first_counterexample(_consec(2), 4, 40) == 1        # n(n+1) not ≡0 mod 4 (n=1 -> 2)

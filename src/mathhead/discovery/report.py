@@ -127,7 +127,8 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         item = {"statement": f.claim, "modulus": f.modulus}
         if f.verdict == "proved":
             proved.append({**item, "status": "proved", "certainty": f.certainty,
-                           "independently_verified": f.independently_verified})
+                           "independently_verified": f.independently_verified,
+                           "kernel_verified": f.kernel_verified})
         elif f.verdict == "refuted":
             refuted.append({**item, "status": "refuted"})
         else:
@@ -174,7 +175,8 @@ def render(report: DiscoveryReport) -> str:
 
     section("PROVED (formal — by the judge)", report.proved,
             lambda it: f"`{it['statement']}` — {it.get('certainty', '')}"
-                       + ("  ✓ independently verified" if it.get("independently_verified") else ""))
+                       + ("  ✓ independently verified" if it.get("independently_verified") else "")
+                       + ("  ⊢ kernel-verified" if it.get("kernel_verified") else ""))
     section("REFUTED (killed, with a minimal counterexample)", report.refuted,
             lambda it: f"`{it['statement']}` — counterexample: {it.get('counterexample', {})}")
     section("DISCOVERED (empirical — holds on the sample, NOT proven)", report.empirical_laws,

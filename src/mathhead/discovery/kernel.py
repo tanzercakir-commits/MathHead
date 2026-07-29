@@ -174,3 +174,17 @@ def prove_divides(m: int, poly: Poly):
     parts = tuple(Residue(pk, poly) for pk in _factor_prime_powers(m))
     term = parts[0] if len(parts) == 1 else CRT(parts)
     return check(term), term
+
+
+# --- optional sympy bridge (NOT part of the stdlib-only trusted core) --------------------------
+
+def poly_from_sympy(expr: str, var: str = "n") -> Poly:
+    """Convert a polynomial expression string (e.g. "n**3 - n", "n*(n+1)*(n+2)") to the kernel's
+    exact integer coefficient tuple (low→high). Raises KernelError on a non-integer-polynomial.
+    This is a convenience bridge for the arithmetic pipeline — the kernel core stays sympy-free."""
+    import sympy
+    x = sympy.Symbol(var)
+    poly = sympy.Poly(sympy.expand(sympy.sympify(expr)), x)
+    coeffs_high_to_low = poly.all_coeffs()
+    low_to_high = list(reversed(coeffs_high_to_low))
+    return _norm(tuple(int(c) for c in low_to_high))

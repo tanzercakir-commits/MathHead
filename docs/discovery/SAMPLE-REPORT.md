@@ -3,13 +3,13 @@
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 
 ## PROVED (formal — by the judge) (11)
-- `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified
-- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified
-- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified
-- `(n**2 - n) % 2 == 0` — formal_proof  ✓ independently verified
-- `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified
-- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified
-- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified
+- `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n**2 - n) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
 - `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified  ✓ independently verified
 - `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified  ✓ independently verified
 - `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified  ✓ independently verified
@@ -40,9 +40,9 @@ _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -
 - `min_degree <= sum_degrees` — no_counterexample_within_bound
 - `min_degree <= max_degree` — no_counterexample_within_bound
 - `num_components <= num_vertices` — no_counterexample_within_bound
-- `clique_number <= chromatic_number` — frontier · bounded_check
-- `chromatic_number <= max_degree + 1` — frontier · bounded_check
-- `chromatic_number <= num_vertices` — frontier · bounded_check
+- `clique_number <= chromatic_number` — frontier · bounded_check · constructively certified over the sample (constructive_bounded)
+- `chromatic_number <= max_degree + 1` — frontier · bounded_check · constructively certified over the sample (constructive_bounded)
+- `chromatic_number <= num_vertices` — frontier · bounded_check · constructively certified over the sample (constructive_bounded)
 - `Hamiltonian => connected` — frontier · bounded_check
 - `Hamiltonian => min_degree >= 2` — frontier · bounded_check
 - `(n>=3 and min_degree >= n/2) => Hamiltonian [Dirac]` — frontier · bounded_check

@@ -22,6 +22,7 @@ from functools import reduce
 from math import gcd
 
 from .checker import check_proof
+from .kernel import KernelError, poly_from_sympy, prove_divides
 from .proof_tree import proof_tree
 from .strategy import prove_by_residues, prove_modular_divisibility
 
@@ -70,6 +71,7 @@ class ArithmeticFinding:
     checked_upto: int
     method: str = "induction"     # "induction" | "modulus-factoring" | "residue-exhaustion"
     independently_verified: bool = False   # re-checked by the independent checker (not the prover)
+    kernel_verified: bool = False          # a kernel proof TERM (RESIDUE/CRT) was checked (M1/M2)
 
 
 def discovered_modulus(fn, sample=range(1, 20)) -> int:
@@ -101,7 +103,19 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
         expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
     if v.status == "proved":                            # don't trust the prover — check the proof
         finding.independently_verified = check_proof(proof_tree(finding), fn)[0]
+        finding.kernel_verified = _kernel_check(expr, m)   # and mint a kernel-checked proof term
     return finding
+
+
+def _kernel_check(expr: str, m: int) -> bool:
+    """Emit a kernel proof TERM for Divides(m, p) and let the LCF kernel mint the Theorem (M1/M2).
+    True iff the kernel accepts and the minted modulus matches. A false claim would raise inside the
+    kernel — so this is genuine proof-carrying verification, not a trust-the-prover flag."""
+    try:
+        thm, _term = prove_divides(m, poly_from_sympy(expr))
+        return thm.modulus == m
+    except KernelError:
+        return False
 
 
 # The full run is deterministic; memoize it (each call otherwise re-runs the judge over the whole

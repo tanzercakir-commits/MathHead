@@ -48,6 +48,13 @@ def test_proved_arithmetic_facts_are_independently_verified():
     assert "independently verified" in render(r)          # surfaced in the report
 
 
+def test_proved_arithmetic_facts_are_kernel_verified():
+    r = run_report(max_n=5)
+    modular = [x for x in r.proved if "% " in x["statement"]]
+    assert modular and all(x.get("kernel_verified") for x in modular)
+    assert "kernel-verified" in render(r)                 # surfaced in the report
+
+
 def test_frontier_invariant_values_are_solver_confirmed():
     r = run_report(max_n=5)
     assert r.frontier and all(x["confirmed"] and x["certainty"] == "solver_verified"

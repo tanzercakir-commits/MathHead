@@ -410,6 +410,34 @@
 
 ---
 
+## ADR-D0020 — Fold frontier work into the report; keep the epistemic taxonomy pure
+
+- **Status:** Accepted · 2026-07-29 (AC2 — report integration)
+- **Context:** ADR-D0018/D0019 added χ and Hamiltonicity as frontier invariants with their own
+  modules and tests, but the flagship `run_report` still showed only the arithmetic/graph-law
+  pipeline — the artifact had drifted behind the engine's real capability. The report is the whole
+  point (one honest, organized picture), so the frontier work must appear. Question: WHERE — a new
+  "solver-verified" bucket, or the existing PROVED/REFUTED/DISCOVERED/OPEN buckets?
+- **Decision:** Split by KIND of claim. (1) The frontier LAWS (coloring bounds, Hamiltonicity
+  implications) are epistemically identical to existing conjecture-and-survive findings, so they go
+  into the SAME epistemic buckets: survivors → OPEN (`bounded_check`, `no_counterexample_within_bound`),
+  killed → REFUTED with counterexample. They are NOT put in PROVED — the engine has not proven them
+  (Dirac included: it rediscovered the statement and failed to refute it, nothing more). (2) The
+  two-authority CONFIRMATION is about invariant VALUES, not law truth — a provenance fact — so it
+  gets a separate `frontier` field / FRONTIER section listing representative values (χ(K4)=4, …) each
+  `solver_verified` by MathHead. The epistemic taxonomy stays pure; the method contribution is
+  visible but not conflated with proof.
+- **Consequences:** The report now reflects the engine's real reach (arithmetic → graph laws →
+  NP-hard frontier) in ONE artifact, and readers see both the honest status of each frontier law and
+  the solver-confirmed invariant values behind them. Placing Dirac in OPEN rather than PROVED is a
+  deliberate honesty call — a famous theorem is still "unproven, survived the attack" from the
+  engine's standpoint, and saying so is the point. The frontier confirmations add a handful of
+  deterministic MathHead calls to `run_report` (representative graphs only — NOT all 156, to keep the
+  report fast); verifying the whole sample stays in the module tests. Natural next step logged: start
+  actually PROVING the surviving frontier laws to lift them OPEN → PROVED.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

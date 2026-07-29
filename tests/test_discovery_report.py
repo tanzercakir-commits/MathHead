@@ -46,3 +46,23 @@ def test_proved_arithmetic_facts_are_independently_verified():
     modular = [x for x in r.proved if "% " in x["statement"]]
     assert modular and all(x.get("independently_verified") for x in modular)
     assert "independently verified" in render(r)          # surfaced in the report
+
+
+def test_frontier_invariant_values_are_solver_confirmed():
+    r = run_report(max_n=5)
+    assert r.frontier and all(x["confirmed"] and x["certainty"] == "solver_verified"
+                              for x in r.frontier)
+    chi_k4 = next(x for x in r.frontier if x["invariant"] == "chromatic_number"
+                  and x["graph"] == "K4")
+    assert chi_k4["value"] == 4                           # χ(K4)=4, confirmed sat@4 ∧ unsat@3
+    assert "FRONTIER" in render(r) and "solver_verified" in render(r)
+
+
+def test_frontier_laws_land_in_open_and_refuted():
+    r = run_report(max_n=5)
+    open_stmts = " ".join(x["statement"] for x in r.open_bounded)
+    refuted_stmts = " ".join(x["statement"] for x in r.refuted)
+    assert "Dirac" in open_stmts                          # Dirac survived -> OPEN (unproven)
+    assert "clique_number <= chromatic_number" in open_stmts   # ω ≤ χ survived
+    assert "(connected and n>=3) => Hamiltonian" in refuted_stmts   # refuted by P3
+    assert "chromatic_number <= max_degree" in refuted_stmts        # refuted (χ≤Δ)

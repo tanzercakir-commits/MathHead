@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — Frontier work folded into the flagship report (χ + Hamiltonicity now visible)
+
+Two increments added frontier modules (χ, Hamiltonicity) that the run report didn't show — the
+flagship artifact had drifted behind the engine's real reach. Closed that gap. `report.py` now:
+
+- mines the frontier LAWS (coloring bounds + Hamiltonicity implications) into the honest epistemic
+  buckets — survivors (ω≤χ≤Δ+1, Dirac, the necessary conditions) → OPEN (`bounded_check`), the
+  killed ones (χ≤Δ, connected⟹Hamiltonian) → REFUTED with their counterexamples;
+- adds a new FRONTIER section exercising the two-authority check IN the report: representative
+  NP-hard invariant VALUES — χ(K4)=4, χ(K3)=3, Hamiltonicity of C5 / P4 — each independently
+  confirmed by MathHead's solver (`solver_verified`), distinct from the bounded_check laws.
+
+Kept the epistemic taxonomy pure: the frontier LAWS take their honest status (OPEN/REFUTED); only
+the invariant VALUES are `solver_verified`. Honest placement of Dirac: OPEN, not PROVED — the engine
+rediscovered the STATEMENT and failed to refute it on n≤5, but has NOT proven it. SAMPLE-REPORT.md
+regenerated (now carries the FRONTIER section).
+
+2 net new report tests (discovery suite 115); full suite **1404 green**, ruff clean. ADR-D0020.
+
+**Next:** a third frontier invariant, or start proving the surviving frontier laws (lift Dirac /
+the sandwich from OPEN toward PROVED with a real argument).
+
+---
+
 ## 2026-07-29 — Second frontier invariant: Hamiltonian cycles + Dirac's theorem rediscovered
 
 The graph→frontier bridge widened to a second NP-complete invariant. New `hamiltonicity.py`:

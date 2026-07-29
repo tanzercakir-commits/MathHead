@@ -748,6 +748,29 @@
 
 ---
 
+## ADR-D0034 — The director orchestrates and decides WHAT to study; it never decides what is TRUE
+
+- **Status:** Accepted · 2026-07-29 (AC0/AC3 — research director)
+- **Context:** All the pieces existed (generate → mine → refute → prove → explain → classify → graph →
+  impact) but only as a single pass. A "research director" that loops needs to hold state across
+  cycles and choose goals — and that is exactly where an orchestrator could accidentally become a
+  trust authority (e.g. by promoting a finding because the policy "wanted" it proved).
+- **Decision:** Build `ResearchDirector` as a pure ORCHESTRATOR over the existing pipeline. It holds
+  cross-cycle state (a shared FailureMemory deduped by fingerprint, a seen-set, per-cycle ladder
+  snapshots) and selects the next goal by a deterministic, rule-based policy over the impact analysis
+  and ladder (pursue the most-entangled open conjecture, else widen the bound). It reads `run_report`
+  and never mutates truth: no finding is promoted, proved, or blessed by the director — verification
+  stays entirely in the kernel/checker/solvers.
+- **Consequences:** The engine now behaves like a researcher across a session — dead ends accumulate
+  and are never re-walked, new-finding counts taper as the sample stabilizes, and the director follows
+  its own recommendations cycle to cycle. Crucially the trust boundary is clean: the director decides
+  ATTENTION (what to look at), the kernel/checkers decide TRUTH. The rule-based policy is an honest
+  AC0 — a learned planner (AC S4/W3) is future work and would slot into `_select_next_goal` without
+  touching the trust boundary. Cross-cycle state is serializable in principle, enabling genuinely
+  long-running sessions (AC3).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

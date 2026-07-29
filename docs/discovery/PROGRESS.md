@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — The research director (Track AC): a goal-driven loop with cross-cycle memory
+
+The engine stopped being a collection of modules and became a RESEARCHER. New `director.py`
+(`ResearchDirector`) runs discovery CYCLES and carries state between them:
+
+- cross-cycle STATE (AC3) — one `FailureMemory` accumulates dead ends across ALL cycles, deduped by
+  fingerprint (a 3-cycle session learns 7→11→12 unique dead ends, never re-walking a closed branch); a
+  `seen` set tracks which findings are new each cycle (51 → 3 → 0 as the sample stabilizes); the
+  ladder distribution is recorded per cycle so progress is visible.
+- strategy SELECTION (AC0) — after each cycle the director reads the impact analysis (the open
+  frontier) and the ladder and proposes the next goal: settle the highest-impact open conjecture if
+  one exists, else widen the bound / push validated laws toward proof. `run_session` then FOLLOWS its
+  own recommendation into the next cycle.
+
+Honest scope: the policy is deterministic and rule-based — an honest AC0, not a learned planner (that
+is later work). The director decides WHAT to look at next; it never decides what is TRUE (it only reads
+the report, never blesses a result).
+
+6 tests (discovery suite 220); full suite **1509 green**, ruff clean. ADR-D0034. Roadmap AC0/AC3.
+
+**Next:** a learned/heuristic strategy upgrade, a fourth domain, or push a structural argument to a
+machine-checked proof.
+
+---
+
 ## 2026-07-29 — Distribution-level discoveries: the engine rediscovers MacMahon & Eulerian
 
 A step up from sum laws — the engine now discovers facts about whole DISTRIBUTIONS, not just totals.

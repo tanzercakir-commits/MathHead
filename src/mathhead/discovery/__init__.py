@@ -43,6 +43,8 @@ Layers so far:
                  FORMALLY_SPECIFIED → FORMALLY_PROVED; classifies every finding, honestly
   * permutations — a THIRD object domain (proves the model generalizes): generate S_n, invariants
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
+  * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
+                 accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -114,6 +116,7 @@ from .knowledge_graph import (
     Node,
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
+from .director import CycleResult, ResearchDirector
 from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
 from .failure_memory import (
     AttemptRecord,
@@ -247,6 +250,8 @@ __all__ = [
     "classify",
     "ladder_summary",
     "rung_of",
+    "ResearchDirector",
+    "CycleResult",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

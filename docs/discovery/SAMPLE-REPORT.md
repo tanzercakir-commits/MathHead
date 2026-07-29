@@ -1,10 +1,10 @@
 # MathHead — Discovery Run Report
 
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
-_kernel v1.0 · axioms: CRT, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
+_kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _negative knowledge: 4 dead end(s) recorded_
-_knowledge graph: 48 nodes · 123 edges (axiom×7, conjecture×20, counterexample×4, law×6, theorem×11)_
-_impact: most load-bearing axiom `RESIDUE(m=2)` supports 6 theorems_
+_knowledge graph: 55 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×6, theorem×17)_
+_impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -13,7 +13,7 @@ _impact: most load-bearing axiom `RESIDUE(m=2)` supports 6 theorems_
 - 0.615 · `(n**5 - n) % 30 == 0`
 - 0.615 · `(n**7 - n) % 42 == 0`
 
-## PROVED (formal — by the judge) (11)
+## PROVED (formal — by the judge) (17)
 - `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [0b5a07c36f79d3bf]
 - `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [aed58ab78a2d4eb9]
 - `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [eb68f40b22e38e78]
@@ -21,6 +21,12 @@ _impact: most load-bearing axiom `RESIDUE(m=2)` supports 6 theorems_
 - `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [7b24fe07c5c0df35]
 - `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [750d8a0199ccf762]
 - `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [fdbd4814cabf3555]
+- `n**2 - 1 = (n - 1)*(n + 1)` — kernel_identity  ⊢ kernel-verified [f03b6c34f7b518de]
+- `n**2 - n = n*(n - 1)` — kernel_identity  ⊢ kernel-verified [80852b88f572d75b]
+- `n**3 - n = n*(n - 1)*(n + 1)` — kernel_identity  ⊢ kernel-verified [dc3be4bb398acc5d]
+- `n**3 - n**2 = n**2*(n - 1)` — kernel_identity  ⊢ kernel-verified [5b09e7084d283282]
+- `n**2 - 4 = (n - 2)*(n + 2)` — kernel_identity  ⊢ kernel-verified [47e9628f0c366714]
+- `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` — kernel_identity  ⊢ kernel-verified [7ba4b4b25fc89b37]
 - `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified  ✓ independently verified  ⊢ kernel-verified [e33a456111de3dc1]
 - `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified  ✓ independently verified  ⊢ kernel-verified [f94c5eb5111fd398]
 - `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified  ✓ independently verified  ⊢ kernel-verified [7ccd1ca6fe63e8f0]
@@ -63,4 +69,9 @@ _impact: most load-bearing axiom `RESIDUE(m=2)` supports 6 theorems_
 - chromatic_number(K3) = 3 — ✓ confirmed (solver_verified; MathHead graph_coloring: sat@χ ∧ unsat@χ−1)
 - is_hamiltonian(C5) = True — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 - is_hamiltonian(P4) = False — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
+
+## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (3)
+- `n**2 - n = n*(n - 1)` explains `2 | n**2 - n` — product of 2 consecutive integers ⇒ divisible by 2! = 2
+- `n**3 - n = n*(n - 1)*(n + 1)` explains `6 | n**3 - n` — product of 3 consecutive integers ⇒ divisible by 3! = 6
+- `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` explains `6 | n*(n+1)*(n+2)` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 

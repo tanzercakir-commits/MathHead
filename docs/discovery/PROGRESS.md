@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Factorizations that EXPLAIN the divisibilities (third kernel judgment: PolyIdentity)
+
+A genuinely mathematical increment — the engine now explains WHY, not just THAT. Kernel gained a third
+judgment `PolyIdentity` (p(n) = q(n) ∀n, via the `Identity` rule: p − q ≡ 0 — sound & complete). New
+`identities.py` factors each polynomial and INDEPENDENTLY certifies the factorization with the kernel
+(expand(p) must equal expand(factored) — it does not trust sympy.factor; a wrong factorization fails
+the check).
+
+The payoff is explanatory and ties threads together: when the factors are CONSECUTIVE integers, the
+product is divisible by k!. So the engine reports `n³ − n = n(n−1)(n+1)` explains `6 | n³−n` (three
+consecutive integers ⇒ divisible by 3! = 6) — the algebraic STRUCTURE explaining the modular NUMBER
+found separately in arithmetic.py. Both kernel-checked. Report gains an EXPLANATIONS section and the
+factorization identities enter PROVED (certainty `kernel_identity`); POLY_IDENTITY joins the axiom
+manifest.
+
+9 tests (6 identities + 2 kernel + 1 report; discovery suite 190); full suite **1479 green**, ruff
+clean. ADR-D0029. Roadmap: algebraic-identity surface + M1 (third judgment).
+
+**Next:** more explanatory links (why a bound is tight; why a law holds structurally), or a new domain,
+or external-corpus novelty (X1/W2).
+
+---
+
 ## 2026-07-29 — Impact analysis (Track X3): load-bearing axioms, hubs, the open frontier
 
 New `impact.py` runs structural "so what?" analysis over the knowledge graph — all exact graph

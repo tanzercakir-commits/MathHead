@@ -6,6 +6,7 @@ from fractions import Fraction
 
 from mathhead.discovery.kernel import (
     CRT,
+    Identity,
     KernelError,
     Residue,
     SumInduction,
@@ -13,6 +14,7 @@ from mathhead.discovery.kernel import (
     check,
     poly_from_sympy_q,
     prove_divides,
+    prove_identity,
     prove_sum_identity,
 )
 
@@ -114,3 +116,20 @@ def test_crt_will_not_compose_a_sum_identity():
     g = (Fraction(0), Fraction(1, 2), Fraction(1, 2))
     with pytest.raises(KernelError):
         check(CRT((SumInduction((0, 1), g), Residue(2, _N3_MINUS_N))))
+
+
+# --- third judgment: polynomial IDENTITIES (Identity) -----------------------------------------
+
+def test_identity_certifies_a_true_factorization():
+    # n³ − n  ==  n(n−1)(n+1)  →  expand both, kernel confirms equality
+    lhs = poly_from_sympy_q("n**3 - n", "n")
+    rhs = poly_from_sympy_q("n*(n-1)*(n+1)", "n")
+    thm, _term = prove_identity(lhs, rhs)
+    assert thm.kind == "PolyIdentity"
+
+
+def test_identity_rejects_a_false_factorization():
+    lhs = poly_from_sympy_q("n**3 - n", "n")
+    wrong = poly_from_sympy_q("n*(n-1)*(n-1)", "n")     # (n−1)² ≠ (n−1)(n+1)
+    with pytest.raises(KernelError, match="IDENTITY"):
+        check(Identity(lhs, wrong))

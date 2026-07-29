@@ -632,6 +632,30 @@
 
 ---
 
+## ADR-D0029 — A third kernel judgment (PolyIdentity) that independently certifies factorizations
+
+- **Status:** Accepted · 2026-07-29 (M1 third judgment + explanatory surface)
+- **Context:** The engine proved THAT 6 | n³−n but never explained WHY. The classic reason is
+  structural: n³−n = n(n−1)(n+1), a product of three consecutive integers, hence divisible by 3!.
+  To assert that honestly we must (a) verify the factorization without trusting sympy, and (b) verify
+  the "consecutive ⇒ divisible by k!" link.
+- **Decision:** Add a third kernel judgment `PolyIdentity` (p = q) via the `Identity` rule: expand
+  both sides to exact rational-coefficient polynomials and check p − q ≡ 0 (sound & complete). This
+  INDEPENDENTLY certifies a factorization — the kernel re-checks that expand(factored) equals
+  expand(original), so a wrong sympy factorization is caught, not trusted. `identities.py` then detects
+  when the monic linear factors have consecutive constant terms (a product of consecutive integers)
+  and attaches the k! divisibility it guarantees. The report surfaces this as EXPLANATIONS linking the
+  kernel-verified identity to the modular fact.
+- **Consequences:** The engine crosses from "prove that" to "explain why" — the algebraic structure
+  now accounts for the modular number, and both halves are kernel-checked. The third judgment reuses
+  the existing rational polynomial machinery (no new arithmetic), and the kernel's role as an
+  INDEPENDENT checker of an untrusted tool (sympy.factor) mirrors its role vs the arithmetic prover.
+  The "consecutive ⇒ k!" step is a sound classical fact stated in the finding; deriving IT inside the
+  kernel (from a product/induction rule) is logged as deeper future work. PolyIdentity also gives the
+  engine a general algebraic-identity certifier to build on (telescoping, binomial expansions, …).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

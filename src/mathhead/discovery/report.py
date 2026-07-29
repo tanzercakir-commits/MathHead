@@ -21,6 +21,7 @@ from .conjectures import bound_conjectures
 from .generate import generate_graphs
 from .graph_proofs import certify_frontier_laws
 from .hamiltonicity import hamiltonicity_laws, verify_hamiltonicity
+from .identities import run_identity_discovery
 from .invariants import is_forest, is_tree
 from .novelty import novel_subclass_laws
 from .objects import Graph
@@ -37,6 +38,7 @@ class DiscoveryReport:
     open_bounded: list = field(default_factory=list)    # survived the attack; unproven
     frontier: list = field(default_factory=list)        # NP-hard invariant VALUES solver-confirmed
     meta: dict = field(default_factory=dict)
+    explanations: list = field(default_factory=list)    # structure explaining a result (factorization)
 
 
 def _graph_findings(max_n: int):
@@ -136,6 +138,19 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
             open_bounded.append({**item, "status": "no_counterexample_within_bound",
                                  "note": f"judge: {f.certainty}"})
 
+    explanations = []
+    for f in run_identity_discovery():                  # kernel-verified factorizations (+ why)
+        if f.kernel_verified:
+            proved.append({"statement": f"{f.expression} = {f.factored}", "status": "proved",
+                           "certainty": "kernel_identity", "kernel_verified": True,
+                           "proof_hash": f.proof_hash, "axioms": list(f.axioms)})
+        if f.consecutive_run:
+            explanations.append({
+                "identity": f"{f.expression} = {f.factored}",
+                "explains": f"{f.divisibility_explained} | {f.expression}",
+                "reason": f"product of {f.consecutive_run} consecutive integers "
+                          f"⇒ divisible by {f.consecutive_run}! = {f.divisibility_explained}"})
+
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":
@@ -177,7 +192,7 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     meta["most_interesting"] = [{"statement": s.statement, "score": s.total}
                                 for s, _ in rank(all_items)[:5]]
     report = DiscoveryReport(proved, empirical, refuted, open_bounded,
-                             _frontier_confirmations(), meta)
+                             _frontier_confirmations(), meta, explanations)
     from .impact import impact_summary                            # structural impact analysis (X3)
     from .knowledge_graph import from_report as _kg_from_report   # semantic graph of findings (X0)
     _kg = _kg_from_report(report)
@@ -241,4 +256,7 @@ def render(report: DiscoveryReport) -> str:
             lambda it: f"{it['invariant']}({it['graph']}) = {it['value']} — "
                        f"{'✓ confirmed' if it.get('confirmed') else '✗ UNCONFIRMED'} "
                        f"({it.get('certainty', '')}; {it.get('method', '')})")
+    section("EXPLANATIONS (structure explaining a result — kernel-verified factorization)",
+            report.explanations,
+            lambda it: f"`{it['identity']}` explains `{it['explains']}` — {it['reason']}")
     return "\n".join(lines)

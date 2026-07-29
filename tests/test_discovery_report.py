@@ -98,6 +98,18 @@ def test_report_carries_a_knowledge_graph_summary():
     assert "knowledge graph" in render(r)
 
 
+def test_report_explains_divisibility_via_factorization():
+    r = run_report(max_n=5)
+    # the factorization of n³−n explains why 6 divides it (3 consecutive integers)
+    by_id = {e["explains"]: e for e in r.explanations}
+    assert "6 | n**3 - n" in by_id
+    assert "consecutive" in by_id["6 | n**3 - n"]["reason"]
+    assert "EXPLANATIONS" in render(r)
+    # the factorization identity itself is a kernel-verified PROVED fact
+    assert any("= n*(n - 1)*(n + 1)" in x["statement"] and x.get("kernel_verified")
+               for x in r.proved)
+
+
 def test_certified_coloring_laws_are_annotated_but_stay_open():
     r = run_report(max_n=5)
     by_stmt = {x["statement"]: x for x in r.open_bounded}

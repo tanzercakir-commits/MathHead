@@ -33,8 +33,10 @@ Layers so far:
                  ω≤χ via a solver-double-confirmed clique); independently re-checked; honestly
                  `constructive_bounded` (witnessed over the sample, NOT a universal ∀G proof yet)
   * kernel     — minimal LCF-style PROOF KERNEL (M1/M2): a Theorem exists only if a proof TERM is
-                 kernel-checked; two judgments — Divides (RESIDUE/CRT) and SumIdentity (SumInduction,
-                 rational polys); forge-guarded; rejects false claims
+                 kernel-checked; three judgments — Divides (RESIDUE/CRT), SumIdentity (SumInduction),
+                 PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
+  * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
+                 divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -83,18 +85,21 @@ from .hamiltonicity import (
     hamiltonicity_laws,
     verify_hamiltonicity,
 )
+from .identities import IdentityFinding, discover_factorization, run_identity_discovery
 from .impact import impact_summary, load_bearing_axioms
 from .interestingness import Interestingness
 from .interestingness import rank as rank_interestingness
 from .interestingness import score as score_interestingness
 from .kernel import (
     CRT,
+    Identity,
     KernelError,
     Residue,
     SumInduction,
     Theorem,
     check,
     prove_divides,
+    prove_identity,
     prove_sum_identity,
 )
 from .knowledge_graph import (
@@ -187,10 +192,15 @@ __all__ = [
     "Residue",
     "CRT",
     "SumInduction",
+    "Identity",
     "KernelError",
     "check",
     "prove_divides",
     "prove_sum_identity",
+    "prove_identity",
+    "IdentityFinding",
+    "discover_factorization",
+    "run_identity_discovery",
     "axioms_used",
     "proof_hash",
     "replay",

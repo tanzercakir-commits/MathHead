@@ -145,6 +145,9 @@ class Theorem:
         if self.kind == "SumIdentity":
             f, g = self.payload
             return f"⊢ SumIdentity(Σ_(i=1..n) {_poly_str(f)} = {_poly_str(g)})"
+        if self.kind == "PolyIdentity":
+            p, q = self.payload
+            return f"⊢ PolyIdentity({_poly_str(p)} = {_poly_str(q)})"
         return f"⊢ {self.kind}{self.payload}"
 
     def __eq__(self, other) -> bool:
@@ -185,6 +188,15 @@ class SumInduction:
     ⟹ (by induction on n) the identity holds for every n ≥ 1."""
     f_poly: Poly            # f(i), rational coefficients allowed
     g_poly: Poly            # g(n), the claimed closed form
+
+
+@dataclass(frozen=True)
+class Identity:
+    """Leaf proof term for a polynomial IDENTITY p(n) = q(n) (∀n). SOUND & COMPLETE: p ≡ q iff the
+    polynomial p − q is identically zero (all coefficients zero). Used to independently CERTIFY a
+    factorization (p in expanded form, q in factored form) without trusting the factoring routine."""
+    lhs: Poly
+    rhs: Poly
 
 
 # --- the kernel: the ONLY way to turn a proof term into a Theorem -----------------------------
@@ -234,6 +246,13 @@ def check(term) -> Theorem:
                 f"SUM step fails: g(n)−g(n−1)−f(n) = {_poly_str(step)} ≢ 0")
         return _mint("SumIdentity", (f, g))
 
+    if isinstance(term, Identity):
+        p = _norm_q(term.lhs)
+        q = _norm_q(term.rhs)
+        if _poly_sub_q(p, q) != (Fraction(0),):
+            raise KernelError(f"IDENTITY fails: {_poly_str(p)} ≠ {_poly_str(q)}")
+        return _mint("PolyIdentity", (p, q))
+
     raise KernelError(f"unknown proof term: {type(term).__name__}")
 
 
@@ -269,6 +288,13 @@ def prove_sum_identity(f_poly: Poly, g_poly: Poly):
     """Build a SumInduction term for Σf(i)=g(n) and KERNEL-CHECK it. Returns (Theorem, proof_term);
     raises KernelError if the base case or the telescoping step fails."""
     term = SumInduction(f_poly, g_poly)
+    return check(term), term
+
+
+def prove_identity(lhs: Poly, rhs: Poly):
+    """Build an Identity term for p(n)=q(n) and KERNEL-CHECK it. Returns (Theorem, proof_term);
+    raises KernelError if p − q ≢ 0."""
+    term = Identity(lhs, rhs)
     return check(term), term
 
 

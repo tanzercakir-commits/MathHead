@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import hashlib
 
-from .kernel import CRT, Residue, SumInduction, Theorem, _norm, _norm_q, check
+from .kernel import CRT, Identity, Residue, SumInduction, Theorem, _norm, _norm_q, check
 
 KERNEL_VERSION = "1.0"
 
@@ -33,6 +33,8 @@ def _canonical(term) -> tuple:
         return ("CRT", tuple(sorted(_canonical(p) for p in term.parts)))
     if isinstance(term, SumInduction):
         return ("SUM", _norm_q(term.f_poly), _norm_q(term.g_poly))
+    if isinstance(term, Identity):
+        return ("IDENTITY", _norm_q(term.lhs), _norm_q(term.rhs))
     raise TypeError(f"not a proof term: {type(term).__name__}")
 
 
@@ -49,6 +51,8 @@ def axioms_used(term) -> frozenset:
                 walk(p)
         elif isinstance(t, SumInduction):
             out.add("SUM_INDUCTION")
+        elif isinstance(t, Identity):
+            out.add("POLY_IDENTITY")
         else:
             raise TypeError(f"not a proof term: {type(t).__name__}")
 

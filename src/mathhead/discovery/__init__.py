@@ -43,6 +43,8 @@ Layers so far:
                  FORMALLY_SPECIFIED → FORMALLY_PROVED; classifies every finding, honestly
   * permutations — a THIRD object domain (proves the model generalizes): generate S_n, invariants
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
+  * partitions  — a FOURTH object domain (number-theoretic): p(n) counts (A000041), rediscovers
+                 Euler's distinct=odd theorem (A000009) and conjugation symmetry
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
@@ -156,6 +158,13 @@ from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
+from .partitions import (
+    Partition,
+    conjugate,
+    count_partitions,
+    discover_partition_laws,
+    generate_partitions,
+)
 from .permutations import (
     Permutation,
     count_permutations,
@@ -253,6 +262,11 @@ __all__ = [
     "discover_distribution_laws",
     "statistic_distribution",
     "eulerian_number",
+    "Partition",
+    "generate_partitions",
+    "count_partitions",
+    "discover_partition_laws",
+    "conjugate",
     "LEVELS",
     "classify",
     "ladder_summary",

@@ -89,7 +89,7 @@ R4   🟢 "Çözemedim; yalnızca şu sınıra kadar karşı-örnek yok" — bou
 
 **Track N — Tipli nesne modeli & üretim**
 ```
-N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)  ✅ (Graph; mathhead.discovery.objects) + ÜÇÜNCÜ ALAN: Permutation (S_n üretimi A000142'ye sabit, invariantlar inv/desc/fix/cycle, keşfedilen+açıklanan yasalar); mimari alan-bağımsız olduğunu kanıtladı — rapor/merdiven/açıklamalar sıfır değişiklikle absorbe etti; ADR-D0032
+N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)  ✅ (Graph; mathhead.discovery.objects) + ÜÇÜNCÜ ALAN: Permutation (S_n, A000142; inv/desc/fix/cycle; ADR-D0032) + DÖRDÜNCÜ ALAN: Partition (p(n) A000041; Euler distinct=odd A000009 + conjugation; ADR-D0037); mimari alan-bağımsız DÖRT kez kanıtlandı — rapor/merdiven/açıklamalar/scorecard sıfır değişiklikle absorbe etti
 N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üret  ✅ (brute n≤7 honest-bound; OEIS A000088 ile doğrulı; nauty/orderly = opt)
 N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at  ✅ (derece-arıtılmış permütasyon-min; C6≠2C3 ayırıyor; ADR-D0002)
 N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)

@@ -817,6 +817,29 @@
 
 ---
 
+## ADR-D0037 — A fourth domain (partitions) to stress domain-agnosticism on number-theoretic objects
+
+- **Status:** Accepted · 2026-07-29 (fourth object domain — partitions)
+- **Context:** Three domains flowed through the pipeline (graphs, arithmetic, permutations), but graphs
+  and permutations are both "ensemble + invariants" of a combinatorial flavour. A number-theoretic
+  domain with different structure (integer partitions, Young diagrams, generating-function identities)
+  is a stronger test of domain-agnosticism — and offers a famous discoverable equidistribution.
+- **Decision:** Add `partitions.py` as a `MathObject` subclass with the same discipline: honest-bounded
+  generation (n≤30) pinned to an OEIS oracle (A000041), exact invariants incl. the conjugate, and
+  discovered ensemble laws — Euler's distinct=odd theorem (found by counting both families) and
+  conjugation symmetry — each with a structural explanation. Reuse the report/ladder/explanations/
+  scorecard machinery unchanged; attribute Euler in the known-results registry so novelty stays
+  honestly 0.
+- **Consequences:** Domain-agnosticism is now demonstrated FOUR times, across genuinely different
+  object kinds — the strongest evidence yet that the architecture isn't graph-specific. Euler's theorem
+  is a lovely, honest discovery (a real equidistribution rediscovered from data, pinned to A000009),
+  and conjugation adds a bijective-symmetry example. The engine keeps its honest ceiling: these are
+  sample-verified structural arguments, and the scorecard still reports 0 novel (Euler is 1748). Sets
+  up generating-function / bijective-proof machinery as the natural depth here, and further domains
+  (posets, set systems) as more drop-ins.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

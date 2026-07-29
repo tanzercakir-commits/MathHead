@@ -174,6 +174,16 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                  "reason": dl.explanation, "status": "structural_argument",
                                  "verified": True})
 
+    # fourth object domain: integer partition facts (Euler's distinct=odd, conjugation)
+    from .partitions import discover_partition_laws
+    for pl in discover_partition_laws(15):
+        if pl.verified:
+            empirical.append({"statement": pl.statement, "status": "empirical",
+                              "scope": "partitions of n (n≤15)", "support": None})
+            explanations.append({"identity": pl.statement, "explains": "over partitions of n",
+                                 "reason": pl.explanation, "status": "structural_argument",
+                                 "verified": True})
+
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":

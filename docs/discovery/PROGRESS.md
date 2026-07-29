@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — A FOURTH domain: integer partitions, and Euler's distinct=odd theorem rediscovered
+
+The most number-theoretic domain yet. New `partitions.py` gives integer partitions the standard
+treatment — generate them all (honest bound n≤30, pinned to OEIS A000041 = p(n)), exact invariants
+(number of parts, largest part, distinctness/parity, conjugate), and two discovered ensemble facts:
+
+- **Euler's theorem** — #{partitions of n into DISTINCT parts} = #{partitions into ODD parts}, for
+  every n (rediscovered by counting BOTH families and finding them equal; the sequence 1,1,2,2,3,4,5,6
+  is OEIS A000009). A genuinely beautiful equidistribution, found from raw data.
+- **conjugation symmetry** — #{largest part = k} = #{exactly k parts}, via transposing the Young
+  diagram (conjugation is verified to be an involution that swaps the two statistics).
+
+Both fold into the report (DISCOVERED + EXPLANATIONS), attributed as known (Euler 1748) so the honest
+scorecard stays 0-novel. Four domains now flow through the identical pipeline (graphs, arithmetic,
+permutations, partitions) — the architecture is domain-agnostic, demonstrated four times over.
+
+6 tests (discovery suite 239); full suite **1528 green**, ruff clean. ADR-D0037.
+
+**Next:** corpus-backed novelty (X1/W2), a deeper kernel, or push a distribution discovery toward a
+machine-checked bijective proof.
+
+---
+
 ## 2026-07-29 — Red-team the verifier: 600+ false claims, 0 breaches
 
 A verification engine is only worth its soundness — so attack it. New `adversarial.py` runs a

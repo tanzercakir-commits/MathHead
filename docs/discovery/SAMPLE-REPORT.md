@@ -70,8 +70,11 @@ _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
 - is_hamiltonian(C5) = True — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 - is_hamiltonian(P4) = False — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 
-## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (3)
+## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (6)
 - `n**2 - n = n*(n - 1)` explains `2 | n**2 - n` — product of 2 consecutive integers ⇒ divisible by 2! = 2
 - `n**3 - n = n*(n - 1)*(n + 1)` explains `6 | n**3 - n` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 - `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` explains `6 | n*(n+1)*(n+2)` — product of 3 consecutive integers ⇒ divisible by 3! = 6
+- `2·|E| = Σ deg(v)` explains `the Handshake Lemma` — double counting the incidences {(v,e): v ∈ e}: summing by vertex gives Σ deg(v), summing by edge gives 2·|E| (each edge has two endpoints) — so they are equal; verified on 208 graphs
+- `ω ≤ χ` explains `why a clique lower-bounds the chromatic number` — the ω pairwise-adjacent vertices of a maximum clique must receive ω DISTINCT colors in any proper coloring, so at least ω colors are needed: χ ≥ ω; verified on the sample
+- `Hamiltonian ⟹ min_degree ≥ 2` explains `a necessary condition for a Hamiltonian cycle` — a Hamiltonian cycle enters and leaves every vertex by two DISTINCT edges, so each vertex has degree ≥ 2; verified on 60 Hamiltonian graphs
 

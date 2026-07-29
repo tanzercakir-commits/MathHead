@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — "Explain why" reaches the graph domain: structural arguments for the laws
+
+The explanatory thread crossed from arithmetic to graphs. New `structural_explanations.py` attaches
+the classical STRUCTURAL argument behind each mined graph law and verifies its conclusion on every
+sample graph:
+
+- `2·|E| = Σ deg(v)` (the Handshake Lemma) — DOUBLE COUNTING the incidences {(v,e): v∈e}: sum by
+  vertex → Σ deg(v); sum by edge → 2·|E|; the double count is checked exactly on all 52 graphs.
+- `ω ≤ χ` — the clique's pairwise-adjacent vertices force distinct colors, so χ ≥ ω.
+- `Hamiltonian ⟹ δ ≥ 2` — a cycle enters/leaves each vertex by two distinct edges.
+
+These join the kernel-verified factorization explanations in the report's EXPLANATIONS section (now 6:
+3 algebraic + 3 structural). HONEST label: each is a `structural_argument` — a genuine universal
+argument in prose whose CONCLUSION is re-checked on the sample; the prose reasoning itself isn't
+machine-checked (that needs the graph side of the kernel, still future), so NOT "proved".
+
+5 tests (discovery suite 195); full suite **1484 green**, ruff clean. ADR-D0030.
+
+**Next:** the epistemic ladder (AA3 — assign each finding a rung: discovered → empirical → certified →
+kernel-proved), or a new domain, or push the graph kernel so a structural argument becomes machine-checked.
+
+---
+
 ## 2026-07-29 — Factorizations that EXPLAIN the divisibilities (third kernel judgment: PolyIdentity)
 
 A genuinely mathematical increment — the engine now explains WHY, not just THAT. Kernel gained a third

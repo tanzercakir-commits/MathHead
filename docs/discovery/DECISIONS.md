@@ -656,6 +656,30 @@
 
 ---
 
+## ADR-D0030 — Graph structural explanations are "structural_argument", verified in conclusion only
+
+- **Status:** Accepted · 2026-07-29 (explanatory surface — graph domain)
+- **Context:** The factorization explanations (ADR-D0029) are kernel-verified because they are
+  algebraic identities the kernel can decide. The graph laws (handshake, ω≤χ, Hamiltonian⟹δ≥2) have
+  equally classical explanations — double counting, the clique bound, the cycle-degree argument — but
+  those are combinatorial ARGUMENTS the current kernel (Divides/SumIdentity/PolyIdentity over
+  polynomials) cannot represent. How to add them honestly?
+- **Decision:** Ship them as `structural_argument` explanations: state the genuine universal argument
+  in prose and re-CHECK its conclusion on every sample graph (e.g. actually double-count the
+  incidences and confirm Σ deg = 2|E| both ways). Do NOT label them "proved" — the prose reasoning is
+  not machine-checked, only its conclusion is verified over the bound. They render in the same
+  EXPLANATIONS section as the algebraic ones, so both domains' "why" live together, each with its
+  honest status.
+- **Consequences:** The "explain why" capability now spans both domains, and the report distinguishes
+  cleanly: algebraic explanations are kernel-verified (machine-checked), graph explanations are
+  structural arguments (conclusion-checked). This is the honest boundary — the double-counting proof
+  IS a valid universal proof, we simply haven't mechanized combinatorial reasoning, and we say so. It
+  also marks exactly what a future graph-side kernel would upgrade: turn these prose arguments into
+  checked derivations. No overclaim; the epistemic gradient (empirical → structural_argument →
+  kernel-verified → proved) is now visible across the whole report.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -37,6 +37,8 @@ Layers so far:
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
                  divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
+  * structural_explanations — WHY the graph laws hold: double counting (handshake), the clique bound
+                 (ω≤χ), the cycle-degree argument (Hamiltonian⟹δ≥2); conclusion checked on the sample
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -140,6 +142,7 @@ from .proof_tree import ProofNode, proof_tree, render_tree
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .structural_explanations import structural_explanations
 from .sequences import (
     SumIdentityFinding,
     discover_closed_form,
@@ -218,6 +221,7 @@ __all__ = [
     "knowledge_graph_from_report",
     "impact_summary",
     "load_bearing_axioms",
+    "structural_explanations",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

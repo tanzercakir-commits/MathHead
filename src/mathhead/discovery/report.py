@@ -151,6 +151,11 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                 "reason": f"product of {f.consecutive_run} consecutive integers "
                           f"⇒ divisible by {f.consecutive_run}! = {f.divisibility_explained}"})
 
+    # graph-domain structural explanations (double counting, clique bound, cycle degree)
+    from .structural_explanations import structural_explanations
+    explanations.extend(structural_explanations(
+        [g for n in range(max_n + 1) for g in generate_graphs(n)]))
+
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":

@@ -232,7 +232,7 @@ AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export
 **Track AF — Değerlendirme, benchmark & provenance**
 ```
 AF0 ♻️🟢 Catch-rate + tool-selection tabanını genişlet (MathHead)
-AF1   🟡 Keşif-oranı metriği: birim başına yeni/doğru/ilginç lemma; novelty-vs-literatür
+AF1   🟡 Keşif-oranı metriği: birim başına yeni/doğru/ilginç lemma; novelty-vs-literatür  🟢 evaluation.Scorecard: doğruluk (17/45 verified) + KNOWN sonuçlara atıf (%100 bilinen matematiğe eşlenir) + DÜRÜST novelty: 0 novel-to-literature (motor bilineni yeniden keşfediyor, keşif DEĞİL); raporda HONEST SCORECARD; tam novelty korpus ingest gerektirir (X1/W2, yapılmadı); ADR-D0035
 AF2   🟢 Regresyon çitleri + deterministik replay (her keşif tekrar-üretilebilir)
 AF3   🟡 İnsan değerlendirme paneli (ilginçlik ground-truth'u)
 ```

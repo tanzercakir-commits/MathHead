@@ -89,3 +89,7 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=32 · FORMALLY_
 - `inv and maj are equidistributed over S_n  (Mahonian)` explains `the distribution over S_n` — MacMahon's theorem: inv and maj are equidistributed permutation statistics (a bijective proof exists). The engine confirms identical distributions on the sample.
 - `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` explains `the distribution over S_n` — the descent distribution satisfies the Eulerian recurrence A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1); computed independently and matched.
 
+## HONEST SCORECARD (Track AF — is any of this NEW?)
+- 44 findings · 17 verified · 44 attributable to KNOWN mathematics · **0 novel-to-literature established**
+- _the engine correctly REDISCOVERS known mathematics; novelty vs. the literature is not established (needs corpus ingestion, X1/W2 — not built)_
+

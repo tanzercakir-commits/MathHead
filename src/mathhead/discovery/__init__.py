@@ -45,6 +45,8 @@ Layers so far:
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
+  * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
+                 plainly that novelty-vs-literature is 0 established (rediscovery, not discovery)
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -118,6 +120,8 @@ from .knowledge_graph import (
 from .knowledge_graph import from_report as knowledge_graph_from_report
 from .director import CycleResult, ResearchDirector
 from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
+from .evaluation import Scorecard, attribute, render_scorecard
+from .evaluation import evaluate as evaluate_report
 from .failure_memory import (
     AttemptRecord,
     FailureMemory,
@@ -252,6 +256,10 @@ __all__ = [
     "rung_of",
     "ResearchDirector",
     "CycleResult",
+    "Scorecard",
+    "evaluate_report",
+    "attribute",
+    "render_scorecard",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

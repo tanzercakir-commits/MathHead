@@ -771,6 +771,28 @@
 
 ---
 
+## ADR-D0035 — Grade the engine honestly: rediscovery is not discovery, and the report says so
+
+- **Status:** Accepted · 2026-07-29 (AF — evaluation scorecard)
+- **Context:** After ~35 increments the engine produces a rich report of verified facts. The failure
+  mode now is self-congratulation: presenting correct REDISCOVERY of known theorems as if it were
+  DISCOVERY. The project's whole ethos is honesty; the evaluation must hold the engine to it.
+- **Decision:** Add `evaluation.py` that grades the report on correctness (verified/sample-checked),
+  attribution (match each finding to a curated registry of KNOWN results), and novelty. Make the
+  novelty verdict conservative and loud: `0 novel-to-literature established`, with an explicit note
+  that novelty-vs-literature is not even measurable without corpus ingestion (X1/W2, not built).
+  Surface a HONEST SCORECARD section in the report carrying that headline. The evaluator never changes
+  truth; it grades.
+- **Consequences:** The report now states, about itself, that the engine correctly rediscovers known
+  mathematics and has produced nothing novel — the most honest thing it can say, printed where a
+  reader will see it. This validates the machinery (it really does rediscover Handshake, MacMahon,
+  Eulerian, the modular facts, verifiably) while refusing the overclaim. The curated registry is
+  admittedly finite — so the scorecard names its own limitation (a real corpus check is future work),
+  which is itself the honest posture. This is the capstone of the honesty thread that runs through
+  every ADR: no fake PROVED, no fake novelty, no dressing up rediscovery as discovery.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -217,12 +217,18 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     report = DiscoveryReport(proved, empirical, refuted, open_bounded,
                              _frontier_confirmations(), meta, explanations)
     from .epistemic_ladder import ladder_summary                  # 4-rung solidity axis (AA3)
+    from .evaluation import evaluate                              # honest scorecard (AF)
     from .impact import impact_summary                            # structural impact analysis (X3)
     from .knowledge_graph import from_report as _kg_from_report   # semantic graph of findings (X0)
     _kg = _kg_from_report(report)
     report.meta["knowledge_graph"] = _kg.summary()
     report.meta["impact"] = impact_summary(_kg)
     report.meta["ladder"] = ladder_summary(report)
+    _card = evaluate(report)
+    report.meta["scorecard"] = {
+        "total": _card.total, "verified": _card.verified,
+        "attributed_known": _card.attributed_known, "novel_established": 0,
+        "unattributed": len(_card.unattributed)}
     return report
 
 
@@ -287,4 +293,13 @@ def render(report: DiscoveryReport) -> str:
     section("EXPLANATIONS (structure explaining a result — kernel-verified factorization)",
             report.explanations,
             lambda it: f"`{it['identity']}` explains `{it['explains']}` — {it['reason']}")
+    sc = report.meta.get("scorecard")
+    if sc:
+        lines.append("## HONEST SCORECARD (Track AF — is any of this NEW?)")
+        lines.append(f"- {sc['total']} findings · {sc['verified']} verified · "
+                     f"{sc['attributed_known']} attributable to KNOWN mathematics · "
+                     f"**{sc['novel_established']} novel-to-literature established**")
+        lines.append("- _the engine correctly REDISCOVERS known mathematics; novelty vs. the "
+                     "literature is not established (needs corpus ingestion, X1/W2 — not built)_")
+        lines.append("")
     return "\n".join(lines)

@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-29 — The honest scorecard (Track AF): is any of this actually NEW?
+
+The uncomfortable question a discovery engine must ask itself — and answer plainly. New
+`evaluation.py` grades the engine's own output on three axes:
+
+- CORRECTNESS — kernel/solver/independently-verified findings are correct by construction; mined laws
+  are sample-checked. Nothing false is reported (17/45 verified, the rest exactly checked).
+- ATTRIBUTION — each finding matched against a curated registry of KNOWN results (Handshake, Fermat/
+  elementary modular facts, Faulhaber sums, MacMahon, Eulerian, Dirac, factorizations…). Result:
+  **100% attributable to known mathematics**.
+- NOVELTY — **0 novel-to-literature established.** The engine correctly REDISCOVERS known mathematics;
+  it has not produced a result absent from the literature. And full novelty-vs-literature isn't even
+  measurable here — that needs corpus ingestion (X1/W2), which is NOT built. We say so rather than
+  dressing rediscovery up as discovery.
+
+The report gained a HONEST SCORECARD section with that headline. This is the project's honesty ethos
+turned on itself: the machinery is validated (it rediscovers real theorems correctly and verifiably),
+but it is not — yet — a source of new mathematics, and the scorecard states it in the report itself.
+
+6 tests (discovery suite 226); full suite **1515 green**, ruff clean. ADR-D0035. Roadmap AF1.
+
+**Next:** the honest path to actual novelty needs corpus ingestion (X1/W2) so "known" is checked
+against a real library, not a curated list — or push the engine into a domain where it might find
+something genuinely open.
+
+---
+
 ## 2026-07-29 — The research director (Track AC): a goal-driven loop with cross-cycle memory
 
 The engine stopped being a collection of modules and became a RESEARCHER. New `director.py`

@@ -181,11 +181,14 @@ mathhead/
 ├── Progress.md          · what we did / when (append-only log)
 ├── PRINCIPLES.md        · immutable project rules (fence philosophy)
 ├── DECISIONS.md         · decision log (ADR) — so decisions aren't lost
+├── SECURITY.md          · security policy + reporting + honest limits
+├── CONTRIBUTING.md      · dev setup, test-gated/code=docs discipline, add-a-tool checklist
 ├── pyproject.toml       · dependencies (z3-solver, sympy, mcp[cli])
 ├── docs/
 │   ├── architecture.md  · layer diagram (Mermaid) + request lifecycle
 │   ├── mcp-api.md        · precise MCP protocol & tool definitions + grammar
 │   ├── api-reference.md  · auto reference for ALL tools (code=docs)
+│   ├── threat-model.md  · trust boundaries, threat table, the timeout model
 │   ├── error-taxonomy.md · canonical list of every status/reason_code
 │   └── glossary.md       · terms (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/

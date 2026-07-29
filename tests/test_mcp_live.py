@@ -10,6 +10,7 @@ AI can discover and enable more).
 import asyncio
 import json
 import os
+import subprocess
 import sys
 
 import pytest
@@ -74,3 +75,60 @@ def test_live_core_profile_is_curated_but_discoverable():
     assert "simplify" not in names                            # the compute catalog is hidden by default
     assert results["entailment"]["status"] == "valid"
     assert results["list_capabilities"]["status"] == "ok"     # discovery still works
+
+
+# --------------------------------------------------------------------------- #
+# e2e hardening (ROADMAP L4): malformed payloads, stdout-protocol integrity,
+# and clean shutdown — over the REAL stdio subprocess, not in-process.
+# --------------------------------------------------------------------------- #
+@pytest.mark.timeout(60)
+def test_live_malformed_payload_is_error_not_crash():
+    """A bad tool payload returns an error result — it does NOT crash the server,
+    which must still answer the next (valid) call."""
+    async def run():
+        async with stdio_client(_params("core")) as (read, write), ClientSession(read, write) as session:
+            await session.initialize()
+            bad = await session.call_tool("entailment", {"wrong": "arg"})       # missing required args
+            good = _payload(await session.call_tool(
+                "entailment", {"premises": ["p", "implies(p,q)"], "conclusion": "q"}))
+            return bad, good
+    bad, good = asyncio.run(run())
+    assert getattr(bad, "isError", False) is True          # reported as an error, not executed
+    assert good["status"] == "valid"                       # the server survived and still works
+
+
+@pytest.mark.timeout(60)
+def test_live_diagnostics_go_to_stderr_not_stdout(tmp_path):
+    """The startup diagnostic must go to stderr; stdout carries ONLY JSON-RPC.
+    (If it leaked to stdout, the handshake below would fail to parse.)"""
+    errfile = tmp_path / "server.err"
+
+    async def run(ef):
+        async with stdio_client(_params("core"), errlog=ef) as (read, write), \
+                ClientSession(read, write) as session:
+            await session.initialize()
+            return _payload(await session.call_tool(
+                "entailment", {"premises": ["p", "implies(p,q)"], "conclusion": "q"}))
+
+    with open(errfile, "w") as ef:
+        result = asyncio.run(run(ef))
+
+    assert result["status"] == "valid"                     # stdout was clean JSON-RPC end to end
+    assert "MathHead MCP: profile" in errfile.read_text()  # the diagnostic went to stderr
+
+
+@pytest.mark.timeout(30)
+def test_live_clean_shutdown_on_stdin_eof():
+    """Closing stdin (client hangup) makes the server exit cleanly, not hang."""
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "mathhead.server.mcp_server"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        env={**os.environ, "MATHHEAD_PROFILE": "core"},
+    )
+    proc.stdin.close()                                     # EOF → the stdio server should stop
+    try:
+        rc = proc.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        pytest.fail("server did not shut down on stdin EOF (hung)")
+    assert rc == 0                                         # clean exit

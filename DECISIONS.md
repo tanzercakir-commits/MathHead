@@ -565,6 +565,33 @@
 
 ---
 
+## ADR-0034 — Security posture: allowlist-by-construction, and an HONEST asymmetric timeout model
+
+- **Status:** Accepted · 2026-07-29 (Track L / L4)
+- **Context:** As a *trust* product, MathHead needs a stated security posture, not just good
+  intentions. The classic risk for a math engine that accepts expression strings is
+  arbitrary-code-execution via `sympify`/`eval`. Separately, we bound Z3 with a solver timeout,
+  but the SymPy/pure-Python path has no equivalent wall-clock cap — and the temptation is to
+  paper over that gap rather than state it.
+- **Decision:** (1) Codify that **the compute layer parses expressions with a whitelisting `ast`
+  walker** (`_to_sympy`: only arithmetic, unary sign, a fixed function set, symbols/constants,
+  int/float literals — every other node rejected), never `sympify`/`eval`/`exec`. Safety is by
+  construction (allowlist), not blocklist. (2) Ship `SECURITY.md` (private reporting, supported
+  versions, model), `docs/threat-model.md` (trust boundaries + a 7-threat table + a dedicated
+  timeout section), and `CONTRIBUTING.md`. (3) **State the timeout model honestly:** Z3 tools are
+  time-bounded (`timeout=5000ms`, honest `SOLVER_TIMEOUT`); the SymPy path is bounded only by
+  input-size fences, NOT a timer, so untrusted-at-scale deployments must add OS-level limits. (4)
+  Pin all of it with `tests/test_security.py` + 3 over-the-wire e2e tests (malformed payload,
+  no-stdout-leak, clean shutdown). No hard SymPy timeout is added yet (cross-platform `SIGALRM`
+  caveats); the docs do not pretend one exists.
+- **Consequences:** The security model is now a checked invariant (a code-exec regression breaks
+  the suite) and a documented contract a downstream integrator can audit. The honest timeout
+  section trades a flattering claim for an accurate one — consistent with the project's core
+  thesis that a stated limit beats a hidden one. A future ADR may add a real SymPy wall-clock cap;
+  until then §5 of the threat model is the source of truth.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

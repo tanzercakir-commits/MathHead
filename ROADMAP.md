@@ -291,8 +291,10 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
           6 capability packs + always-on triage (list_capabilities/describe_tool/recommend_tool);
           profile-aware live MCP test; README rewrite (problem-first, 3 scenarios, profiles, limits)
           ✅ (1261 tests, 171 tools, additive; ADR-0033)
-[ ] L4 🟢 Security/policy — SECURITY.md + CONTRIBUTING.md + threat model; strengthen MCP e2e tests
-          (per-tool schema, malformed payload, no-stdout-leak, shutdown); document the timeout model honestly
+[x] L4 🟢 Security/policy — SECURITY.md + CONTRIBUTING.md + docs/threat-model.md (grounded in the AST
+          allowlist + guardrail fences); e2e hardening (malformed-payload-not-crash, diagnostics-to-stderr/
+          no-stdout-leak, clean-shutdown-on-stdin-EOF) + tests/test_security.py; the asymmetric timeout
+          model documented honestly (Z3 time-bounded; SymPy not) and pinned by a test ✅ (1277 tests; ADR-0034)
 [ ] L5 🟢 External validation — 20-real-LLM-error catch-rate benchmark + tool-selection accuracy harness
           (in-repo); 3 independent users / 3 MCP clients (on the user)
 ```

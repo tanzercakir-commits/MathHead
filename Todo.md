@@ -139,7 +139,7 @@
 - [x] **L1** release credibility — CI matrix (3.10-3.12 × 3 OS) + ruff gate + wheel/smoke + constraints + trusted publishing ✅ (1241 tests)
 - [x] **L2** contract upgrade — meta.certainty (epistemic strength) + meta.stability + docs/mcp-contract.json ✅ (1246 tests; ADR-0032)
 - [x] **L3** surface focus — default `core` profile (MATHHEAD_PROFILE) + 6 capability packs + always-on triage (list/describe/recommend) + profile-aware live MCP test + problem-first README ✅ (1261 tests, 171 tools; ADR-0033)
-- [ ] **L4** security/policy — SECURITY/CONTRIBUTING + threat model + stronger MCP tests
+- [x] **L4** security/policy — SECURITY.md + CONTRIBUTING.md + docs/threat-model.md + e2e hardening (malformed/stderr/shutdown) + test_security.py + honest asymmetric timeout model ✅ (1277 tests; ADR-0034)
 - [ ] **L5** external validation — LLM-error catch-rate + tool-selection accuracy harness
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.

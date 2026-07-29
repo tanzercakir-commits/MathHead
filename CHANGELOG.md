@@ -6,6 +6,18 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added (Track L)
 
+- **Security policy + threat model + contributor guide + e2e hardening (L4).** New
+  `SECURITY.md` (private reporting, supported versions, security model + honest limits),
+  `docs/threat-model.md` (trust boundaries, a 7-threat table with in-code mitigations, and a §5
+  documenting the **asymmetric timeout model** honestly — Z3 is time-bounded at 5000 ms, the
+  SymPy path is not), and `CONTRIBUTING.md` (dev setup, the test-gated/`code=docs` discipline,
+  add-a-tool checklist, honesty rules). New `tests/test_security.py` pins the contract: expression
+  strings cannot execute code (allowlist AST walk — no `sympify`/`eval`/`exec`), the guardrail
+  size fence rejects oversized input, and the timeout-model asymmetry is real (`timeout_ms` in Z3
+  meta, absent in SymPy meta). `tests/test_mcp_live.py` gains 3 over-the-wire e2e tests:
+  malformed-payload-is-error-not-crash, diagnostics-to-stderr / stdout-stays-clean-JSON-RPC, and
+  clean-shutdown-on-stdin-EOF. No new tools (171); documentation/hardening only. ADR-0034.
+
 - **Tool profiles + capability packs + triage (L3).** A server now reads `MATHHEAD_PROFILE`
   (default **`core`** ≈ the ~20-tool verification surface; `full`/`all` = every tool; or a comma
   list like `core,symbolic`) and, at startup only, exposes just the selected packs. Every tool is

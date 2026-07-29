@@ -6,6 +6,37 @@
 
 ---
 
+## 2026-07-29 — L4 · security/policy (SECURITY + CONTRIBUTING + threat model + e2e hardening)
+
+The external review's "productization" gap: a trust product needs a stated security posture
+and a contributor on-ramp. No new math — policy, docs, and hardening tests grounded in the
+actual code.
+
+**Done — new SECURITY.md + CONTRIBUTING.md + docs/threat-model.md + tests/test_security.py:**
+- **SECURITY.md** — private reporting (GitHub advisories), supported versions, and the security
+  model in brief: **no code execution from expression strings** (allowlist AST walk, no
+  `sympify`/`eval`/`exec`), hard input fences, bounded+deterministic Z3, no ambient authority,
+  stderr-only diagnostics. Plus an explicit **honest-limits** section (no hard CPU/mem wall on
+  SymPy → use OS-level limits; not a sandbox; opt-in external binaries).
+- **docs/threat-model.md** — trust-boundary diagram, attack surface, a **7-threat table**
+  (code-exec / size-exhaustion / cost-exhaustion / unsound-verdict / stdout-corruption /
+  fs-net-proc / witness-nondeterminism) each with the in-code mitigation and the residual risk,
+  and a dedicated **§5 on the asymmetric timeout model** (Z3 has a 5000 ms `timeout`; the SymPy
+  path has no wall-clock timer — stated plainly, not pretended away). Every named limit matches
+  `resource_limits`.
+- **CONTRIBUTING.md** — dev setup, the test-gated + `code=docs` rule, the add-a-tool checklist
+  (implement → route → expose → parse-safely → test → ADR), and the non-negotiable honesty rules.
+- **tests/test_security.py (13)** — pins the security contract: 8 code-exec strings rejected
+  (`__import__`, `.__class__`, `lambda`, `globals()`, `open(...)`, `eval(...)`, …), the guardrail
+  size fence, and the **timeout-model asymmetry** (Z3 meta has `timeout_ms`; SymPy meta does not).
+- **tests/test_mcp_live.py (+3, e2e over the real stdio subprocess):** malformed payload →
+  `isError`, server survives the next valid call; startup diagnostic captured on **stderr** while
+  stdout stays clean JSON-RPC (no-stdout-leak); **clean shutdown** (rc 0) on stdin EOF.
+- No new MCP tools (still **171**); contract unchanged. Full suite **1277/1277 green**, ruff
+  clean. ADR-0034. README structure updated to list the new policy docs.
+
+---
+
 ## 2026-07-28 — L3 · surface focus (default `core` profile + capability packs + triage)
 
 The external review's #3: 171 tools is too many for an LLM to pick from well. The contract is

@@ -6,6 +6,34 @@
 
 ---
 
+## 2026-07-29 — Arithmetic domain: the loop CLOSES — generate → refute → PROVE, autonomously
+
+The first fully autonomous loop with a real proof at the end. New `arithmetic.py`: for a family
+of polynomials p(n) the engine discovers the modulus from data (`m = gcd(p(1),p(2),…)`), refutes
+counterexample-first, then hands the survivor to MathHead's induction judge.
+
+**What the engine found and did, on its own:**
+- Discovered the moduli from data: n(n+1)→2, n(n+1)(n+2)→6, ×4→24, n²−n→2, **n³−n→6** (stronger
+  than the textbook "mod 3"), **n⁵−n→30** (stronger than Fermat's mod 5), n⁷−n→42.
+- PROVED by induction the ones MathHead can decide: `n(n+1) ≡ 0 (mod 2)`, `n²−n ≡ 0 (mod 2)` →
+  `certainty=formal_proof`.
+- Honest `unknown` (never faked) on the higher-degree steps beyond Z3's reach.
+- Killed overshoot claims (e.g. n(n+1) ≡ 0 mod 4) with a minimal counterexample before the judge.
+
+**Speed/honesty:** the induction proof runs under a small `timeout_ms` budget (a smaller budget
+just yields `unknown` sooner — the bound is a budget, not a lie); the full run is memoized. The
+test file dropped from ~102 s to ~11 s. 6 new tests (discovery suite 59); full suite 1349 green,
+ruff clean. ADR-D0007.
+
+**This is the thesis, end to end:** discover, try to kill, prove what can be proved, and say
+`unknown` out loud for the rest.
+
+**Next:** widen the arithmetic family / add a second generator (e.g. mine relations among integer
+sequences), or return to graphs and add a spectral invariant routed through MathHead — either way,
+more surface for the same honest loop.
+
+---
+
 ## 2026-07-29 — R: the judge bridge — MathHead actually proves/refutes (first real judge use)
 
 The survivors from Q were `no_counterexample_within_bound` — not proven. Now the judge reaches

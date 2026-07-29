@@ -17,6 +17,8 @@ Layers so far:
                  'no_counterexample_within_bound'
   * judge      — the judge bridge (R): hands algebraically-expressible survivors to MathHead for
                  a real verdict (proved by induction / solver-verified / refuted-with-witness)
+  * arithmetic — the loop CLOSED end to end (generate → refute → PROVE) in a domain where
+                 MathHead is the native judge: discovers modular laws and proves them by induction
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -26,6 +28,13 @@ same tooling (tests, CI, ruff) with zero packaging friction. Architecturally it 
 that USES the judge, not a part subordinate to it; it may be promoted to a sibling package
 later (see docs/discovery/DECISIONS.md, ADR-D0001).
 """
+from .arithmetic import (
+    ArithmeticFinding,
+    discover_and_prove,
+    discovered_modulus,
+    first_counterexample,
+    run_arithmetic_discovery,
+)
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
@@ -77,4 +86,9 @@ __all__ = [
     "judge_induction",
     "judge_inequality",
     "judge_identity",
+    "ArithmeticFinding",
+    "run_arithmetic_discovery",
+    "discover_and_prove",
+    "discovered_modulus",
+    "first_counterexample",
 ]

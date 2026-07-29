@@ -136,6 +136,29 @@
 
 ---
 
+## ADR-D0007 — Arithmetic domain: the loop closes end to end (generate → refute → PROVE)
+
+- **Status:** Accepted · 2026-07-29 (arithmetic domain; first closed loop)
+- **Context:** In the graph domain the judge (MathHead) mostly returns `not_applicable` — graph
+  laws are combinatorial. To exercise the FULL loop with a real proof at the end, we need a domain
+  where MathHead is the native judge. Modular arithmetic of polynomials is exactly that.
+- **Decision:** `arithmetic.py` runs, for a family of polynomials p(n): (1) **discover** the
+  modulus from data as `m = gcd(p(1), p(2), …)` — the largest m dividing every sample, i.e. the
+  counterexample-first-optimal claim; (2) **refute** counterexample-first over a larger range;
+  (3) **judge** the survivor with MathHead `prove_by_induction`. The induction proof runs under a
+  small `timeout_ms` budget (a smaller budget returns `unknown` sooner — honest, since the bound is
+  a budget not a lie); the full run is memoized (deterministic).
+- **Consequences:** The first fully autonomous generate→refute→PROVE loop. The engine discovers
+  true, sometimes-stronger-than-expected facts — `n³−n ≡ 0 (mod 6)` (stronger than mod 3),
+  `n⁵−n ≡ 0 (mod 30)` (stronger than Fermat's mod 5) — PROVES the ones whose induction step
+  MathHead can decide (`n(n+1) ≡ 0 mod 2`, `n²−n ≡ 0 mod 2` → `certainty=formal_proof`), and returns
+  an honest **`unknown`** on the higher-degree ones whose step is beyond Z3 — never a fabricated
+  proof. Overshoot moduli (e.g. claiming mod 4 for n(n+1)) are killed with a minimal counterexample
+  before the judge. This is the thesis realized end to end: discover, try to kill, prove what can be
+  proved, and say `unknown` — out loud — for the rest.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

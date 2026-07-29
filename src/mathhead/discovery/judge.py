@@ -55,9 +55,13 @@ def judge_task(task: str, payload: dict) -> Verdict:
     return _to_verdict(route(task, payload))
 
 
-def judge_induction(claim: str, var: str = "n", start: int = 0) -> Verdict:
-    """Prove `∀ {var} ≥ {start}. {claim}` by induction (MathHead). E.g. '(n*(n+1)) % 2 == 0'."""
-    return judge_task("prove_by_induction", {"claim": claim, "var": var, "start": start})
+def judge_induction(claim: str, var: str = "n", start: int = 0, timeout_ms=None) -> Verdict:
+    """Prove `∀ {var} ≥ {start}. {claim}` by induction (MathHead). E.g. '(n*(n+1)) % 2 == 0'.
+    A smaller `timeout_ms` returns an honest `unknown` sooner (the bound is a budget, not a lie)."""
+    payload = {"claim": claim, "var": var, "start": start}
+    if timeout_ms is not None:
+        payload["timeout_ms"] = timeout_ms
+    return judge_task("prove_by_induction", payload)
 
 
 def judge_inequality(goal: str, assumptions=None) -> Verdict:

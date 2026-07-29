@@ -297,6 +297,24 @@
 
 ---
 
+## ADR-D0015 — Proof-dependency trees: make a proof's lemmas explicit (T3, a tractable slice)
+
+- **Status:** Accepted · 2026-07-29 (Track T3)
+- **Context:** A proof rests on lemmas, but ours were implicit inside the strategy code. Intermediate-
+  lemma discovery (T) is largely 🔴 (inventing lemmas), but exposing the lemmas an existing proof
+  ALREADY uses is tractable and useful.
+- **Decision:** `proof_tree.py::proof_tree` reconstructs a proved arithmetic finding's dependency
+  tree from the winning strategy — no extra solver calls, deterministic: a `modulus-factoring` proof
+  becomes a CRT node over one `≡ 0 (mod pᵢ^{eᵢ})` induction lemma per prime power; a
+  `residue-exhaustion` proof is a complete finite-case leaf; a prime-modulus proof is a single
+  induction leaf. `render_tree` prints it.
+- **Consequences:** Proofs are now legible as trees — e.g. `n³−n ≡ 0 (mod 6)` visibly rests on
+  `mod 2` and `mod 3` lemmas combined by CRT. This is the honest first step of T: it does NOT invent
+  lemmas (the open part), it surfaces the ones a proof already depends on, checkably. Deliberately
+  scoped small (one module, no new solver load) to stay within budget.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

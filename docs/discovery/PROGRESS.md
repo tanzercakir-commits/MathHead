@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-07-29 — Proof-dependency trees (T3 slice): make a proof's lemmas explicit
+
+A small, budget-measured step into lemma discovery. New `proof_tree.py`: reconstruct a proved
+finding's dependency tree from the winning strategy — no extra solver calls, deterministic.
+
+```
+(n**3 - n) % 6 == 0   [CRT, formal_proof]  — coprime prime-power lemmas combined by CRT
+    (n**3 - n) % 2 == 0   [induction, formal_proof]
+    (n**3 - n) % 3 == 0   [induction, formal_proof]
+
+(n**5 - n) % 30 == 0  [residue-exhaustion, exhaustive_residue_proof]  — all 30 residues checked
+```
+
+So a proof is now legible as a tree of the lemmas it rests on. Honest scope: this does NOT invent
+lemmas (the 🔴 open part of T) — it surfaces the ones an existing proof already uses, checkably.
+Deliberately small (one module, no new solver load) to stay inside the weekly budget. 4 new tests
+(discovery suite 88); full suite 1377 green, ruff clean. ADR-D0015. Roadmap T3.
+
+---
+
 ## 2026-07-29 — Proof portfolio (S1) with a COMPLETE fallback: residue exhaustion
 
 Turned the modular prover into a small portfolio, and gave it a complete fallback so it stops

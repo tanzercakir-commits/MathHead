@@ -62,6 +62,7 @@ from .judge import (
 )
 from .novelty import is_subclass_specific, novel_subclass_laws
 from .objects import Graph, MathObject
+from .proof_tree import ProofNode, proof_tree, render_tree
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
@@ -107,6 +108,9 @@ __all__ = [
     "is_subclass_specific",
     "RefutationResult",
     "refute",
+    "ProofNode",
+    "proof_tree",
+    "render_tree",
     "Verdict",
     "judge",
     "judge_task",

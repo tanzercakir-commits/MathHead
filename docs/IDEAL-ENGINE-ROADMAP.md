@@ -1,0 +1,279 @@
+# İdeal Matematik Motoru — Tam Yol Haritası (tepeden ormana)
+
+> **Bu dosyanın işi:** "İdeal matematik motoru" belgesindeki HER özelliği, MathHead'in
+> bugün durduğu yerden (yargıç/doğrulama omurgası, Track A–L) o vizyona kadar, aşama aşama,
+> eksiksiz dökmek. Amaç: sonradan "şu da vardı, bu da vardı" dememek. Önceki MathHead
+> roadmap mantığıyla aynı: her aşama TEK bir iş yapar, öncekinin üstüne biner, test-kapılıdır.
+
+## Sözlük (etiketler)
+
+```
+♻️  MathHead'de zaten var / tabanı kurulu → yeniden kullan
+🟢  Standart mühendislik (nasıl yapılacağı biliniyor)
+🟡  Zor / entegrasyon-ağırlıklı (bilinir ama emek ister)
+🔴  Araştırma sınırı (garantili çözümü YOK — dürüst uyarı)
+```
+
+## Orman — 22 track, 4 küme
+
+```
+KÜME 1 — GÜVEN / YARGIÇ omurgası      (MathHead'in evi; kurulu, sağlamlaştırılacak)
+   M  Güvenilir çekirdek & proof kernel        (§1)
+   Q  Karşı-örnek-önce refütasyon               (§6)   ♻️ kısmen
+   R  Sertifikalar & epistemik durum            (§11,§14) ♻️ büyük ölçüde
+
+KÜME 2 — MADDE & DENEY                 (motorun üstünde çalıştığı nesneler)
+   N  Tipli nesne modeli & üretim
+   O  Özellik & invariant değerlendirme
+   U  Temsil dönüştürücü & arama                (§2)
+   AA Program sentezi / çalıştırılabilir matematik (§10)
+
+KÜME 3 — KEŞİF / YARATICI kalp         (belgenin heyecanı; çoğu YENİ)
+   P  Konjektür üretimi                         (§4)
+   T  Ara-lema keşfi                            (§8)
+   S  İspat arama portföyü & orkestrasyon        (§7)
+   W  İlginçlik & seçim                          (§5)
+   Z  Yeni kavram & tanım üretimi                (§9)  🔴 sınır
+   AB Aksiyom & bağımsızlık analizi              (§15) 🔴 sınır
+
+KÜME 4 — BİLGİ, ARAYÜZ, ÜRÜNLEŞME     (glue + hafıza + insan + ölçek)
+   V  Doğal dilden güvenli formelleştirme        (§3)
+   X  Bilgi grafiği & etki analizi               (§12)
+   Y  Başarısızlık hafızası & negatif bilgi       (§13)
+   AC Araştırma direktörü & tam döngü             (mimari)
+   AD İnsan ortak-çalışma arayüzü                 (§16) ♻️ kısmen
+   AE Alan örneklemesi: sonlu kombinatorik + graf (v0.1)
+   AF Değerlendirme, benchmark & provenance
+   AG Altyapı: ölçek, determinizm, güvenlik, CI, docs ♻️ kısmen
+```
+
+---
+
+## Tam aşama listesi
+
+### KÜME 1 — GÜVEN / YARGIÇ omurgası
+
+**Track M — Güvenilir çekirdek & proof kernel (§1)**
+```
+M0 ♻️🟡 MathHead yargıç yüzeyini (envelope + determinizm + provenance/meta) kernel arayüzü olarak sabitle
+M1   🟡 Minimal proof-term dili tasarla (LCF-stili / bağımlı tip) — "yalnızca izin verilen kurallar"
+M2   🟡 Kernel: tip kontrolü + kural kontrolü + nihai terim teoremi gerçekten kuruyor mu?
+M3   🟡 Bağımsız İKİNCİ checker (farklı dil/ekip) — kernel'i çapraz doğrula
+M4   🟢 Deterministik proof replay + proof-artifact hash + kernel sürümleme
+M5   🟢 Kullanılan aksiyomların tam listesi + bağımlı-teorem grafiği (provenance)
+M6   🟡 Lean/harici ispat asistanına köprü: ispatı dışa aktar + Lean çekirdeğiyle çapraz-mühürle
+M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_HASH/INDEPENDENT_CHECKER)
+```
+
+**Track Q — Karşı-örnek-önce (§6)**
+```
+Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)
+Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)
+Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama
+Q3   🟡 Model checking + interval arithmetic + sembolik test yolları
+Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)
+Q5   🔴 Başarısızlık mekanizması çıkarımı ("invariant iki çevrim bir tepe paylaşınca bozuluyor")
+Q6   🔴 Onarılmış konjektür önerisi (ek varsayımla ifade geçerli mi?)
+```
+
+**Track R — Sertifikalar & epistemik durum (§11, §14)**
+```
+R0 ♻️🟢 Bağımsız sertifika kontrolcüleri (MathHead: subset-sum, boyama, DRAT/DRUP, çarpanlama...)
+R1   🟡 Yeni sertifika türleri: LP dual, Gröbner basis kontrolü, coverage manifesto, canonical-labeling, interval izi
+R2   🟢 Kernel sertifikayı yeniden-hesaplamadan kontrol edebilsin (certificate-check API)
+R3 ♻️🟢 Epistemik durum sözlüğü (MathHead certainty/stability → §14: UNFORMALIZED..INDEPENDENTLY_VERIFIED..LIKELY_INDEPENDENT)
+R4   🟢 "Çözemedim; yalnızca şu sınıra kadar karşı-örnek yok" — bounded-honesty her çıktının sözleşmesi
+```
+
+### KÜME 2 — MADDE & DENEY
+
+**Track N — Tipli nesne modeli & üretim**
+```
+N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)
+N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üret
+N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at
+N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)
+N4 🟢 Parametrik aileler + kısıtlı örnekleyiciler (stratified sampling)
+N5 🟡 Rastgele + adversarial + ekstrem/dejeneratif nesne üreticileri
+N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
+```
+
+**Track O — Özellik & invariant değerlendirme**
+```
+O0 🟢 Özellik değerlendirici (nesnede P doğru mu? deterministik, cache'li)
+O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, spektrum, kromatik sayı, rank, çevrim sayısı...)
+O2 🟡 Otomatik invariant çıkarımı — milyonlarca örnekte değişmeyeni bul
+O3 🟢 Özellik/invariant ↔ nesne matrisi (feature table) — konjektür & sınıflandırma zemini
+O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık çapraz-kontrolü (cross_check)
+```
+
+**Track U — Temsil dönüştürücü & arama (§2)**
+```
+U0 🟢 Temsiller arası köprüler: algebra ↔ graph ↔ SAT ↔ matrix ↔ poly-ideal ↔ program ↔ optimization
+U1 🟡 Sayı-teorisi zinciri: Diophantine → modular → lattice → SAT/SMT → finite residue → alg. geometri
+U2 🔴 Representation SEARCH: hangi temsil problemi kolaylaştırır? (otonom seçim — açık problem)
+U3 ♻️🟢 Dönüşüm anlam-koruyor mu doğrulaması (cross_check)
+```
+
+**Track AA — Program sentezi / çalıştırılabilir matematik (§10)**
+```
+AA0 🟢 Aday program üreteci (DSL) + otomatik değerlendirici (FunSearch iskeleti)
+AA1 🟢 Evrimsel arama: iyi programları mutasyona uğrat + seç
+AA2 🟢 Programın davranışından konjektür çıkar
+AA3 🟡 Dört seviye: DISCOVERED_HEURISTIC → EMPIRICALLY_VALIDATED → FORMALLY_SPECIFIED → FORMALLY_PROVED
+AA4 🟡 Bulunan algoritmayı ispata bağla (Track S/M köprüsü)
+```
+
+### KÜME 3 — KEŞİF / YARATICI kalp
+
+**Track P — Konjektür üretimi (§4)**
+```
+P0 🟢 Deneysel örüntü madenciliği: eşitlik/eşitsizlik/monotonluk/periyodiklik/asimptotik/yasak-yapı
+P1 🟢 Teorem mutasyonu: varsayım zayıflat / sonuç güçlendir / sabit iyileştir / boyut artır / genelle
+P2 🟡 Tersine mühendislik: ilginç sonucu bul → onu açıklayan daha genel ilkeyi ara
+P3 🟡 Analoji motoru: bir alandaki yapıyı diğerine taşı (graph-cut ↔ submodular...)
+P4 🟡 Ramanujan-tarzı bağıntı/sabit arama (sayısal ilişki → sembolik aday)
+P5 🟢 Konjektür normalize + tekilleştir + dedup
+P6 🟡 (LLM-periferi) doğal-dil sezgisinden aday konjektür — yargıç zorunlu (kalite açık)
+```
+
+**Track T — Ara-lema keşfi (§8)**
+```
+T0 🟡 Hedef ↔ mevcut bilgi arası "boşluk" ölçümü
+T1 🔴 Eksik kavram/lemma tahmini (bottleneck: "F, μ invariant'ını koruyor mu?")
+T2 🟢 Aday lemma sıralama (önem/olabilirlik)
+T3 🟢 Proof dependency graph üretimi (lemma → ana hedef bağlantısı)
+```
+
+**Track S — İspat arama portföyü & orkestrasyon (§7)**
+```
+S0 🟢 Strateji kayıt defteri (forward/backward, best-first, MCTS, resolution, superposition, rewriting, induction, case-split, symmetry, QE, Gröbner, ILP, exhaustive...)
+S1 🟡 Problem sınıflandırıcı (discrete/finite-large/symmetry/existential/polynomial) → portföy seçici
+S2 🟡 Paralel portföy yürütücü + kaynak/bütçe yöneticisi
+S3 🟢 Başarısız stratejilerin kaydı (Track Y'ye besleme)
+S4 🔴 (RL/öğrenilmiş) ispat rehberliği — arama uzayı patlamasına karşı
+```
+
+**Track W — İlginçlik & seçim (§5)**
+```
+W0 🟢 Trivial filtreler (x=x, "n=73421 ise n²≥n") — çöp teoremleri ele
+W1 🟡 İlginçlik bileşenleri: novelty/generality/surprise/usefulness/compression/connectivity − triviality
+W2 🟡 Novelty = literatür/bilgi-grafiğiyle eşdeğerlik kontrolü (Track X'e bağlı)
+W3 🔴 Öğrenilmiş ilginçlik modeli + insan geri-bildirim döngüsü (tam otomatik DEĞİL — belge de kabul ediyor)
+```
+
+**Track Z — Yeni kavram & tanım üretimi (§9) — TAMAMEN 🔴**
+```
+Z0 🔴 Ortak-değişmezlik madenciliği: birlikte sabit kalan özelliklerden aday yeni invariant
+Z1 🔴 Yeni norm/uzaklık/eşdeğerlik/karmaşıklık-ölçüsü/dönüşüm/sınıflandırma önerisi
+Z2 🔴 Önerilen kavramın rolü: açıklanamayan aileyi sınıflandırıyor mu? (fayda testi)
+Z3 🔴 Kavramın dile yerleşmesi: tanım tutarlı mı + üretken mi (yeni teorem doğuruyor mu?)
+        (Belgenin hem "en önemli fark" hem "en zor" dediği yer — kimsede araştırma-derinliğinde çözümü yok.)
+```
+
+**Track AB — Aksiyom & bağımsızlık analizi (§15)**
+```
+AB0 🟢 Kullanılan aksiyomları izle (Track M provenance'tan)
+AB1 🟡 Daha zayıf aksiyomla ispat ara (choice'suz, vb.)
+AB2 🔴 Model oluşturma / forcing (sonlu analog: T+P ve T+¬P modelleri)
+AB3 🔴 Bağımsızlık ihtimali değerlendirmesi ("ispat bulamadım" ≠ "ispat imkânsız")
+```
+
+### KÜME 4 — BİLGİ, ARAYÜZ, ÜRÜNLEŞME
+
+**Track V — Doğal dilden güvenli formelleştirme (§3)**
+```
+V0 ♻️🟢 Tanı-ya-da-reddet tabanı (MathHead interpret_natural)
+V1   🟡 Bileşen ayrıştırma: tanım/niceleyici/önkoşul/örtük-varsayım/notasyon/hedef/temel
+V2   🟡 Aday formalizasyonlar A/B/C + aralarındaki farkı gösterme ("A süreklilik, C yalnızca ölçülebilirlik varsayar")
+V3   🟢 Formalizasyon testleri: bilinen örnek/karşı-örnek/sınır durumu ifadeyi doğru mu çürütüyor/doğruluyor?
+V4   🟡 (LLM-periferi) makale/jargon → aday formal — yargıç + testler zorunlu
+```
+
+**Track X — Bilgi grafiği & etki analizi (§12)**
+```
+X0 🟡 Semantik şema: teorem/tanım/lemma/karşı-örnek/açık-problem + ilişkiler (generalizes, equivalent-under, invalidates)
+X1 🟡 İçe aktarım: OEIS, teorem kitaplıkları, makale meta — lisans/hukuk dahil
+X2 🟢 Notasyon eşanlamlıları + teknik ↔ problem-yapısı eşlemesi
+X3 🟡 Otomatik etki analizi: yeni sonuç hangi açık problemi çözer / sınırı iyileştirir / varsayımı kaldırır
+```
+
+**Track Y — Başarısızlık hafızası & negatif bilgi (§13)**
+```
+Y0 🟢 Denenen dönüşüm/kapanan-dal/timeout/işe-yaramaz-lemma/çürütülen-konjektür kaydı
+Y1 🟡 Kanonikleştirme (aynı çıkmaz iki kez denenmesin — attempt fingerprint)
+Y2 🟢 "Yeniden kullanılabilir ders" çıkarımı (family F için n yerine yapısal derinlikte tümevarım)
+```
+
+**Track AC — Araştırma direktörü & tam döngü (mimari)**
+```
+AC0 🟡 Hedef ayrıştırma + strateji seçimi (üst orkestratör)
+AC1 🟡 16-adımlı döngüyü bağla (formalize→örnek→sınır→invariant→konjektür→karşı-örnek→sırala→lema→ispat→sertifika→kernel→bağımsız→literatür→rapor)
+AC2 🟢 Başarısızlıkta bile değerli çıktı (progress report: neyi çürüttük, neyi N'e kadar doğruladık, hangi lema açık)
+AC3 🟡 Döngüler-arası durum + uzun-soluklu araştırma oturumu
+```
+
+**Track AD — İnsan ortak-çalışma arayüzü (§16)**
+```
+AD0 ♻️🟢 Kontrol yüzeyi (MathHead MCP/profil tabanı): aksiyom yasakla, teknik önceliklendir, lemaya odaklan, ispat-stili seç
+AD1   🟢 Kontrol-edilebilir karar gerekçesi (neden spektral yöntem? — CoT dökümü DEĞİL, denetlenebilir gerekçe)
+AD2   🟢 İnsan-okunur ispat + araştırma raporu üretimi
+AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme)
+```
+
+**Track AE — Alan örneklemesi: sonlu kombinatorik + graf (v0.1)**
+```
+AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)
+AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)
+AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret
+AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export
+```
+
+**Track AF — Değerlendirme, benchmark & provenance**
+```
+AF0 ♻️🟢 Catch-rate + tool-selection tabanını genişlet (MathHead)
+AF1   🟡 Keşif-oranı metriği: birim başına yeni/doğru/ilginç lemma; novelty-vs-literatür
+AF2   🟢 Regresyon çitleri + deterministik replay (her keşif tekrar-üretilebilir)
+AF3   🟡 İnsan değerlendirme paneli (ilginçlik ground-truth'u)
+```
+
+**Track AG — Altyapı: ölçek, determinizm, güvenlik, CI, docs**
+```
+AG0 ♻️🟢 Determinizm/seed/replay + provenance/hash (MathHead disiplinini genele taşı)
+AG1   🟡 Dağıtık/paralel arama + iş kuyruğu + önbellek + artımlı hesap
+AG2 ♻️🟢 Kaynak fençleri + güvenlik/threat-model (güvenilmez girdi, compute bütçesi)
+AG3 ♻️🟢 CI matris/release + paketleme + sürümleme (kernel/DSL/contract)
+AG4 ♻️🟢 Dokümantasyon + ADR disiplini + kod=docs
+AG5   🟡 Gözlemlenebilirlik/metrikler + maliyet takibi
+```
+
+---
+
+## v0.1'e giden kritik yol (en kısa omurga)
+
+Belgenin kendi "nasıl başlardım"ıyla birebir. İlk gerçek keşif için 🔴 sınır işlerinin
+HİÇBİRİNE gerek yok:
+
+```
+N (nesne+üretim) → O (invariant) → P0/P1 (konjektür) → Q0/Q1 (karşı-örnek) → R (durum+sertifika) → AE (grafik alanı)
+        └── hepsi MathHead yargıç omurgası üzerinde (M0/R0/Q0/Q1/AF0/AG0 ♻️)
+İLK HEDEF (AE2): "ünlü problemi çöz" DEĞİL → literatürde olmayan, doğru, ilginç ≥1 yeni lemma.
+```
+
+## Dürüst büyüklük okuması
+
+```
+Toplam: 22 track, ~103 aşama.
+  ♻️ MathHead'den gelen/taban  : ~15 aşama  (bedavaya yakın — omurga kurulu)
+  🟢 standart mühendislik       : ~55 aşama  (nasıl yapılacağı belli)
+  🟡 zor/entegrasyon            : ~35 aşama  (emek ister, bilinir)
+  🔴 araştırma sınırı           : ~13 aşama  (garantili çözümü YOK)
+```
+
+- **Tam ideal motor** = çok-yıllık, çok-kişilik bir araştırma programı. 🔴'lerin çoğu (Z tümü,
+  U2, AB2/3, S4, W3, Q5/6, T1) bugün kimsenin tam çözemediği açık problemler. Bunları "bitiririz"
+  diye söz vermek dürüstlük olmaz.
+- **Ama v0.1** (yukarıdaki kritik yol) neredeyse tamamen 🟢/🟡 ve büyük kısmı MathHead üstünde.
+  Yani ilk gerçek keşfe ulaşmak için sınırı çözmen GEREKMİYOR. Yola önce oradan çıkılır.
+- 🔴'ler yolu tıkamaz; motorun "asistan"dan "kâşif"e terfi ettiği yerlerdir. Oraya vardığımızda
+  zaten çok şey öğrenmiş oluruz — belki de asıl kıymet o öğrenmede.

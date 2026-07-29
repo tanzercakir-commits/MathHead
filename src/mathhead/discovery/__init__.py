@@ -29,6 +29,9 @@ Layers so far:
                  MathHead's graph_coloring (sat at χ, unsat at χ−1); mines ω ≤ χ ≤ Δ+1, refutes χ ≤ Δ
   * hamiltonicity — 2nd frontier bridge: is_hamiltonian by backtracking, confirmed by MathHead's
                  hamiltonian_path(cycle); rediscovers Dirac's theorem, refutes connected⟹Hamiltonian
+  * graph_proofs — CONSTRUCTIVE certificates for the surviving coloring laws (χ≤Δ+1 via greedy,
+                 ω≤χ via a solver-double-confirmed clique); independently re-checked; honestly
+                 `constructive_bounded` (witnessed over the sample, NOT a universal ∀G proof yet)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -55,6 +58,13 @@ from .coloring import (
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
+from .graph_proofs import (
+    Certificate,
+    certify_frontier_laws,
+    check_certificate,
+    greedy_coloring,
+    max_clique,
+)
 from .hamiltonicity import (
     HamiltonicityVerification,
     ImplicationFinding,
@@ -129,6 +139,11 @@ __all__ = [
     "verify_hamiltonicity",
     "ImplicationFinding",
     "hamiltonicity_laws",
+    "Certificate",
+    "certify_frontier_laws",
+    "check_certificate",
+    "greedy_coloring",
+    "max_clique",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

@@ -438,6 +438,36 @@
 
 ---
 
+## ADR-D0021 — Constructive certificates for graph laws; `constructive_bounded`, and refusing a fake PROVED
+
+- **Status:** Accepted · 2026-07-29 (R1 slice — graph constructive certificates)
+- **Context:** The surviving frontier coloring laws sat in OPEN with certainty `bounded_check` — "no
+  counterexample within the bound." The tantalizing next step is to PROVE them (lift OPEN → PROVED).
+  But the arithmetic proof engine (induction / residues / CRT) proves ∀n facts via decision
+  procedures; there is NO analogous universal decision procedure for ∀G graph theorems, and no
+  proof-term kernel yet (Track M1/M2 is 🟡, unstarted). The honest question: what proof-like object
+  CAN we produce today, and how do we label it without lying?
+- **Decision:** Produce CONSTRUCTIVE certificates, not universal proofs. For each provable law the
+  engine emits an explicit witness that realizes the bound — a greedy coloring (χ≤Δ+1), the identity
+  coloring (χ≤n), a maximum clique (ω≤χ) — and an INDEPENDENT checker re-validates the witness from
+  scratch on every graph (M-spirit: don't trust the constructor; the checker is tested to reject a
+  monochromatic fake coloring and a fake clique). The ω≤χ lower bound is additionally double-confirmed
+  by MathHead (K_ω not (ω−1)-colorable → unsat). Label the result HONESTLY: a new certainty
+  `constructive_bounded` — an explicit, re-checked witness over graphs up to the bound. It is strictly
+  stronger than `bounded_check` but is NOT PROVED: the universal ARGUMENT is recorded on the
+  certificate for the reader but is not machine-verified. The laws stay OPEN epistemically.
+- **Consequences:** The graph domain takes its first real step from "discover + refute" toward
+  "discover + prove," and does it without overclaiming — the gap to a universal ∀G proof is named
+  precisely (it needs the proof-term kernel, M1/M2) rather than papered over. This mirrors the
+  arithmetic path in spirit (construct a witness, then INDEPENDENTLY check it — ADR-D0016/D0017) but
+  is honest that graphs lack the decision procedure that makes the arithmetic facts fully PROVED.
+  `constructive_bounded` enters the certainty vocabulary between `bounded_check` and the solver/formal
+  tiers. The clique certificate reuses the graph_coloring bridge (1-indexed, ADR-D0018), tying the
+  lower bound to an independent solver. Logged next step: either surface these certificates in the
+  report, or begin M1 (the kernel) — the only honest road to OPEN → PROVED for graph theorems.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

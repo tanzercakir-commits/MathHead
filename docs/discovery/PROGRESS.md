@@ -6,6 +6,38 @@
 
 ---
 
+## 2026-07-29 — First step from "discover + refute" to "discover + PROVE" (graph domain)
+
+The surviving coloring laws were OPEN — "the inequality held on the sample," nothing more. New
+`graph_proofs.py` upgrades three of them from *observed* to *constructively certified*: the engine
+now CONSTRUCTS an explicit witness realizing each bound and an independent checker re-validates it on
+every graph (156 certificates up to n≤6, 0 check failures):
+
+- `χ ≤ Δ+1` — a GREEDY (first-fit) proper coloring, re-checked proper AND ≤ Δ+1 colors (never
+  exceeded Δ+1 on any graph).
+- `χ ≤ n`   — the identity (all-distinct) coloring, trivially proper.
+- `ω ≤ χ`   — a maximum CLIQUE, its lower bound DOUBLE-confirmed by MathHead (the clique K_ω is not
+  (ω−1)-colorable → `graph_coloring` unsat). Two authorities again.
+
+The independent checker rejects fakes (tested): a monochromatic "coloring" of K4 and a fake K4 inside
+P4 both fail the re-check — M-spirit, don't trust the constructor.
+
+HONEST STATUS — deliberately NOT overclaimed. Each certificate is `constructive_bounded`: an
+explicit, re-checked witness over graphs up to the bound — strictly stronger than `bounded_check`,
+but NOT a universal ∀G proof. The universal argument (greedy always fits; a clique forces its size)
+is RECORDED on each certificate, but machine-verifying it needs the logic/proof-term kernel (Track
+M1/M2, 🟡, unstarted). So these stay OPEN epistemically; what's new is that we now hold the
+constructive certificate, not just the observation. No fake PROVED.
+
+9 tests (discovery suite 124); full suite **1413 green**, ruff clean. ADR-D0021. Roadmap R1 (first
+slice: constructive graph certificates).
+
+**Next:** wire the certificates into the report (annotate the OPEN coloring laws "constructively
+certified over the sample"), or push toward the kernel (M1) that would let a universal step be
+checked — the real bridge OPEN → PROVED for graphs.
+
+---
+
 ## 2026-07-29 — Frontier work folded into the flagship report (χ + Hamiltonicity now visible)
 
 Two increments added frontier modules (χ, Hamiltonicity) that the run report didn't show — the

@@ -2,12 +2,17 @@
 
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 
-## PROVED (formal — by the judge) (2)
+## PROVED (formal — by the judge) (6)
 - `(n*(n+1)) % 2 == 0` — formal_proof
 - `(n**2 - n) % 2 == 0` — formal_proof
+- `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified
+- `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified
+- `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified
+- `sum_(i=1..n) 2*i - 1 = n**2` — solver_verified
 
-## REFUTED (killed, with a minimal counterexample) (1)
+## REFUTED (killed, with a minimal counterexample) (2)
 - `num_triangles <= num_edges` — counterexample: {'num_triangles': 16, 'num_edges': 14, 'n': 6, 'edges': [(0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)]}
+- `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
 ## DISCOVERED (empirical — holds on the sample, NOT proven) (8)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)

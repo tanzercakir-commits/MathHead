@@ -23,6 +23,8 @@ Layers so far:
                  open, each with an honest status; deterministic
   * spectral   — the graph domain's first bridge to MathHead: eigenvalues via MathHead, the
                  spectral identities (Σλ²=2|E|, Σλ³=6·#triangles) discovered from data
+  * sequences  — 2nd arithmetic generator: discover a SUM's closed form from data and prove it by
+                 induction via MathHead (Σi=n(n+1)/2, Σi³=…); refuses to force a non-polynomial fit
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -62,6 +64,11 @@ from .objects import Graph, MathObject
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .sequences import (
+    SumIdentityFinding,
+    discover_closed_form,
+    run_sequence_discovery,
+)
 from .spectral import (
     discover_spectral_laws,
     num_distinct_eigenvalues,
@@ -109,4 +116,7 @@ __all__ = [
     "num_distinct_eigenvalues",
     "spectrum_confirms_moments",
     "discover_spectral_laws",
+    "SumIdentityFinding",
+    "run_sequence_discovery",
+    "discover_closed_form",
 ]

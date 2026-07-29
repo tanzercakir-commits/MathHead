@@ -14,6 +14,7 @@ def test_key_findings_land_in_the_right_section():
     empirical = " ".join(x["statement"] for x in r.empirical_laws)
     refuted = " ".join(x["statement"] for x in r.refuted)
     assert "% 2 == 0" in proved                               # arithmetic parity, formally proved
+    assert "sum_(i=1..n) 2*i - 1" in proved                   # a sum identity, proved via MathHead
     assert "2*num_edges = sum_degrees" in empirical           # handshake, empirical
     assert "num_triangles <= num_edges" in refuted            # the artifact bound, killed
 

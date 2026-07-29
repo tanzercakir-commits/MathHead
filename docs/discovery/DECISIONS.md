@@ -199,6 +199,25 @@
 
 ---
 
+## ADR-D0010 — Sum-identity generator: discover a closed form from data, prove it by induction
+
+- **Status:** Accepted · 2026-07-29 (P4; second arithmetic generator)
+- **Context:** The arithmetic domain had one generator (divisibility). To exercise the judge on
+  richer, discover-a-formula problems — and feed the same report buckets — we add sum identities.
+- **Decision:** `sequences.py`: for a term f(i), compute partial sums S(n), **fit** a closed-form
+  polynomial g(n) by interpolation (the "guess the formula" step, P4), **refute** counterexample-
+  first over a range LARGER than the fit, and **prove** the survivor by induction — the base case
+  plus MathHead verifying the inductive step g(n) − g(n−1) = f(n) (`verify_equality`,
+  `solver_verified`). A non-polynomial sequence (Σ 2^i) fits the sample but diverges beyond it, so
+  the extended check refutes it — the engine does not force a formula.
+- **Consequences:** A fully autonomous discover→prove loop with real proofs: the engine finds and
+  proves `Σi = n(n+1)/2`, `Σi² = n(2n²+3n+1)/6`, `Σi³ = (n(n+1)/2)²`, `Σ(2i−1) = n²`
+  (`solver_verified`), and REFUSES the non-polynomial Σ 2^i (refuted, not forced). Wired into
+  `run_report`, so the new generator feeds the same four honest buckets without reshaping the
+  pipeline — growth stays orderly.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

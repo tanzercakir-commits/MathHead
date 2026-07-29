@@ -21,6 +21,7 @@ from .generate import generate_graphs
 from .invariants import is_forest, is_tree
 from .refute import refute
 from .relations import discover_linear_laws
+from .sequences import run_sequence_discovery
 
 
 @dataclass
@@ -69,6 +70,16 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         else:
             open_bounded.append({**item, "status": "no_counterexample_within_bound",
                                  "note": f"judge: {f.certainty}"})
+
+    for s in run_sequence_discovery():
+        stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
+        if s.verdict == "proved":
+            proved.append({"statement": stmt, "status": "proved", "certainty": s.certainty})
+        elif s.verdict == "refuted":
+            refuted.append({"statement": stmt, "status": "refuted",
+                            "counterexample": {"note": "not a polynomial identity"}})
+        else:
+            open_bounded.append({"statement": stmt, "status": "unknown"})
 
     from mathhead.guardrails import MAX_STATEMENTS  # noqa: F401  (touch to assert import health)
     meta = {

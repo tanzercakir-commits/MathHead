@@ -132,7 +132,7 @@ P0 🟢 Deneysel örüntü madenciliği: eşitlik/eşitsizlik/monotonluk/periyod
 P1 🟢 Teorem mutasyonu: varsayım zayıflat / sonuç güçlendir / sabit iyileştir / boyut artır / genelle
 P2 🟡 Tersine mühendislik: ilginç sonucu bul → onu açıklayan daha genel ilkeyi ara
 P3 🟡 Analoji motoru: bir alandaki yapıyı diğerine taşı (graph-cut ↔ submodular...)
-P4 🟡 Ramanujan-tarzı bağıntı/sabit arama (sayısal ilişki → sembolik aday)
+P4 🟡 Ramanujan-tarzı bağıntı/sabit arama (sayısal ilişki → sembolik aday)  ✅ (sum-identity: kısmi toplamdan kapalı form fit + tümevarımla ispat; Σi², Σi³ …; non-poly reddedilir; ADR-D0010)
 P5 🟢 Konjektür normalize + tekilleştir + dedup
 P6 🟡 (LLM-periferi) doğal-dil sezgisinden aday konjektür — yargıç zorunlu (kalite açık)
 ```

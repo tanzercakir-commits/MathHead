@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — Sum identities: discover the formula from data, prove it by induction (2nd arithmetic generator)
+
+A second arithmetic generator, and a richer discover→prove loop: the engine finds a SUM's closed
+form from data and MathHead proves it.
+
+**Done — new `sequences.py`:** for a term f(i), compute partial sums, **fit** a closed-form
+polynomial g(n) by interpolation (P4 "guess the formula"), **refute** counterexample-first over a
+larger range, then **prove** by induction — base case + MathHead verifying the step
+g(n) − g(n−1) = f(n).
+
+**What it found and proved, autonomously:**
+- `Σ i = n(n+1)/2`, `Σ i² = n(2n²+3n+1)/6`, `Σ i³ = (n(n+1)/2)²`, `Σ (2i−1) = n²`
+  — all **proved** (`solver_verified`, MathHead did the algebraic step).
+- `Σ 2^i` (not polynomial): the fit matches the sample but diverges beyond it → **refuted**, not
+  forced. The engine doesn't invent a formula where none exists.
+
+Wired into `run_report` — the new generator feeds the same four honest buckets (PROVED / REFUTED /
+DISCOVERED / OPEN) without reshaping the pipeline, exactly as claimed. 4 new tests (discovery
+suite 73); full suite 1363 green, ruff clean. ADR-D0010. Roadmap P4 done.
+
+**Next:** more of the same into the same buckets — spectral bounds, or mining relations among
+named sequences (Fibonacci/Catalan) — the pipeline absorbs it.
+
+---
+
 ## 2026-07-29 — Spectral invariants: the graph domain's first bridge to MathHead
 
 The graph domain now flows through MathHead's compute spine for the first time — spectral graph

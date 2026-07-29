@@ -140,7 +140,9 @@
 - [x] **L2** contract upgrade — meta.certainty (epistemic strength) + meta.stability + docs/mcp-contract.json ✅ (1246 tests; ADR-0032)
 - [x] **L3** surface focus — default `core` profile (MATHHEAD_PROFILE) + 6 capability packs + always-on triage (list/describe/recommend) + profile-aware live MCP test + problem-first README ✅ (1261 tests, 171 tools; ADR-0033)
 - [x] **L4** security/policy — SECURITY.md + CONTRIBUTING.md + docs/threat-model.md + e2e hardening (malformed/stderr/shutdown) + test_security.py + honest asymmetric timeout model ✅ (1277 tests; ADR-0034)
-- [ ] **L5** external validation — LLM-error catch-rate + tool-selection accuracy harness
+- [x] **L5** external validation (in-repo) — trap benchmark expanded to 23 errors/17 categories (100% caught) + NEW tool-selection accuracy harness (top-1 78% / top-3 94%, honest) + fences ✅ (1290 tests; ADR-0035). External bit (3 users / 3 clients) is on the user.
+
+### 🎉 TRACK L COMPLETE (L0→L5). Engine: **171 MCP tools, 1290 tests, v1.0.x** (contract frozen, Beta, default `core` profile). Remaining = PyPI publish + real-world users (on the user).
 
 **Productization (on the user, no rush):** PyPI (0.2.0), release, tutorial.
 

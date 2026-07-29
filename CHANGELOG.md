@@ -6,6 +6,18 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ### Added (Track L)
 
+- **External-validation harnesses (L5).** The LLM-trap catch-rate benchmark
+  (`benchmarks/run.py` + `llm_traps.json`) is expanded to **23 real LLM error patterns across 17
+  categories, 100% caught** (added product-rule derivatives, wrong integrals/limits, false trig/log
+  identities, strict-positivity, a modal T-axiom-in-K countermodel, a bit-vector fallacy, and the
+  2047 Mersenne-composite). New **tool-selection accuracy harness**
+  (`benchmarks/run_tool_selection.py` + `tool_selection.json`, 18 cases) validates the L3 triage —
+  `recommend_tool` intent→tool at **top-1 78% / top-3 94%**, reported honestly with a kept realistic
+  miss (it is a keyword heuristic, not a learned ranker). Regression fences: `test_tool_selection.py`
+  (top-3 ≥ 0.85, top-1 ≥ 0.70) and the trap floor raised to ≥20. No new MCP tools (171). ADR-0035.
+  **Track L (L0→L5) is complete**; the remaining items (PyPI publish, 3 independent users / 3 MCP
+  clients) are external and on the user.
+
 - **Security policy + threat model + contributor guide + e2e hardening (L4).** New
   `SECURITY.md` (private reporting, supported versions, security model + honest limits),
   `docs/threat-model.md` (trust boundaries, a 7-threat table with in-code mitigations, and a §5

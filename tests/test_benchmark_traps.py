@@ -18,7 +18,7 @@ _ROWS = bench.run()
 
 
 def test_trap_suite_nonempty():
-    assert len(_ROWS) >= 12
+    assert len(_ROWS) >= 20        # ROADMAP L5: a ≥20-error catch-rate benchmark
 
 
 @pytest.mark.parametrize("row", _ROWS, ids=[r["id"] for r in _ROWS])

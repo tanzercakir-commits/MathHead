@@ -592,6 +592,30 @@
 
 ---
 
+## ADR-0035 — In-repo external validation: an honest catch-rate + tool-selection benchmark
+
+- **Status:** Accepted · 2026-07-29 (Track L / L5)
+- **Context:** The external review asked us to *earn* the value claim ("audits an AI's math") with
+  evidence, and to validate that the L3 triage actually helps an AI pick the right tool. Real
+  validation ("3 independent users, 3 MCP clients") is inherently external and cannot live in the
+  repo — but two things *can*: a reproducible demonstration that the engine adjudicates known LLM
+  errors, and a measurement of `recommend_tool`'s intent→tool accuracy. The risk is vanity metrics
+  (a rigged 100%).
+- **Decision:** (1) Expand the LLM-trap set to **23 real error patterns across 17 categories**,
+  every one verified against the live engine before inclusion, fenced at 100% catch + a ≥20 floor.
+  (2) Add a **tool-selection accuracy harness** over 18 natural-language cases, scoring top-1/top-3
+  hit rate for `recommend_tool`, fenced at honest floors (top-3 ≥ 0.85, top-1 ≥ 0.70) set *below*
+  the measured 94%/78%. (3) **Keep a realistic query that MISSES** in the set, so the reported
+  number reflects the keyword heuristic's true reach rather than a curated best case. (4) Label the
+  external part (real users/clients) explicitly as on-the-user, not claimed as done.
+- **Consequences:** The core thesis is now a protected, reproducible number, and the triage has a
+  measured accuracy with a regression fence — both honest (floors below measured, a kept miss, an
+  explicit "not a live-LLM A/B" caveat in the harness). This closes Track L in-repo while being
+  truthful that end-to-end external validation remains the user's step. Consistent with the
+  project's rule that a stated limit beats a flattering claim.
+
+---
+
 <!-- New decision template:
 ## ADR-XXXX — title
 - **Status:** Proposed | Accepted | Superseded (ADR-YYYY) · YYYY-MM-DD

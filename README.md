@@ -199,8 +199,8 @@ mathhead/
 │   ├── guardrails/      · fence: validation, timeout, determinism
 │   ├── profiles.py     · capability packs + triage (MATHHEAD_PROFILE)
 │   └── server/          · MCP server (FastMCP, 171 tools; default `core` profile)
-├── scripts/             · benchmark.py + gen_api_reference.py
-├── benchmarks/          · LLM-trap set + harness (100% catch, Track C4)
+├── scripts/             · gen_api_reference.py + gen_contract.py (code=docs generators)
+├── benchmarks/          · LLM-trap catch-rate (23 errors, 100%) + tool-selection accuracy harness
 └── tests/               · comprehensive test suite + fixtures/golden.json (regression fence)
 ```
 

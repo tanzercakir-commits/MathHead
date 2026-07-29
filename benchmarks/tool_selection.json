@@ -1,0 +1,23 @@
+{
+  "_comment": "Tool-selection accuracy set (ROADMAP L5). Each case: a natural-language task a user/AI might describe, and the set of tool names that would be a CORRECT pick. The harness calls recommend_tool(query) and checks whether a correct tool appears in the top-1 and top-3. HONEST framing: recommend_tool is a keyword-overlap heuristic (see profiles.py) — NOT a model. This set measures how well that heuristic maps intent→tool, and it deliberately keeps realistic queries that MISS so the number reflects reality (describe_tool / list_capabilities are the fallbacks when it misses).",
+  "cases": [
+    {"query": "verify that a derivative claim is correct", "expect": ["verify_derivative"]},
+    {"query": "check whether two algebraic expressions are equal", "expect": ["verify_equality", "cross_check", "equivalent"]},
+    {"query": "find a counterexample to an inequality that may be false", "expect": ["prove_inequality"], "note": "known miss — 'counterexample'/'inequality' do not overlap the tool name/description well; a fallback-to-triage case"},
+    {"query": "factor a whole number into its prime factors", "expect": ["factorize"]},
+    {"query": "test whether a number is prime", "expect": ["is_prime"]},
+    {"query": "solve an equation for x", "expect": ["solve"]},
+    {"query": "compute the determinant of a matrix", "expect": ["determinant"]},
+    {"query": "do these premises logically entail the conclusion", "expect": ["entailment"]},
+    {"query": "independently check a certificate without trusting z3 or sympy", "expect": ["check_certificate"]},
+    {"query": "simplify a trigonometric expression", "expect": ["simplify"]},
+    {"query": "find the eigenvalues of a matrix", "expect": ["eigenvalues"]},
+    {"query": "compute the indefinite integral of a function", "expect": ["integrate"]},
+    {"query": "grade a step by step solution and find the first wrong step", "expect": ["verify_steps", "verify_derivation"]},
+    {"query": "check validity of a modal logic formula", "expect": ["check_modal"]},
+    {"query": "greatest common divisor of two integers", "expect": ["gcd"]},
+    {"query": "cross check an identity with two independent engines", "expect": ["cross_check"]},
+    {"query": "solve a system of linear equations", "expect": ["solve_system", "matrix_solve"]},
+    {"query": "how many ways to choose k items from n", "expect": ["combinations"]}
+  ]
+}

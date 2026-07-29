@@ -295,9 +295,17 @@ on the user; see `RELEASING.md`) and the honest K2 follow-up (compute error-bran
           allowlist + guardrail fences); e2e hardening (malformed-payload-not-crash, diagnostics-to-stderr/
           no-stdout-leak, clean-shutdown-on-stdin-EOF) + tests/test_security.py; the asymmetric timeout
           model documented honestly (Z3 time-bounded; SymPy not) and pinned by a test ✅ (1277 tests; ADR-0034)
-[ ] L5 🟢 External validation — 20-real-LLM-error catch-rate benchmark + tool-selection accuracy harness
-          (in-repo); 3 independent users / 3 MCP clients (on the user)
+[x] L5 🟢 External validation (in-repo) — LLM-trap catch-rate benchmark expanded to 23 errors across 17
+          categories (100% caught; benchmarks/run.py) + a NEW tool-selection accuracy harness
+          (benchmarks/run_tool_selection.py: recommend_tool intent→tool, top-1 78% / top-3 94%, honestly
+          reported) + regression fences ✅ (1290 tests; ADR-0035).
+          ON THE USER (external, cannot be done in-repo): 3 independent users / 3 real MCP clients.
 ```
+
+### 🎉 TRACK L COMPLETE — L0→L5 done (external-review response, no new math).
+Engine: **171 MCP tools, 1290 tests, v1.0.x** (MCP contract frozen; Beta maturity; default `core`
+profile). The only remaining items are external and on the user: publish to PyPI (`RELEASING.md`)
+and gather 3 independent users / 3 MCP clients for real-world validation.
 
 ## Where did we leave off?
 

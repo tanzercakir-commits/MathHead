@@ -60,6 +60,7 @@ from .judge import (
     judge_inequality,
     judge_task,
 )
+from .novelty import is_subclass_specific, novel_subclass_laws
 from .objects import Graph, MathObject
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
@@ -97,6 +98,8 @@ __all__ = [
     "Conjecture",
     "subclass_laws",
     "bound_conjectures",
+    "novel_subclass_laws",
+    "is_subclass_specific",
     "RefutationResult",
     "refute",
     "Verdict",

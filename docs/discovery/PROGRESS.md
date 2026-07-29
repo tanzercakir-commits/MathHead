@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-07-29 — Interestingness (W0): keep subclass-specific laws, drop restricted-universals
+
+A first filter against the "a machine can emit a million trivially-true statements" problem. New
+`novelty.py`: a subclass law is INTERESTING only if it is specific to that subclass — i.e. its
+claim FAILS somewhere in the full sample — not a universal law merely restricted to it.
+
+**What it cleaned up:**
+- Dropped `trees: 2*num_edges = sum_degrees` and the forests version — these are just the Handshake
+  Lemma seen on a subclass (they hold on EVERY graph), no discovery about trees/forests.
+- Kept the genuine characterizations: `trees: num_edges = num_vertices − 1`, `trees: triangle-free`,
+  `forests: num_vertices = num_edges + num_components`.
+
+Wired into `run_report`, so the DISCOVERED section is now higher-signal. 2 new tests (discovery
+suite 79); full suite 1369 green, ruff clean. ADR-D0012. A tractable first step on the
+interestingness problem the document flags as central — without pretending it is "solved".
+
+**Next:** more interestingness (dedup equivalent laws, flag trivial bounds) or more discovery
+surface — all into the same four report buckets.
+
+---
+
 ## 2026-07-29 — Proof strategy (S): factor the modulus → prove parts → CRT — proving what one induction couldn't
 
 The judge now has more than one route. New `strategy.py`: `prove_modular_divisibility` factors m

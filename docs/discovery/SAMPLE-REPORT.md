@@ -16,14 +16,12 @@ _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -
 - `num_triangles <= num_edges` — counterexample: {'num_triangles': 16, 'num_edges': 14, 'n': 6, 'edges': [(0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)]}
 - `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
-## DISCOVERED (empirical — holds on the sample, NOT proven) (8)
+## DISCOVERED (empirical — holds on the sample, NOT proven) (6)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)
 - `trees: num_triangles = 0` — trees (support 14)
-- `trees: 2*num_edges = sum_degrees` — trees (support 14)
 - `trees: num_vertices = num_edges + 1` — trees (support 14)
 - `trees: num_vertices = num_edges + num_components` — trees (support 14)
 - `forests: num_triangles = 0` — forests (support 43)
-- `forests: 2*num_edges = sum_degrees` — forests (support 43)
 - `forests: num_vertices = num_edges + num_components` — forests (support 43)
 
 ## OPEN (survived the attack; unproven — no_counterexample_within_bound) (13)

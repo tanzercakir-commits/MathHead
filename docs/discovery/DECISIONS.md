@@ -238,6 +238,23 @@
 
 ---
 
+## ADR-D0012 — A first interestingness filter: keep subclass-specific laws, drop restricted-universals
+
+- **Status:** Accepted · 2026-07-29 (Track W0)
+- **Context:** A discovery engine can emit a flood of true-but-uninteresting statements. A concrete
+  case already in our output: `trees: 2*num_edges = sum_degrees` is just the Handshake Lemma seen
+  on trees — it holds on EVERY graph, so it is no discovery ABOUT trees. It cluttered the report.
+- **Decision:** `novelty.py::is_subclass_specific` — a subclass law is interesting iff its claim
+  FAILS on at least one object in the full sample (so it is genuinely specific to the subclass, not
+  a universal law restricted to it). `novel_subclass_laws` filters on this, and `run_report` uses
+  it, so the DISCOVERED section keeps only real subclass facts.
+- **Consequences:** The report drops the restricted-universals (`trees:`/`forests: 2E = S`) and
+  keeps the genuine characterizations (`trees: E = V − 1`, `trees: triangle-free`, `forests:
+  V = E + C`). Higher signal, honest, and a first tractable step against the interestingness
+  problem the document flags as central — without pretending to have "solved" interestingness.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

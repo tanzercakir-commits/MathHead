@@ -16,9 +16,10 @@ from dataclasses import dataclass, field
 import mathhead
 
 from .arithmetic import run_arithmetic_discovery
-from .conjectures import bound_conjectures, subclass_laws
+from .conjectures import bound_conjectures
 from .generate import generate_graphs
 from .invariants import is_forest, is_tree
+from .novelty import novel_subclass_laws
 from .refute import refute
 from .relations import discover_linear_laws
 from .sequences import run_sequence_discovery
@@ -41,7 +42,7 @@ def _graph_findings(max_n: int):
         empirical.append({"statement": law.expression, "status": "empirical",
                           "scope": f"all graphs n<={max_n}", "support": law.support})
     for label, pred in (("trees", is_tree), ("forests", is_forest)):
-        for c in subclass_laws(graphs, pred, label):
+        for c in novel_subclass_laws(graphs, pred, label):   # drop restricted-universals (W0)
             empirical.append({"statement": c.statement, "status": "empirical",
                               "scope": label, "support": c.support})
 

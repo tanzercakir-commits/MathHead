@@ -15,7 +15,9 @@ def test_key_findings_land_in_the_right_section():
     refuted = " ".join(x["statement"] for x in r.refuted)
     assert "% 2 == 0" in proved                               # arithmetic parity, formally proved
     assert "sum_(i=1..n) 2*i - 1" in proved                   # a sum identity, proved via MathHead
-    assert "2*num_edges = sum_degrees" in empirical           # handshake, empirical
+    assert "2*num_edges = sum_degrees" in empirical           # handshake (universal), empirical
+    assert "trees: num_vertices = num_edges + 1" in empirical  # a NOVEL tree law, kept
+    assert "trees: 2*num_edges = sum_degrees" not in empirical  # restricted-universal, filtered (W0)
     assert "num_triangles <= num_edges" in refuted            # the artifact bound, killed
 
 

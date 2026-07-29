@@ -567,6 +567,28 @@
 
 ---
 
+## ADR-D0026 — Interestingness is a transparent heuristic with a visible breakdown, labeled as such
+
+- **Status:** Accepted · 2026-07-29 (W1 — interestingness scoring)
+- **Context:** Findings need ranking (the report lists dozens). The document's interestingness notion
+  is multi-component (novelty/generality/surprise/usefulness/compression/connectivity − triviality),
+  but a genuinely LEARNED interestingness model with human feedback is Track W3 and explicitly open.
+  Risk: a scoring function that looks authoritative would overclaim.
+- **Decision:** Ship a HEURISTIC, and make its heuristic nature unmissable. Each component is a named,
+  documented, deterministic proxy (e.g. compression = support-per-symbol; generality = universal >
+  all-graphs > subclass); weights are hand-set and documented as NOT learned; the score object carries
+  the full per-component breakdown so any ranking is explainable; and both the module docstring and the
+  report section say plainly "heuristic, not a learned measure (W3 open)." It ranks and explains; it
+  never gates truth.
+- **Consequences:** The engine gains a reproducible, inspectable ranking that behaves sensibly on the
+  real report (strong universal kernel-verified facts top; the trivial χ≤n bound sinks to 0.0), and a
+  human can always see WHY. Because it is transparent and clearly labeled, it informs attention without
+  masquerading as ground truth — the honest version of a feature the source itself flags as unsolved.
+  The per-component design also makes W3 a clean future upgrade: replace the hand-set weights with
+  learned ones, keep the components. It stays out of the trust base entirely (ranking ≠ proving).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

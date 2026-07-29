@@ -170,6 +170,12 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         "dead_ends": len(memory.records()),                 # negative knowledge recorded (Y)
         "top_lesson": top_lesson,         # the witness that refutes the most conjectures (Y2)
     }
+
+    # interestingness ranking across all buckets (Track W1) — heuristic, transparent
+    from .interestingness import rank
+    all_items = proved + empirical + refuted + open_bounded
+    meta["most_interesting"] = [{"statement": s.statement, "score": s.total}
+                                for s, _ in rank(all_items)[:5]]
     return DiscoveryReport(proved, empirical, refuted, open_bounded,
                            _frontier_confirmations(), meta)
 
@@ -195,6 +201,13 @@ def render(report: DiscoveryReport) -> str:
             lines.append("_none_")
         for it in items:
             lines.append(f"- {fmt(it)}")
+        lines.append("")
+
+    top = report.meta.get("most_interesting") or []
+    if top:
+        lines.append("## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)")
+        for it in top:
+            lines.append(f"- {it['score']:.3f} · `{it['statement']}`")
         lines.append("")
 
     section("PROVED (formal — by the judge)", report.proved,

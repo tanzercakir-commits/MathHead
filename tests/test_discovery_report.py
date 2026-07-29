@@ -82,6 +82,14 @@ def test_report_records_negative_knowledge_from_refutations():
     assert "negative knowledge" in render(r)
 
 
+def test_report_ranks_most_interesting_findings():
+    r = run_report(max_n=5)
+    top = r.meta["most_interesting"]
+    assert top and all(0.0 <= x["score"] <= 1.0 for x in top)
+    assert top == sorted(top, key=lambda x: -x["score"])     # descending
+    assert "MOST INTERESTING" in render(r)
+
+
 def test_certified_coloring_laws_are_annotated_but_stay_open():
     r = run_report(max_n=5)
     by_stmt = {x["statement"]: x for x in r.open_bounded}

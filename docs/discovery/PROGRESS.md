@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — Interestingness ranking (Track W1): rank findings, transparently
+
+The engine can now RANK what it found, not just list it. New `interestingness.py` scores each finding
+by the document's components — novelty · generality · surprise · usefulness · compression ·
+connectivity − triviality — each a named, deterministic proxy computed from the finding and its peers,
+combined with documented (hand-set) weights into a [0,1] score that carries its full per-component
+breakdown, so a ranking is always explainable.
+
+On the real report it behaves sensibly: strong universal facts (composite modulus, kernel-verified —
+n³−n mod 6, n⁵−n mod 30) top the list; the handshake lemma ranks high; the textbook-trivial χ≤n bound
+sinks to 0.0 (low novelty + triviality penalty). The report gained a MOST INTERESTING section (top 5)
+and `meta.most_interesting`.
+
+HONEST framing, in the module and the report header: this is a HEURISTIC, not a learned or
+ground-truth measure — a learned interestingness model with human feedback is Track W3 and stays OPEN.
+It ranks and explains; it never decides what is true.
+
+9 tests (8 interestingness + 1 report; discovery suite 169); full suite **1457 green**, ruff clean.
+ADR-D0026. Roadmap W1.
+
+**Next:** the knowledge-graph schema (X0 — store findings + relations: generalizes/refutes/equivalent),
+or wire failure-memory `seen` into the refute loop, or a new domain surface.
+
+---
+
 ## 2026-07-29 — Negative knowledge (Track Y): the engine remembers its dead ends
 
 A discovery engine that forgets its failures re-walks them. New `failure_memory.py`: every closed

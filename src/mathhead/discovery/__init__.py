@@ -38,6 +38,8 @@ Layers so far:
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
+  * interestingness — transparent heuristic ranking (W1): novelty/generality/surprise/usefulness/
+                 compression/connectivity − triviality, with a per-component breakdown (not learned)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -77,6 +79,9 @@ from .hamiltonicity import (
     hamiltonicity_laws,
     verify_hamiltonicity,
 )
+from .interestingness import Interestingness
+from .interestingness import rank as rank_interestingness
+from .interestingness import score as score_interestingness
 from .kernel import (
     CRT,
     KernelError,
@@ -183,6 +188,9 @@ __all__ = [
     "AttemptRecord",
     "fingerprint",
     "populate_from_refutations",
+    "Interestingness",
+    "score_interestingness",
+    "rank_interestingness",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

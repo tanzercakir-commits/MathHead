@@ -148,19 +148,21 @@ def check_certificate(cert: Certificate, g: Graph) -> bool:
     return False
 
 
-_CERTIFIERS = [certify_chi_le_delta_plus_1, certify_chi_le_n, certify_omega_le_chi]
-
-
-def certify_frontier_laws(graphs) -> list:
+def certify_frontier_laws(graphs, *, solver_confirm: bool = True) -> list:
     """Produce constructive certificates for the surviving coloring laws over the sample and
     INDEPENDENTLY re-check each. Every returned certificate has `checked=True` iff its witness
-    survived the independent re-check on its graph."""
+    survived the independent re-check on its graph. `solver_confirm=False` skips the MathHead
+    lower-bound double-check on ω≤χ (structural certificates only — fast path for the report)."""
     out = []
     for g in graphs:
         if g.n == 0:
             continue
-        for certify in _CERTIFIERS:
-            cert = certify(g)
+        certs = [
+            certify_chi_le_delta_plus_1(g),
+            certify_chi_le_n(g),
+            certify_omega_le_chi(g, solver_confirm=solver_confirm),
+        ]
+        for cert in certs:
             cert.checked = cert.checked and check_certificate(cert, g)   # independent gate
             out.append(cert)
     return out

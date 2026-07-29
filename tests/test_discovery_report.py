@@ -66,3 +66,17 @@ def test_frontier_laws_land_in_open_and_refuted():
     assert "clique_number <= chromatic_number" in open_stmts   # ω ≤ χ survived
     assert "(connected and n>=3) => Hamiltonian" in refuted_stmts   # refuted by P3
     assert "chromatic_number <= max_degree" in refuted_stmts        # refuted (χ≤Δ)
+
+
+def test_certified_coloring_laws_are_annotated_but_stay_open():
+    r = run_report(max_n=5)
+    by_stmt = {x["statement"]: x for x in r.open_bounded}
+    # the 3 constructively-certified coloring laws carry the annotation...
+    for law in ("chromatic_number <= max_degree + 1", "chromatic_number <= num_vertices",
+                "clique_number <= chromatic_number"):
+        assert by_stmt[law].get("certified") is True
+        assert "constructive_bounded" in by_stmt[law]["note"]
+    # ...but a Hamiltonicity implication (no certificate) is NOT marked certified
+    assert by_stmt["Hamiltonian => connected"].get("certified") is False
+    # and certified still means OPEN, never PROVED (honesty)
+    assert all("constructive" not in x.get("certainty", "") for x in r.proved)

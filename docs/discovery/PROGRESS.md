@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-29 — Certificates surfaced in the report (OPEN coloring laws now show "certified")
+
+Closed the loop from the previous increment: the report's OPEN coloring laws now carry their
+constructive-certificate status. `report._frontier_laws` runs `certify_frontier_laws(...,
+solver_confirm=False)` (structural fast path — keeps the report deterministic and solver-call-free)
+and annotates the three certified laws (χ≤Δ+1, χ≤n, ω≤χ) with "constructively certified over the
+sample (constructive_bounded)" plus a `certified=True` flag. Hamiltonicity implications (no
+certificate) stay unmarked. Certified still means OPEN — never PROVED. `solver_confirm` threaded
+through `certify_frontier_laws` so module tests keep the MathHead double-check while the report skips
+it. 1 net new report test (discovery suite 125); full suite **1414 green**, ruff clean. Extends
+ADR-D0020/D0021.
+
+---
+
 ## 2026-07-29 — First step from "discover + refute" to "discover + PROVE" (graph domain)
 
 The surviving coloring laws were OPEN — "the inequality held on the sample," nothing more. New

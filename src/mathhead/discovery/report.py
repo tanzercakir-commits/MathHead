@@ -19,6 +19,7 @@ from .arithmetic import run_arithmetic_discovery
 from .coloring import coloring_bounds, verify_chromatic_number
 from .conjectures import bound_conjectures
 from .generate import generate_graphs
+from .graph_proofs import certify_frontier_laws
 from .hamiltonicity import hamiltonicity_laws, verify_hamiltonicity
 from .invariants import is_forest, is_tree
 from .novelty import novel_subclass_laws
@@ -67,13 +68,25 @@ def _frontier_laws(max_n: int):
     invariants); the survivors are `bounded_check` (OPEN), the killed ones REFUTED."""
     graphs = [g for n in range(max_n + 1) for g in generate_graphs(n)]
     survived, refuted = [], []
+
+    # which surviving laws we hold a constructive certificate for (every instance re-checked).
+    # solver_confirm=False → structural certificates only, so the report stays fast/deterministic.
+    by_law: dict = {}
+    for c in certify_frontier_laws(graphs, solver_confirm=False):
+        by_law.setdefault(c.law, []).append(c.checked)
+    certified = {law for law, oks in by_law.items() if oks and all(oks)}
+
     for f in list(coloring_bounds(graphs)) + list(hamiltonicity_laws(graphs)):
         if f.status == "refuted":
             refuted.append({"statement": f.statement, "status": "refuted",
                             "counterexample": f.counterexample, "source": "frontier"})
         else:
-            survived.append({"statement": f.statement, "status": f.status,
-                             "note": f"frontier · {f.certainty}", "source": "frontier"})
+            note = f"frontier · {f.certainty}"
+            is_certified = f.statement in certified
+            if is_certified:
+                note += " · constructively certified over the sample (constructive_bounded)"
+            survived.append({"statement": f.statement, "status": f.status, "note": note,
+                             "source": "frontier", "certified": is_certified})
     return survived, refuted
 
 

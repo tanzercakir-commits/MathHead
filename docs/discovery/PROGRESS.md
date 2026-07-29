@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Knowledge graph (Track X0): findings become a typed semantic graph
+
+Findings stopped being a flat list. New `knowledge_graph.py`: a typed graph where nodes are
+theorems / laws / conjectures / counterexamples / axioms and edges are typed relations. `from_report`
+populates it, asserting only edges the engine can be CERTAIN of — `depends_on` (theorem → the kernel
+axioms it rests on), `refuted_by` (conjecture → its counterexample witness), and symmetric
+`related_to` (two statements sharing an invariant). On the report: ~48 nodes, ~123 edges (11
+theorems, 7 axioms, 6 laws, 20 conjectures, 4 counterexamples).
+
+Deliberately NOT fabricated: `generalizes`/`equivalent_to` edges — those need real entailment checks
+(a judged pass, later X3), so the schema reserves the relations but the populator doesn't guess them
+(tested). Ships a deterministic Mermaid export for visualization. The report header now shows the
+graph summary; `meta.knowledge_graph` carries the counts.
+
+9 tests (8 knowledge_graph + 1 report; discovery suite 177); full suite **1466 green**, ruff clean.
+ADR-D0027. Roadmap X0. This is the substrate X3 (impact analysis) and W2 (novelty-vs-literature) run
+over.
+
+**Next:** impact analysis (X3 — which open problem would a result touch), or wire failure-memory into
+the refute loop, or a new domain surface (AE — generate a genuinely new small lemma).
+
+---
+
 ## 2026-07-29 — Interestingness ranking (Track W1): rank findings, transparently
 
 The engine can now RANK what it found, not just list it. New `interestingness.py` scores each finding

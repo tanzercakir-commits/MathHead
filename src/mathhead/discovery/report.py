@@ -176,8 +176,11 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     all_items = proved + empirical + refuted + open_bounded
     meta["most_interesting"] = [{"statement": s.statement, "score": s.total}
                                 for s, _ in rank(all_items)[:5]]
-    return DiscoveryReport(proved, empirical, refuted, open_bounded,
-                           _frontier_confirmations(), meta)
+    report = DiscoveryReport(proved, empirical, refuted, open_bounded,
+                             _frontier_confirmations(), meta)
+    from .knowledge_graph import from_report as _kg_from_report   # semantic graph of findings (X0)
+    report.meta["knowledge_graph"] = _kg_from_report(report).summary()
+    return report
 
 
 def render(report: DiscoveryReport) -> str:
@@ -193,6 +196,10 @@ def render(report: DiscoveryReport) -> str:
         lesson = report.meta.get("top_lesson") or {}
         extra = (f"; top witness refutes {lesson['refutes']}" if lesson.get("refutes", 0) > 1 else "")
         lines.append(f"_negative knowledge: {report.meta['dead_ends']} dead end(s) recorded{extra}_")
+    kg = report.meta.get("knowledge_graph")
+    if kg:
+        lines.append(f"_knowledge graph: {kg['nodes']} nodes · {kg['edges']} edges "
+                     f"({', '.join(f'{k}×{v}' for k, v in sorted(kg['by_kind'].items()))})_")
     lines.append("")
 
     def section(title, items, fmt):

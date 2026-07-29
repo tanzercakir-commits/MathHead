@@ -90,6 +90,14 @@ def test_report_ranks_most_interesting_findings():
     assert "MOST INTERESTING" in render(r)
 
 
+def test_report_carries_a_knowledge_graph_summary():
+    r = run_report(max_n=5)
+    kg = r.meta["knowledge_graph"]
+    assert kg["nodes"] > 0 and kg["edges"] > 0
+    assert kg["by_kind"]["theorem"] >= 7 and kg["by_kind"]["axiom"] >= 3
+    assert "knowledge graph" in render(r)
+
+
 def test_certified_coloring_laws_are_annotated_but_stay_open():
     r = run_report(max_n=5)
     by_stmt = {x["statement"]: x for x in r.open_bounded}

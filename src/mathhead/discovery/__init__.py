@@ -40,6 +40,8 @@ Layers so far:
                  distill reusable lessons (which witness refutes the most conjectures)
   * interestingness — transparent heuristic ranking (W1): novelty/generality/surprise/usefulness/
                  compression/connectivity − triviality, with a per-component breakdown (not learned)
+  * knowledge_graph — typed semantic graph of findings + relations (X0): theorem/law/conjecture/
+                 counterexample/axiom nodes; depends_on/refuted_by/related_to edges; Mermaid export
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -92,6 +94,12 @@ from .kernel import (
     prove_divides,
     prove_sum_identity,
 )
+from .knowledge_graph import (
+    Edge,
+    KnowledgeGraph,
+    Node,
+)
+from .knowledge_graph import from_report as knowledge_graph_from_report
 from .failure_memory import (
     AttemptRecord,
     FailureMemory,
@@ -191,6 +199,10 @@ __all__ = [
     "Interestingness",
     "score_interestingness",
     "rank_interestingness",
+    "KnowledgeGraph",
+    "Node",
+    "Edge",
+    "knowledge_graph_from_report",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

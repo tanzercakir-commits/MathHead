@@ -589,6 +589,29 @@
 
 ---
 
+## ADR-D0027 — Knowledge graph asserts only certain edges; entailment links are reserved, not guessed
+
+- **Status:** Accepted · 2026-07-29 (X0 — knowledge graph)
+- **Context:** Findings need structure (a graph) for impact analysis (X3), novelty-vs-literature
+  (W2/X1), and navigation. The tempting move is to auto-infer rich semantic edges — "A generalizes B",
+  "A equivalent to B" — from statement shape. But those are ENTAILMENT claims; guessing them from
+  token overlap would inject false knowledge into the very graph meant to be trustworthy.
+- **Decision:** Define the full schema (theorem/law/conjecture/counterexample/axiom/… nodes;
+  depends_on/refuted_by/generalizes/…/related_to relations), but have `from_report` assert ONLY edges
+  the engine is structurally CERTAIN of: `depends_on` from the kernel's own axiom lists, `refuted_by`
+  from recorded counterexamples, and a deliberately weak, symmetric `related_to` for shared invariants
+  (explicitly NOT an entailment claim). `generalizes`/`equivalent_to` are reserved in the vocabulary
+  but left for a later JUDGED pass that actually checks entailment — and a test pins that the populator
+  emits none of them today.
+- **Consequences:** The knowledge graph is trustworthy by construction — every edge is either a fact
+  the kernel already established (depends_on), a recorded event (refuted_by), or an admittedly-weak
+  structural hint (related_to). No semantic edge overstates what was verified. The schema is ready for
+  X3/W2 to add judged entailment edges without a redesign. `related_to` is honest about being a hint,
+  not a theorem. The Mermaid export makes the whole knowledge state inspectable at a glance. Same
+  discipline as the rest of the engine: reserve the ambitious capability, ship only the honest part.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

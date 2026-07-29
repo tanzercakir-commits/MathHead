@@ -47,6 +47,8 @@ Layers so far:
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
                  plainly that novelty-vs-literature is 0 established (rediscovery, not discovery)
+  * adversarial — red-team the verifier: a systematic battery of false claims (600+) the kernel and
+                 checker must all reject, plus positive controls; proves soundness on the sweep
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -72,6 +74,7 @@ from .arithmetic import (
     first_counterexample,
     run_arithmetic_discovery,
 )
+from .adversarial import RobustnessReport, robustness_report
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .checker import check_proof, independently_verify
 from .coloring import (
@@ -260,6 +263,8 @@ __all__ = [
     "evaluate_report",
     "attribute",
     "render_scorecard",
+    "RobustnessReport",
+    "robustness_report",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

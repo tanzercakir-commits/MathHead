@@ -793,6 +793,30 @@
 
 ---
 
+## ADR-D0036 — Soundness is demonstrated by adversarial battery + positive controls, kept standalone
+
+- **Status:** Accepted · 2026-07-29 (verification hardening)
+- **Context:** The engine's entire premise is a trustworthy verifier (kernel + independent checker).
+  Unit tests check specific rejections, but a handful of hand-picked cases is weak evidence of
+  soundness. We want a broad, systematic demonstration that NO false claim slips through — and a guard
+  against the opposite failure (a verifier that trivially rejects everything).
+- **Decision:** Add `adversarial.py`, a red-team battery that ENUMERATES false claims (small integer
+  polynomials × small moduli, filtered to the genuinely-false (m,p); wrong sum forms; bogus
+  factorizations; illegal rule applications; forgery) and asserts every one is rejected, PLUS positive
+  controls (known truths that must still be accepted). Report soundness as `no breaches AND no
+  positive failures`. Keep it STANDALONE — not wired into `run_report` — because verification
+  hardening is a distinct concern from discovery reporting, and running 600+ kernel calls on every
+  report would couple them wastefully.
+- **Consequences:** Soundness now has broad evidence (613 attempts, 0 breaches) rather than anecdotes,
+  and the positive controls rule out the degenerate "reject-all" verifier. This directly serves the
+  repositioning as a verification/counterexample engine: the core claim ("nothing false is minted") is
+  continuously tested against a systematic adversary. It is honest about its limit — a battery is not a
+  completeness proof — but a single breach would fail loudly in CI. Standalone keeps the report fast
+  and the concern separated. The enumeration is deterministic, so the harness is a stable regression
+  gate on the kernel/checker.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

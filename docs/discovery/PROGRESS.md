@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — Red-team the verifier: 600+ false claims, 0 breaches
+
+A verification engine is only worth its soundness — so attack it. New `adversarial.py` runs a
+systematic battery of FALSE claims and confirms every one is rejected:
+
+- **600+ false modular claims** — enumerate small integer polynomials × moduli 2..6, keep the (m, p)
+  where `m | p(n) ∀n` is actually FALSE, feed each to `prove_divides`: all must raise. 0 accepted.
+- wrong sum closed forms, bogus factorizations (Identity), illegal rule applications (non-coprime CRT,
+  mismatched polynomials, a SumIdentity fed to CRT), and direct theorem FORGERY — all rejected.
+- the independent checker is attacked with false modular claims too — all rejected.
+- **positive controls** (6|n³−n, 30|n⁵−n, Σi=n(n+1)/2) confirm the verifier still ACCEPTS truths —
+  so it's sound, not merely rejecting everything.
+
+Result: 613 attempts, **0 breaches**, 3/3 controls pass, `sound=True`. It can't prove the verifier
+complete, but it demonstrates soundness on a broad, deterministic adversarial sweep — a single breach
+(a false claim minted as a Theorem) would be a hard failure of the engine's whole premise. Kept as a
+STANDALONE soundness harness (not wired into per-report generation — verification hardening is a
+separate concern from discovery reporting).
+
+7 tests (discovery suite 233); full suite **1522 green**, ruff clean. ADR-D0036.
+
+**Next:** corpus-backed novelty (X1/W2), a deeper kernel (derive the primitives), or a new domain.
+
+---
+
 ## 2026-07-29 — The honest scorecard (Track AF): is any of this actually NEW?
 
 The uncomfortable question a discovery engine must ask itself — and answer plainly. New

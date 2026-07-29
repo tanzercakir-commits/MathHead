@@ -137,6 +137,51 @@ def is_tree(g: Graph) -> bool:
     return is_connected(g) and is_forest(g)
 
 
+def chromatic_number(g: Graph) -> int:
+    """Minimum number of colors for a proper coloring (backtracking; exact for small n)."""
+    if g.n == 0:
+        return 0
+    if not g.edges:
+        return 1
+    adj = [set() for _ in range(g.n)]
+    for (u, v) in g.edges:
+        adj[u].add(v)
+        adj[v].add(u)
+    color = [-1] * g.n
+
+    def feasible(k: int) -> bool:
+        def bt(v: int) -> bool:
+            if v == g.n:
+                return True
+            for c in range(k):
+                if all(color[u] != c for u in adj[v]):
+                    color[v] = c
+                    if bt(v + 1):
+                        return True
+                    color[v] = -1
+            return False
+        for i in range(g.n):
+            color[i] = -1
+        return bt(0)
+
+    for k in range(1, g.n + 1):
+        if feasible(k):
+            return k
+    return g.n
+
+
+def clique_number(g: Graph) -> int:
+    """Size of the largest clique (a set of pairwise-adjacent vertices)."""
+    from itertools import combinations
+    if g.n == 0:
+        return 0
+    for size in range(g.n, 1, -1):
+        for combo in combinations(range(g.n), size):
+            if all(g.has_edge(a, b) for a, b in combinations(combo, 2)):
+                return size
+    return 1
+
+
 # Named registry so the discovery loop can request invariants by name (feature tables, O3).
 INVARIANTS = {
     "num_vertices": num_vertices,
@@ -152,6 +197,8 @@ INVARIANTS = {
     "is_tree": is_tree,
     "spectral_moment_2": spectral_moment_2,
     "spectral_moment_3": spectral_moment_3,
+    "chromatic_number": chromatic_number,
+    "clique_number": clique_number,
 }
 
 # The integer-valued invariants — the columns the relation miner (O2) runs over. Excludes

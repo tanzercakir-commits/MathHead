@@ -354,6 +354,32 @@
 
 ---
 
+## ADR-D0018 — Graph invariants reach the frontier: χ computed locally, confirmed by MathHead
+
+- **Status:** Accepted · 2026-07-29 (O1 frontier-bridge — coloring)
+- **Context:** The graph domain's bridges to MathHead so far were the exact spectral moments and the
+  `eigenvalues` tool (linear-algebra spine). The roadmap's frontier tools (Z3/SAT reductions:
+  `graph_coloring`, `subset_sum`, …) were unused from discovery. Chromatic number is the natural
+  first frontier invariant — NP-hard, but MathHead already has an independently-verified
+  `graph_coloring` reduction. Question: compute χ where, and trust which authority?
+- **Decision:** Compute χ(g) (and ω) LOCALLY as ordinary exact invariants (backtracking / clique
+  search) — cheap and deterministic for the n≤7 regime. Then, in `coloring.py`, INDEPENDENTLY
+  CONFIRM that value against MathHead's frontier tool: `verify_chromatic_number` asserts `sat` at χ
+  colors AND `unsat` at χ−1. Two orthogonal engines (our search + MathHead's Z3) must agree
+  (`solver_verified`); χ≤1 is trivial and skips the solver. Coloring inequalities (`ω ≤ χ ≤ Δ+1`,
+  the refuted `χ ≤ Δ`) are mined counterexample-first and labeled `bounded_check` — EXACT over the
+  finite sample (integers), distinct from spectral bounds' `numerical_check`. Bridge mechanics:
+  `graph_coloring` is 1-indexed, so vertices are shifted +1 and `n` passed explicitly.
+- **Consequences:** The engine now spans exact arithmetic → spectral → NP-hard frontier, and the
+  frontier invariant is not taken on one engine's word — a backtracking bug and a Z3-reduction bug
+  would have to coincide to slip through. Refute-first proved its worth again: it reported the
+  single vertex (χ=1 > Δ=0), not the classic triangle, as the minimal counterexample to `χ ≤ Δ` — a
+  smaller witness than the human default. Scoped honestly: local χ is only tractable at small n
+  (the honest bound of the whole graph domain); larger n would need the reduction as the primary
+  compute, not just the confirmer — logged as the natural next frontier step.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

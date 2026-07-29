@@ -25,6 +25,8 @@ Layers so far:
                  spectral identities (Σλ²=2|E|, Σλ³=6·#triangles) discovered from data
   * sequences  — 2nd arithmetic generator: discover a SUM's closed form from data and prove it by
                  induction via MathHead (Σi=n(n+1)/2, Σi³=…); refuses to force a non-polynomial fit
+  * coloring   — bridge to the SAT/UNSAT FRONTIER: χ(g) computed by backtracking, then confirmed by
+                 MathHead's graph_coloring (sat at χ, unsat at χ−1); mines ω ≤ χ ≤ Δ+1, refutes χ ≤ Δ
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -43,11 +45,19 @@ from .arithmetic import (
 )
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .checker import check_proof, independently_verify
+from .coloring import (
+    ColoringBoundFinding,
+    ColoringVerification,
+    coloring_bounds,
+    verify_chromatic_number,
+)
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
+    chromatic_number,
+    clique_number,
     evaluate,
     invariant_vector,
     is_forest,
@@ -99,6 +109,12 @@ __all__ = [
     "invariant_vector",
     "is_forest",
     "is_tree",
+    "chromatic_number",
+    "clique_number",
+    "ColoringVerification",
+    "verify_chromatic_number",
+    "ColoringBoundFinding",
+    "coloring_bounds",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

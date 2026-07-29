@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — Graph domain reaches the SAT/UNSAT FRONTIER: chromatic number, two authorities
+
+The graph domain crossed from exact-arithmetic invariants into the NP-hard frontier — and did it
+with a double check. New `coloring.py`: χ(g) is computed exactly by backtracking (an ordinary
+invariant, `chromatic_number` / `clique_number` now in the registry), then INDEPENDENTLY CONFIRMED
+by MathHead's `graph_coloring` frontier tool — `sat` at χ colors AND `unsat` at χ−1 (an
+impossibility proof). Our backtracking and MathHead's Z3 reduction are orthogonal authorities; both
+agreeing is the "don't trust one prover" principle applied to a genuinely NP-hard invariant. Every
+graph up to n≤5 has its χ confirmed this way; χ≤1 (edgeless) is trivial and skips the solver.
+
+It also mines the classic coloring sandwich `ω ≤ χ ≤ Δ+1` (all survive the sample) and REFUTES
+`χ ≤ Δ`. Honest surprise: refute-first reports the MINIMAL witness — not the textbook triangle
+(χ=3 vs Δ=2) but the single vertex (χ=1 vs Δ=0), which breaks it more minimally. The engine found
+a smaller counterexample than the human default; the test now records that (exact `bounded_check`,
+not proven-for-all). Bridge quirk handled: `graph_coloring` is 1-indexed, so vertices shift +1 and
+`n` is passed explicitly (isolated vertices counted).
+
+9 new tests (discovery suite 105); full suite **1394 green**, ruff clean. ADR-D0018. Roadmap: O1
+frontier-bridge slice + coloring invariants.
+
+**Next:** more frontier invariants (independence number via `subset`/SAT, Hamiltonicity), or fold
+`verify_chromatic_number` provenance into the report.
+
+---
+
 ## 2026-07-29 — Independent verification extended to the sum-identity proofs
 
 Closed the gap: now EVERY proved fact in the report is independently verified, not just the modular

@@ -101,7 +101,7 @@ N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
 **Track O — Özellik & invariant değerlendirme**
 ```
 O0 🟢 Özellik değerlendirici (nesnede P doğru mu? deterministik, cache'li)  ✅ (invariants.evaluate + registry)
-O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, kromatik/çevrim/bağlılık...)  ✅ (edges/degseq/triangles/components... + SPEKTRAL: Σλ²=2E, Σλ³=6·üçgen; graf→MathHead köprüsü; ADR-D0009)
+O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, kromatik/çevrim/bağlılık...)  ✅ (edges/degseq/triangles/components... + SPEKTRAL: Σλ²=2E, Σλ³=6·üçgen; graf→MathHead köprüsü; ADR-D0009 + FRONTIER: kromatik sayı χ backtracking ile, MathHead graph_coloring ile bağımsız doğrulanır [sat@χ, unsat@χ−1]; ω≤χ≤Δ+1 madenciliği, χ≤Δ çürütüldü; ADR-D0018)
 O2 🟡 Otomatik invariant çıkarımı — milyonlarca örnekte değişmeyeni bul  ✅ (null-space lineer yasa madenciliği; Handshake Lemma'yı veriden buldu; empirical; ADR-D0004)
 O3 🟢 Özellik/invariant ↔ nesne matrisi (feature table) — konjektür & sınıflandırma zemini  ✅ (invariant_vector + relations feature matrix)
 O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık çapraz-kontrolü (cross_check)

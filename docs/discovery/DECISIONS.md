@@ -680,6 +680,28 @@
 
 ---
 
+## ADR-D0031 — Collapse the certainty vocabulary onto four honest rungs, in a separate axis
+
+- **Status:** Accepted · 2026-07-29 (AA3 — epistemic ladder)
+- **Context:** Across ~30 increments the engine grew many certainty labels, each honest locally but
+  hard to compare across domains (is `constructive_bounded` above or below `numerical_check`? where
+  does `structural_argument` sit vs `solver_verified`?). A reader needs one comparable axis of "how
+  solid," without erasing the specific labels.
+- **Decision:** Add `epistemic_ladder.py` mapping every finding to the document's four rungs
+  (DISCOVERED_HEURISTIC → EMPIRICALLY_VALIDATED → FORMALLY_SPECIFIED → FORMALLY_PROVED). The mapping is
+  explicit and conservative: kernel/independently-verified proofs → L4; solver-confirmed instance
+  certificates → L3; sample-validated laws/bounds/structural arguments → L2; L1 is the transient
+  pre-attack rung (≈0 in a finished report). It is a SEPARATE view layered over the buckets, not a
+  replacement — the fine-grained certainty stays on each item; refuted items are off-ladder.
+- **Consequences:** The report gains a single legible "solidity distribution" (L2=23, L3=7, L4=17)
+  that a human can read at a glance, while every finding keeps its precise status underneath. The
+  mapping is conservative by design — nothing is promoted to L4 without independent/kernel verification
+  — so the ladder can't launder weak evidence into strong. It also gives the loop a promotion target
+  (a finding rises rungs as evidence accrues), and it's the natural place a future "what would move
+  this up a rung?" planner reads from. Truth is untouched; only the labeling is unified.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

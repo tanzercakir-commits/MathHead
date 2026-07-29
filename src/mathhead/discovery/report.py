@@ -198,11 +198,13 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                 for s, _ in rank(all_items)[:5]]
     report = DiscoveryReport(proved, empirical, refuted, open_bounded,
                              _frontier_confirmations(), meta, explanations)
+    from .epistemic_ladder import ladder_summary                  # 4-rung solidity axis (AA3)
     from .impact import impact_summary                            # structural impact analysis (X3)
     from .knowledge_graph import from_report as _kg_from_report   # semantic graph of findings (X0)
     _kg = _kg_from_report(report)
     report.meta["knowledge_graph"] = _kg.summary()
     report.meta["impact"] = impact_summary(_kg)
+    report.meta["ladder"] = ladder_summary(report)
     return report
 
 
@@ -228,6 +230,9 @@ def render(report: DiscoveryReport) -> str:
         lb = impact["load_bearing_axioms"][0]
         lines.append(f"_impact: most load-bearing axiom `{lb['axiom']}` supports {lb['supports']} "
                      f"theorems_")
+    ladder = report.meta.get("ladder")
+    if ladder:
+        lines.append("_solidity (AA3): " + " · ".join(f"{k}={v}" for k, v in ladder.items()) + "_")
     lines.append("")
 
     def section(title, items, fmt):

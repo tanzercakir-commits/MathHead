@@ -5,6 +5,7 @@ _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(
 _negative knowledge: 4 dead end(s) recorded_
 _knowledge graph: 55 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×6, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=22 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`

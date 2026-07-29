@@ -120,7 +120,7 @@ U3 ♻️🟢 Dönüşüm anlam-koruyor mu doğrulaması (cross_check)
 AA0 🟢 Aday program üreteci (DSL) + otomatik değerlendirici (FunSearch iskeleti)
 AA1 🟢 Evrimsel arama: iyi programları mutasyona uğrat + seç
 AA2 🟢 Programın davranışından konjektür çıkar
-AA3 🟡 Dört seviye: DISCOVERED_HEURISTIC → EMPIRICALLY_VALIDATED → FORMALLY_SPECIFIED → FORMALLY_PROVED
+AA3 🟡 Dört seviye: DISCOVERED_HEURISTIC → EMPIRICALLY_VALIDATED → FORMALLY_SPECIFIED → FORMALLY_PROVED  🟢 epistemic_ladder: tüm certainty sözlüğünü 4 basamağa indirger, her bulguyu sınıflar (L2=23,L3=7,L4=17); muhafazakâr eşleme (L4 yalnız kernel/bağımsız doğrulanmış); raporda solidity dağılımı; ADR-D0031
 AA4 🟡 Bulunan algoritmayı ispata bağla (Track S/M köprüsü)
 ```
 

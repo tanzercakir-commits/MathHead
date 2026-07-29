@@ -39,6 +39,8 @@ Layers so far:
                  divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
   * structural_explanations — WHY the graph laws hold: double counting (handshake), the clique bound
                  (ω≤χ), the cycle-degree argument (Hamiltonian⟹δ≥2); conclusion checked on the sample
+  * epistemic_ladder — one 4-rung solidity axis (AA3): DISCOVERED → EMPIRICALLY_VALIDATED →
+                 FORMALLY_SPECIFIED → FORMALLY_PROVED; classifies every finding, honestly
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
@@ -110,6 +112,7 @@ from .knowledge_graph import (
     Node,
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
+from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
 from .failure_memory import (
     AttemptRecord,
     FailureMemory,
@@ -222,6 +225,10 @@ __all__ = [
     "impact_summary",
     "load_bearing_axioms",
     "structural_explanations",
+    "LEVELS",
+    "classify",
+    "ladder_summary",
+    "rung_of",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

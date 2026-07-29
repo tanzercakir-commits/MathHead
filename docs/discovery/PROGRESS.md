@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — The epistemic ladder (AA3): one honest solidity axis over everything
+
+The engine had accumulated a sprawling certainty vocabulary (empirical, bounded_check, numerical_check,
+constructive_bounded, structural_argument, solver_verified, formal_proof, kernel_verified…). New
+`epistemic_ladder.py` collapses it onto the document's FOUR rungs and classifies every finding:
+
+- L1 DISCOVERED_HEURISTIC — mined, not yet attacked (transient; ~0 in a finished report).
+- L2 EMPIRICALLY_VALIDATED — holds over the sample / survived refutation, not universally proven
+  (mined laws, surviving bounds, structural arguments).
+- L3 FORMALLY_SPECIFIED — a machine-checkable certificate on instances (solver-confirmed χ/Hamiltonicity
+  values, constructively-certified bounds).
+- L4 FORMALLY_PROVED — universally proven AND independently/kernel verified.
+
+On the report: L2=23, L3=7, L4=17. The header shows the solidity distribution; `meta.ladder` carries
+it. Honest by construction: the ladder never changes a finding's truth, it just names uniformly how
+far the evidence goes; refuted items are OFF the ladder (negative knowledge, Y).
+
+7 tests (discovery suite 202); full suite **1491 green**, ruff clean. ADR-D0031. Roadmap AA3.
+
+**Next:** a new domain surface, or connect the ladder to the loop (promote findings up the rungs as
+evidence accrues), or the research-director orchestrator (AC0/AC3).
+
+---
+
 ## 2026-07-29 — "Explain why" reaches the graph domain: structural arguments for the laws
 
 The explanatory thread crossed from arithmetic to graphs. New `structural_explanations.py` attaches

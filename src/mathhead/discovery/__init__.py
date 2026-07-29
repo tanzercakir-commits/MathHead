@@ -5,11 +5,13 @@ This package is the "matter + experiment" (and, later, "discovery") layers built
 MathHead's verification/judge spine. It starts in the finite-graph domain (roadmap v0.1:
 finite combinatorics + graph theory).
 
-First stone (this increment):
+Layers so far:
   * objects    — typed object model (N0): Graph
   * canonical  — isomorphism elimination / canonical labeling (N2)
   * generate   — canonical non-isomorphic generation (N1), pinned to OEIS A000088
   * invariants — property & invariant evaluation (O0/O1)
+  * relations  — automatic relation discovery (O2): finds empirical linear laws
+                 (e.g. rediscovers the Handshake Lemma) + constant invariants
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -21,8 +23,9 @@ later (see docs/discovery/DECISIONS.md, ADR-D0001).
 """
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .generate import count_non_isomorphic, generate_graphs
-from .invariants import INVARIANTS, evaluate, invariant_vector
+from .invariants import INVARIANTS, NUMERIC_INVARIANTS, evaluate, invariant_vector
 from .objects import Graph, MathObject
+from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 
 __all__ = [
     "Graph",
@@ -33,6 +36,10 @@ __all__ = [
     "generate_graphs",
     "count_non_isomorphic",
     "INVARIANTS",
+    "NUMERIC_INVARIANTS",
     "evaluate",
     "invariant_vector",
+    "DiscoveredLaw",
+    "discover_linear_laws",
+    "discover_constants",
 ]

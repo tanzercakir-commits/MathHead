@@ -102,8 +102,8 @@ N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
 ```
 O0 🟢 Özellik değerlendirici (nesnede P doğru mu? deterministik, cache'li)  ✅ (invariants.evaluate + registry)
 O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, kromatik/çevrim/bağlılık...)  ✅ (edges/degseq/triangles/components...; spektral = sonra, mathhead ile)
-O2 🟡 Otomatik invariant çıkarımı — milyonlarca örnekte değişmeyeni bul
-O3 🟢 Özellik/invariant ↔ nesne matrisi (feature table) — konjektür & sınıflandırma zemini
+O2 🟡 Otomatik invariant çıkarımı — milyonlarca örnekte değişmeyeni bul  ✅ (null-space lineer yasa madenciliği; Handshake Lemma'yı veriden buldu; empirical; ADR-D0004)
+O3 🟢 Özellik/invariant ↔ nesne matrisi (feature table) — konjektür & sınıflandırma zemini  ✅ (invariant_vector + relations feature matrix)
 O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık çapraz-kontrolü (cross_check)
 ```
 

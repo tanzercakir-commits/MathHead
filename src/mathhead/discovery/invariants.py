@@ -34,6 +34,12 @@ def min_degree(g: Graph) -> int:
     return min(d) if d else 0
 
 
+def sum_degrees(g: Graph) -> int:
+    """Sum of all vertex degrees. (Equals 2*|E| — the Handshake Lemma; the discovery engine
+    is meant to REDISCOVER that relation, so we do not hardcode it here.)"""
+    return sum(g.degrees())
+
+
 def num_triangles(g: Graph) -> int:
     """Number of 3-cliques (triangles)."""
     n = g.n
@@ -81,6 +87,7 @@ def is_connected(g: Graph) -> bool:
 INVARIANTS = {
     "num_vertices": num_vertices,
     "num_edges": num_edges,
+    "sum_degrees": sum_degrees,
     "degree_sequence": degree_sequence,
     "max_degree": max_degree,
     "min_degree": min_degree,
@@ -88,6 +95,13 @@ INVARIANTS = {
     "num_components": num_components,
     "is_connected": is_connected,
 }
+
+# The integer-valued invariants — the columns the relation miner (O2) runs over. Excludes
+# the tuple (degree_sequence) and the boolean (is_connected), which are not linear features.
+NUMERIC_INVARIANTS = [
+    "num_vertices", "num_edges", "sum_degrees", "num_triangles",
+    "max_degree", "min_degree", "num_components",
+]
 
 
 def evaluate(g: Graph, name: str):

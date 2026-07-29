@@ -61,6 +61,31 @@
 
 ---
 
+## ADR-D0004 — Relation discovery via the integer null space, labeled `empirical` (O2)
+
+- **Status:** Accepted · 2026-07-29 (Track O2)
+- **Context:** From the invariant feature table we want the engine to *find* the exact relations
+  the objects obey (e.g. the Handshake Lemma), not have them hardcoded. Two risks: (1) floating
+  point would make a "law" approximate; (2) reporting an empirical relation as if it were a
+  proven theorem would violate the project's honesty contract.
+- **Decision:** Build the affine feature matrix (numeric invariants + a constant column) over
+  the sample and compute its **integer null space** with sympy (exact rationals, scaled to
+  primitive integer vectors). Each basis vector is an exact linear law `Σ cᵢ·invᵢ + c₀ = 0`
+  holding across every sampled object. Every result is a `DiscoveredLaw` with
+  **`status="empirical"`** and a `holds_over` sample description — explicitly a *conjecture*, not
+  a theorem. `sum_degrees` was added as a numeric invariant (NOT hardcoding `= 2E`; the miner
+  must rediscover that relation). `is_connected` (bool) and `degree_sequence` (tuple) are
+  excluded from the linear feature set.
+- **Consequences:** The engine rediscovers the Handshake Lemma (`2*num_edges = sum_degrees`) from
+  data with no spurious laws (verified for n≤5 and n≤6) — an independent O2 milestone mirroring
+  A000088 for N1. The empirical labeling is the honest handoff to the next tracks: a discovered
+  law is a conjecture that the counterexample-first track (Q) will attack and, if it survives,
+  the judge (R) will prove. Exact arithmetic guarantees a reported law holds exactly on the
+  sample. Null-space cost is negligible at this scale; if the invariant set grows large,
+  column selection / incremental rank is the planned optimization.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-29 — O2: automatic relation discovery — the engine rediscovers the Handshake Lemma
+
+First real *discovery*: the engine finds a true theorem from data (not hardcoded).
+
+**Done — new `relations.py` (Track O2):**
+- **`discover_linear_laws`** — builds the affine feature matrix over the numeric invariants and
+  reports the exact linear laws (integer null space, sympy rationals) holding across the whole
+  sample. Each is a `DiscoveredLaw` with **`status="empirical"`** (a conjecture, not a theorem)
+  + `holds_over` / `support`. ADR-D0004.
+- **`discover_constants`** — invariants constant across a sample (e.g. `num_vertices=4` over all
+  graphs on 4 vertices).
+- Added `sum_degrees` as a numeric invariant + `NUMERIC_INVARIANTS` (the miner's columns) —
+  deliberately NOT hardcoding `sum_degrees = 2E`; the engine must find it.
+
+**Milestone (the O2 gate):** over all graphs with n ≤ 5 (53 objects) AND n ≤ 6 (209 objects),
+the miner returns **exactly one** universal law — `2*num_edges = sum_degrees`, the **Handshake
+Lemma** — with no spurious relations. As A000088 pinned generation, this pins discovery.
+
+**Honesty:** the law ships as `empirical` (holds over the sample), never as "proved". That is
+the handoff to the next tracks: a conjecture for the counterexample-first track (Q) to attack,
+then the judge (R) to prove. 6 new tests; discovery suite now 39; full suite green, ruff clean.
+
+**Next on the critical path:** P0/P1 — conjecture generation (bounds/inequalities, subclass laws
+via mutation) → then **Q**, where MathHead becomes the judge that attacks each conjecture.
+
+---
+
 ## 2026-07-29 — First stone: N0 + N2 + N1 + O0/O1 (the "matter" layer)
 
 Kicked off the discovery engine — the layer that will (later) generate conjectures and hunt

@@ -21,6 +21,8 @@ from dataclasses import dataclass
 from functools import reduce
 from math import gcd
 
+from .checker import check_proof
+from .proof_tree import proof_tree
 from .strategy import prove_by_residues, prove_modular_divisibility
 
 
@@ -66,7 +68,8 @@ class ArithmeticFinding:
     verdict: str                  # "proved" | "unknown" | "refuted"  (from the judge)
     certainty: str                # judge certainty (formal_proof / unknown / ...)
     checked_upto: int
-    method: str = "induction"     # "induction" | "modulus-factoring" (the winning strategy)
+    method: str = "induction"     # "induction" | "modulus-factoring" | "residue-exhaustion"
+    independently_verified: bool = False   # re-checked by the independent checker (not the prover)
 
 
 def discovered_modulus(fn, sample=range(1, 20)) -> int:
@@ -94,8 +97,11 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
     method = "modulus-factoring" if len(v.detail.get("prime_powers", [m])) > 1 else "induction"
     if v.status != "proved":                            # complete fallback: exhaustive residue proof
         v, method = prove_by_residues(fn, m), "residue-exhaustion"
-    return ArithmeticFinding(
+    finding = ArithmeticFinding(
         expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
+    if v.status == "proved":                            # don't trust the prover — check the proof
+        finding.independently_verified = check_proof(proof_tree(finding), fn)[0]
+    return finding
 
 
 # The full run is deterministic; memoize it (each call otherwise re-runs the judge over the whole

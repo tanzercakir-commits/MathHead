@@ -44,6 +44,12 @@ def test_portfolio_proves_every_modular_law_with_the_right_strategy():
     assert f["n**5 - n"].certainty == "exhaustive_residue_proof"
 
 
+def test_every_proof_is_independently_verified():
+    # each proved modular law is re-checked by the INDEPENDENT checker (not the prover)
+    findings = run_arithmetic_discovery(check_upto=40)
+    assert all(f.independently_verified for f in findings)
+
+
 def test_overshoot_modulus_is_refuted_counterexample_first():
     # claiming a modulus larger than the truth dies before the judge
     assert first_counterexample(_consec(2), 4, 40) == 1        # n(n+1) not ≡0 mod 4 (n=1 -> 2)

@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-07-29 — Independent verification is now first-class: every proof is re-checked
+
+The checker isn't optional anymore. `discover_and_prove` now runs `check_proof(proof_tree(finding),
+fn)` on every proved fact and records `independently_verified` on the finding; the report surfaces
+it (`✓ independently verified`).
+
+So every proved arithmetic fact in the engine is confirmed by a checker independent of the prover —
+the CRT reasoning is structurally re-checked, the claims re-verified by the complete residue method.
+Trust shifted from "the strategy said so" to "an independent checker confirmed it", visible in the
+report. A proof the checker couldn't confirm would ship as `independently_verified=False` (loud),
+never silently. 2 tests; full suite 1384 green, ruff clean. ADR-D0017.
+
+**Next:** extend independent verification to the sum-identity proofs, or more surface — the pipeline
+absorbs it.
+
+---
+
 ## 2026-07-29 — Independent proof checker (M spirit): don't trust the prover, check the proof
 
 The document's #1 principle, in a tractable form. New `checker.py` re-verifies a proof tree by an

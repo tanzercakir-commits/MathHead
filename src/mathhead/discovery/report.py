@@ -65,7 +65,8 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     for f in run_arithmetic_discovery():
         item = {"statement": f.claim, "modulus": f.modulus}
         if f.verdict == "proved":
-            proved.append({**item, "status": "proved", "certainty": f.certainty})
+            proved.append({**item, "status": "proved", "certainty": f.certainty,
+                           "independently_verified": f.independently_verified})
         elif f.verdict == "refuted":
             refuted.append({**item, "status": "refuted"})
         else:
@@ -109,7 +110,8 @@ def render(report: DiscoveryReport) -> str:
         lines.append("")
 
     section("PROVED (formal — by the judge)", report.proved,
-            lambda it: f"`{it['statement']}` — {it.get('certainty', '')}")
+            lambda it: f"`{it['statement']}` — {it.get('certainty', '')}"
+                       + ("  ✓ independently verified" if it.get("independently_verified") else ""))
     section("REFUTED (killed, with a minimal counterexample)", report.refuted,
             lambda it: f"`{it['statement']}` — counterexample: {it.get('counterexample', {})}")
     section("DISCOVERED (empirical — holds on the sample, NOT proven)", report.empirical_laws,

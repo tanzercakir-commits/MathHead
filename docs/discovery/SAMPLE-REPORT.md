@@ -3,13 +3,13 @@
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 
 ## PROVED (formal — by the judge) (11)
-- `(n*(n+1)) % 2 == 0` — formal_proof
-- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof
-- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof
-- `(n**2 - n) % 2 == 0` — formal_proof
-- `(n**3 - n) % 6 == 0` — formal_proof
-- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof
-- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof
+- `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified
+- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified
+- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified
+- `(n**2 - n) % 2 == 0` — formal_proof  ✓ independently verified
+- `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified
+- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified
+- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified
 - `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified
 - `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified
 - `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified

@@ -336,6 +336,24 @@
 
 ---
 
+## ADR-D0017 — Independent verification is now first-class: every proof is re-checked
+
+- **Status:** Accepted · 2026-07-29 (M3/R — pipeline integration)
+- **Context:** The independent checker (ADR-D0016) existed but was standalone. The document's
+  principle only bites if the checker is ALWAYS run — a proof nobody re-checks is a proof on trust.
+- **Decision:** `discover_and_prove` now, on every proved finding, runs
+  `check_proof(proof_tree(finding), fn)` — reconstructing the proof tree and re-verifying it with
+  the independent checker — and stores the boolean on `ArithmeticFinding.independently_verified`.
+  The report surfaces it (`✓ independently verified`).
+- **Consequences:** Every proved arithmetic fact in the engine is now re-verified by a checker that
+  is independent of the prover (orthogonal residue method for induction/CRT proofs; a separate
+  stdlib implementation for residue proofs), and the CRT reasoning is structurally re-checked. Trust
+  is no longer "the strategy said so" but "an independent checker confirmed it" — the honest default,
+  visible in the report. A proof the checker could not confirm would ship with
+  `independently_verified=False` (a loud signal), never silently.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

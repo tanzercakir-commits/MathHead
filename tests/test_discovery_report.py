@@ -39,3 +39,10 @@ def test_render_produces_readable_markdown():
     assert text.startswith("# MathHead — Discovery Run Report")
     for header in ("PROVED", "REFUTED", "DISCOVERED", "OPEN"):
         assert header in text
+
+
+def test_proved_arithmetic_facts_are_independently_verified():
+    r = run_report(max_n=5)
+    modular = [x for x in r.proved if "% " in x["statement"]]
+    assert modular and all(x.get("independently_verified") for x in modular)
+    assert "independently verified" in render(r)          # surfaced in the report

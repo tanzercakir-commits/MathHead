@@ -38,6 +38,15 @@ def test_every_proved_sum_identity_is_independently_verified():
         assert _by_term()[term].independently_verified
 
 
+def test_every_proved_sum_identity_is_kernel_verified():
+    # each proved closed form also carries a kernel SumInduction proof term with provenance (M1–M5)
+    for term in ("i", "i**2", "i**3", "2*i - 1"):
+        f = _by_term()[term]
+        assert f.kernel_verified and f.axioms == ("SUM_INDUCTION",)
+        assert len(f.proof_hash) == 16
+    assert _by_term()["2**i"].kernel_verified is False   # non-polynomial: no kernel proof
+
+
 def test_run_is_deterministic():
     a = [f.closed_form for f in run_sequence_discovery()]
     b = [f.closed_form for f in run_sequence_discovery()]

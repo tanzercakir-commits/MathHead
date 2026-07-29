@@ -140,7 +140,9 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":
             proved.append({"statement": stmt, "status": "proved", "certainty": s.certainty,
-                           "independently_verified": s.independently_verified})
+                           "independently_verified": s.independently_verified,
+                           "kernel_verified": s.kernel_verified,
+                           "proof_hash": s.proof_hash, "axioms": list(s.axioms)})
         elif s.verdict == "refuted":
             refuted.append({"statement": stmt, "status": "refuted",
                             "counterexample": {"note": "not a polynomial identity"}})

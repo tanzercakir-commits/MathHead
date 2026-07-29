@@ -19,6 +19,8 @@ import sympy
 
 from .checker import check_sum_identity
 from .judge import judge_identity
+from .kernel import KernelError, poly_from_sympy_q, prove_sum_identity
+from .provenance import axioms_used, proof_hash
 
 _n = sympy.Symbol("n")
 
@@ -56,6 +58,9 @@ class SumIdentityFinding:
     certainty: str
     checked_upto: int
     independently_verified: bool = False   # re-checked independently of the MathHead proof
+    kernel_verified: bool = False          # a kernel SumInduction proof term was checked (M1/M2)
+    proof_hash: str = ""                   # deterministic kernel proof-artifact hash (M4)
+    axioms: tuple = ()                     # rules the kernel proof rests on (M5)
 
 
 def partial_sum(f, k: int) -> int:
@@ -85,8 +90,23 @@ def discover_and_prove_sum(term_i: str, term_n: str, f, n_points: int = 8, check
     step = judge_identity(f"({g}) - ({sympy.expand(g.subs(_n, _n - 1))})", term_n)
     verdict = "proved" if (base_ok and step.status == "proved") else step.status
     iv = check_sum_identity(f, g) if verdict == "proved" else False   # independent re-check
-    return SumIdentityFinding(
+    finding = SumIdentityFinding(
         term_i, str(g), "no_counterexample_within_bound", verdict, step.certainty, check_upto, iv)
+    if verdict == "proved":                               # also mint a kernel proof term (M1/M2)
+        finding.kernel_verified, finding.proof_hash, finding.axioms = _kernel_check_sum(term_i, str(g))
+    return finding
+
+
+def _kernel_check_sum(term_i: str, closed_form: str):
+    """Emit a SumInduction kernel proof term for Σf(i)=g(n), let the kernel mint the Theorem, and
+    derive provenance. Returns (verified, hash, axioms). A false closed form raises in the kernel."""
+    try:
+        f_poly = poly_from_sympy_q(term_i, "i")
+        g_poly = poly_from_sympy_q(closed_form, "n")
+        _thm, term = prove_sum_identity(f_poly, g_poly)
+        return True, proof_hash(term), tuple(sorted(axioms_used(term)))
+    except KernelError:
+        return False, "", ()
 
 
 _RUN_CACHE: dict = {}

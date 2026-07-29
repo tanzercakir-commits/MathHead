@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — Kernel fragment widened: a second judgment (SUM identities), sequences now kernel-verified
+
+The kernel grew from one judgment to two. `Theorem` now carries a `kind`: `Divides` (RESIDUE/CRT, as
+before, with `modulus`/`poly` kept as backward-compatible accessors) and the new `SumIdentity`
+(∀n≥1, Σf(i)=g(n)). New rule `SumInduction`: verify base g(1)=f(1) AND that the telescoping step
+g(n)−g(n−1)−f(n) is the ZERO polynomial — sound and complete for polynomial sums. It needed RATIONAL
+polynomial arithmetic (Fraction), since closed forms like n(n+1)/2 aren't integer — added exact
+`_norm_q`/`_poly_sub_q`/`_poly_shift_back_q` and a `poly_from_sympy_q` bridge; the Divides fragment
+stays integer (RESIDUE is only sound over ℤ).
+
+Wired into `sequences.py`: all four polynomial sum identities (Σi=n(n+1)/2, Σi², Σi³, Σ(2i−1)=n²) are
+now BOTH independently verified AND `kernel_verified` (axiom SUM_INDUCTION, with proof hash); the
+non-polynomial Σ2^i stays refuted (no kernel proof). The report surfaces them the same way —
+SAMPLE-REPORT.md now has 11 kernel-verified facts (7 modular + 4 sums) and SUM_INDUCTION in the axiom
+manifest. The two judgments don't mix: CRT rejects a SumIdentity premise (tested).
+
+11 tests (5 kernel + 1 sequences new; discovery suite 152); full suite **1440 green**, ruff clean.
+ADR-D0024. Roadmap M1 (fragment widened).
+
+**Next:** widen further (derive RESIDUE from ring/induction primitives — the deeper kernel), or open a
+new track: AC1 (wire the full 16-step loop) or a fresh domain surface.
+
+---
+
 ## 2026-07-29 — Proof provenance, hashing & replay (M4/M5): every theorem shows its axioms
 
 The kernel proofs became auditable artifacts. New `provenance.py`: `axioms_used(term)` lists the

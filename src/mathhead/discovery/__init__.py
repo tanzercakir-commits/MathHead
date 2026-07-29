@@ -32,8 +32,10 @@ Layers so far:
   * graph_proofs — CONSTRUCTIVE certificates for the surviving coloring laws (χ≤Δ+1 via greedy,
                  ω≤χ via a solver-double-confirmed clique); independently re-checked; honestly
                  `constructive_bounded` (witnessed over the sample, NOT a universal ∀G proof yet)
-  * kernel     — minimal LCF-style PROOF KERNEL (M1/M2): a Theorem exists only if a proof TERM
-                 (RESIDUE / CRT rules) is kernel-checked; forge-guarded; rejects false claims
+  * kernel     — minimal LCF-style PROOF KERNEL (M1/M2): a Theorem exists only if a proof TERM is
+                 kernel-checked; two judgments — Divides (RESIDUE/CRT) and SumIdentity (SumInduction,
+                 rational polys); forge-guarded; rejects false claims
+  * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -73,7 +75,16 @@ from .hamiltonicity import (
     hamiltonicity_laws,
     verify_hamiltonicity,
 )
-from .kernel import CRT, KernelError, Residue, Theorem, check, prove_divides
+from .kernel import (
+    CRT,
+    KernelError,
+    Residue,
+    SumInduction,
+    Theorem,
+    check,
+    prove_divides,
+    prove_sum_identity,
+)
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .invariants import (
     INVARIANTS,
@@ -151,9 +162,11 @@ __all__ = [
     "Theorem",
     "Residue",
     "CRT",
+    "SumInduction",
     "KernelError",
     "check",
     "prove_divides",
+    "prove_sum_identity",
     "axioms_used",
     "proof_hash",
     "replay",

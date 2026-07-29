@@ -56,7 +56,7 @@ KÜME 4 — BİLGİ, ARAYÜZ, ÜRÜNLEŞME     (glue + hafıza + insan + ölçek
 **Track M — Güvenilir çekirdek & proof kernel (§1)**
 ```
 M0 ♻️🟡 MathHead yargıç yüzeyini (envelope + determinizm + provenance/meta) kernel arayüzü olarak sabitle
-M1   🟡 Minimal proof-term dili tasarla (LCF-stili / bağımlı tip) — "yalnızca izin verilen kurallar"  🟢 İLK KERNEL: proof-term ADT (RESIDUE yaprağı + CRT kompozisyon) modüler-polinom parçası için; Theorem forge-korumalı (yalnız kernel _mint eder); ADR-D0022
+M1   🟡 Minimal proof-term dili tasarla (LCF-stili / bağımlı tip) — "yalnızca izin verilen kurallar"  🟢 İLK KERNEL: proof-term ADT (RESIDUE yaprağı + CRT kompozisyon) modüler-polinom parçası için; Theorem forge-korumalı (yalnız kernel _mint eder); ADR-D0022  🟢 GENİŞLETİLDİ: ikinci yargı SumIdentity (SumInduction kuralı, rasyonel polinom aritmetiği); tek kernel iki alanı da kapsar, yargılar karışmaz; ADR-D0024
 M2   🟡 Kernel: tip kontrolü + kural kontrolü + nihai terim teoremi gerçekten kuruyor mu?  🟢 kernel.check terimi yorumlar, her kural yan-koşulunu doğrular (residue taraması; CRT eşit-polinom+ikili-aitlik-asal), yanlış iddiayı/forge'u/uyumsuz-polinomu reddeder; prover AYRIK & güvenilmez; ADR-D0022
 M3   🟡 Bağımsız İKİNCİ checker (farklı dil/ekip) — kernel'i çapraz doğrula  🟢 İLK BAĞIMSIZ CHECKER: modüler-polinom ispatlarını dik/stdlib kalıntı yöntemiyle yeniden doğrular, yanlışı/bozuk-CRT'yi reddeder (ADR-D0016)
 M4   🟢 Deterministik proof replay + proof-artifact hash + kernel sürümleme  ✅ (provenance.proof_hash: kanonik+versiyonlu içerik hash'i, sıra-bağımsız; replay: kernel'i yeniden çalıştır; ArithmeticFinding.proof_hash + raporda [hash]; ADR-D0023)

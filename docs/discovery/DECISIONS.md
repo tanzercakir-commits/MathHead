@@ -520,6 +520,31 @@
 
 ---
 
+## ADR-D0024 — Widen the kernel to a second judgment (SumIdentity) rather than a second kernel
+
+- **Status:** Accepted · 2026-07-29 (M1 — fragment widening)
+- **Context:** The sequences domain proved sum identities by induction + an independent polynomial
+  check, but had no kernel proof (unlike the modular facts after ADR-D0022). Options: a separate
+  little kernel for sums, or widen the one kernel to carry a second judgment. Sum closed forms are
+  RATIONAL polynomials (n(n+1)/2), which the integer-only Divides fragment can't represent.
+- **Decision:** Widen the SINGLE kernel. Generalize `Theorem` to `(kind, payload)` — `Divides` and
+  `SumIdentity` — keeping `modulus`/`poly` as accessors that work for Divides and raise otherwise
+  (backward compatible; existing tests untouched). Add the `SumInduction` rule (base case + zero
+  telescoping step, a sound+complete decision procedure for polynomial sums) with exact RATIONAL
+  polynomial arithmetic (Fraction) confined to the SumIdentity path; RESIDUE stays integer-only
+  because its soundness argument (p(n) mod m depends only on n mod m) needs integer coefficients.
+  Enforce non-mixing at the rule boundary: CRT rejects any premise that is not a Divides theorem.
+- **Consequences:** One kernel, one forge-guarded `Theorem` type, one provenance/replay path now cover
+  BOTH arithmetic domains — the proof story is unified (11 kernel-verified facts in the report:
+  7 modular + 4 sums), and the LCF trust base grew by exactly one small, auditable rule. Keeping the
+  rational arithmetic out of the Divides path preserves RESIDUE's soundness. The generalization was
+  done without breaking the Divides API (accessor properties), so the widening cost nothing
+  downstream. This is the pattern for future fragments (inequalities, identities): add a judgment +
+  a rule to the same kernel, not a parallel one. Deeper work still deferred: deriving RESIDUE and
+  SumInduction from more primitive ring/induction axioms (the "real" kernel floor).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

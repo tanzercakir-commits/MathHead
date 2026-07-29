@@ -2,13 +2,18 @@
 false claims are rejected, theorems can't be forged, and rule side-conditions are enforced."""
 import pytest
 
+from fractions import Fraction
+
 from mathhead.discovery.kernel import (
     CRT,
     KernelError,
     Residue,
+    SumInduction,
     Theorem,
     check,
+    poly_from_sympy_q,
     prove_divides,
+    prove_sum_identity,
 )
 
 _N3_MINUS_N = (0, -1, 0, 1)          # n³ − n
@@ -72,3 +77,40 @@ def test_kernel_is_deterministic():
     a = check(CRT((Residue(2, _N3_MINUS_N), Residue(3, _N3_MINUS_N))))
     b = check(CRT((Residue(3, _N3_MINUS_N), Residue(2, _N3_MINUS_N))))
     assert a == b and a.modulus == 6              # same theorem regardless of premise order
+
+
+# --- second judgment: polynomial SUM identities (SumInduction) --------------------------------
+
+def test_sum_induction_proves_gauss_sum():
+    # Σi = n(n+1)/2 — rational closed form
+    g = (Fraction(0), Fraction(1, 2), Fraction(1, 2))
+    thm = check(SumInduction((0, 1), g))
+    assert thm.kind == "SumIdentity"
+    with pytest.raises(AttributeError):
+        _ = thm.modulus                            # SumIdentity theorems have no modulus
+
+
+def test_sum_induction_via_sympy_bridge():
+    f = poly_from_sympy_q("2*i - 1", "i")
+    g = poly_from_sympy_q("n**2", "n")
+    thm, _term = prove_sum_identity(f, g)          # Σ(2i−1) = n²
+    assert thm.kind == "SumIdentity"
+
+
+def test_sum_induction_rejects_a_false_closed_form():
+    with pytest.raises(KernelError, match="step"):
+        check(SumInduction((0, 1), poly_from_sympy_q("n**2", "n")))   # Σi ≠ n²
+
+
+def test_sum_induction_rejects_a_wrong_base_case():
+    # g(n) = n(n+1)/2 + 1 has the right step but g(1)=2 ≠ f(1)=1
+    g = (Fraction(1), Fraction(1, 2), Fraction(1, 2))
+    with pytest.raises(KernelError, match="base"):
+        check(SumInduction((0, 1), g))
+
+
+def test_crt_will_not_compose_a_sum_identity():
+    # the two judgments don't mix: a SumIdentity premise is not a Divides theorem
+    g = (Fraction(0), Fraction(1, 2), Fraction(1, 2))
+    with pytest.raises(KernelError):
+        check(CRT((SumInduction((0, 1), g), Residue(2, _N3_MINUS_N))))

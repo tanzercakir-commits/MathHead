@@ -89,9 +89,9 @@ R4   🟢 "Çözemedim; yalnızca şu sınıra kadar karşı-örnek yok" — bou
 
 **Track N — Tipli nesne modeli & üretim**
 ```
-N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)
-N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üret
-N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at
+N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)  ✅ (Graph; mathhead.discovery.objects)
+N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üret  ✅ (brute n≤7 honest-bound; OEIS A000088 ile doğrulı; nauty/orderly = opt)
+N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at  ✅ (derece-arıtılmış permütasyon-min; C6≠2C3 ayırıyor; ADR-D0002)
 N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)
 N4 🟢 Parametrik aileler + kısıtlı örnekleyiciler (stratified sampling)
 N5 🟡 Rastgele + adversarial + ekstrem/dejeneratif nesne üreticileri
@@ -100,8 +100,8 @@ N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
 
 **Track O — Özellik & invariant değerlendirme**
 ```
-O0 🟢 Özellik değerlendirici (nesnede P doğru mu? deterministik, cache'li)
-O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, spektrum, kromatik sayı, rank, çevrim sayısı...)
+O0 🟢 Özellik değerlendirici (nesnede P doğru mu? deterministik, cache'li)  ✅ (invariants.evaluate + registry)
+O1 🟢 Yerleşik invariant kütüphanesi (derece dizisi, kromatik/çevrim/bağlılık...)  ✅ (edges/degseq/triangles/components...; spektral = sonra, mathhead ile)
 O2 🟡 Otomatik invariant çıkarımı — milyonlarca örnekte değişmeyeni bul
 O3 🟢 Özellik/invariant ↔ nesne matrisi (feature table) — konjektür & sınıflandırma zemini
 O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık çapraz-kontrolü (cross_check)

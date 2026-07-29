@@ -182,6 +182,35 @@ def clique_number(g: Graph) -> int:
     return 1
 
 
+def is_hamiltonian(g: Graph) -> bool:
+    """True iff g has a Hamiltonian CYCLE (a closed walk visiting every vertex exactly once).
+    Standard convention: requires n ≥ 3. Decided STRUCTURALLY by backtracking from a fixed start
+    vertex (exact for small n) — deliberately not via any sufficient-condition theorem, so the
+    discovery engine can rediscover those (e.g. Dirac) without circularity."""
+    n = g.n
+    if n < 3:
+        return False
+    adj = [set() for _ in range(n)]
+    for (u, v) in g.edges:
+        adj[u].add(v)
+        adj[v].add(u)
+    visited = [False] * n
+    visited[0] = True                       # fix vertex 0 as the start (kills rotation symmetry)
+
+    def bt(v: int, count: int) -> bool:
+        if count == n:
+            return 0 in adj[v]              # all visited — can we close back to the start?
+        for w in adj[v]:
+            if not visited[w]:
+                visited[w] = True
+                if bt(w, count + 1):
+                    return True
+                visited[w] = False
+        return False
+
+    return bt(0, 1)
+
+
 # Named registry so the discovery loop can request invariants by name (feature tables, O3).
 INVARIANTS = {
     "num_vertices": num_vertices,
@@ -199,6 +228,7 @@ INVARIANTS = {
     "spectral_moment_3": spectral_moment_3,
     "chromatic_number": chromatic_number,
     "clique_number": clique_number,
+    "is_hamiltonian": is_hamiltonian,
 }
 
 # The integer-valued invariants — the columns the relation miner (O2) runs over. Excludes

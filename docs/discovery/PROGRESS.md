@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-07-29 — Second frontier invariant: Hamiltonian cycles + Dirac's theorem rediscovered
+
+The graph→frontier bridge widened to a second NP-complete invariant. New `hamiltonicity.py`:
+`is_hamiltonian(g)` (Hamiltonian cycle?) is decided locally by backtracking, then INDEPENDENTLY
+CONFIRMED by MathHead's `hamiltonian_path(cycle=True)` — `sat` ⟺ Hamiltonian. All 53 graphs up to
+n≤5 agree between the two engines (0 mismatches); n<3 is a convention edge case handled locally.
+
+The engine mined the Hamiltonicity implications and REDISCOVERED **Dirac's theorem** from data
+(`n≥3 ∧ δ ≥ n/2 ⟹ Hamiltonian`, survives, support 7) alongside the necessary conditions
+(`Hamiltonian ⟹ connected`, `⟹ δ≥2`). It REFUTED `connected ⟹ Hamiltonian` with the minimal
+STRUCTURAL witness — the 3-path P₃ (connected, no cycle). I scoped that claim to n≥3 on purpose so
+the witness is structural, not the n<3 convention artifact — a deliberate honesty call (contrast the
+coloring increment, where the degenerate K1 witness WAS the honest minimal one).
+
+Bridge note: `hamiltonian_path` is 0-indexed (unlike `graph_coloring`), so no vertex shift here.
+
+8 new tests (discovery suite 113); full suite **1402 green**, ruff clean. ADR-D0019. Roadmap O1.
+
+**Next:** a third frontier invariant, or fold the frontier confirmations (χ, Hamiltonicity) into the
+run report as first-class `solver_verified` provenance.
+
+---
+
 ## 2026-07-29 — Graph domain reaches the SAT/UNSAT FRONTIER: chromatic number, two authorities
 
 The graph domain crossed from exact-arithmetic invariants into the NP-hard frontier — and did it

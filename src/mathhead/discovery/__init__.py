@@ -27,6 +27,8 @@ Layers so far:
                  induction via MathHead (Σi=n(n+1)/2, Σi³=…); refuses to force a non-polynomial fit
   * coloring   — bridge to the SAT/UNSAT FRONTIER: χ(g) computed by backtracking, then confirmed by
                  MathHead's graph_coloring (sat at χ, unsat at χ−1); mines ω ≤ χ ≤ Δ+1, refutes χ ≤ Δ
+  * hamiltonicity — 2nd frontier bridge: is_hamiltonian by backtracking, confirmed by MathHead's
+                 hamiltonian_path(cycle); rediscovers Dirac's theorem, refutes connected⟹Hamiltonian
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -53,6 +55,12 @@ from .coloring import (
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
+from .hamiltonicity import (
+    HamiltonicityVerification,
+    ImplicationFinding,
+    hamiltonicity_laws,
+    verify_hamiltonicity,
+)
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
@@ -61,6 +69,7 @@ from .invariants import (
     evaluate,
     invariant_vector,
     is_forest,
+    is_hamiltonian,
     is_tree,
 )
 from .judge import (
@@ -109,12 +118,17 @@ __all__ = [
     "invariant_vector",
     "is_forest",
     "is_tree",
+    "is_hamiltonian",
     "chromatic_number",
     "clique_number",
     "ColoringVerification",
     "verify_chromatic_number",
     "ColoringBoundFinding",
     "coloring_bounds",
+    "HamiltonicityVerification",
+    "verify_hamiltonicity",
+    "ImplicationFinding",
+    "hamiltonicity_laws",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

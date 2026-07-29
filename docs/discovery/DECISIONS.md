@@ -380,6 +380,36 @@
 
 ---
 
+## ADR-D0019 — Second frontier invariant (Hamiltonicity); scope the false claim to surface a structural witness
+
+- **Status:** Accepted · 2026-07-29 (O1 frontier-bridge — hamiltonicity)
+- **Context:** With χ bridged to MathHead's `graph_coloring` (ADR-D0018), the natural next frontier
+  invariant is Hamiltonicity — MathHead already ships an independently-verified
+  `hamiltonian_path(cycle=True)` reduction. Two wrinkles: (a) `hamiltonian_path` is 0-INDEXED,
+  whereas `graph_coloring` was 1-indexed — the bridge code must not blindly copy the +1 shift; (b) a
+  Hamiltonian CYCLE conventionally needs n≥3, but MathHead's reduction accepts a degenerate 2-cycle,
+  so the two "definitions" diverge for n<3.
+- **Decision:** Compute `is_hamiltonian` LOCALLY (backtracking from a fixed start vertex, exact for
+  small n), then confirm against MathHead for n≥3 (where the definitions coincide exactly); n<3 is
+  decided by convention locally and MathHead is NOT invoked. Mine the implications
+  counterexample-first: the necessary conditions (`Hamiltonian ⟹ connected`, `⟹ δ≥2`), Dirac's
+  sufficient condition (`n≥3 ∧ δ≥n/2 ⟹ Hamiltonian`), and the plausible-but-false
+  `connected ⟹ Hamiltonian`. Crucially, SCOPE that false claim to `n≥3` so its minimal
+  counterexample is the 3-path P₃ — a genuine STRUCTURAL witness — rather than the single vertex,
+  whose "refutation" would be a pure artifact of the n<3 cycle convention.
+- **Consequences:** A second NP-complete invariant is now cross-checked by two orthogonal engines
+  (0/53 disagreements up to n≤5), and the engine rediscovered a real theorem (Dirac) from data next
+  to the necessary conditions. The scoping decision is a deliberate contrast with ADR-D0018: there,
+  refute-first's degenerate K1 witness (χ=1>Δ=0) was itself the honest, convention-free minimal
+  counterexample and we embraced it; here, the degenerate n<3 witness would be a convention artifact,
+  so we lift the premise to n≥3 to report the structural witness P₃. The principle is consistent —
+  report the most honest minimal counterexample — even though it points opposite ways in the two
+  cases. `is_hamiltonian` joins the boolean invariants (registry, not NUMERIC_INVARIANTS: it is not
+  a linear feature). Local decision is only tractable at small n — the honest domain bound — with the
+  reduction as the confirmer, not (yet) the primary compute.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -76,7 +76,8 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":
-            proved.append({"statement": stmt, "status": "proved", "certainty": s.certainty})
+            proved.append({"statement": stmt, "status": "proved", "certainty": s.certainty,
+                           "independently_verified": s.independently_verified})
         elif s.verdict == "refuted":
             refuted.append({"statement": stmt, "status": "refuted",
                             "counterexample": {"note": "not a polynomial identity"}})

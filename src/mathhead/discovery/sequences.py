@@ -17,6 +17,7 @@ from dataclasses import dataclass
 
 import sympy
 
+from .checker import check_sum_identity
 from .judge import judge_identity
 
 _n = sympy.Symbol("n")
@@ -54,6 +55,7 @@ class SumIdentityFinding:
     verdict: str             # "proved" | "refuted" | "unknown"
     certainty: str
     checked_upto: int
+    independently_verified: bool = False   # re-checked independently of the MathHead proof
 
 
 def partial_sum(f, k: int) -> int:
@@ -82,8 +84,9 @@ def discover_and_prove_sum(term_i: str, term_n: str, f, n_points: int = 8, check
     base_ok = g.subs(_n, 1) == f(1)
     step = judge_identity(f"({g}) - ({sympy.expand(g.subs(_n, _n - 1))})", term_n)
     verdict = "proved" if (base_ok and step.status == "proved") else step.status
+    iv = check_sum_identity(f, g) if verdict == "proved" else False   # independent re-check
     return SumIdentityFinding(
-        term_i, str(g), "no_counterexample_within_bound", verdict, step.certainty, check_upto)
+        term_i, str(g), "no_counterexample_within_bound", verdict, step.certainty, check_upto, iv)
 
 
 _RUN_CACHE: dict = {}

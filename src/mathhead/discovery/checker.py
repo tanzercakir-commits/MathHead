@@ -49,3 +49,19 @@ def check_proof(node, fn):
 def independently_verify(fn, m: int) -> bool:
     """Complete, independent check that fn(n) ≡ 0 (mod m) for all integers n (stdlib only)."""
     return _residue_ok(fn, m)
+
+
+def check_sum_identity(fn, g) -> bool:
+    """Independently verify a SUM identity Σ_{i=1}^n f(i) = g(n), where g is a polynomial (sympy
+    expr in `n`). Checks the base case f(1)=g(1) and the inductive step g(n)−g(n−1)=f(n) as a
+    COMPLETE polynomial-identity check — evaluate at deg+2 integer points (a polynomial of degree D
+    vanishing at D+1 points is identically zero). Independent of the MathHead proof (which verified
+    the step symbolically); here we confirm it by exact rational evaluation."""
+    import sympy
+
+    n = sympy.Symbol("n")
+    degree = int(sympy.degree(sympy.Poly(g, n))) if g.free_symbols else 0
+    if g.subs(n, 1) != fn(1):                                   # base case
+        return False
+    return all(g.subs(n, k) - g.subs(n, k - 1) == fn(k)         # step, at enough points
+               for k in range(2, degree + 3))

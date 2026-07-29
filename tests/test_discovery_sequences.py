@@ -32,6 +32,12 @@ def test_non_polynomial_sum_is_refuted_not_forced():
     assert _by_term()["2**i"].verdict == "refuted"
 
 
+def test_every_proved_sum_identity_is_independently_verified():
+    # each proved closed form is re-checked independently of the MathHead proof (base + step)
+    for term in ("i", "i**2", "i**3", "2*i - 1"):
+        assert _by_term()[term].independently_verified
+
+
 def test_run_is_deterministic():
     a = [f.closed_form for f in run_sequence_discovery()]
     b = [f.closed_form for f in run_sequence_discovery()]

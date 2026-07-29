@@ -10,10 +10,10 @@ _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -
 - `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified
 - `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified
 - `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified
-- `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified
-- `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified
-- `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified
-- `sum_(i=1..n) 2*i - 1 = n**2` — solver_verified
+- `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified  ✓ independently verified
+- `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified  ✓ independently verified
+- `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified  ✓ independently verified
+- `sum_(i=1..n) 2*i - 1 = n**2` — solver_verified  ✓ independently verified
 
 ## REFUTED (killed, with a minimal counterexample) (2)
 - `num_triangles <= num_edges` — counterexample: {'num_triangles': 16, 'num_edges': 14, 'n': 6, 'edges': [(0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)]}

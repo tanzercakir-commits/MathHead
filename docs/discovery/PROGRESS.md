@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-07-29 — Independent verification extended to the sum-identity proofs
+
+Closed the gap: now EVERY proved fact in the report is independently verified, not just the modular
+ones. New `checker.check_sum_identity` re-verifies a sum identity Σf(i)=g(n) independently of the
+MathHead proof — the base case plus the step g(n)−g(n−1)=f(n) as a COMPLETE polynomial-identity
+check (evaluate at deg+2 points; a degree-D polynomial vanishing at D+1 points is identically zero).
+
+`Σi = n(n+1)/2`, `Σi² = …`, `Σi³ = (n(n+1)/2)²`, `Σ(2i−1) = n²` are all now
+`independently_verified=True`; the refuted `Σ2^i` is `False`. The report shows `✓ independently
+verified` on every proved item across both proof families. 1 test (discovery suite 96); full suite
+1385 green, ruff clean. Extends ADR-D0016/D0017.
+
+---
+
 ## 2026-07-29 — Independent verification is now first-class: every proof is re-checked
 
 The checker isn't optional anymore. `discover_and_prove` now runs `check_proof(proof_tree(finding),

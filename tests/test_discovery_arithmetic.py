@@ -57,6 +57,17 @@ def test_every_proof_carries_a_kernel_checked_term():
     assert all(f.kernel_verified for f in findings)
 
 
+def test_every_proof_has_provenance_hash_and_axioms():
+    # M4/M5: each kernel-verified law carries a stable proof-artifact hash and its full axiom list
+    f = _by_expr()
+    assert len(f["n**5 - n"].proof_hash) == 16
+    assert set(f["n**5 - n"].axioms) == {"CRT", "RESIDUE(m=2)", "RESIDUE(m=3)", "RESIDUE(m=5)"}
+    assert f["n*(n+1)"].axioms == ("RESIDUE(m=2)",)      # a bare residue proof, no CRT
+    # hashes are content-addressed: distinct theorems ⇒ distinct hashes
+    hashes = {x.proof_hash for x in run_arithmetic_discovery(check_upto=40)}
+    assert len(hashes) == 7
+
+
 def test_overshoot_modulus_is_refuted_counterexample_first():
     # claiming a modulus larger than the truth dies before the judge
     assert first_counterexample(_consec(2), 4, 40) == 1        # n(n+1) not ≡0 mod 4 (n=1 -> 2)

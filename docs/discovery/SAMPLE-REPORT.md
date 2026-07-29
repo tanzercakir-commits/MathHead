@@ -1,15 +1,16 @@
 # MathHead — Discovery Run Report
 
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
+_kernel v1.0 · axioms: CRT, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8)_
 
 ## PROVED (formal — by the judge) (11)
-- `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n**2 - n) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
-- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified
+- `(n*(n+1)) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [0b5a07c36f79d3bf]
+- `(n*(n+1)*(n+2)) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [aed58ab78a2d4eb9]
+- `(n*(n+1)*(n+2)*(n+3)) % 24 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [eb68f40b22e38e78]
+- `(n**2 - n) % 2 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [da63adb00914de51]
+- `(n**3 - n) % 6 == 0` — formal_proof  ✓ independently verified  ⊢ kernel-verified [7b24fe07c5c0df35]
+- `(n**5 - n) % 30 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [750d8a0199ccf762]
+- `(n**7 - n) % 42 == 0` — exhaustive_residue_proof  ✓ independently verified  ⊢ kernel-verified [fdbd4814cabf3555]
 - `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified  ✓ independently verified
 - `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified  ✓ independently verified
 - `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified  ✓ independently verified

@@ -497,6 +497,29 @@
 
 ---
 
+## ADR-D0023 — Proof-artifact provenance is derived metadata, kept OUT of the trusted core
+
+- **Status:** Accepted · 2026-07-29 (M4/M5 — provenance, hash, replay)
+- **Context:** With the kernel minting theorems (ADR-D0022), the auditor's questions follow: which
+  axioms does THIS theorem depend on (M5)? Can I store a proof and re-verify it later, byte-for-byte
+  (M4)? Tempting to bolt these onto `Theorem`/`kernel.py`, but that would grow the trusted core.
+- **Decision:** Put provenance in a SEPARATE `provenance.py` that operates on proof TERMS, never
+  minting theorems (only `kernel.check` does). `axioms_used` walks the term and returns the full set
+  of RESIDUE(m)/CRT rules; `proof_hash` hashes a CANONICAL (order-independent) term plus
+  `KERNEL_VERSION`; `replay` just re-runs `check`. The arithmetic findings store `proof_hash` +
+  `axioms`; the report prints per-fact hashes and a kernel-axiom manifest. The trusted core stays
+  minimal and stdlib-only; provenance is derived, auditable metadata layered on top.
+- **Consequences:** Every kernel proof is now a content-addressed, replayable artifact with a
+  transparent axiom list — the honesty thesis made mechanical (a theorem literally shows what it
+  rests on, including "uses residue-exhaustion at modulus 8"). Canonicalization makes the hash
+  order-independent, so logically-identical proofs de-duplicate. Versioning means a future kernel
+  change cleanly invalidates stale artifacts rather than silently colliding. Keeping this out of the
+  core preserves the small, auditable trust base — provenance can have bugs without ever minting a
+  false theorem. Sets up M-track continuations (proof storage/sharing, dependent-theorem graphs)
+  without further touching the kernel.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

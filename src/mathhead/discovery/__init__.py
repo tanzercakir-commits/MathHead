@@ -74,6 +74,7 @@ from .hamiltonicity import (
     verify_hamiltonicity,
 )
 from .kernel import CRT, KernelError, Residue, Theorem, check, prove_divides
+from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
@@ -153,6 +154,10 @@ __all__ = [
     "KernelError",
     "check",
     "prove_divides",
+    "axioms_used",
+    "proof_hash",
+    "replay",
+    "KERNEL_VERSION",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

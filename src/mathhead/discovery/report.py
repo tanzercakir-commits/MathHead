@@ -128,7 +128,8 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         if f.verdict == "proved":
             proved.append({**item, "status": "proved", "certainty": f.certainty,
                            "independently_verified": f.independently_verified,
-                           "kernel_verified": f.kernel_verified})
+                           "kernel_verified": f.kernel_verified,
+                           "proof_hash": f.proof_hash, "axioms": list(f.axioms)})
         elif f.verdict == "refuted":
             refuted.append({**item, "status": "refuted"})
         else:
@@ -147,11 +148,15 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
             open_bounded.append({"statement": stmt, "status": "unknown"})
 
     from mathhead.guardrails import MAX_STATEMENTS  # noqa: F401  (touch to assert import health)
+    from .provenance import KERNEL_VERSION
+    kernel_axioms = sorted({a for it in proved for a in it.get("axioms", [])})
     meta = {
         "mathhead_version": getattr(mathhead, "__version__", "?"),
         "solver_seed": 42,
         "graph_bound_n": max_n,
         "determinism": "memoized generation + fixed seed -> same report every run",
+        "kernel_version": KERNEL_VERSION,
+        "kernel_axioms": kernel_axioms,   # every rule/primitive the kernel proofs rest on (M5)
     }
     return DiscoveryReport(proved, empirical, refuted, open_bounded,
                            _frontier_confirmations(), meta)
@@ -163,6 +168,9 @@ def render(report: DiscoveryReport) -> str:
     lines.append(f"_MathHead {report.meta.get('mathhead_version')} · seed "
                  f"{report.meta.get('solver_seed')} · graphs n≤{report.meta.get('graph_bound_n')} "
                  f"· {report.meta.get('determinism')}_")
+    if report.meta.get("kernel_axioms"):
+        lines.append(f"_kernel v{report.meta.get('kernel_version')} · axioms: "
+                     f"{', '.join(report.meta['kernel_axioms'])}_")
     lines.append("")
 
     def section(title, items, fmt):
@@ -176,7 +184,8 @@ def render(report: DiscoveryReport) -> str:
     section("PROVED (formal — by the judge)", report.proved,
             lambda it: f"`{it['statement']}` — {it.get('certainty', '')}"
                        + ("  ✓ independently verified" if it.get("independently_verified") else "")
-                       + ("  ⊢ kernel-verified" if it.get("kernel_verified") else ""))
+                       + (f"  ⊢ kernel-verified [{it['proof_hash']}]" if it.get("kernel_verified")
+                          else ""))
     section("REFUTED (killed, with a minimal counterexample)", report.refuted,
             lambda it: f"`{it['statement']}` — counterexample: {it.get('counterexample', {})}")
     section("DISCOVERED (empirical — holds on the sample, NOT proven)", report.empirical_laws,

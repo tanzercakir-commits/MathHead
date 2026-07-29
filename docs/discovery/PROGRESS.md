@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-07-29 — Proof provenance, hashing & replay (M4/M5): every theorem shows its axioms
+
+The kernel proofs became auditable artifacts. New `provenance.py`: `axioms_used(term)` lists the
+EXACT rules/primitives a theorem rests on (M5 — e.g. n⁵−n mod 30 → {CRT, RESIDUE(m=2), RESIDUE(m=3),
+RESIDUE(m=5)}); `proof_hash(term)` is a deterministic, order-independent, kernel-versioned content
+hash (M4 — same proof ⇒ same hash across processes, a version bump invalidates it); `replay(term)`
+re-runs the kernel for byte-for-byte reproducibility.
+
+Wired through: each `ArithmeticFinding` now carries `proof_hash` + `axioms`; the report prints
+`⊢ kernel-verified [<hash>]` per fact and a kernel-axiom manifest in the header (`kernel v1.0 ·
+axioms: CRT, RESIDUE(m=2), …, RESIDUE(m=8)`). Honest touch: n(n+1)(n+2)(n+3) mod 24 openly shows it
+leaned on RESIDUE(m=8) (24 = 8·3) — nothing about the derivation is hidden. SAMPLE-REPORT.md
+regenerated (7 hashed, axiom-listed proofs).
+
+9 tests (7 provenance + 2 arithmetic; discovery suite 146); full suite **1434 green**, ruff clean.
+ADR-D0023. Roadmap M4/M5.
+
+**Next:** widen the kernel fragment (a rule class for the sum identities, or derive RESIDUE from more
+primitive steps), or open a new track — the closed-loop connector (AC1), or the next domain surface.
+
+---
+
 ## 2026-07-29 — Kernel wired into the arithmetic pipeline: every modular proof is `kernel_verified`
 
 The kernel stopped being standalone. `discover_and_prove` now, for every proved modular finding,

@@ -31,11 +31,17 @@ def test_judge_proves_what_it_can():
     assert f["n**2 - n"].verdict == "proved" and f["n**2 - n"].certainty == "formal_proof"
 
 
-def test_judge_is_honestly_unknown_never_faked():
-    # the higher-degree induction steps are beyond Z3 here -> honest 'unknown', not a fake proof
+def test_portfolio_proves_every_modular_law_with_the_right_strategy():
+    # induction stalls on the harder ones, but the portfolio's complete fallback (residue
+    # exhaustion) finishes them -- so every true modular law is proved, each by the winning method.
+    findings = run_arithmetic_discovery(check_upto=40)
+    assert all(f.verdict == "proved" for f in findings)
+    methods = {f.method for f in findings}
+    assert methods == {"induction", "modulus-factoring", "residue-exhaustion"}
+    # the hardest ones are closed by the complete residue-exhaustion proof
     f = _by_expr()
-    assert f["n**5 - n"].verdict == "unknown"
-    assert f["n**3 - n"].verdict in {"proved", "unknown"}   # never "refuted" (the law is true)
+    assert f["n**5 - n"].method == "residue-exhaustion"
+    assert f["n**5 - n"].certainty == "exhaustive_residue_proof"
 
 
 def test_overshoot_modulus_is_refuted_counterexample_first():

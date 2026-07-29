@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-07-29 — Proof portfolio (S1) with a COMPLETE fallback: residue exhaustion
+
+Turned the modular prover into a small portfolio, and gave it a complete fallback so it stops
+leaving true facts as `unknown`.
+
+**Done — `strategy.py::prove_by_residues`:** a COMPLETE decision procedure for `p(n) ≡ 0 (mod m)`
+over all integers — for an integer-coefficient polynomial, p(n) mod m depends only on n mod m, so
+checking all m residues is a rigorous finite case-split (a real proof). The arithmetic loop now
+tries the elegant MathHead proofs first (induction → factoring+CRT) and falls back to residue
+exhaustion, recording the winning method.
+
+**Result — every modular law now PROVED, each by the right strategy:**
+- `induction`: n(n+1) ≡ 0 mod 2, n²−n ≡ 0 mod 2
+- `modulus-factoring` (CRT): n(n+1)(n+2) ≡ 0 mod 6, n³−n ≡ 0 mod 6
+- `residue-exhaustion` (complete): n(n+1)(n+2)(n+3) ≡ 0 mod 24, n⁵−n ≡ 0 mod 30, n⁷−n ≡ 0 mod 42
+
+Honest note: the earlier `unknown`s were a weakness of one method, not a real wall — this class is
+decidable and the engine now decides it (certainty `exhaustive_residue_proof` for the case-split,
+`formal_proof` for the induction/CRT proofs). The genuine walls remain (graph laws →
+`not_applicable`, truly open problems → `unknown`). 2 tests updated + residue-completeness test;
+full suite 1373 green, ruff clean. ADR-D0014. Roadmap S1 (portfolio).
+
+**Next:** a heavier track (lemma discovery T / a real proof kernel M), or more discovery surface —
+the portfolio and the four report buckets absorb it.
+
+---
+
 ## 2026-07-29 — Spectral bounds (numerical) + a more robust modular prover
 
 Extended the spectral thread to real-valued BOUNDS, and hardened the modular prover.

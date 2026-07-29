@@ -39,3 +39,20 @@ def prove_modular_divisibility(expr: str, m: int, var: str = "n", start: int = 0
     return Verdict("unknown", "unknown", "PART_UNPROVEN",
                    {"modulus": m, "prime_powers": parts, "blocked_parts": blocked,
                     "method": "modulus-factoring+CRT"})
+
+
+def prove_by_residues(fn, m: int) -> Verdict:
+    """A COMPLETE decision procedure for `p(n) ≡ 0 (mod m)` over all integers, when p has integer
+    coefficients: p(n) mod m depends only on n mod m, so checking every residue r ∈ 0..m−1 PROVES
+    the universal claim — a rigorous finite case-split on n mod m. `fn` computes p at an integer.
+
+    This finishes what induction can't (n⁵−n mod 30, n⁷−n mod 42, …). It is the complete fallback
+    in the proof portfolio; the elegant induction / CRT proofs are tried first."""
+    if m <= 0:
+        return Verdict("unknown", "unknown", "BAD_MODULUS", {"modulus": m})
+    failing = [r for r in range(m) if fn(r) % m != 0]
+    if not failing:
+        return Verdict("proved", "exhaustive_residue_proof", "PROVED_BY_RESIDUE_EXHAUSTION",
+                       {"modulus": m, "residues_checked": m, "method": "residue-exhaustion"})
+    return Verdict("refuted", "exhaustive_residue_proof", "RESIDUE_COUNTEREXAMPLE",
+                   {"modulus": m, "failing_residues": failing[:5]})

@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from functools import reduce
 from math import gcd
 
-from .strategy import prove_modular_divisibility
+from .strategy import prove_by_residues, prove_modular_divisibility
 
 
 # ------------------------------ polynomial family -------------------------- #
@@ -92,6 +92,8 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
         return ArithmeticFinding(expr, m, claim, "refuted", "refuted", "unknown", check_upto)
     v = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)
     method = "modulus-factoring" if len(v.detail.get("prime_powers", [m])) > 1 else "induction"
+    if v.status != "proved":                            # complete fallback: exhaustive residue proof
+        v, method = prove_by_residues(fn, m), "residue-exhaustion"
     return ArithmeticFinding(
         expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
 

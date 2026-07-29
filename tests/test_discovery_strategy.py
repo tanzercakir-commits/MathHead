@@ -26,8 +26,16 @@ def test_honestly_reports_the_blocking_part():
     assert 3 in v.detail["blocked_parts"]             # says WHICH part blocked, not a fake proof
 
 
-def test_strategy_upgrades_the_arithmetic_findings():
+def test_portfolio_picks_the_right_strategy_per_case():
     by_expr = {f.expression: f for f in run_arithmetic_discovery(check_upto=40)}
-    up = by_expr["n**3 - n"]
-    assert up.verdict == "proved" and up.method == "modulus-factoring"   # upgraded from unknown
-    assert by_expr["n**5 - n"].verdict == "unknown"                      # still honest unknown
+    assert by_expr["n**3 - n"].method == "modulus-factoring"    # CRT closes what one induction can't
+    assert by_expr["n**5 - n"].method == "residue-exhaustion"   # the complete fallback finishes it
+    assert by_expr["n**5 - n"].verdict == "proved"
+
+
+def test_residue_exhaustion_is_complete():
+    from mathhead.discovery.strategy import prove_by_residues
+    v = prove_by_residues(lambda n: n**5 - n, 30)              # a complete finite case-split
+    assert v.status == "proved" and v.detail["residues_checked"] == 30
+    bad = prove_by_residues(lambda n: n**2 + 1, 4)            # n²+1 ≡ 0 mod 4 is false
+    assert bad.status == "refuted"

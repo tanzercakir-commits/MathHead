@@ -276,6 +276,27 @@
 
 ---
 
+## ADR-D0014 — A proof portfolio with a COMPLETE fallback: residue exhaustion
+
+- **Status:** Accepted · 2026-07-29 (Track S1)
+- **Context:** Induction (even with modulus-factoring + CRT) is incomplete for `p(n) ≡ 0 (mod m)`:
+  it left n⁵−n mod 30, n⁷−n mod 42, the mod-24 case as `unknown`. But that class is DECIDABLE — for
+  an integer-coefficient polynomial, p(n) mod m depends only on n mod m, so checking all m residues
+  is a rigorous, complete proof (a finite case-split on n mod m).
+- **Decision:** `strategy.py::prove_by_residues` implements that complete decision procedure. The
+  arithmetic loop is now a small **portfolio (S1)**: try the elegant MathHead proofs first
+  (induction for a prime modulus, factoring + CRT for a composite), and fall back to residue
+  exhaustion, which always finishes. Each finding records the WINNING `method` and an honest
+  `certainty` (`formal_proof` for the induction/CRT proofs, `exhaustive_residue_proof` for the
+  complete case-split).
+- **Consequences:** Every true modular law in the family is now PROVED, each by the appropriate
+  strategy — induction (n(n+1) mod 2), modulus-factoring (n³−n mod 6), residue-exhaustion (n⁵−n mod
+  30, n⁷−n mod 42). No loss of honesty: the earlier `unknown`s were a weakness of one method, not a
+  real wall — the class is decidable and the engine now decides it. The honest walls that remain are
+  the genuine ones (combinatorial graph laws → `not_applicable`; truly open problems → `unknown`).
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

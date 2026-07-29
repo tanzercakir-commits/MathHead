@@ -206,6 +206,16 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                      "reason": pl.explanation, "status": "structural_argument",
                                      "verified": True})
 
+    # fifth object domain: set partitions (Bell numbers, Stirling 2nd kind)
+    from .set_partitions import discover_set_partition_laws
+    for sl in discover_set_partition_laws(8):
+        if sl.verified:
+            empirical.append({"statement": sl.statement, "status": "empirical",
+                              "scope": "set partitions of [n] (n≤8)", "support": None})
+            explanations.append({"identity": sl.statement, "explains": "over set partitions of [n]",
+                                 "reason": sl.explanation, "status": "structural_argument",
+                                 "verified": True})
+
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"
         if s.verdict == "proved":

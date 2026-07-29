@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — A FIFTH domain: set partitions (Bell & Stirling numbers)
+
+Another structurally distinct domain — partitions of a SET (not an integer). New `set_partitions.py`
+generates all set partitions of [n] via restricted-growth strings (honest bound n≤9, B(9)=21147,
+pinned to OEIS A000110 = Bell numbers), measures invariants (block count, largest block, singletons),
+and discovers two facts with an independent cross-check:
+
+- **B(n) = Σ_k S(n,k)** — Bell is the row-sum of the Stirling numbers of the 2nd kind (every partition
+  has some k blocks).
+- **#{partitions with k blocks} = S(n,k)** — the block-count distribution matches S(n,k) computed
+  INDEPENDENTLY from the Stirling recurrence S(n,k)=k·S(n−1,k)+S(n−1,k−1) (OEIS A008277) — a real
+  cross-check.
+
+FIVE domains now flow through the identical pipeline (graphs, arithmetic, permutations, integer
+partitions, set partitions). Folded into the report; scorecard attributes Bell/Stirling as known, so
+novelty stays honestly 0.
+
+8 tests (discovery suite 255); full suite **1544 green**, ruff clean. ADR-D0039.
+
+**Next:** corpus-backed novelty (X1/W2), a deeper kernel, or consolidate the whole engine into one
+synthesis document.
+
+---
+
 ## 2026-07-29 — Foata's bijection: the Mahonian equidistribution now constructively proven too
 
 Extended the constructive-bijection treatment to the permutation Mahonian fact. Implemented Foata's

@@ -3,9 +3,9 @@
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _negative knowledge: 4 dead end(s) recorded_
-_knowledge graph: 62 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×13, theorem×17)_
+_knowledge graph: 64 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×15, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
-_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=33 · FORMALLY_SPECIFIED=10 · FORMALLY_PROVED=17_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=37 · FORMALLY_SPECIFIED=10 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -39,7 +39,7 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=33 · FORMALLY_
 - `(connected and n>=3) => Hamiltonian` — counterexample: {'n': 3, 'edges': [(0, 2), (1, 2)]}
 - `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
-## DISCOVERED (empirical — holds on the sample, NOT proven) (13)
+## DISCOVERED (empirical — holds on the sample, NOT proven) (15)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)
 - `trees: num_triangles = 0` — trees (support 14)
 - `trees: num_vertices = num_edges + 1` — trees (support 14)
@@ -53,6 +53,8 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=33 · FORMALLY_
 - `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` — permutations S_n (n≤7), distribution-level (support None)
 - `#{partitions of n into DISTINCT parts} = #{partitions into ODD parts}  (Euler)` — partitions of n (n≤15) (support None)
 - `#{partitions of n, largest part = k} = #{partitions of n, exactly k parts}  (conjugation)` — partitions of n (n≤15) (support None)
+- `B(n) = #{set partitions of [n]}  (Bell numbers)` — set partitions of [n] (n≤8) (support None)
+- `#{set partitions of [n] with k blocks} = S(n,k)  (Stirling 2nd kind, A008277)` — set partitions of [n] (n≤8) (support None)
 
 ## OPEN (survived the attack; unproven — no_counterexample_within_bound) (16)
 - `num_edges <= sum_degrees` — no_counterexample_within_bound
@@ -78,7 +80,7 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=33 · FORMALLY_
 - is_hamiltonian(C5) = True — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 - is_hamiltonian(P4) = False — ✓ confirmed (solver_verified; MathHead hamiltonian_path(cycle=True))
 
-## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (13)
+## EXPLANATIONS (structure explaining a result — kernel-verified factorization) (15)
 - `n**2 - n = n*(n - 1)` explains `2 | n**2 - n` — product of 2 consecutive integers ⇒ divisible by 2! = 2
 - `n**3 - n = n*(n - 1)*(n + 1)` explains `6 | n**3 - n` — product of 3 consecutive integers ⇒ divisible by 3! = 6
 - `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` explains `6 | n*(n+1)*(n+2)` — product of 3 consecutive integers ⇒ divisible by 3! = 6
@@ -92,8 +94,10 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=33 · FORMALLY_
 - `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` explains `the distribution over S_n` — the descent distribution satisfies the Eulerian recurrence A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1); computed independently and matched.
 - `#{partitions of n into DISTINCT parts} = #{partitions into ODD parts}  (Euler)` explains `over partitions of n` — Euler's theorem: the generating functions ∏(1+x^k) and ∏1/(1−x^{2k−1}) are equal (a bijective proof exists). The engine confirms the two counts agree for every n. — Glaisher's bijection (odd part v^m ↔ distinct parts v·2^b) verified injective + onto with a round-tripping inverse (constructive_bijection, verified n≤15)
 - `#{partitions of n, largest part = k} = #{partitions of n, exactly k parts}  (conjugation)` explains `over partitions of n` — conjugating a partition (transpose its Young diagram) swaps 'largest part' with 'number of parts', giving a bijection between the two families. — transpose of the Young diagram, verified to swap the two statistics and self-invert (constructive_bijection, verified n≤15)
+- `B(n) = #{set partitions of [n]}  (Bell numbers)` explains `over set partitions of [n]` — a set partition has some number k of blocks; summing S(n,k) over all k counts every partition exactly once, so B(n) = Σ_k S(n,k).
+- `#{set partitions of [n] with k blocks} = S(n,k)  (Stirling 2nd kind, A008277)` explains `over set partitions of [n]` — the block-count distribution obeys the Stirling recurrence S(n,k) = k·S(n−1,k) + S(n−1,k−1) (place element n in an existing block, k ways, or start a new one); computed independently and matched.
 
 ## HONEST SCORECARD (Track AF — is any of this NEW?)
-- 46 findings · 17 verified · 46 attributable to KNOWN mathematics · **0 novel-to-literature established**
+- 48 findings · 17 verified · 48 attributable to KNOWN mathematics · **0 novel-to-literature established**
 - _the engine correctly REDISCOVERS known mathematics; novelty vs. the literature is not established (needs corpus ingestion, X1/W2 — not built)_
 

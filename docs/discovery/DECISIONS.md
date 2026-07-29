@@ -862,6 +862,27 @@
 
 ---
 
+## ADR-D0039 — A fifth domain (set partitions) — generality now spans five distinct object kinds
+
+- **Status:** Accepted · 2026-07-29 (fifth object domain — set partitions)
+- **Context:** Four domains flowed through the pipeline, but demonstrating generality benefits from a
+  domain whose objects differ structurally from all prior ones. Set partitions (partitions of a SET,
+  unlabeled blocks) differ from integer partitions and from the graph/permutation ensembles, and carry
+  the Bell/Stirling identities with an independent recurrence to cross-check against.
+- **Decision:** Add `set_partitions.py` as a `MathObject` subclass, generated via restricted-growth
+  strings (honest bound n≤9), pinned to OEIS A000110 (Bell), with S(n,k) computed independently from
+  the Stirling recurrence so the block-count distribution is a genuine cross-check (A008277), not a
+  tautology. Reuse the report/ladder/explanations/scorecard machinery unchanged; attribute Bell and
+  Stirling in the known-results registry.
+- **Consequences:** Domain-agnosticism now spans FIVE distinct object kinds; the architecture keeps
+  absorbing new domains with zero structural change, which is by now strong, repeated evidence rather
+  than a one-off. The Bell = Σ Stirling discovery and the independent-recurrence cross-check follow the
+  same honest pattern as Eulerian/Mahonian. Scorecard stays 0-novel (Bell/Stirling are classical). The
+  domain set (graphs, arithmetic, permutations, integer partitions, set partitions) now covers graph
+  theory, elementary number theory, and enumerative combinatorics — a broad, honest validation surface.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

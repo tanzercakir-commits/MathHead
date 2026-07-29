@@ -45,6 +45,8 @@ Layers so far:
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
   * partitions  — a FOURTH object domain (number-theoretic): p(n) counts (A000041), rediscovers
                  Euler's distinct=odd theorem (A000009) and conjugation symmetry
+  * set_partitions — a FIFTH object domain: Bell numbers (A000110), Stirling 2nd kind (A008277),
+                 rediscovers B(n)=Σ_k S(n,k) with an independent Stirling-recurrence cross-check
   * bijections  — CONSTRUCTIVE bijections proving the equidistributions: Glaisher (Euler distinct=odd),
                  conjugation, and Foata's Φ (Mahonian inv~maj); verified on the sample (constructive_bijection)
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
@@ -185,6 +187,13 @@ from .permutations import (
     statistic_distribution,
 )
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .set_partitions import (
+    SetPartition,
+    count_set_partitions,
+    discover_set_partition_laws,
+    generate_set_partitions,
+    stirling2,
+)
 from .structural_explanations import structural_explanations
 from .sequences import (
     SumIdentityFinding,
@@ -277,6 +286,11 @@ __all__ = [
     "count_partitions",
     "discover_partition_laws",
     "conjugate",
+    "SetPartition",
+    "generate_set_partitions",
+    "count_set_partitions",
+    "discover_set_partition_laws",
+    "stirling2",
     "LEVELS",
     "classify",
     "ladder_summary",

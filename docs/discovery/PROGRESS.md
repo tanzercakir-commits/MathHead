@@ -6,6 +6,25 @@
 
 ---
 
+## 2026-07-29 — Consolidation: ARCHITECTURE.md, an honest synthesis of the whole engine
+
+After 5 domains, the kernel, constructive certificates/bijections, and the meta layers, wrote
+`docs/discovery/ARCHITECTURE.md` — a coherent, code-backed synthesis of the engine: the pipeline
+(generate→measure→mine→conjecture→refute→prove→verify→explain→organize→grade), the five domains, the
+proof kernel + its three companions (provenance, checker, adversary), the certainty hierarchy and the
+four-rung ladder, the explanation layer (algebraic/structural/bijective), and the director.
+
+Crucially it ends with "What is deliberately NOT done" — no novel mathematics (0 established), no
+universal graph/combinatorial proofs (bounded), the kernel's primitives trusted not derived, the
+heuristics not learned. Every number in it is introspected from the live engine (36 modules, 254
+tests, 40 ADRs, ladder L2=37/L3=10/L4=17, scorecard 0 novel), not aspirational. Delivered to the user.
+
+Docs only; no code change. Full suite unaffected (1544 green).
+
+**Next:** the deeper frontier — corpus-backed novelty (X1/W2) or deriving the kernel primitives (M).
+
+---
+
 ## 2026-07-29 — A FIFTH domain: set partitions (Bell & Stirling numbers)
 
 Another structurally distinct domain — partitions of a SET (not an integer). New `set_partitions.py`

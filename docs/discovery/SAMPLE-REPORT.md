@@ -5,7 +5,7 @@ _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(
 _negative knowledge: 4 dead end(s) recorded_
 _knowledge graph: 62 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×13, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
-_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=36 · FORMALLY_SPECIFIED=7 · FORMALLY_PROVED=17_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=34 · FORMALLY_SPECIFIED=9 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -90,8 +90,8 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=36 · FORMALLY_
 - `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` explains `over all permutations of [n]` — each of the C(n,2) pairs is inverted in exactly half of S_n (π ↔ its reversal pairs inv(π) with C(n,2)−inv(π)), so the total is C(n,2)·n!/2
 - `inv and maj are equidistributed over S_n  (Mahonian)` explains `the distribution over S_n` — MacMahon's theorem: inv and maj are equidistributed permutation statistics (a bijective proof exists). The engine confirms identical distributions on the sample.
 - `# permutations of [n] with k descents = Eulerian A(n,k)  (OEIS A008292)` explains `the distribution over S_n` — the descent distribution satisfies the Eulerian recurrence A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1); computed independently and matched.
-- `#{partitions of n into DISTINCT parts} = #{partitions into ODD parts}  (Euler)` explains `over partitions of n` — Euler's theorem: the generating functions ∏(1+x^k) and ∏1/(1−x^{2k−1}) are equal (a bijective proof exists). The engine confirms the two counts agree for every n.
-- `#{partitions of n, largest part = k} = #{partitions of n, exactly k parts}  (conjugation)` explains `over partitions of n` — conjugating a partition (transpose its Young diagram) swaps 'largest part' with 'number of parts', giving a bijection between the two families.
+- `#{partitions of n into DISTINCT parts} = #{partitions into ODD parts}  (Euler)` explains `over partitions of n` — Euler's theorem: the generating functions ∏(1+x^k) and ∏1/(1−x^{2k−1}) are equal (a bijective proof exists). The engine confirms the two counts agree for every n. — Glaisher's bijection (odd part v^m ↔ distinct parts v·2^b) verified injective + onto with a round-tripping inverse (constructive_bijection, verified n≤15)
+- `#{partitions of n, largest part = k} = #{partitions of n, exactly k parts}  (conjugation)` explains `over partitions of n` — conjugating a partition (transpose its Young diagram) swaps 'largest part' with 'number of parts', giving a bijection between the two families. — transpose of the Young diagram, verified to swap the two statistics and self-invert (constructive_bijection, verified n≤15)
 
 ## HONEST SCORECARD (Track AF — is any of this NEW?)
 - 46 findings · 17 verified · 46 attributable to KNOWN mathematics · **0 novel-to-literature established**

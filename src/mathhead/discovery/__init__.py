@@ -45,6 +45,8 @@ Layers so far:
                  (inversions/descents/fixed points/cycles), discovered+explained laws (|S_n|=n!, …)
   * partitions  — a FOURTH object domain (number-theoretic): p(n) counts (A000041), rediscovers
                  Euler's distinct=odd theorem (A000009) and conjugation symmetry
+  * bijections  — CONSTRUCTIVE bijections proving the partition equidistributions: Glaisher (Euler
+                 distinct=odd) + conjugation, verified injective+onto on the sample (constructive_bijection)
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
@@ -77,6 +79,12 @@ from .arithmetic import (
     run_arithmetic_discovery,
 )
 from .adversarial import RobustnessReport, robustness_report
+from .bijections import (
+    BijectionCertificate,
+    certify_partition_bijections,
+    glaisher_distinct_to_odd,
+    glaisher_odd_to_distinct,
+)
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .checker import check_proof, independently_verify
 from .coloring import (
@@ -279,6 +287,10 @@ __all__ = [
     "render_scorecard",
     "RobustnessReport",
     "robustness_report",
+    "BijectionCertificate",
+    "certify_partition_bijections",
+    "glaisher_odd_to_distinct",
+    "glaisher_distinct_to_odd",
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",

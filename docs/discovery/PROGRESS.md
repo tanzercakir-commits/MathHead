@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-07-29 — Constructive bijections: PROVING the partition equidistributions (Glaisher + conjugation)
+
+An equidistribution is best proven by exhibiting a BIJECTION — so the engine now does, and checks it.
+New `bijections.py` builds the classical bijections explicitly and verifies each really is a bijection
+on the sample, upgrading the two partition facts from `structural_argument` (conclusion counted) to
+`constructive_bijection` (explicit map, re-checked injective + onto):
+
+- **Euler distinct=odd** — GLAISHER's bijection: an odd part v of multiplicity m ↦ the distinct parts
+  v·2^b over the binary digits b of m; the inverse splits a distinct part = odd·2^k into 2^k copies.
+  Verified injective, onto, and round-tripping for every n≤18 — a genuine constructive proof of
+  Euler's theorem (bounded).
+- **conjugation** — transpose the Young diagram; verified to swap 'largest part' with 'number of parts'
+  and to self-invert, so it bijects the two families.
+
+The ladder recognizes the upgrade: `constructive_bijection` explanations now sit at FORMALLY_SPECIFIED
+(L3), which rose 7→9. Honest ceiling: bounded (n≤18), the universal argument recorded not
+machine-checked. This is the partition analogue of the graph constructive certificates (graph_proofs).
+
+6 tests (discovery suite 245); full suite **1534 green**, ruff clean. ADR-D0038.
+
+**Next:** Foata's bijection for Mahonian (inv~maj), corpus-backed novelty (X1/W2), or a deeper kernel.
+
+---
+
 ## 2026-07-29 — A FOURTH domain: integer partitions, and Euler's distinct=odd theorem rediscovered
 
 The most number-theoretic domain yet. New `partitions.py` gives integer partitions the standard

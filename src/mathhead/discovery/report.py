@@ -174,15 +174,28 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
                                  "reason": dl.explanation, "status": "structural_argument",
                                  "verified": True})
 
-    # fourth object domain: integer partition facts (Euler's distinct=odd, conjugation)
+    # fourth object domain: integer partition facts (Euler's distinct=odd, conjugation), upgraded to
+    # CONSTRUCTIVE BIJECTIONS where the explicit bijection is verified on the sample
+    from .bijections import certify_partition_bijections
     from .partitions import discover_partition_laws
+    _bijections = {("Euler" if "Euler" in c.theorem else "conjugation"): c
+                   for c in certify_partition_bijections(15)}
     for pl in discover_partition_laws(15):
         if pl.verified:
             empirical.append({"statement": pl.statement, "status": "empirical",
                               "scope": "partitions of n (n≤15)", "support": None})
-            explanations.append({"identity": pl.statement, "explains": "over partitions of n",
-                                 "reason": pl.explanation, "status": "structural_argument",
-                                 "verified": True})
+            key = "Euler" if "Euler" in pl.statement else "conjugation"
+            cert = _bijections.get(key)
+            if cert and cert.verified:                   # explicit bijection exhibited + re-checked
+                explanations.append({
+                    "identity": pl.statement, "explains": "over partitions of n",
+                    "reason": f"{pl.explanation} — {cert.detail} (constructive_bijection, verified "
+                              f"n≤{cert.holds_upto})",
+                    "status": "constructive_bijection", "verified": True})
+            else:
+                explanations.append({"identity": pl.statement, "explains": "over partitions of n",
+                                     "reason": pl.explanation, "status": "structural_argument",
+                                     "verified": True})
 
     for s in run_sequence_discovery():
         stmt = f"sum_(i=1..n) {s.term} = {s.closed_form}"

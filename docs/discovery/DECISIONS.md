@@ -840,6 +840,28 @@
 
 ---
 
+## ADR-D0038 — Prove equidistributions by an exhibited-and-verified bijection, not a matched count
+
+- **Status:** Accepted · 2026-07-29 (constructive bijections — partitions)
+- **Context:** Euler's distinct=odd and the conjugation symmetry were discovered by counting both
+  families and finding them equal (`structural_argument`). That confirms the conclusion but not the
+  REASON. The honest, stronger form of an equidistribution proof is a bijection between the families —
+  and the classical ones (Glaisher, conjugation) are explicitly constructible.
+- **Decision:** Add `bijections.py` that BUILDS the bijection and an independent checker verifies it is
+  a genuine bijection on the sample (injective + onto + inverse round-trips). Upgrade the two findings
+  to a new certainty `constructive_bijection`, place it at FORMALLY_SPECIFIED (L3) on the ladder, and
+  surface the verified map in the report's explanation. Keep it honestly bounded (n≤18); the claim
+  that the bijection works for ALL n is the classical argument, recorded not machine-checked.
+- **Consequences:** The partition equidistributions now carry an explicit, re-checked witness — a real
+  step from "the counts match" to "here is WHY they match, and it's verified" — mirroring the graph
+  constructive certificates (ADR-D0021) in a new domain. `constructive_bijection` enters the certainty
+  vocabulary above `structural_argument`, and the ladder reflects the promotion (L3 rose 7→9), so the
+  epistemic gradient stays faithful. Glaisher's map is a bijection by the unique odd·2^k factorization,
+  a fact the checker confirms empirically; a machine-checked universal bijection is the next depth.
+  Foata's transform (inv~maj) is the analogous upgrade for the permutation Mahonian fact — logged.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

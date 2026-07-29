@@ -59,8 +59,10 @@ def classify(report) -> dict:
     for it in report.empirical_laws:                         # mined, hold on the sample
         out["EMPIRICALLY_VALIDATED"].append(it["statement"])
 
-    for ex in getattr(report, "explanations", []):           # structural arguments (conclusion-checked)
-        if ex.get("status") == "structural_argument":
+    for ex in getattr(report, "explanations", []):
+        if ex.get("status") == "constructive_bijection":     # explicit bijection exhibited + verified
+            out["FORMALLY_SPECIFIED"].append(ex["identity"])
+        elif ex.get("status") == "structural_argument":      # conclusion-checked prose argument
             out["EMPIRICALLY_VALIDATED"].append(ex["identity"])
 
     return out

@@ -35,7 +35,8 @@ def test_every_non_refuted_finding_gets_a_rung():
     classified = sum(len(v) for v in c.values())
     non_refuted = (len(r.proved) + len(r.empirical_laws) + len(r.open_bounded)
                    + sum(1 for f in r.frontier if f.get("confirmed"))
-                   + sum(1 for e in r.explanations if e.get("status") == "structural_argument"))
+                   + sum(1 for e in r.explanations
+                         if e.get("status") in ("structural_argument", "constructive_bijection")))
     assert classified == non_refuted
 
 

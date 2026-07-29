@@ -6,6 +6,34 @@
 
 ---
 
+## 2026-07-29 — R: the judge bridge — MathHead actually proves/refutes (first real judge use)
+
+The survivors from Q were `no_counterexample_within_bound` — not proven. Now the judge reaches
+real verdicts.
+
+**Done — new `judge.py`:** bridges the discovery layer to `mathhead.router.route`, mapping a
+MathHead result to a `Verdict` (proved | refuted | unknown | not_applicable) that carries
+MathHead's own `certainty`. Semantic helpers: `judge_induction`, `judge_inequality`,
+`judge_identity`, `judge_entailment`, `judge_task`; plus `judge(conjecture)` that uses an
+optional `mathhead` task on a Conjecture. ADR-D0006.
+
+**The judge genuinely works:**
+- `n(n+1)` even and `n³ − n ≡ 0 (mod 3)` → **proved by induction**, `certainty=formal_proof`.
+- AM-GM `x² + y² ≥ 2xy` → **proved**, `certainty=solver_verified` (Z3).
+- `x² ≥ x` (false over the reals) → **refuted**, with MathHead's witness `x = 0.5`.
+- a graph law (`min_degree ≤ max_degree`, no `mathhead` task) → **`not_applicable`** — honest, not
+  a fabricated verdict.
+
+So `empirical → proved / refuted` happens only where MathHead's grammar truly reaches; the
+combinatorial laws stay honestly out of scope. 6 new tests (discovery suite 53); full suite
+green, ruff clean. The bridge is ready.
+
+**Next:** an arithmetic / integer-sequence object domain — so the discovery loop AUTO-GENERATES
+conjectures the judge can prove, closing generate → refute-first → PROVE end to end in a domain
+where MathHead is the native judge.
+
+---
+
 ## 2026-07-29 — P0 + Q0: conjecture generation + counterexample-first — the engine's character
 
 The engine now GENERATES candidate laws and, by default, tries to KILL them before believing —

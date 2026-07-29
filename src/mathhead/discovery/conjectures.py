@@ -36,6 +36,7 @@ class Conjecture:
     status: str = "empirical"     # held over the sample; NOT proven
     holds_over: str = ""
     support: int = 0
+    mathhead: dict = None         # optional {"task","payload"} that the judge (MathHead) can prove
 
     def is_counterexample(self, g) -> bool:
         return self.scope(g) and not self.claim(g)

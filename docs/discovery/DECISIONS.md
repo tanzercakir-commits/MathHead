@@ -112,6 +112,30 @@
 
 ---
 
+## ADR-D0006 — The judge bridge: hand expressible survivors to MathHead; be honest about the rest (R)
+
+- **Status:** Accepted · 2026-07-29 (Track R)
+- **Context:** Q produces survivors labeled `no_counterexample_within_bound` — empirically
+  supported, not proven. The discovery engine needs a JUDGE to reach real verdicts. MathHead is
+  that judge, but it only judges what its grammar can express (algebra, arithmetic, FOL) — not a
+  purely combinatorial graph law.
+- **Decision:** `judge.py` bridges the discovery layer to `mathhead.router.route`. It maps a
+  MathHead result to a `Verdict` (`proved` | `refuted` | `unknown` | `not_applicable`) that
+  carries MathHead's own `certainty` label, and exposes thin, semantic helpers
+  (`judge_induction`, `judge_inequality`, `judge_identity`, `judge_entailment`, `judge_task`). A
+  Conjecture may carry an optional `mathhead` task; `judge(conjecture)` submits it, and returns
+  **`not_applicable`** when there is none — the honest answer for a combinatorial law, never a
+  fabricated verdict. Refutations carry MathHead's witness/counterexample.
+- **Consequences:** The first real use of MathHead as the discovery engine's judge. It genuinely
+  PROVES (`n(n+1)` even and `n³−n ≡ 0 (mod 3)` by induction → `certainty=formal_proof`; AM-GM by
+  Z3 → `solver_verified`) and REFUTES (`x² ≥ x` over the reals → `refuted` with witness x=0.5).
+  A graph law comes back `not_applicable`, keeping the honesty contract: the judge upgrades
+  `empirical → proved/refuted` only where it truly can. Auto-generating algebraically-expressible
+  conjectures (an arithmetic / integer-sequence object domain, so the judge has a stream to
+  prove) is the natural next domain — the bridge is now ready for it.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

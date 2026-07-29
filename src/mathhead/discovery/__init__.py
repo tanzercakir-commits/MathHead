@@ -14,7 +14,9 @@ Layers so far:
                  (e.g. rediscovers the Handshake Lemma) + constant invariants
   * conjectures— conjecture generation (P0/P1): subclass laws + inequality bounds
   * refute     — counterexample-first refutation (Q0): minimal counterexample or an honest
-                 'no_counterexample_within_bound' (the judge, MathHead, proves survivors at R)
+                 'no_counterexample_within_bound'
+  * judge      — the judge bridge (R): hands algebraically-expressible survivors to MathHead for
+                 a real verdict (proved by induction / solver-verified / refuted-with-witness)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -34,6 +36,14 @@ from .invariants import (
     invariant_vector,
     is_forest,
     is_tree,
+)
+from .judge import (
+    Verdict,
+    judge,
+    judge_identity,
+    judge_induction,
+    judge_inequality,
+    judge_task,
 )
 from .objects import Graph, MathObject
 from .refute import RefutationResult, refute
@@ -61,4 +71,10 @@ __all__ = [
     "bound_conjectures",
     "RefutationResult",
     "refute",
+    "Verdict",
+    "judge",
+    "judge_task",
+    "judge_induction",
+    "judge_inequality",
+    "judge_identity",
 ]

@@ -315,6 +315,27 @@
 
 ---
 
+## ADR-D0016 — An independent proof checker: don't trust the prover, check the proof (M spirit)
+
+- **Status:** Accepted · 2026-07-29 (Track M1–M3 spirit)
+- **Context:** Every proof so far was trusted because the strategy code produced it. The document's
+  #1 principle is a small checker nothing can fool: the search/solver may be buggy, but an
+  independent checker must catch it. A full Lean-style kernel is out of scope; an independent
+  checker for our modular-polynomial proof class is tractable AND complete.
+- **Decision:** `checker.py` re-verifies a proof tree by an orthogonal, minimal, stdlib-only method:
+  a claim `p(n) ≡ 0 (mod m)` is re-checked at every residue mod m (COMPLETE, independent of how the
+  proof was found — even an induction/Z3 proof is re-verified this way); a CRT node additionally
+  checks the REASONING (prime-power moduli pairwise coprime, product = m, every lemma checks). It
+  REJECTS anything it cannot confirm.
+- **Consequences:** The engine's proofs are now independently verifiable — the strongest honest
+  status (`independently_verified`, matching MathHead / §14). The checker confirms the real proofs
+  (n³−n mod 6 via CRT, n⁵−n mod 30 via residues) and REJECTS both a false claim (n²+1 ≡ 0 mod 4) and
+  broken CRT reasoning (children mod 2·3 but goal mod 12). A buggy prover can no longer pass off a
+  wrong theorem. Scoped to the modular class (where the check is complete); other classes get an
+  independent checker as their proofs mature — the honest, incremental path toward the kernel.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

@@ -42,6 +42,7 @@ from .arithmetic import (
     run_arithmetic_discovery,
 )
 from .canonical import canonical_graph, canonical_key, is_isomorphic
+from .checker import check_proof, independently_verify
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
 from .invariants import (
@@ -111,6 +112,8 @@ __all__ = [
     "ProofNode",
     "proof_tree",
     "render_tree",
+    "check_proof",
+    "independently_verify",
     "Verdict",
     "judge",
     "judge_task",

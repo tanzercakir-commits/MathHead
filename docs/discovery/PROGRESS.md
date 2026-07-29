@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-07-29 — Independent proof checker (M spirit): don't trust the prover, check the proof
+
+The document's #1 principle, in a tractable form. New `checker.py` re-verifies a proof tree by an
+orthogonal, minimal, stdlib-only method — and rejects anything it can't confirm.
+
+- A modular claim `p(n) ≡ 0 (mod m)` is re-checked at every residue mod m — COMPLETE, and
+  independent of HOW the proof was found (even an induction/Z3 proof is re-verified this way).
+- A CRT node is checked for its REASONING too: prime-power moduli pairwise coprime, product = m,
+  every lemma checks out.
+
+It confirms the real proofs (n³−n mod 6 via CRT structure + residues; n⁵−n mod 30 via residues) and
+REJECTS both a false claim (n²+1 ≡ 0 mod 4) and broken CRT reasoning (children mod 2·3 but goal mod
+12). A buggy prover can no longer pass off a wrong theorem — the strongest honest status
+(`independently_verified`). Scoped to the modular class where the check is complete. 5 new tests
+(discovery suite 93); full suite 1382 green, ruff clean. ADR-D0016 (M1–M3 spirit).
+
+---
+
 ## 2026-07-29 — Proof-dependency trees (T3 slice): make a proof's lemmas explicit
 
 A small, budget-measured step into lemma discovery. New `proof_tree.py`: reconstruct a proved

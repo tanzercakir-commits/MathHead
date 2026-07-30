@@ -74,6 +74,10 @@ Layers so far:
                  canonicaliser across all five object types (dedup, stable storage keys)
   * object_store — queryable store indexed by invariant (N6): add (dedup) → query(χ=3, triangles=0);
                  the substrate for targeted discovery / feature tables
+  * feature_conjectures — systematic conjecture generation from the O3 feature table (systematic P0):
+                 all pairwise invariant inequalities, refute-first (survivors = mined bounds)
+  * mutate      — theorem mutation (P1): strengthen a survivor (2·num_edges ≤ sum_degrees ⇒ Handshake)
+                 or repair a refuted claim (num_triangles ≤ num_edges + 5); every mutation re-tested
   * interestingness — transparent heuristic ranking (W1): novelty/generality/surprise/usefulness/
                  compression/connectivity − triviality, with a per-component breakdown (not learned)
   * knowledge_graph — typed semantic graph of findings + relations (X0): theorem/law/conjecture/
@@ -168,6 +172,7 @@ from .knowledge_graph import (
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
+from .mutate import Mutation, mutate_inequality, repair, strengthen
 from .director import CycleResult, ResearchDirector
 from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
 from .evaluation import Scorecard, attribute, render_scorecard
@@ -187,6 +192,12 @@ from .families import (
     star,
     stratified_sample,
     wheel,
+)
+from .feature_conjectures import (
+    InequalityConjecture,
+    discover_inequalities,
+    feature_table,
+    surviving_inequalities,
 )
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .invariants import (
@@ -331,6 +342,14 @@ __all__ = [
     "extreme_graphs",
     "degenerate_graphs",
     "random_graphs",
+    "feature_table",
+    "discover_inequalities",
+    "surviving_inequalities",
+    "InequalityConjecture",
+    "strengthen",
+    "repair",
+    "mutate_inequality",
+    "Mutation",
     "serialize",
     "content_hash",
     "reproducible_sort",

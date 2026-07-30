@@ -7,6 +7,20 @@
 
 ---
 
+## 2026-07-30 — P1 theorem mutation + systematic P0 conjecture generation
+
+**Systematic P0** `feature_conjectures.py`: instead of a few hand-picked bounds, generate ALL pairwise
+invariant inequalities from the O3 feature table and test each refute-first (42 conjectures on the
+graph invariants → 11 survive, 31 refuted with minimal witnesses). **P1** `mutate.py` — theorem
+mutation: STRENGTHEN a survivor (largest multiplier / additive slack) or REPAIR a refuted claim
+(smallest weakening that holds). Striking result: mutation sharpens the loose `num_edges ≤ sum_degrees`
+into `2·num_edges ≤ sum_degrees` — i.e. it rediscovers the tight Handshake identity as the sharpest
+form; and repairs the K6-refuted `num_triangles ≤ num_edges` into `… ≤ num_edges + 5`. Every mutation
+is re-tested counterexample-first, so it's as honest as the original bound. 12 tests; full suite
+**1605 green**, ruff clean. Roadmap P1 ✅ (progress ~45/103).
+
+---
+
 ## 2026-07-30 — O4: multi-path invariant consistency cross-check
 
 The verification engine now verifies its OWN measurements. New `cross_check.py`: compute each

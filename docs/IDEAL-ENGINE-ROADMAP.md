@@ -180,7 +180,7 @@ Z3 🔴 Kavramın dile yerleşmesi: tanım tutarlı mı + üretken mi (yeni teor
 **Track AB — Aksiyom & bağımsızlık analizi (§15)**
 ```
 AB0 🟢 Kullanılan aksiyomları izle (Track M provenance'tan)
-AB1 🟡 Daha zayıf aksiyomla ispat ara (choice'suz, vb.)
+AB1 ✅ Daha zayıf aksiyomla ispat ara (choice'suz, vb.) — axiom_minimize.py: direct-RESIDUE vs CRT, en az aksiyomlu ispatı seçer (6|n³−n ⇒ RESIDUE(6) tek başına)
 AB2 🔴 Model oluşturma / forcing (sonlu analog: T+P ve T+¬P modelleri)
 AB3 🔴 Bağımsızlık ihtimali değerlendirmesi ("ispat bulamadım" ≠ "ispat imkânsız")
 ```

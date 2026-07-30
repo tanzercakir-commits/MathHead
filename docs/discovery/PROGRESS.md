@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — AB1: axiom-minimal proof search ("how little must we assume?")
+
+New `axiom_minimize.py` (Track AB, independence/foundations). A theorem can rest on different axiom
+sets; AB1 asks which kernel-checked proof uses the SMALLEST one. For a modular claim `m|p(n)` the
+kernel offers (at least) two proof terms: a DIRECT residue sweep at `m` (footprint `{RESIDUE(m)}`, one
+rule) and a CRT decomposition over prime powers (`{CRT, RESIDUE(p₁^a₁), …}`, several rules). The module
+enumerates both, keeps only those the kernel actually accepts (`check`), reads each footprint off the
+provenance layer (`axioms_used`), and returns the fewest-axiom proof (ties broken deterministically).
+Result: `6|n³−n` is provable by `RESIDUE(6)` ALONE — the CRT proof, though valid, is not axiom-minimal
+(3 rules vs 1); `30|n⁵−n` likewise reduces to `RESIDUE(30)`. WHY it matters: it makes the trust
+question ("how little do we need to assume?") mechanical and honest, and it's the natural companion to
+`congruence.py`'s trust-base shrinking. Reuses the existing kernel + provenance — no new axioms
+introduced. 5 tests; full suite **1610 green**, ruff clean. Roadmap AB1 ✅ (progress ~46/103; user
+check-in at 49 is 3 phases away).
+
+---
+
 ## 2026-07-30 — P1 theorem mutation + systematic P0 conjecture generation
 
 **Systematic P0** `feature_conjectures.py`: instead of a few hand-picked bounds, generate ALL pairwise

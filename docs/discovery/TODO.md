@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 46 modules · 303 discovery tests · 27 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 47 modules · 308 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -16,6 +16,8 @@ _Last updated: 2026-07-30 · 46 modules · 303 discovery tests · 27 phases ✅ 
 - Proof KERNEL, LCF-style, forge-guarded — 3 judgments: Divides (RESIDUE/CRT), SumIdentity, PolyIdentity.
 - Trust base SHRUNK: RESIDUE derived from the factor theorem, CRT derived from Bézout (both now theorems,
   not axioms) — `congruence.py`.
+- Axiom-MINIMAL proof search (AB1): of the kernel-checked proofs of `m|p(n)` (direct RESIDUE vs
+  CRT-over-prime-powers), pick the fewest-axiom one — `6|n³−n` needs RESIDUE(6) alone — `axiom_minimize.py`.
 - Provenance (hash + axiom list + replay), independent second checker, adversarial soundness battery
   (600+ false claims, 0 breaches).
 - Counterexample-first refutation with minimal witnesses; epistemic-status vocabulary + 4-rung ladder.
@@ -50,9 +52,9 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~45 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~46 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** Working through the ~52 achievable untouched phases; 12 remain 🔴
-open-research (won't fake). Next user check-in at 49 touched (4 to go). Recently done: N3–N6, O4, P1.
+open-research (won't fake). Next user check-in at 49 touched (3 to go). Recently done: N3–N6, O4, P1, AB1.
 
 ## Next — prioritized candidates
 

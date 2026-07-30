@@ -37,6 +37,9 @@ Layers so far:
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
   * congruence — DERIVE RESIDUE from the factor theorem (M-floor): shrinks the trusted base — residue
                  -exhaustion becomes a theorem about PolyIdentity, not a black-box axiom
+  * axiom_minimize — prove with the FEWEST axioms (AB1): enumerates kernel-checked proofs of `m|p(n)`
+                 (direct RESIDUE(m) vs CRT-over-prime-powers) and returns the axiom-minimal one
+                 (6|n³−n needs RESIDUE(6) alone, not CRT's three rules)
   * cross_check — multi-path invariant consistency (O4): |E| four ways, #triangles three ways
                  (count / Handshake / trace / MathHead spectrum); catches any measurement bug
   * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
@@ -108,6 +111,12 @@ from .adversarial_objects import (
     stress_set,
 )
 from .analogy import Analogy, find_analogies
+from .axiom_minimize import (
+    AxiomProof,
+    candidate_proofs,
+    minimal_axiom_proof,
+    minimal_axioms_for,
+)
 from .bijections import (
     BijectionCertificate,
     certify_mahonian_bijection,
@@ -315,6 +324,10 @@ __all__ = [
     "ResidueDerivation",
     "derive_crt",
     "crt_chain_is_derivable",
+    "AxiomProof",
+    "candidate_proofs",
+    "minimal_axiom_proof",
+    "minimal_axioms_for",
     "cross_check",
     "all_consistent",
     "CrossCheck",

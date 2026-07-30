@@ -271,6 +271,9 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         "total": _card.total, "verified": _card.verified,
         "attributed_known": _card.attributed_known, "novel_established": 0,
         "unattributed": len(_card.unattributed)}
+    from .analogy import find_analogies                            # cross-domain analogies (P4)
+    report.meta["analogies"] = [
+        {"technique": a.technique, "domains": list(a.domains)} for a in find_analogies(report)]
     return report
 
 
@@ -335,6 +338,12 @@ def render(report: DiscoveryReport) -> str:
     section("EXPLANATIONS (structure explaining a result — kernel-verified factorization)",
             report.explanations,
             lambda it: f"`{it['identity']}` explains `{it['explains']}` — {it['reason']}")
+    analogies = report.meta.get("analogies")
+    if analogies:
+        lines.append("## CROSS-DOMAIN ANALOGIES (same proof technique across domains — Track P3)")
+        for a in analogies:
+            lines.append(f"- **{a['technique']}** spans: {', '.join(a['domains'])}")
+        lines.append("")
     sc = report.meta.get("scorecard")
     if sc:
         lines.append("## HONEST SCORECARD (Track AF — is any of this NEW?)")

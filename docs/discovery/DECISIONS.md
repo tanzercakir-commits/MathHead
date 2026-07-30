@@ -908,6 +908,26 @@
 
 ---
 
+## ADR-D0041 — Cross-domain analogies claim a shared proof SHAPE, not a deep equivalence
+
+- **Status:** Accepted · 2026-07-29 (P3 — analogy detection)
+- **Context:** Five domains with structural/bijective explanations invite a "does the engine SEE
+  patterns across domains?" capability. The risk is overclaiming — asserting a deep mathematical
+  equivalence between two facts because they share a keyword.
+- **Decision:** `analogy.py` tags each explained finding with its technique (from the explanation
+  text / status) and reports techniques spanning ≥2 domains. It is explicitly structural
+  pattern-matching over the engine's own explanation texts, labelled as claiming a shared PROOF SHAPE,
+  not an equivalence. Surfaced as its own report section.
+- **Consequences:** The engine surfaces genuine, useful analogies (constructive bijection across
+  permutations and partitions; recurrence across permutations and set partitions) — a modest step from
+  collection toward recognizing recurring method — while staying honest about what a keyword-level
+  match does and does not establish. It also only reports what the explanation texts actually say
+  (e.g. it does NOT force a double-counting analogy where one explanation didn't use the phrase),
+  which keeps it faithful rather than aspirational. A deeper, judged analogy engine (mapping structure,
+  not text) is future work.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

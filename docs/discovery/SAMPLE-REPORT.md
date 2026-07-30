@@ -97,6 +97,10 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=37 · FORMALLY_
 - `B(n) = #{set partitions of [n]}  (Bell numbers)` explains `over set partitions of [n]` — a set partition has some number k of blocks; summing S(n,k) over all k counts every partition exactly once, so B(n) = Σ_k S(n,k).
 - `#{set partitions of [n] with k blocks} = S(n,k)  (Stirling 2nd kind, A008277)` explains `over set partitions of [n]` — the block-count distribution obeys the Stirling recurrence S(n,k) = k·S(n−1,k) + S(n−1,k−1) (place element n in an existing block, k ways, or start a new one); computed independently and matched.
 
+## CROSS-DOMAIN ANALOGIES (same proof technique across domains — Track P3)
+- **constructive bijection** spans: integer partitions, permutations
+- **recurrence** spans: permutations, set partitions
+
 ## HONEST SCORECARD (Track AF — is any of this NEW?)
 - 48 findings · 17 verified · 48 attributable to KNOWN mathematics · **0 novel-to-literature established**
 - _the engine correctly REDISCOVERS known mathematics; novelty vs. the literature is not established (needs corpus ingestion, X1/W2 — not built)_

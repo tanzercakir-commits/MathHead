@@ -31,6 +31,20 @@ suite 261); full suite **1551 green**, ruff clean. ADR-D0040. Roadmap M (kernel 
 
 ---
 
+## 2026-07-29 — Cross-domain analogy detection (P4)
+
+With five domains and a rich explanation layer, the engine now notices when the SAME proof technique
+recurs across genuinely different objects. New `analogy.py` tags each explained finding with its
+technique (double counting, constructive bijection, recurrence, factorization, …) and reports the
+techniques that span two or more domains. On the report it finds: **constructive bijection** spanning
+permutations (Mahonian) and integer partitions (Euler/conjugation); **recurrence** spanning
+permutations (Eulerian) and set partitions (Stirling). Honest: it claims a shared PROOF SHAPE (pattern
+match over the explanation texts), not a deep equivalence — but the shapes are real. Surfaced as a
+CROSS-DOMAIN ANALOGIES section. 4 tests (discovery suite 267); full suite **1557 green**, ruff clean.
+ADR-D0041. Roadmap P4.
+
+---
+
 ## 2026-07-29 — M-floor continued: CRT derived from Bézout
 
 The other modular primitive, CRT, is now derived too. `congruence.derive_crt(m1,m2)`: extended Euclid

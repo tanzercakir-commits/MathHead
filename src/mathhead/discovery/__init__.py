@@ -37,6 +37,8 @@ Layers so far:
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
   * congruence — DERIVE RESIDUE from the factor theorem (M-floor): shrinks the trusted base — residue
                  -exhaustion becomes a theorem about PolyIdentity, not a black-box axiom
+  * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
+                 bijection, recurrence) recurring across two+ domains
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
                  divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
   * structural_explanations — WHY the graph laws hold: double counting (handshake), the clique bound
@@ -83,6 +85,7 @@ from .arithmetic import (
     run_arithmetic_discovery,
 )
 from .adversarial import RobustnessReport, robustness_report
+from .analogy import Analogy, find_analogies
 from .bijections import (
     BijectionCertificate,
     certify_mahonian_bijection,
@@ -319,6 +322,8 @@ __all__ = [
     "render_scorecard",
     "RobustnessReport",
     "robustness_report",
+    "Analogy",
+    "find_analogies",
     "BijectionCertificate",
     "certify_partition_bijections",
     "certify_mahonian_bijection",

@@ -1,5 +1,8 @@
 """Discovery Track AC — the research director: cross-cycle state + rule-based strategy selection."""
 from mathhead.discovery.director import CycleResult, ResearchDirector
+from mathhead.discovery.knowledge_graph import from_report
+from mathhead.discovery.lemma_ranking import rank_lemmas
+from mathhead.discovery.report import run_report
 
 
 def test_single_cycle_produces_a_result_and_next_goal():
@@ -27,12 +30,24 @@ def test_new_findings_taper_as_the_sample_repeats():
     assert first > 0 and second == 0                    # everything from a repeated bound is already seen
 
 
-def test_strategy_targets_the_open_frontier():
+def test_director_goal_choice_uses_the_t2_lemma_ranking():
+    # pin the integration: the director's top_lemma is exactly lemma_ranking's top pick on the same report
     d = ResearchDirector()
     res = d.run_cycle(max_n=4)
-    if res.open_frontier:
+    ranked = rank_lemmas(from_report(run_report(max_n=4)))
+    if ranked:
+        assert res.top_lemma["statement"] == ranked[0].statement
+        assert res.top_lemma["priority"] == ranked[0].priority
+
+
+def test_strategy_targets_the_highest_priority_open_conjecture():
+    # AC0 now selects by importance × likelihood (T2), exposed as top_lemma — not raw entanglement
+    d = ResearchDirector()
+    res = d.run_cycle(max_n=4)
+    if res.top_lemma:
         assert res.next_goal.startswith("settle open conjecture:")
-        assert res.open_frontier[0]["statement"] in res.next_goal
+        assert res.top_lemma["statement"] in res.next_goal          # the T2 top pick drives the goal
+        assert 0.0 <= res.top_lemma["priority"] <= 1.0
 
 
 def test_session_summary_reports_progression():

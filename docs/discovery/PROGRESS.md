@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-07-30 — AC0 wiring: the director now goal-selects via T2 (loop closed)
+
+Modified `director.py` (Track AC0). The research director previously picked its next goal from raw
+IMPACT (entanglement — the most-connected open conjecture). It now picks from `lemma_ranking.rank_lemmas`
+(T2), which fuses that entanglement (importance) with `gap`'s proximity-to-proof (likelihood) into one
+priority — closing the discover → prioritize → pursue loop with the T0/T2 signals built this batch. The
+policy degrades gracefully: when no open goal is near proved ground (likelihood uniform), priority
+reduces to entanglement, so behaviour is never worse than before; when some goals ARE reachable, the
+director prefers the important-AND-reachable one. `CycleResult` now carries `top_lemma`
+(statement/priority/importance/likelihood) so the choice is auditable, and a test pins that the director's
+pick is exactly `rank_lemmas`' top on the same report. The existing frontier-targeting test was updated
+to assert the new (strictly richer) policy — an honest policy improvement, not a weakening. Rule-based and
+deterministic still (an honest AC0, not a learned planner — that stays 🔴). Full suite **1711 green**,
+ruff clean. HONEST accounting: DEEPENS the already-touched AC0, count stays ~54/103 — it makes the
+director genuinely use the new signals rather than adding a checkbox.
+
+**Note on trajectory:** with this, the batch's new discovery signals (gap, lemma-ranking) are not just
+built but WIRED into the researcher. The easily-reachable NEW phases are now thin; remaining high-value
+work is depth (hardening ~26 partials toward fully-✅). Prioritizing value over touched-count from here.
+
+---
+
 ## 2026-07-30 — P5: normalize + deduplicate conjectures across miners
 
 New `conjecture_normalize.py` (Track P5). The engine now mines conjectures from several sources — linear

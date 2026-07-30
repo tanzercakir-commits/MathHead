@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 60 modules · 400 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 60 modules · 401 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -54,7 +54,8 @@ _Last updated: 2026-07-30 · 60 modules · 400 discovery tests · 28 phases ✅ 
 
 **Knowledge / grade / direct (X, Y, AC, AF, T)**
 - Knowledge graph + impact analysis; failure memory (negative knowledge); research director
-  (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
+  (goal-driven, cross-cycle) — now selects its next goal by IMPORTANCE × LIKELIHOOD (T2 `rank_lemmas`
+  wired into AC0), closing the discover→prioritize→pursue loop. Honest scorecard + cited catalog (0 novel).
 - Goal↔knowledge GAP measure (T0): BFS distance from a goal to proved ground + open dependencies →
   a [0,1] gap; ranks open goals closest-to-reach first (complements impact's entanglement) — `gap.py`.
 - Lemma ranking by IMPORTANCE × LIKELIHOOD (T2): fuses impact's entanglement with gap's proximity-to-proof
@@ -89,7 +90,8 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 ceiling ≈ 91, so ~37 achievable phases remain (many are deepening partials to full). **User check-in at
 49 done** — next at 59 (5 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5; M-floor now COMPLETE
 (SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2
-mining + RATIO/MONOTONICITY mining (deepen O2/P0 — already ✅, count-neutral, but real discovery breadth).
+mining + RATIO/MONOTONICITY mining (O2/P0); director now goal-selects via T2 (AC0 wiring — loop closed,
+count-neutral). **Shifting emphasis: value/depth over marginal new-phase touches (see note below).**
 
 ## Next — prioritized candidates
 

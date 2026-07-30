@@ -10,9 +10,11 @@ next goal from what it just learned:
     fingerprint, so a branch closed in cycle 1 is never re-walked in cycle 3); a `seen` set tracks
     which findings are new each cycle; the ladder distribution is recorded per cycle so progress is
     visible.
-  * strategy SELECTION (AC0) — after each cycle the director reads the impact analysis (the open
-    frontier — the most-entangled unresolved conjectures) and the ladder, and proposes the next goal:
-    settle the highest-impact open conjecture if one exists, else widen the sample bound.
+  * strategy SELECTION (AC0) — after each cycle the director ranks the open goals by IMPORTANCE ×
+    LIKELIHOOD (`lemma_ranking`, T2 — fusing impact's entanglement with gap's proximity-to-proof) and
+    proposes the next goal: pursue the highest-priority open conjecture if one exists, else widen the
+    sample bound. This closes the discover → prioritize → pursue loop with the T0/T2 signals, degrading
+    gracefully to pure entanglement when no open goal is near proved ground.
 
 The policy is deterministic and rule-based (an honest AC0, not a learned planner — that is later
 work). The director decides WHAT to look at next; it never decides what is TRUE.
@@ -25,6 +27,7 @@ from .epistemic_ladder import ladder_summary
 from .failure_memory import FailureMemory, populate_from_refutations
 from .impact import open_frontier
 from .knowledge_graph import from_report as _kg_from_report
+from .lemma_ranking import rank_lemmas
 from .report import run_report
 
 
@@ -38,6 +41,7 @@ class CycleResult:
     new_dead_ends: int
     open_frontier: list
     next_goal: str
+    top_lemma: dict = field(default_factory=dict)   # T2 pick: {statement, priority, importance, likelihood}
 
 
 @dataclass
@@ -47,10 +51,11 @@ class ResearchDirector:
     cycles: list = field(default_factory=list)
     _seen: set = field(default_factory=set)
 
-    def _select_next_goal(self, frontier: list, ladder: dict) -> str:
-        """AC0 policy: pursue the highest-impact open conjecture; if none, widen the bound."""
-        if frontier:
-            return f"settle open conjecture: {frontier[0]['statement']}"
+    def _select_next_goal(self, ranked: list, ladder: dict) -> str:
+        """AC0 policy: pursue the highest-PRIORITY open conjecture (importance × likelihood, T2); if
+        none, raise validated laws toward proof, else widen the bound."""
+        if ranked:
+            return f"settle open conjecture: {ranked[0].statement}"
         if ladder.get("EMPIRICALLY_VALIDATED", 0) > ladder.get("FORMALLY_PROVED", 0):
             return "raise validated laws toward proof (find structural/kernel arguments)"
         return "widen the sample bound to expose new structure"
@@ -72,13 +77,18 @@ class ResearchDirector:
         self._seen.update(statements)
 
         ladder = ladder_summary(report)
-        frontier = open_frontier(_kg_from_report(report))
-        next_goal = self._select_next_goal(frontier, ladder)
+        kg = _kg_from_report(report)
+        frontier = open_frontier(kg)
+        ranked = rank_lemmas(kg)                        # T2: importance × likelihood
+        next_goal = self._select_next_goal(ranked, ladder)
+        top = ranked[0] if ranked else None
+        top_lemma = ({"statement": top.statement, "priority": top.priority,
+                      "importance": top.importance, "likelihood": top.likelihood} if top else {})
 
         result = CycleResult(
             cycle=len(self.cycles) + 1, goal=goal, max_n=max_n, ladder=ladder,
             new_findings=new_findings, new_dead_ends=new_dead_ends,
-            open_frontier=frontier[:3], next_goal=next_goal)
+            open_frontier=frontier[:3], next_goal=next_goal, top_lemma=top_lemma)
         self.cycles.append(result)
         return result
 

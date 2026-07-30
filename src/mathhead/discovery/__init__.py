@@ -66,8 +66,12 @@ Layers so far:
                  distill reusable lessons (which witness refutes the most conjectures)
   * families    — parametric object families (N4): K_n, C_n, P_n, star, wheel, K_{a,b} at any size +
                  stratified sampling; invariants match known closed forms (a cross-check oracle)
+  * adversarial_objects — random/adversarial/extreme generators (N5): degenerate + K_n/K_n−e +
+                 seeded-random stress set; invariants survive it with 0 crashes
   * serialize   — generic object serialization + content-hash + reproducible ordering (N3), one
                  canonicaliser across all five object types (dedup, stable storage keys)
+  * object_store — queryable store indexed by invariant (N6): add (dedup) → query(χ=3, triangles=0);
+                 the substrate for targeted discovery / feature tables
   * interestingness — transparent heuristic ranking (W1): novelty/generality/surprise/usefulness/
                  compression/connectivity − triviality, with a per-component breakdown (not learned)
   * knowledge_graph — typed semantic graph of findings + relations (X0): theorem/law/conjecture/
@@ -91,6 +95,12 @@ from .arithmetic import (
     run_arithmetic_discovery,
 )
 from .adversarial import RobustnessReport, robustness_report
+from .adversarial_objects import (
+    degenerate_graphs,
+    extreme_graphs,
+    random_graphs,
+    stress_set,
+)
 from .analogy import Analogy, find_analogies
 from .bijections import (
     BijectionCertificate,
@@ -196,6 +206,7 @@ from .judge import (
     judge_task,
 )
 from .novelty import is_subclass_specific, novel_subclass_laws
+from .object_store import ObjectStore
 from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree
 from .refute import RefutationResult, refute
@@ -309,10 +320,15 @@ __all__ = [
     "wheel",
     "complete_bipartite",
     "stratified_sample",
+    "stress_set",
+    "extreme_graphs",
+    "degenerate_graphs",
+    "random_graphs",
     "serialize",
     "content_hash",
     "reproducible_sort",
     "deduplicate",
+    "ObjectStore",
     "Interestingness",
     "score_interestingness",
     "rank_interestingness",

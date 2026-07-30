@@ -100,8 +100,8 @@ N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üre
 N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at  ✅ (derece-arıtılmış permütasyon-min; C6≠2C3 ayırıyor; ADR-D0002)
 N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)  ✅ (serialize.py: 5 nesne tipini kapsayan tek kanonikleştirici; content_hash, reproducible_sort, deduplicate; stdlib-only, deterministik)
 N4 🟢 Parametrik aileler + kısıtlı örnekleyiciler (stratified sampling)  ✅ (families.py: K_n/C_n/P_n/star/wheel/K_{a,b} her boyutta + stratified_sample; invariantlar bilinen kapalı formlarla çapraz-doğrulanır [oracle])
-N5 🟡 Rastgele + adversarial + ekstrem/dejeneratif nesne üreticileri
-N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
+N5 🟡 Rastgele + adversarial + ekstrem/dejeneratif nesne üreticileri  ✅ (adversarial_objects: degenerate + K_n/K_n−e + seed'li rastgele stress_set; tüm invariantlar 0 çökme ile geçer; determinizm seed'li)
+N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu  ✅ (object_store.ObjectStore: content-hash dedup + invariant ters-indeks; query(χ=3, num_triangles=0)→C5; N3+O1 üzerine)
 ```
 
 **Track O — Özellik & invariant değerlendirme**

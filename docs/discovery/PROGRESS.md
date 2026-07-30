@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-30 — N-track COMPLETE: object store (N6) + adversarial generators (N5)
+
+Finished the whole object-model track (N0–N6). **N6** `object_store.py`: a content-deduplicated store
+with an inverted index on invariant values — `add` (idempotent) then `query(chromatic_number=3,
+num_triangles=0)` returns C₅ (triangle-free yet 3-chromatic — a nice fact the store surfaces by set
+intersection). Built on N3 (hash dedup) + O1 (invariants). **N5** `adversarial_objects.py`: random /
+adversarial / extreme generators — degenerate (edgeless, disconnected), extreme (K_n, K_n−e), and
+seeded-random — assembled into a `stress_set`; every invariant runs over all 61 stress objects with
+**0 crashes** (robustness confirmed), and seeded randomness is reproducible.
+
+That closes Track N entirely (typed objects, canonical generation, iso-elimination, serialization,
+families, adversarial, store). 10 tests; full suite **1588 green**, ruff clean. Roadmap N5, N6 ✅.
+
+---
+
 ## 2026-07-30 — Object-model infrastructure: parametric families (N4) + generic serialization (N3)
 
 Two untouched N-track phases done. **N4** `families.py`: named parametric graph families at ANY size

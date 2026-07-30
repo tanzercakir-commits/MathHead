@@ -81,13 +81,12 @@ added; NON-LINEAR (degree-2) law mining (deepens O2 — already ✅, count-neutr
 ## Next — prioritized candidates
 
 _(✅ M-floor COMPLETE — RESIDUE, CRT, SumInduction all derived + elementary divisibility lemmas explicit;
-the whole kernel trust base is now auditable. ✅ sixth domain compositions done.)_
+the whole kernel trust base is now auditable. ✅ sixth domain compositions. ✅ non-linear degree-2 mining.)_
 
-1. **Richer / non-linear invariant mining** — relations.py mines LINEAR laws (null-space); add
-   product/ratio mining that could surface an honest unattributed candidate. Highest discovery value.
-2. **U-track representation bridges (U0/U1)** — make the engine's representation transforms explicit &
+1. **U-track representation bridges (U0/U1)** — make the engine's representation transforms explicit &
    verified (graph↔matrix↔SAT, divisibility↔finite-residue) as a typed registry with round-trip checks.
-3. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
+2. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
+3. **Ratio / monotonicity mining** — beyond degree-2 equalities: monotone + ratio patterns (P0 breadth).
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

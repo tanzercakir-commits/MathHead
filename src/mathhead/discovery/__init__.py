@@ -102,6 +102,8 @@ from .coloring import (
 from .congruence import (
     ResidueDerivation,
     check_residue_derivation,
+    crt_chain_is_derivable,
+    derive_crt,
     derive_residue,
     residue_is_derivable,
 )
@@ -265,6 +267,8 @@ __all__ = [
     "check_residue_derivation",
     "residue_is_derivable",
     "ResidueDerivation",
+    "derive_crt",
+    "crt_chain_is_derivable",
     "IdentityFinding",
     "discover_factorization",
     "run_identity_discovery",

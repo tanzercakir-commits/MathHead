@@ -31,6 +31,19 @@ suite 261); full suite **1551 green**, ruff clean. ADR-D0040. Roadmap M (kernel 
 
 ---
 
+## 2026-07-29 — M-floor continued: CRT derived from Bézout
+
+The other modular primitive, CRT, is now derived too. `congruence.derive_crt(m1,m2)`: extended Euclid
+gives s·m1 + t·m2 = 1, so x = x·(s·m1+t·m2) = s·m1·x + t·m2·x, each term divisible by m1·m2 (using
+m2|x, m1|x) ⇒ m1·m2 | x. So CRT's soundness reduces to Bézout (checkable extended Euclid) + elementary
+divisibility, not a trusted composition primitive. `crt_chain_is_derivable` verifies every pair of the
+prime-power moduli; all 7 arithmetic family findings carry `crt_derivable=True`, non-coprime pairs
+rejected. Independent re-check confirms the Bézout identity and coprimality. Both modular primitives
+(RESIDUE, CRT) are now theorems, not axioms. 2 tests (discovery suite 263); full suite **1553 green**,
+ruff clean. Extends ADR-D0040.
+
+---
+
 ## 2026-07-29 — Consolidation: ARCHITECTURE.md, an honest synthesis of the whole engine
 
 After 5 domains, the kernel, constructive certificates/bijections, and the meta layers, wrote

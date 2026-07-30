@@ -22,8 +22,8 @@ from functools import reduce
 from math import gcd
 
 from .checker import check_proof
-from .congruence import residue_is_derivable
-from .kernel import KernelError, poly_from_sympy, prove_divides
+from .congruence import crt_chain_is_derivable, residue_is_derivable
+from .kernel import KernelError, _factor_prime_powers, poly_from_sympy, prove_divides
 from .proof_tree import proof_tree
 from .provenance import axioms_used, proof_hash
 from .strategy import prove_by_residues, prove_modular_divisibility
@@ -77,6 +77,7 @@ class ArithmeticFinding:
     proof_hash: str = ""                   # deterministic kernel proof-artifact hash (M4)
     axioms: tuple = ()                     # the rules/primitives the kernel proof rests on (M5)
     residue_derivable: bool = False        # RESIDUE derivable from the factor theorem (M-floor)
+    crt_derivable: bool = False            # CRT composition derivable from Bézout (M-floor)
 
 
 def discovered_modulus(fn, sample=range(1, 20)) -> int:
@@ -113,6 +114,7 @@ def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: in
             finding.residue_derivable = residue_is_derivable(poly_from_sympy(expr), m)
         except KernelError:
             finding.residue_derivable = False
+        finding.crt_derivable = crt_chain_is_derivable(_factor_prime_powers(m))  # CRT via Bézout
     return finding
 
 

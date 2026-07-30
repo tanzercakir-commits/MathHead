@@ -1,6 +1,8 @@
 """Discovery Track M — DERIVE RESIDUE from the factor theorem, shrinking the kernel's trusted base."""
 from mathhead.discovery.congruence import (
     check_residue_derivation,
+    crt_chain_is_derivable,
+    derive_crt,
     derive_residue,
     factor_quotient,
     residue_is_derivable,
@@ -57,3 +59,15 @@ def test_independent_checker_uses_no_kernel():
     d = derive_residue(_N3, 6)
     d.m = 5                                                 # corrupt: step count no longer matches m
     assert check_residue_derivation(d) is False
+
+
+def test_crt_derived_from_bezout():
+    d = derive_crt(2, 3)
+    assert d.verified and d.s * 2 + d.t * 3 == 1           # Bézout identity witnesses coprimality
+    assert d.trust_base.startswith("Bézout")
+
+
+def test_crt_chain_derivable_for_coprime_prime_powers():
+    assert crt_chain_is_derivable([2, 3, 5])               # 30 = 2·3·5
+    assert crt_chain_is_derivable([8, 3])                  # 24 = 8·3
+    assert not crt_chain_is_derivable([2, 4])              # not coprime

@@ -126,3 +126,55 @@ def residue_is_derivable(poly: tuple, m: int) -> bool:
     """True iff `m | p(n) ∀n` is derivable from the factor theorem AND the independent checker agrees."""
     d = derive_residue(poly, m)
     return d.verified and check_residue_derivation(d)
+
+
+# --- CRT derived from Bézout (m1|x ∧ m2|x ∧ gcd=1 ⇒ m1·m2|x) ----------------------------------
+
+def _bezout(a: int, b: int) -> tuple:
+    """Extended Euclid: (g, s, t) with s·a + t·b = g = gcd(a, b)."""
+    old_r, r = a, b
+    old_s, s = 1, 0
+    old_t, t = 0, 1
+    while r:
+        q = old_r // r
+        old_r, r = r, old_r - q * r
+        old_s, s = s, old_s - q * s
+        old_t, t = t, old_t - q * t
+    return old_r, old_s, old_t
+
+
+@dataclass
+class CRTDerivation:
+    m1: int
+    m2: int
+    s: int                      # Bézout coefficients with s·m1 + t·m2 = 1
+    t: int
+    verified: bool = False
+    trust_base: str = "Bézout (extended Euclid) + elementary integer divisibility"
+
+
+def derive_crt(m1: int, m2: int) -> CRTDerivation:
+    """Derive `m1 | x ∧ m2 | x ⇒ m1·m2 | x` (for coprime m1, m2) from Bézout: with s·m1 + t·m2 = 1,
+    x = x·(s·m1 + t·m2) = s·m1·x + t·m2·x, and each term is divisible by m1·m2 (using m2|x resp.
+    m1|x), so m1·m2 | x."""
+    g, s, t = _bezout(m1, m2)
+    verified = (g == 1) and (s * m1 + t * m2 == 1)
+    return CRTDerivation(m1, m2, s, t, verified)
+
+
+def check_crt_derivation(d: CRTDerivation) -> bool:
+    """INDEPENDENT re-check: the Bézout identity holds and the moduli are genuinely coprime."""
+    from math import gcd
+    return gcd(d.m1, d.m2) == 1 and (d.s * d.m1 + d.t * d.m2 == 1)
+
+
+def crt_chain_is_derivable(moduli: list) -> bool:
+    """True iff every pair of the (prime-power) moduli has a verified Bézout CRT derivation — so the
+    whole composite modulus is CRT-derivable from Bézout."""
+    ms = list(moduli)
+    for i in range(len(ms)):
+        for j in range(i + 1, len(ms)):
+            d = derive_crt(ms[i], ms[j])
+            if not (d.verified and check_crt_derivation(d)):
+                return False
+    return True

@@ -49,6 +49,9 @@ Layers so far:
                  bijection, recurrence) recurring across two+ domains
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
                  divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
+  * generalize  — reverse-engineer a finding into its GENERAL principle (P2): lifts "6|n³−n (3 consec)"
+                 to "k! | product of k consecutive ints ∀k", kernel-verifies k=1..K; honest on the ∀k
+                 quantifier (per-k kernel_verified, the unbounded claim is a cited structural argument)
   * structural_explanations — WHY the graph laws hold: double counting (handshake), the clique bound
                  (ω≤χ), the cycle-degree argument (Hamiltonian⟹δ≥2); conclusion checked on the sample
   * epistemic_ladder — one 4-rung solidity axis (AA3): DISCOVERED → EMPIRICALLY_VALIDATED →
@@ -146,6 +149,13 @@ from .congruence import (
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .cross_check import CrossCheck, all_consistent, cross_check, disagreements
+from .generalize import (
+    Generalization,
+    GeneralInstance,
+    consecutive_product,
+    general_principle,
+    generalize,
+)
 from .generate import count_non_isomorphic, generate_graphs
 from .graph_proofs import (
     Certificate,
@@ -344,6 +354,11 @@ __all__ = [
     "IdentityFinding",
     "discover_factorization",
     "run_identity_discovery",
+    "Generalization",
+    "GeneralInstance",
+    "generalize",
+    "general_principle",
+    "consecutive_product",
     "axioms_used",
     "proof_hash",
     "replay",

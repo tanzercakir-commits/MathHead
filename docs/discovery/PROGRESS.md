@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — P2: reverse-engineer a finding into its general principle
+
+New `generalize.py` (Track P2). Where `identities.py` EXPLAINS one finding (`6|n³−n` holds because
+`n³−n = (n−1)n(n+1)` is 3 consecutive integers, so `3!=6` divides it), P2 lifts that explanation over a
+PARAMETER: from "3 consecutive ⇒ 3!" it proposes the general law "for every k, the product of k
+consecutive integers is divisible by k!", then kernel-verifies the family for k=1..K — each
+`k! | ∏_{i=0}^{k−1}(n+i)` is universal in n and proved by the kernel's RESIDUE rule (1|n, 2|n(n+1),
+6|n(n+1)(n+2), 24|…, 120|…, 720|…). The specific finding is reported as the k=3 instance. HONEST on the
+quantifier: each tested instance is kernel_verified, but the ∀k statement is the classical
+binomial-integrality theorem `C(n,k)=∏/k! ∈ ℤ` — a cited structural_argument, NOT machine-proved for
+unboundedly many k. Crucially it REFUSES to force a generalization where the structure isn't there:
+`30|n⁵−n` is true but `n⁵−n = n(n−1)(n+1)(n²+1)` has a non-linear factor, so it is not a consecutive
+product — `generalize` returns `generalized=False` rather than inventing a bogus law. Builds on
+`identities` (reuses its consecutive-run detector), no duplication. 8 tests; full suite **1632 green**,
+ruff clean. Roadmap P2 🟡→🟢 (newly touched; progress ~47/103, user check-in at 49 is 2 away).
+
+---
+
 ## 2026-07-30 — M-floor: SumInduction DERIVED (the induction step made explicit)
 
 New `sum_derivation.py` (Track M, kernel floor — deepens M2). Third and last of the kernel's leaf

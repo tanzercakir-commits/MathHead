@@ -1,17 +1,20 @@
-# Discovery Engine — Progress log
+# Discovery Engine — Progress log (CHANGELOG)
 
-> WHAT we did, WHEN, WHY — append-only, newest on top. The subproject that follows
-> `docs/IDEAL-ENGINE-ROADMAP.md`. Rationale of design choices goes to
-> `docs/discovery/DECISIONS.md`.
+> WHAT we did, WHEN, WHY — append-only, newest on top. Updated every task, alongside `TODO.md`.
+> One of the three tracking files: PLAN=`docs/IDEAL-ENGINE-ROADMAP.md` (frozen) · TODO=`TODO.md`
+> (done/next) · CHANGELOG=this file. Each entry now carries its own rationale inline (the older
+> `DECISIONS.md` ADR archive is frozen — no longer grown).
 
 ---
 
-## 2026-07-30 — Bookkeeping: STATUS.md tracker + date corrections
+## 2026-07-30 — Bookkeeping: consolidated to THREE fixed tracking files
 
-Added `docs/discovery/STATUS.md` — a short living TODO/status view (done-by-cluster, prioritized next
-candidates, and the honest 🔴 boundary of what we will NOT fake) so the plan is legible without reading
-the 103-phase roadmap. Corrected four entries misdated 2026-07-29 → 07-30 (this morning's session), and
-the analogy entry's track label P4 → P3. Docs only; suite unaffected.
+Tidied the record-keeping to a fixed, minimal set (no more ad-hoc new docs): **PLAN** =
+`IDEAL-ENGINE-ROADMAP.md` (frozen full plan) · **TODO** = `TODO.md` (done/next/open, updated every
+task) · **CHANGELOG** = `PROGRESS.md` (this file, updated every task). Renamed STATUS.md → TODO.md;
+removed ARCHITECTURE.md (redundant with TODO's done-section + code); froze DECISIONS.md as an ADR
+archive (ADR-D0001…D0042) with future rationale folded inline here. Also fixed four entries misdated
+07-29 → 07-30 and the analogy label P4 → P3. Docs only; suite unaffected.
 
 ---
 

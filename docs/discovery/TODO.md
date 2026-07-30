@@ -1,8 +1,12 @@
-# Discovery Engine — Status & Next (living tracker)
+# Discovery Engine — TODO (done / next / open)
 
-> The at-a-glance view: where we are, what's next, what we will NOT fake. The full plan is
-> `IDEAL-ENGINE-ROADMAP.md` (103 phases); the narrative log is `PROGRESS.md`; the rationale is
-> `DECISIONS.md`. This file is the short todo. Update it whenever a track moves.
+> **The three tracking files (nothing else):**
+> 1. `docs/IDEAL-ENGINE-ROADMAP.md` — **PLAN**: the full 103-phase plan. FROZEN, does not change.
+> 2. `docs/discovery/TODO.md` (this file) — **TODO**: done / next / open. Updated every task.
+> 3. `docs/discovery/PROGRESS.md` — **CHANGELOG**: narrative log + rationale. Updated every task.
+>
+> (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
+> a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
 _Last updated: 2026-07-30 · 36 modules · 271 discovery tests (full suite 1561 green) · 42 ADRs ·
 roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._

@@ -1,4 +1,9 @@
-# İdeal Matematik Motoru — Tam Yol Haritası (tepeden ormana)
+# İdeal Matematik Motoru — Tam Yol Haritası (tepeden ormana)  ·  [PLAN — DONMUŞ]
+
+> **Bu, üç takip dosyasından PLAN'dır ve DEĞİŞMEZ.** Canlı "ne bitti / sıradaki ne" takibi
+> `docs/discovery/TODO.md`'de; anlatı günlüğü `docs/discovery/PROGRESS.md`'de. Aşağıdaki ✅/🟢
+> işaretleri tarihsel bir anlık görüntüdür; bundan sonra tamamlanma durumu TODO.md'de tutulur.
+
 
 > **Bu dosyanın işi:** "İdeal matematik motoru" belgesindeki HER özelliği, MathHead'in
 > bugün durduğu yerden (yargıç/doğrulama omurgası, Track A–L) o vizyona kadar, aşama aşama,

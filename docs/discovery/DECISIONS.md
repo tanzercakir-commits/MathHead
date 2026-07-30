@@ -1,5 +1,10 @@
-# Discovery Engine — Decision Log (ADR)
+# Discovery Engine — Decision Log (ADR)  ·  [FROZEN ARCHIVE]
 
+> **Frozen as of 2026-07-30 (ADR-D0001…D0042).** This is a preserved rationale archive, not a live
+> tracker. The three live tracking files are PLAN (`IDEAL-ENGINE-ROADMAP.md`) · TODO (`TODO.md`) ·
+> CHANGELOG (`PROGRESS.md`); new rationale goes inline in PROGRESS entries. Kept for the detailed
+> Context/Decision/Consequences of the first 42 decisions.
+>
 > Decisions for the math **discovery** engine (`mathhead.discovery`), the subproject that
 > builds toward `docs/IDEAL-ENGINE-ROADMAP.md` on top of MathHead's judge spine. Same rule as
 > the main `DECISIONS.md`: decisions are recorded with rationale and not silently changed; if

@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — v2A0/A1/A2: the OEIS radar is live (2 pending external lookups)
+
+New `oeis_radar.py` — the Real Discovery Program's lowest honest bar, instrumented. v2A1 EXTRACTION:
+11 counting sequences computed from the engine's OWN generators (never hardcoded) — 6 domain totals +
+refined families (connected graphs, triangle-free, χ=3, derangements, involutions). v2A0 LOOKUP: a local
+corpus of pinned/classic OEIS prefixes with a ≥5-term overlap requirement (junk cannot match); runtime
+auto-querying of oeis.org is correctly REFUSED (robots.txt disallows automation — we respect it, we do
+not bypass), so unmatched sequences are `pending_external_lookup`, resolved by a HUMAN in a browser.
+v2A2 RADAR: matched(9) — the engine's computed sequences land EXACTLY on A000088, A001349 (connected),
+A000142, A000166 (derangements), A000085 (involutions), A000041, A000009, A000110, A011782 — a 9-way
+cross-validation of the generators against independent mathematics; pending(2) — triangle-free graphs
+`1,1,2,3,7,14,38` and χ=3 graphs `0,0,0,1,3,16,84`, each a QUERY for a human to run at oeis.org (both
+almost certainly known — the point is the PROTOCOL: external query → if absent, human-approved
+submission → referee acceptance = the discovery; anything short of that is nothing). 7 tests; full suite
+**1749 green**, ruff clean. Roadmap v2A1 ✅, v2A0/A2 🟢 (ADR-D0061). Kademe 1 is now 3/6 done on day one.
+
+---
+
 ## 2026-07-30 — v2A3 ✅ PSLQ constant-formula hunt + 2 real bugs caught by the fuzzer
 
 **v2A3 (`pslq_hunt.py`) — the Real Discovery Program's first completed phase.** The BBP formula for π was

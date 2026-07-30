@@ -299,9 +299,9 @@ Toplam: 22 track, ~103 aşama.
 
 **Kademe 1 — dış-onaylı ilk keşif şansı (bu makinede yapılabilir)**
 ```
-v2A0 🟡 OEIS erişim katmanı: sorgu-bazlı eşleştirici (API/yerel döküm; lisans + atıf)
-v2A1 🟡 Doğal aile → sayma dizisi üreticisi (6 alandan sistematik dizi çıkarımı)
-v2A2 🟡 OEIS radarı: eşleşmeyen doğal dizi tespiti → insan-onaylı gönderim dosyası (kabul = dış-onaylı keşif)
+v2A0 🟢 OEIS erişim katmanı: sorgu-bazlı eşleştirici (API/yerel döküm; lisans + atıf) — oeis_radar.LOCAL_CORPUS: kod-tabanında pinli + su-götürmez klasik prefix'ler; ≥5-terim örtüşme koşulu (çöp eşleşemez); runtime dış sorgu YOK (oeis.org robots.txt otomasyonu engelliyor — saygı gösteriyoruz, aşmıyoruz): eşleşmeyen = pending_external_lookup, İNSAN-halkalı çözüm; ADR-D0061
+v2A1 ✅ Doğal aile → sayma dizisi üreticisi (6 alandan sistematik dizi çıkarımı) — extract_natural_sequences: 11 dizi MOTORUN KENDİ üreticilerinden hesaplanır (asla hardcode değil): 6 alan toplamı + rafine aileler (bağlantılı graflar A001349, derangement A000166, involusyon A000085, üçgensiz, χ=3); 9'u OEIS pinine birebir oturdu; ADR-D0061
+v2A2 🟢 OEIS radarı: eşleşmeyen doğal dizi tespiti → insan-onaylı gönderim dosyası (kabul = dış-onaylı keşif) — radar(): matched(9, A-numaralı) / pending(2: üçgensiz 1,1,2,3,7,14,38; χ=3 0,0,0,1,3,16,84) ayrımı; protokol AÇIK: dış OEIS sorgusu → yoksa insan-onaylı gönderim → hakem kabulü = keşif, öncesi hiçbir şey; pending asla keşif diye sunulmaz; ADR-D0061
 v2A3 ✅ PSLQ sabit-formül avı (mpmath.pslq): iki-hassasiyet protokolü, gürültü reddi, numerical_conjecture statüsü — pslq_hunt.py: 60 hanede keşif → 220 hanede sıfırdan yeniden-doğrulama (ikinci kapıda ölmeyen kalır); kalibrasyon: 6ζ(2)=π², 90ζ(4)=π⁴, √2→x²−2, φ→x²−x−1 yeniden-keşfedildi (residual~10⁻²²⁰); e-π, γ-ln2, gürültü-sabiti, π-cebirsel DÜRÜSTÇE None; statü asla proved değil; ADR-D0060
 v2A4 🟡 nauty/geng ölçek entegrasyonu (n~20-30) + hızlı invariant yolu
 v2A5 🟡 Zengin invariant kütüphanesi (independence, domination, girth, diameter, matching, energy, spectral radius)

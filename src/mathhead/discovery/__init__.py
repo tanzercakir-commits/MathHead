@@ -27,6 +27,10 @@ Layers so far:
                  constants via mpmath.pslq with a TWO-PRECISION protocol (found @60 digits, re-verified
                  @220) + noise rejection; rediscovers 6ζ(2)=π², 90ζ(4)=π⁴, √2, φ; e-π honestly None;
                  status always numerical_conjecture, never proved (the BBP road, honestly instrumented)
+  * oeis_radar  — natural-family sequences + OEIS radar (v2A0/A1/A2): counting sequences computed from
+                 the engine's OWN generators (9 land on their OEIS pins: A000088, derangements A000166 …);
+                 unmatched refined families (triangle-free, χ=3 graphs) = pending EXTERNAL lookup —
+                 human-in-the-loop; discovery only via OEIS referee acceptance, never self-declared
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -337,6 +341,13 @@ from .pattern_mining import (
 )
 from .novelty import is_subclass_specific, novel_subclass_laws
 from .object_store import ObjectStore
+from .oeis_radar import (
+    LOCAL_CORPUS,
+    NaturalSequence,
+    RadarReport,
+    extract_natural_sequences,
+    radar,
+)
 from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree, sum_proof_tree
 from .refute import RefutationResult, refute
@@ -573,6 +584,11 @@ __all__ = [
     "find_algebraic",
     "hunt_constants",
     "CONSTANTS",
+    "NaturalSequence",
+    "RadarReport",
+    "extract_natural_sequences",
+    "radar",
+    "LOCAL_CORPUS",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

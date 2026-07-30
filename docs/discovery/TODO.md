@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 61 modules · 410 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 62 modules · 416 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -36,7 +36,8 @@ _Last updated: 2026-07-30 · 61 modules · 410 discovery tests · 28 phases ✅ 
   `2·num_edges = n²−n` on Kₙ, filters reducible (lower-law × invariant) laws, honest empirical status —
   `nonlinear_relations.py`.
 - RATIO & MONOTONICITY mining (P0 breadth): constant ratios (Handshake as `sum_degrees/num_edges = 2`) +
-  monotonic trends over an ordered family; exact (Fraction), empirical — `pattern_mining.py`.
+  monotonic trends over an ordered family; exact (Fraction), empirical — `pattern_mining.py`. Junk-filtered
+  (W0 breadth): fake constant-invariant "trends" + accidental both-constant ratios dropped — `trivial_filter.py`.
 - Conjecture NORMALIZE + DEDUP across miners (P5): one canonical linear-form key collapses duplicates
   (Handshake as a linear law AND as a ratio → one, corroboration 2); keeps provenance — `conjecture_normalize.py`.
 
@@ -93,9 +94,9 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
 ceiling ≈ 91, so ~36 achievable phases remain (many are deepening partials to full). **User check-in at
 49 done** — next at 59 (4 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5, S3; M-floor now COMPLETE
-(SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2
-mining + RATIO/MONOTONICITY mining (O2/P0); director now goal-selects via T2 (AC0 wiring — loop closed,
-count-neutral). **Shifting emphasis: value/depth over marginal new-phase touches (see note below).**
+(SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2 +
+RATIO/MONOTONICITY mining (O2/P0); director goal-selects via T2 (AC0); report surfaces new miners (AC2);
+W0-breadth junk filter for new patterns. **Emphasis: value/depth over marginal new-phase touches.**
 
 ## Next — prioritized candidates
 

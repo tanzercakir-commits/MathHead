@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — W0 breadth: junk-filter the new ratio & monotone patterns
+
+New `trivial_filter.py` (Track W0, breadth). W0 (`novelty.py`) already dropped restricted-universal
+subclass laws; the newer `pattern_mining` miners needed the same hygiene. Two exact, sample-grounded
+filters: a MONOTONIC trend on a CONSTANT invariant is junk (a constant sequence is trivially both non-
+decreasing and non-increasing — so `num_components non_decreasing` on complete graphs, where
+num_components ≡ 1, is a fake "trend") — dropped; and a CONSTANT RATIO whose two sides are BOTH constant
+over the sample is accidental (fixed only because neither varies) — dropped, while a ratio with at least
+one varying side, like `sum_degrees/num_edges = 2` (Handshake), is a genuine relation and kept. The
+filters only ever REMOVE — never invent or relabel — and are a strict subset of the raw output (a test
+pins that). Verified: on Kₙ the fake num_components trend is dropped while the five real strictly-
+increasing trends survive; on a single graph every ratio is accidental and all are dropped. 6 tests; full
+suite **1726 green**, ruff clean. HONEST accounting: DEEPENS the already-✅ W0, count stays ~55/103 —
+raises the signal-to-noise of the new miners rather than adding a checkbox.
+
+---
+
 ## 2026-07-30 — S3: record proof-strategy failures into the failure memory (S→Y loop)
 
 New `strategy_log.py` (Track S3). S2's portfolio reports an honest status per problem — solved / unsolved

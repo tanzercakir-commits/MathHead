@@ -17,6 +17,9 @@ Layers so far:
                  reducible (lower-law × invariant) laws; honest empirical status, degree-2 bounded
   * pattern_mining — ratio & monotonicity patterns (P0 breadth): CONSTANT ratios (rediscovers Handshake as
                  sum_degrees/num_edges = 2) + MONOTONIC trends over an ordered family; exact, empirical
+  * trivial_filter — junk-filter the new patterns (W0 breadth): drop a monotone trend on a CONSTANT
+                 invariant (fake trend) and a ratio whose two sides are both constant (accidental); keeps
+                 genuine relations (Handshake) — exact, sample-grounded, only ever REMOVES
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -359,6 +362,7 @@ from .set_partitions import (
     stirling2,
 )
 from .structural_explanations import structural_explanations
+from .trivial_filter import nontrivial_ratios, nontrivial_trends
 from .sequences import (
     SumIdentityFinding,
     discover_closed_form,
@@ -564,6 +568,8 @@ __all__ = [
     "MonotonicTrend",
     "constant_ratios",
     "monotonic_trends",
+    "nontrivial_trends",
+    "nontrivial_ratios",
     "NormalizedConjecture",
     "normalize_conjectures",
     "from_law",

@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-07-30 — M-floor: SumInduction DERIVED (the induction step made explicit)
+
+New `sum_derivation.py` (Track M, kernel floor — deepens M2). Third and last of the kernel's leaf
+rules loses its black-box status. `congruence.py` already derived RESIDUE (from the factor theorem) and
+CRT (from Bézout); this does the same for `SumInduction`. The claim `Σ_{i=1}^n f(i) = g(n)` reduces to
+two explicit, independently-checkable facts: a BASE case `g(1) = f(1)` (an evaluation at n=1, not an
+axiom) and an induction STEP `g(n) = g(n−1) + f(n)` — a UNIVERSAL polynomial identity that is handed to
+the kernel's OWN `PolyIdentity` (`Identity`) rule and checked exactly in rational arithmetic. So
+SumInduction is no longer a trusted primitive; it is a THEOREM about PolyIdentity + evaluation +
+induction over ℕ. WHY it matters: it finishes shrinking the kernel's trust base to a single algebraic
+core (exact polynomial identity) plus elementary arithmetic — the same move that made RESIDUE honest,
+now applied to sums. Verified on Σ1=n, Σi=n(n+1)/2, Σi²=n(n+1)(2n+1)/6, Σi³=(n(n+1)/2)², Σ(2i−1)=n².
+A parametrized test asserts the derived route accepts EXACTLY what the primitive SumInduction rule
+accepts (birebir cross-consistency), and an independent no-kernel checker re-verifies base + step.
+14 tests; full suite **1624 green**, ruff clean. Honest accounting: this DEEPENS the already-touched M2
+(trust-base shrinking), so the touched-phase count stays ~46/103 — real rigor, not a new checkbox.
+
+---
+
 ## 2026-07-30 — AB1: axiom-minimal proof search ("how little must we assume?")
 
 New `axiom_minimize.py` (Track AB, independence/foundations). A theorem can rest on different axiom

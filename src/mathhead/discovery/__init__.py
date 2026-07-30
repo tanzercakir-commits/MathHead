@@ -40,6 +40,9 @@ Layers so far:
   * axiom_minimize — prove with the FEWEST axioms (AB1): enumerates kernel-checked proofs of `m|p(n)`
                  (direct RESIDUE(m) vs CRT-over-prime-powers) and returns the axiom-minimal one
                  (6|n³−n needs RESIDUE(6) alone, not CRT's three rules)
+  * sum_derivation — make the induction STEP explicit (M-floor): derives the SumInduction rule from the
+                 kernel's OWN PolyIdentity — the step g(n)=g(n−1)+f(n) is a kernel-checked identity, so
+                 SumInduction is a theorem about PolyIdentity, not a trusted primitive (Σi, Σi², Σi³ …)
   * cross_check — multi-path invariant consistency (O4): |E| four ways, #triangles three ways
                  (count / Handshake / trace / MathHead spectrum); catches any measurement bug
   * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
@@ -272,6 +275,12 @@ from .spectral import (
     spectrum,
     spectrum_confirms_moments,
 )
+from .sum_derivation import (
+    SumDerivation,
+    check_sum_derivation,
+    derive_sum_identity,
+    sum_induction_is_derivable,
+)
 from .strategy import (
     factor_prime_powers,
     prove_by_residues,
@@ -458,6 +467,10 @@ __all__ = [
     "SumIdentityFinding",
     "run_sequence_discovery",
     "discover_closed_form",
+    "SumDerivation",
+    "derive_sum_identity",
+    "check_sum_derivation",
+    "sum_induction_is_derivable",
     "prove_modular_divisibility",
     "prove_by_residues",
     "factor_prime_powers",

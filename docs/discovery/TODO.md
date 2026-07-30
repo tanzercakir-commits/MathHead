@@ -8,14 +8,16 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 47 modules · 308 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 48 modules · 314 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
 **Trust / judge (M, Q, R)**
 - Proof KERNEL, LCF-style, forge-guarded — 3 judgments: Divides (RESIDUE/CRT), SumIdentity, PolyIdentity.
-- Trust base SHRUNK: RESIDUE derived from the factor theorem, CRT derived from Bézout (both now theorems,
-  not axioms) — `congruence.py`.
+- Trust base SHRUNK: RESIDUE derived from the factor theorem, CRT derived from Bézout, and SumInduction
+  derived from the kernel's own PolyIdentity (the induction STEP `g(n)=g(n−1)+f(n)` is now an explicit
+  kernel-checked identity, base = eval at n=1) — all three now theorems, not axioms —
+  `congruence.py` + `sum_derivation.py`.
 - Axiom-MINIMAL proof search (AB1): of the kernel-checked proofs of `m|p(n)` (direct RESIDUE vs
   CRT-over-prime-powers), pick the fewest-axiom one — `6|n³−n` needs RESIDUE(6) alone — `axiom_minimize.py`.
 - Provenance (hash + axiom list + replay), independent second checker, adversarial soundness battery
@@ -54,7 +56,8 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 **~46 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** Working through the ~52 achievable untouched phases; 12 remain 🔴
-open-research (won't fake). Next user check-in at 49 touched (3 to go). Recently done: N3–N6, O4, P1, AB1.
+open-research (won't fake). Next user check-in at 49 touched (3 to go). Recently done: N3–N6, O4, P1, AB1;
+M-floor DEEPENED (SumInduction derived — M2, already-touched, so count unchanged at 46).
 
 ## Next — prioritized candidates
 

@@ -34,6 +34,9 @@ TESTS = ROOT / "tests"
 # The frozen plan's invariants — guarded so the 103-phase list can never be silently lost.
 PHASES_EXPECTED = 103
 TRACKS_EXPECTED = 21
+# The v2 extension (Real Discovery Program, user-approved 2026-07-30) — guarded the same way.
+# v2 phase IDs are lowercase-prefixed (v2A0…) so they can NEVER inflate the original 103 count.
+V2_PHASES_EXPECTED = 16
 
 
 def roadmap_counts() -> tuple:
@@ -42,6 +45,10 @@ def roadmap_counts() -> tuple:
     tracks = len(re.findall(r"(?m)^\*\*Track", t))
     done = t.count("✅")
     return phases, tracks, done
+
+
+def v2_count() -> int:
+    return len(re.findall(r"(?m)^v2[A-D][0-9]+", ROADMAP.read_text(encoding="utf-8")))
 
 
 def module_count() -> int:
@@ -65,7 +72,8 @@ def _stats_line() -> str:
     phases, tracks, done = roadmap_counts()
     today = datetime.date.today().isoformat()
     return (f"_Last updated: {today} · {module_count()} modules · {discovery_test_count()} "
-            f"discovery tests · {done} phases ✅ full, of {phases} (across {tracks} tracks)._")
+            f"discovery tests · {done} phases ✅ full, of {phases} v1 + {v2_count()} v2 "
+            f"(across {tracks} tracks)._")
 
 
 def refresh() -> None:
@@ -86,6 +94,8 @@ def check() -> int:
         problems.append(f"PLAN shrunk/grew: {phases} phases (expected {PHASES_EXPECTED})")
     if tracks != TRACKS_EXPECTED:
         problems.append(f"PLAN tracks changed: {tracks} (expected {TRACKS_EXPECTED})")
+    if v2_count() != V2_PHASES_EXPECTED:
+        problems.append(f"v2 extension changed: {v2_count()} phases (expected {V2_PHASES_EXPECTED})")
     for f in (ROADMAP, TODO, PROGRESS, SAMPLE):
         if not f.exists():
             problems.append(f"missing tracking file: {f.name}")
@@ -94,7 +104,8 @@ def check() -> int:
     if problems:
         print("TRACKER CHECK FAILED:", *(f"\n  - {p}" for p in problems), file=sys.stderr)
         return 1
-    print("tracker check OK:", f"{phases} phases · {tracks} tracks · sample fresh")
+    print("tracker check OK:",
+          f"{phases} phases · {tracks} tracks · v2 {v2_count()} · sample fresh")
     return 0
 
 

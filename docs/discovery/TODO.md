@@ -1,14 +1,15 @@
 # Discovery Engine — TODO (done / next / open)
 
 > **The three tracking files (nothing else):**
-> 1. `docs/IDEAL-ENGINE-ROADMAP.md` — **PLAN**: the full 103-phase plan. FROZEN, does not change.
+> 1. `docs/IDEAL-ENGINE-ROADMAP.md` — **PLAN**: the frozen 103-phase v1 plan + the user-approved
+>    **v2 extension (Real Discovery Program, 16 phases)** appended 2026-07-30. Both guarded.
 > 2. `docs/discovery/TODO.md` (this file) — **TODO**: done / next / open. Updated every task.
 > 3. `docs/discovery/PROGRESS.md` — **CHANGELOG**: narrative log + rationale. Updated every task.
 >
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 62 modules · 419 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 63 modules · 423 discovery tests · 28 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -98,6 +99,16 @@ ceiling ≈ 91, so ~36 achievable phases remain (many are deepening partials to 
 RATIO/MONOTONICITY mining (O2/P0); director goal-selects via T2 (AC0); report surfaces new miners (AC2);
 W0-breadth junk filter for new patterns; T3 proof-trees now cover sum identities. **Emphasis: value/depth
 over marginal new-phase touches.**
+
+## v2 — REAL DISCOVERY PROGRAM (the new primary workstream)
+
+User-approved 2026-07-30. Strategy: genuine novelty lives in EXPONENTIAL HAYSTACKS (a specific witness /
+formula / structure), not in small-object laws; novelty is only ever claimed via EXTERNAL channels (OEIS
+referee acceptance, self-verifying counterexample witness, Lean kernel check). Kademe 1 → 4 in the PLAN's
+v2 section (16 phases, guarded). AE2's honest hunt sealed the lesson: 40 findings → 4 unattributed-in-
+catalog → ALL four textbook family formulas. Catalog-miss ≠ literature-novel, proven on our own output.
+
+Next up (Kademe 1): v2A3 PSLQ constant-formula hunt (mpmath ready) → v2A0-A2 OEIS radar → v2A4-A5 scale.
 
 ## Next — prioritized candidates
 

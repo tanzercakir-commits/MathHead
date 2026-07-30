@@ -20,6 +20,9 @@ Layers so far:
   * trivial_filter — junk-filter the new patterns (W0 breadth): drop a monotone trend on a CONSTANT
                  invariant (fake trend) and a ratio whose two sides are both constant (accidental); keeps
                  genuine relations (Handshake) — exact, sample-grounded, only ever REMOVES
+  * candidate_hunt — the HONEST hunt (AE2): wide-net mining over families + all-graphs, everything
+                 attributed vs the catalog; unattributed survivors = candidates for scrutiny, NEVER
+                 discoveries (ran: 4 candidates, all textbook family formulas — the boundary, proven)
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -176,6 +179,7 @@ from .bijections import (
     glaisher_distinct_to_odd,
     glaisher_odd_to_distinct,
 )
+from .candidate_hunt import HuntResult, hunt
 from .canonical import canonical_graph, canonical_key, is_isomorphic
 from .checker import check_proof, independently_verify
 from .coloring import (
@@ -551,6 +555,8 @@ __all__ = [
     "catalog_size",
     "RobustnessReport",
     "robustness_report",
+    "HuntResult",
+    "hunt",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

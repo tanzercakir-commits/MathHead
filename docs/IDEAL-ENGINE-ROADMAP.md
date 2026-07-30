@@ -231,7 +231,7 @@ AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme)
 ```
 AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)
 AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)
-AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret
+AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret  🟢 DÜRÜST AV KURULDU ve ÇALIŞTIRILDI (candidate_hunt.py): geniş ağ (6 aile + tüm-graf örneklemi, tüm madenciler) → her bulgu kataloğa atıflandı → 40 bulgu, 36 atıflı, 4 "katalogda-yok" aday — DÖRDÜ DE ders-kitabı aile formülü çıktı (C_n: V=E; P_n/yıldız: V=E+1; tekerlek: 2V=E+2). SONUÇ: hedefin kendisi AÇIK; katalogda-yok ≠ literatürde-yeni birebir kanıtlandı; gerçek yenilik v2 programına (dış-onaylı kanallar: OEIS/karşı-örnek/Lean) devredildi; ADR-D0059
 AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export
 ```
 
@@ -283,3 +283,48 @@ Toplam: 22 track, ~103 aşama.
   Yani ilk gerçek keşfe ulaşmak için sınırı çözmen GEREKMİYOR. Yola önce oradan çıkılır.
 - 🔴'ler yolu tıkamaz; motorun "asistan"dan "kâşif"e terfi ettiği yerlerdir. Oraya vardığımızda
   zaten çok şey öğrenmiş oluruz — belki de asıl kıymet o öğrenmede.
+
+---
+
+## v2 EKİ — GERÇEK KEŞİF PROGRAMI (2026-07-30, kullanıcı onayıyla eklendi)
+
+> Orijinal 103-aşamalık liste DONMUŞ ve yukarıda değişmeden durur (guard: 103 aşama / 21 track).
+> Bu ek, dış-onaylı gerçek keşif hedefine giden kademeli programdır (ayrı guard: 16 v2 aşaması).
+> **Dürüstlük çıpası:** yenilik yalnız DIŞ kanalla iddia edilir — OEIS hakem kabulü, kendini-doğrulayan
+> karşı-örnek tanığı, Lean çekirdek onayı. Motor asla kendi kendine "yeni" demez (AE2 dersi: 40 bulgu →
+> 4 "katalogda-yok" aday → dördü de ders-kitabı formülü. Katalogda-yok ≠ literatürde-yeni).
+> Stratejik teşhis: gerçek keşif küçük nesnelerin yasalarında değil, ÜSTEL SAMANLIKLARDA yaşar
+> (belirli tanık / formül / yapı — emsal: Wagner 2021 karşı-örnekleri, FunSearch cap-set, BBP/PSLQ,
+> Heule SAT, Graffiti, Ramanujan Machine).
+
+**Kademe 1 — dış-onaylı ilk keşif şansı (bu makinede yapılabilir)**
+```
+v2A0 🟡 OEIS erişim katmanı: sorgu-bazlı eşleştirici (API/yerel döküm; lisans + atıf)
+v2A1 🟡 Doğal aile → sayma dizisi üreticisi (6 alandan sistematik dizi çıkarımı)
+v2A2 🟡 OEIS radarı: eşleşmeyen doğal dizi tespiti → insan-onaylı gönderim dosyası (kabul = dış-onaylı keşif)
+v2A3 🟡 PSLQ sabit-formül avı (mpmath.pslq): iki-hassasiyet protokolü, gürültü reddi, numerical_conjecture statüsü
+v2A4 🟡 nauty/geng ölçek entegrasyonu (n~20-30) + hızlı invariant yolu
+v2A5 🟡 Zengin invariant kütüphanesi (independence, domination, girth, diameter, matching, energy, spectral radius)
+```
+
+**Kademe 2 — karşı-örnek avcısı (en kısa yol → yayınlanabilir sonuç)**
+```
+v2B0 🟡 Açık-konjektür veritabanı (küratörlü ingest; kaynak + durum + sınanabilir form)
+v2B1 🟡 Adaptif arama çekirdeği (tavlama/evrimsel; deterministik tohumlu)
+v2B2 🟡 Kalibrasyon: bilinen-çürütülmüş konjektürlerin tanıklarını YENİDEN bul (Wagner seti)
+v2B3 🟡 Canlı av: açık konjektürlerde tanık araması (tanık kendini doğrular — dürüstlük içkin)
+```
+
+**Kademe 3 — konjektür servisi + cephe**
+```
+v2C0 🟡 Keskinlik-tespitli konjektür servisi (Graffiti-tarzı; W0 novelty filtreli; insanlara yayın)
+v2C1 🟡 SAT cephesi: Ramsey-tipi sonlu problem kodlayıcıları (pysat üstüne; DRAT ispat-log hedefi)
+v2C2 🟡 Lean 4 / mathlib köprüsü: kernel ispat exportu + "bilinen mi?" kâhini (M6'yı kapsar)
+```
+
+**Kademe 4 — Alpha Centauri (🔴 araştırma ufku; fizik yasası yasaklamıyor, yol haritası bilinmiyor)**
+```
+v2D0 🔴 Program-uzayı yapı arayıcı (FunSearch-tarzı; büyük hesap ister)
+v2D1 🔴 Otoformalizasyon döngüsü (kaynak → tanım/konjektür → saldırı → geri-besleme)
+v2D2 🔴 Yeni tanım üretimi (Track Z'nin v2 hali; matematiksel ZEVK problemi — kimse çözmedi)
+```

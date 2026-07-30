@@ -23,6 +23,14 @@ def test_plan_is_intact_never_silently_shrinks():
     assert tracks == gen_status.TRACKS_EXPECTED == 21
 
 
+def test_v2_extension_is_guarded_and_cannot_leak_into_v1():
+    # the v2 Real Discovery Program (user-approved) has its own pinned count, and its lowercase
+    # phase IDs (v2A0…) can never inflate the original 103
+    assert gen_status.v2_count() == gen_status.V2_PHASES_EXPECTED == 16
+    phases, _, _ = gen_status.roadmap_counts()
+    assert phases == 103                                   # unchanged AFTER the v2 append
+
+
 def test_three_tracking_files_exist_with_role_headers():
     assert "PLAN — DONMUŞ" in gen_status.ROADMAP.read_text(encoding="utf-8")
     assert "# Discovery Engine — TODO" in gen_status.TODO.read_text(encoding="utf-8")

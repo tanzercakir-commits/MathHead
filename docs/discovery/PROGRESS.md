@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-07-30 — AE2 honest hunt RAN + v2 REAL DISCOVERY PROGRAM approved & formalized ⭐
+
+**The hunt (AE2, `candidate_hunt.py`):** wide net (6 parametric families + the all-graphs sample, all
+miners) → every finding attributed against the catalog → **40 findings, 36 attributed, 4
+"unattributed-in-catalog" candidates — and all FOUR turned out to be textbook family formulas** (Cₙ: V=E;
+Pₙ/star: V=E+1; wheel: 2V=E+2). The lesson is now proven on our own output: catalog-miss ≠
+literature-novel. The module carries that caveat as its centerpiece, and the AE2 goal itself stays
+honestly OPEN. 4 tests.
+
+**The program (v2, PLAN extension):** with the user's explicit approval, the answer to "how could GENUINE
+discovery happen?" is now formalized as a 16-phase, 4-tier extension appended to the PLAN — original 103
+untouched (v2 IDs are lowercase `v2A0…` so they cannot inflate the guarded count; new guard pins v2=16;
+`test_trackers` enforces both). Strategy: novelty lives in exponential haystacks (specific witnesses /
+formulas / structures — precedents: Wagner's RL counterexamples, FunSearch cap-set, BBP/PSLQ, Heule SAT,
+Graffiti, Ramanujan Machine), and it is only ever claimed via EXTERNAL channels: OEIS referee acceptance,
+self-verifying counterexample witnesses, Lean kernel checks. Kademe 1 (OEIS radar, PSLQ hunt, nauty
+scale, rich invariants) is buildable in this container; Kademe 4 is the honest moonshot (🔴). Full suite
+**1733 green**, trackers refreshed (stats line now reports v1 + v2).
+
+---
+
 ## 2026-07-30 — T3 depth: proof-dependency trees now cover sum identities
 
 Extended `proof_tree.py` with `sum_proof_tree`. The proof-tree slice (T3) reconstructed the lemma

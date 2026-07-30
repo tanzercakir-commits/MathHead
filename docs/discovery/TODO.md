@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 62 modules · 416 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 62 modules · 419 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -96,7 +96,8 @@ ceiling ≈ 91, so ~36 achievable phases remain (many are deepening partials to 
 49 done** — next at 59 (4 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5, S3; M-floor now COMPLETE
 (SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2 +
 RATIO/MONOTONICITY mining (O2/P0); director goal-selects via T2 (AC0); report surfaces new miners (AC2);
-W0-breadth junk filter for new patterns. **Emphasis: value/depth over marginal new-phase touches.**
+W0-breadth junk filter for new patterns; T3 proof-trees now cover sum identities. **Emphasis: value/depth
+over marginal new-phase touches.**
 
 ## Next — prioritized candidates
 

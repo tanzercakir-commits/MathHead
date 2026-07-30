@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-30 — T3 depth: proof-dependency trees now cover sum identities
+
+Extended `proof_tree.py` with `sum_proof_tree`. The proof-tree slice (T3) reconstructed the lemma
+structure of MODULAR proofs (CRT → prime-power lemmas; residue → complete case-split leaf) but not sum
+identities. It now does: by the explicit derivation from this session's `sum_derivation`, a SumInduction
+proof of `Σ_{i=1}^n f(i) = g(n)` rests on TWO lemmas — a BASE case `g(1) = f(1)` (an evaluation) and an
+induction STEP `g(n) = g(n−1) + f(n)` (a kernel-checked PolyIdentity) — and the tree exposes exactly those,
+each with its honest method + certainty. A false claim yields an `unknown`/`not proved` root, no children.
+Same honest T3 discipline as the modular tree (it does not invent lemmas — 🔴 — it makes the ones an
+existing proof already uses explicit), now closing the sum-identity gap and reusing the trust-shrinking
+work from earlier this session. 4 new tests; full suite **1729 green**, ruff clean. HONEST accounting:
+DEEPENS the already-✅ T3, count stays ~55/103.
+
+---
+
 ## 2026-07-30 — W0 breadth: junk-filter the new ratio & monotone patterns
 
 New `trivial_filter.py` (Track W0, breadth). W0 (`novelty.py`) already dropped restricted-universal

@@ -323,7 +323,7 @@ from .pattern_mining import (
 from .novelty import is_subclass_specific, novel_subclass_laws
 from .object_store import ObjectStore
 from .objects import Graph, MathObject
-from .proof_tree import ProofNode, proof_tree, render_tree
+from .proof_tree import ProofNode, proof_tree, render_tree, sum_proof_tree
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .partitions import (
@@ -593,6 +593,7 @@ __all__ = [
     "refute",
     "ProofNode",
     "proof_tree",
+    "sum_proof_tree",
     "render_tree",
     "check_proof",
     "independently_verify",

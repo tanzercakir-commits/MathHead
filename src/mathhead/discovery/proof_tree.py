@@ -44,6 +44,24 @@ def proof_tree(finding) -> ProofNode:
     return ProofNode(goal, "induction", "formal_proof")
 
 
+def sum_proof_tree(f_poly, g_poly, statement: str | None = None) -> ProofNode:
+    """Reconstruct the proof-dependency tree of a SUM identity `Σ_{i=1}^n f(i) = g(n)`. By the explicit
+    derivation (`sum_derivation`), a SumInduction proof rests on TWO lemmas: a base case `g(1) = f(1)`
+    (an evaluation) and an induction STEP `g(n) = g(n−1) + f(n)` (a kernel-checked PolyIdentity). This
+    makes those lemmas explicit — the same honest T3 slice as the modular tree, now for sums."""
+    from .sum_derivation import derive_sum_identity
+    d = derive_sum_identity(f_poly, g_poly)
+    goal = statement or "sum_(i=1..n) f(i) = g(n)"
+    if not d.verified:
+        return ProofNode(goal, "SumInduction", "unknown", note="not proved")
+    base = ProofNode(f"g(1) = f(1)  [{d.base_g} = {d.base_f}]", "evaluation", "arithmetic_check",
+                     note="base case at n=1")
+    step = ProofNode("g(n) = g(n−1) + f(n)", "PolyIdentity", "kernel_verified",
+                     note="the induction step, verified as a kernel polynomial identity")
+    return ProofNode(goal, "SumInduction", "formal_proof", [base, step],
+                     "base case + kernel-checked telescoping step ⇒ induction over n ≥ 1")
+
+
 def render_tree(node: ProofNode, indent: int = 0) -> str:
     """A readable ASCII proof tree."""
     pad = "    " * indent

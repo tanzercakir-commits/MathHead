@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-07-30 — AA4: connect a discovered algorithm to its proof (the S/M bridge)
+
+New `algorithm_proof.py` (Track AA4). The engine discovers algorithms that DECIDE or CONSTRUCT
+(residue-exhaustion decides `m|p(n)`; greedy first-fit colors a graph; a max-clique search witnesses ω).
+AA4 is the bridge that, for such an algorithm's output, attaches the proof object justifying it AND
+labels — honestly — the MODALITY and STRENGTH of that justification, without re-proving anything: it
+LINKS the strategy/algorithm layer (S, AA) to the proof layer (M, certificates). A modular decision
+algorithm links to a KERNEL Theorem (modality "kernel", `kernel_verified` — a universal ∀n machine proof
+with hash + axioms); a greedy-coloring / max-clique algorithm links to a CONSTRUCTIVE certificate
+(modality "certificate", `constructive_bounded` — an explicit witness over the sample, NOT ∀G). WHY it
+matters: every discovered algorithm now carries its warrant, and the bridge is honest about the gap
+between the two strengths — it never labels a graph certificate `kernel_verified`, and it reports
+`verified=False` (not a fabricated proof) when the underlying check fails (e.g. the false claim
+`5∤n³−n`). Reuses `prove_divides` + the `graph_proofs` certificates — pure linking, no duplication.
+7 tests; full suite **1660 green**, ruff clean. Roadmap AA4 🟡→🟢 (newly touched; progress ~50/103,
+next user check-in at 59).
+
+---
+
 ## 2026-07-30 — Sixth object domain: integer compositions (cut-point bijection)
 
 New `compositions.py` — a SIXTH domain through the same pipeline (after graphs, arithmetic, permutations,

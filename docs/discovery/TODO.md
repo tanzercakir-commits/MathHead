@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 52 modules · 343 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 53 modules · 350 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -48,6 +48,9 @@ _Last updated: 2026-07-30 · 52 modules · 343 discovery tests · 28 phases ✅ 
   (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
 - Goal↔knowledge GAP measure (T0): BFS distance from a goal to proved ground + open dependencies →
   a [0,1] gap; ranks open goals closest-to-reach first (complements impact's entanglement) — `gap.py`.
+- Algorithm→proof BRIDGE (AA4, S/M): links a discovered algorithm to its warrant — residue-exhaustion →
+  kernel Theorem (universal), greedy-coloring/max-clique → constructive certificate (witnessed); honest
+  about the strength gap, never conflated — `algorithm_proof.py`.
 - One deterministic report; object-model infra (parametric families N4, generic serialization N3).
 
 ## Automation
@@ -63,21 +66,22 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~49 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~50 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
-ceiling ≈ 91, so ~42 achievable phases remain (many are deepening partials to full). **User check-in at
-49 REACHED** — next at 59. Recently done: N3–N6, O4, P1, AB1, P2, T0, S2; M-floor DEEPENED (SumInduction
-derived — M2, already-touched); SIXTH domain compositions added (deepens N/O/P — N0 already ✅, so count
-stays 49, but a real new domain with a constructive-bijection proof).
+ceiling ≈ 91, so ~41 achievable phases remain (many are deepening partials to full). **User check-in at
+49 done** — next at 59 (9 to go). Recently done: N3–N6, O4, P1, AB1, P2, T0, S2, AA4; M-floor DEEPENED
+(SumInduction derived — M2); SIXTH domain compositions added (deepens N/O/P — N0 already ✅, count-neutral,
+but a real new domain with a constructive-bijection proof).
 
 ## Next — prioritized candidates
 
-1. **Deeper kernel floor (M)** — derive/soundness-check the remaining primitives (integer-divisibility
-   base facts; make SumInduction's induction step explicit). Highest-rigor, on the thread just advanced.
-2. ~~**Report/ladder polish** — surface `residue_derivable`/`crt_derivable` in the rendered report.~~
-   ✅ DONE (2026-07-30): report header now shows the M-floor trust base (RESIDUE 7/7, CRT 7/7).
-3. **Sixth domain or richer invariants** — e.g. compositions / Young tableaux, or non-linear relation
-   mining (products/ratios) that could surface an unattributed candidate honestly.
+1. **Deeper kernel floor (M)** — make the remaining ELEMENTARY integer-divisibility lemmas explicit &
+   checked (`m|a ∧ m|b ⇒ m|a+b`; `m|a ⇒ m|a·k`) that `congruence`/`sum_derivation` currently lean on
+   as "elementary". (✅ SumInduction step now explicit; RESIDUE/CRT/SumInduction all derived.)
+2. **Richer / non-linear invariant mining** — relations.py mines LINEAR laws (null-space); add
+   product/ratio mining that could surface an honest unattributed candidate. (✅ sixth domain done.)
+3. **U-track representation bridges (U0/U1)** — make an explicit representation chain
+   (Diophantine → modular → finite-residue) the engine can actually walk on a concrete claim.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

@@ -102,6 +102,9 @@ Layers so far:
   * portfolio    — resource-bounded proof-strategy portfolio + budget manager (S2): races direct-residue
                  vs CRT-prime-powers under a shared step-budget, cheapest-first; reports the winner +
                  a full cost ledger; honest status solved / unsolved / exhausted (never a fake proof)
+  * algorithm_proof — connect a discovered ALGORITHM to its PROOF (AA4, S/M bridge): residue-exhaustion →
+                 KERNEL Theorem (kernel_verified, universal); greedy-coloring / max-clique → CONSTRUCTIVE
+                 certificate (constructive_bounded, witnessed); honest about the strength gap, never conflated
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -111,6 +114,13 @@ same tooling (tests, CI, ruff) with zero packaging friction. Architecturally it 
 that USES the judge, not a part subordinate to it; it may be promoted to a sibling package
 later (see docs/discovery/DECISIONS.md, ADR-D0001).
 """
+from .algorithm_proof import (
+    AlgorithmProof,
+    bridge_greedy_coloring,
+    bridge_max_clique,
+    bridge_modular_algorithm,
+    link_algorithm_to_proof,
+)
 from .arithmetic import (
     ArithmeticFinding,
     discover_and_prove,
@@ -524,4 +534,9 @@ __all__ = [
     "PortfolioRun",
     "StrategyOutcome",
     "run_portfolio",
+    "AlgorithmProof",
+    "link_algorithm_to_proof",
+    "bridge_modular_algorithm",
+    "bridge_greedy_coloring",
+    "bridge_max_clique",
 ]

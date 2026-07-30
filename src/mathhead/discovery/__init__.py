@@ -56,6 +56,9 @@ Layers so far:
   * representations — verified registry of representation TRANSFORMS (U0): graph↔matrix + composition↔
                  subset (round-trip), graph→degseq (preserves Handshake), divisibility→residue-table
                  (decides, agrees with kernel); confirms the encoders are faithful, complement to O4
+  * nt_chain     — walk a number-theory claim along the representation CHAIN (U1): Diophantine → modular →
+                 finite-residue → decision; ∀ cross-confirmed by kernel, ∃ surfaces the honest gap
+                 (5|n³−n false ∀ but true ∃); explicit ledger of chain links walked vs not (lattice/SAT/…)
   * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
                  bijection, recurrence) recurring across two+ domains
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
@@ -295,6 +298,7 @@ from .judge import (
     judge_task,
 )
 from .nonlinear_relations import NonlinearLaw, discover_polynomial_laws
+from .nt_chain import ChainStep, ChainWalk, walk_divisibility_chain
 from .pattern_mining import (
     MonotonicTrend,
     RatioPattern,
@@ -542,6 +546,9 @@ __all__ = [
     "MonotonicTrend",
     "constant_ratios",
     "monotonic_trends",
+    "ChainStep",
+    "ChainWalk",
+    "walk_divisibility_chain",
     "RepresentationBridge",
     "verify_representations",
     "all_faithful",

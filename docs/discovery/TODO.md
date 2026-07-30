@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 58 modules · 384 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 59 modules · 392 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -64,6 +64,9 @@ _Last updated: 2026-07-30 · 58 modules · 384 discovery tests · 28 phases ✅ 
 - Verified representation-transform registry (U0): graph↔matrix + composition↔subset (round-trip),
   graph→degseq (preserves Handshake), divisibility→residue-table (decides, agrees with kernel); confirms
   the ENCODERS are faithful — complements O4's value-consistency check — `representations.py`.
+- Number-theory representation CHAIN (U1): walks a divisibility claim Diophantine→modular→finite-residue
+  →decision; ∀ kernel-confirmed, ∃ surfaces the honest gap (`5|n³−n` false ∀ but true ∃); explicit ledger
+  of chain links walked vs not (lattice/SAT/alg-geometry) — `nt_chain.py`.
 - One deterministic report; object-model infra (parametric families N4, generic serialization N3).
 
 ## Automation
@@ -79,21 +82,22 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~52 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~53 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
-ceiling ≈ 91, so ~39 achievable phases remain (many are deepening partials to full). **User check-in at
-49 done** — next at 59 (7 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2; M-floor now COMPLETE
+ceiling ≈ 91, so ~38 achievable phases remain (many are deepening partials to full). **User check-in at
+49 done** — next at 59 (6 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1; M-floor now COMPLETE
 (SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2
 mining + RATIO/MONOTONICITY mining (deepen O2/P0 — already ✅, count-neutral, but real discovery breadth).
 
 ## Next — prioritized candidates
 
-_(✅ M-floor COMPLETE — full kernel trust base auditable. ✅ 6th domain compositions. ✅ non-linear
-degree-2 mining. ✅ U0 verified representation registry.)_
+_(✅ M-floor COMPLETE. ✅ 6th domain compositions. ✅ non-linear degree-2 mining. ✅ U0 registry.
+✅ T2 lemma ranking. ✅ ratio/monotonicity mining.)_
 
-1. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
-2. **Ratio / monotonicity mining** — beyond degree-2 equalities: monotone + ratio patterns (P0 breadth).
-3. **U1 number-theory representation chain** — Diophantine → modular → finite-residue, walked concretely.
+1. **U1 number-theory representation chain** — Diophantine → modular → finite-residue, walked concretely
+   with an honest ledger of which roadmap links are traversed vs not (lattice / SAT / alg-geometry).
+2. **W0 breadth / trivial-filter follow-ons** — extend the junk-theorem filter to ratio/monotone patterns.
+3. **AC-track director wiring** — feed `next_lemma` (T2) into the ResearchDirector's goal choice.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

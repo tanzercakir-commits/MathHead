@@ -116,7 +116,7 @@ O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık 
 **Track U — Temsil dönüştürücü & arama (§2)**
 ```
 U0 🟢 Temsiller arası köprüler: algebra ↔ graph ↔ SAT ↔ matrix ↔ poly-ideal ↔ program ↔ optimization  🟢 representations.py: DOĞRULANMIŞ temsil-dönüşümü kütüğü — graph↔komşuluk-matrisi + kompozisyon↔kesim-altkümesi (round-trip: decode∘encode=kimlik, tüm örnekte), graph→derece-dizisi (Handshake Σderece=2|E| korunur), bölünebilirlik→kalıntı-tablosu (KARAR: tablo sıfır ⟺ kernel m|p(n) ispatlar, verdictler uyuşur); dönüşümlerin SADIK olduğunu doğrular (O4 değer-tutarlılığını tamamlar); ADR-D0051
-U1 🟡 Sayı-teorisi zinciri: Diophantine → modular → lattice → SAT/SMT → finite residue → alg. geometri
+U1 🟡 Sayı-teorisi zinciri: Diophantine → modular → lattice → SAT/SMT → finite residue → alg. geometri  🟢 nt_chain.py: bir bölünebilirlik iddiasını zincirin KARAR VERİLEBİLİR segmentinde yürütür — Diophantine → modular p(n)≡0 (mod m) → sonlu-kalıntı tablosu → karar; ∀ için tablo (hepsi-sıfır) kernel RESIDUE ile çapraz-doğrulanır, ∃ için (bir-sıfır) dürüst ayrımı yüzeye çıkarır (5|n³−n ∀ YANLIŞ ama ∃ DOĞRU, n=5); AÇIK defter: yürünen linkler vs yürünmeyenler (lattice/SAT-SMT/cebirsel-geometri) kaydedilir — zincirin kapsamadığı kısmı gizlemez; U0 köprüsü üzerine; ADR-D0054
 U2 🔴 Representation SEARCH: hangi temsil problemi kolaylaştırır? (otonom seçim — açık problem)
 U3 ♻️🟢 Dönüşüm anlam-koruyor mu doğrulaması (cross_check)
 ```

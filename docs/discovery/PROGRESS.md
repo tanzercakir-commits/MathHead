@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — U1: walk a number-theory claim along the representation chain
+
+New `nt_chain.py` (Track U1). Where U0 registers individual bridges, U1 is the CHAIN — routing a claim
+through a sequence of representations until one DECIDES it. The roadmap's full chain is "Diophantine →
+modular → lattice → SAT/SMT → finite-residue → algebraic-geometry"; the engine honestly walks the
+decidable SEGMENT for polynomial divisibility: Diophantine → modular `p(n)≡0 (mod m)` → finite-residue
+table → decision. For a UNIVERSAL claim the all-zero table decides it, cross-confirmed by the kernel's
+RESIDUE theorem; for an EXISTENTIAL claim the SAME table decides it (any zero ⇔ a solution), which exposes
+a real distinction the kernel alone does not — `5|n³−n` is FALSE for all n yet TRUE for n=5, and the walk
+reports both truthfully. The honesty is in the ledger: `links_walked` lists the segment actually
+traversed and `links_not_walked` names the roadmap links it does NOT cover (lattice, SAT/SMT,
+algebraic-geometry), so the walk never pretends to span more of the chain than it does. Builds on U0's
+residue-table bridge. 8 tests; full suite **1702 green**, ruff clean. Roadmap U1 🟢 (newly touched;
+progress ~53/103, next user check-in at 59 — 6 away).
+
+---
+
 ## 2026-07-30 — Ratio & monotonicity pattern mining (P0 breadth)
 
 New `pattern_mining.py`. P0 is "pattern mining: equality / inequality / MONOTONICITY / periodicity /

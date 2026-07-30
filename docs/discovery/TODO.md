@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 39 modules · 264 discovery tests · 21 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 41 modules · 276 discovery tests · 23 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -47,6 +47,11 @@ Bookkeeping is automated at three levels (no longer a manual chore):
 - **test suite:** `tests/test_trackers.py` enforces the plan integrity + sample freshness in pytest.
 
 Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verify).
+
+## Progress toward the goal
+
+39 → **41 / 103** phases touched (20→22 fully ✅). Working through the ~52 achievable untouched phases;
+12 remain 🔴 open-research (won't fake). Next check-in at 49. Recently done: N4 (families), N3 (serialize).
 
 ## Next — prioritized candidates
 

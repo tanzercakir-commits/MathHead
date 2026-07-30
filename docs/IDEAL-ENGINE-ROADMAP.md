@@ -1,8 +1,9 @@
 # İdeal Matematik Motoru — Tam Yol Haritası (tepeden ormana)  ·  [PLAN — DONMUŞ]
 
-> **Bu, üç takip dosyasından PLAN'dır ve DEĞİŞMEZ.** Canlı "ne bitti / sıradaki ne" takibi
-> `docs/discovery/TODO.md`'de; anlatı günlüğü `docs/discovery/PROGRESS.md`'de. Aşağıdaki ✅/🟢
-> işaretleri tarihsel bir anlık görüntüdür; bundan sonra tamamlanma durumu TODO.md'de tutulur.
+> **Bu, üç takip dosyasından PLAN'dır.** Aşama LİSTESİ donmuştur — hiçbir aşama silinmez/eklenmez
+> (CI `test_trackers` tam 103 aşama / 21 track olduğunu doğrular). Yalnızca her aşama satırına, o iş
+> bitince ✅/🟢 tamamlanma işareti EKLENİR (bu planı değiştirmez, sadece ilerlemeyi kaydeder). Canlı
+> özet TODO.md'de, anlatı PROGRESS.md'de.
 
 
 > **Bu dosyanın işi:** "İdeal matematik motoru" belgesindeki HER özelliği, MathHead'in
@@ -97,8 +98,8 @@ R4   🟢 "Çözemedim; yalnızca şu sınıra kadar karşı-örnek yok" — bou
 N0 🟢 Tipli matematiksel nesne DSL'i (graph, matrix, integer-seq, finite-model, poly, combinatorial obj...)  ✅ (Graph; mathhead.discovery.objects) + ÜÇÜNCÜ ALAN: Permutation (S_n, A000142; inv/desc/fix/cycle; ADR-D0032) + DÖRDÜNCÜ ALAN: Partition (p(n) A000041; Euler distinct=odd A000009 + conjugation; ADR-D0037); mimari alan-bağımsız DÖRT kez kanıtlandı — rapor/merdiven/açıklamalar/scorecard sıfır değişiklikle absorbe etti
 N1 🟢 Kanonik nesne üreticisi — küçük/orta boy nesneleri sistematik üret  ✅ (brute n≤7 honest-bound; OEIS A000088 ile doğrulı; nauty/orderly = opt)
 N2 🟡 İzomorfizm eleme (canonical labeling, nauty-benzeri) — tekrarları at  ✅ (derece-arıtılmış permütasyon-min; C6≠2C3 ayırıyor; ADR-D0002)
-N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)
-N4 🟢 Parametrik aileler + kısıtlı örnekleyiciler (stratified sampling)
+N3 🟢 Nesne serileştirme + içerik-hash + tekrar-üretilebilir sıralama (determinizm)  ✅ (serialize.py: 5 nesne tipini kapsayan tek kanonikleştirici; content_hash, reproducible_sort, deduplicate; stdlib-only, deterministik)
+N4 🟢 Parametrik aileler + kısıtlı örnekleyiciler (stratified sampling)  ✅ (families.py: K_n/C_n/P_n/star/wheel/K_{a,b} her boyutta + stratified_sample; invariantlar bilinen kapalı formlarla çapraz-doğrulanır [oracle])
 N5 🟡 Rastgele + adversarial + ekstrem/dejeneratif nesne üreticileri
 N6 🟢 Nesne deposu + invariant'a göre indeksleme/sorgu
 ```

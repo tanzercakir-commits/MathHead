@@ -7,6 +7,19 @@
 
 ---
 
+## 2026-07-30 — Object-model infrastructure: parametric families (N4) + generic serialization (N3)
+
+Two untouched N-track phases done. **N4** `families.py`: named parametric graph families at ANY size
+— K_n, C_n, P_n, star, wheel, K_{a,b} — plus `stratified_sample`, so discoveries/bounds can be probed
+on infinite families and tests get diverse structure. Each family's invariants match a KNOWN closed
+form (K_n: C(n,2) edges, χ=ω=n; C_n: χ=2/3; …), so it doubles as a cross-check oracle for the invariant
+code. **N3** `serialize.py`: one generic canonicaliser over ALL five object types (frozen dataclasses)
+→ `content_hash`, `reproducible_sort`, `deduplicate`; deterministic, stdlib-only. 12 tests (families 6
++ serialize 6); full suite **1578 green**, ruff clean. Roadmap: N4, N3 marked ✅ (22/103 fully done,
+41/103 touched).
+
+---
+
 ## 2026-07-30 — Tracker automation completed with a commit-time git hook
 
 Closed the automation loop locally: `scripts/hooks/pre-commit` runs `gen_status.py` on every commit —

@@ -64,6 +64,10 @@ Layers so far:
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
   * failure_memory — negative knowledge (Y): fingerprint dead ends so they're not re-walked;
                  distill reusable lessons (which witness refutes the most conjectures)
+  * families    — parametric object families (N4): K_n, C_n, P_n, star, wheel, K_{a,b} at any size +
+                 stratified sampling; invariants match known closed forms (a cross-check oracle)
+  * serialize   — generic object serialization + content-hash + reproducible ordering (N3), one
+                 canonicaliser across all five object types (dedup, stable storage keys)
   * interestingness — transparent heuristic ranking (W1): novelty/generality/surprise/usefulness/
                  compression/connectivity − triviality, with a per-component breakdown (not learned)
   * knowledge_graph — typed semantic graph of findings + relations (X0): theorem/law/conjecture/
@@ -161,6 +165,16 @@ from .failure_memory import (
     fingerprint,
     populate_from_refutations,
 )
+from .families import (
+    FAMILIES,
+    complete,
+    complete_bipartite,
+    cycle,
+    path,
+    star,
+    stratified_sample,
+    wheel,
+)
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .invariants import (
     INVARIANTS,
@@ -203,6 +217,7 @@ from .permutations import (
     statistic_distribution,
 )
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .serialize import content_hash, deduplicate, reproducible_sort, serialize
 from .set_partitions import (
     SetPartition,
     count_set_partitions,
@@ -286,6 +301,18 @@ __all__ = [
     "AttemptRecord",
     "fingerprint",
     "populate_from_refutations",
+    "FAMILIES",
+    "complete",
+    "cycle",
+    "path",
+    "star",
+    "wheel",
+    "complete_bipartite",
+    "stratified_sample",
+    "serialize",
+    "content_hash",
+    "reproducible_sort",
+    "deduplicate",
     "Interestingness",
     "score_interestingness",
     "rank_interestingness",

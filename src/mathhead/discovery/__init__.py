@@ -93,6 +93,9 @@ Layers so far:
                  counterexample/axiom nodes; depends_on/refuted_by/related_to edges; Mermaid export
   * impact       — structural impact analysis over the graph (X3): load-bearing axioms, hubs, and the
                  open frontier (most-entangled unresolved conjectures)
+  * gap          — goal ↔ knowledge GAP measure (T0): BFS distance from a goal to proved ground +
+                 unresolved dependencies → a [0,1] gap; ranks open goals CLOSEST-to-reach first
+                 (complement to impact's entanglement view; honest when no proof anchor exists)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -149,6 +152,7 @@ from .congruence import (
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .cross_check import CrossCheck, all_consistent, cross_check, disagreements
+from .gap import GapMeasure, frontier_gaps, measure_gap
 from .generalize import (
     Generalization,
     GeneralInstance,
@@ -401,6 +405,9 @@ __all__ = [
     "knowledge_graph_from_report",
     "impact_summary",
     "load_bearing_axioms",
+    "GapMeasure",
+    "measure_gap",
+    "frontier_gaps",
     "structural_explanations",
     "Permutation",
     "generate_permutations",

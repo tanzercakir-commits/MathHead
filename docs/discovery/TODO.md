@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 49 modules · 322 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 50 modules · 329 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -39,9 +39,11 @@ _Last updated: 2026-07-30 · 49 modules · 322 discovery tests · 28 phases ✅ 
   parametric law `k! | product of k consecutive ints ∀k`, kernel-verifying k=1..K; honest on the ∀k
   quantifier and refuses to force a generalization where none exists (`n⁵−n`) — `generalize.py`.
 
-**Knowledge / grade / direct (X, Y, AC, AF)**
+**Knowledge / grade / direct (X, Y, AC, AF, T)**
 - Knowledge graph + impact analysis; failure memory (negative knowledge); research director
   (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
+- Goal↔knowledge GAP measure (T0): BFS distance from a goal to proved ground + open dependencies →
+  a [0,1] gap; ranks open goals closest-to-reach first (complements impact's entanglement) — `gap.py`.
 - One deterministic report; object-model infra (parametric families N4, generic serialization N3).
 
 ## Automation
@@ -57,10 +59,10 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~47 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~48 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** Working through the ~52 achievable untouched phases; 12 remain 🔴
-open-research (won't fake). Next user check-in at 49 touched (2 to go). Recently done: N3–N6, O4, P1, AB1,
-P2; M-floor DEEPENED (SumInduction derived — M2, already-touched, count unchanged there).
+open-research (won't fake). Next user check-in at 49 touched (1 to go). Recently done: N3–N6, O4, P1, AB1,
+P2, T0; M-floor DEEPENED (SumInduction derived — M2, already-touched, count unchanged there).
 
 ## Next — prioritized candidates
 

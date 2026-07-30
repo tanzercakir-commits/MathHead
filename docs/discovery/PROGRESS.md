@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-07-30 — T0: goal ↔ knowledge gap measurement
+
+New `gap.py` (Track T0). `impact.py` (X3) ranks the open frontier by ENTANGLEMENT (how many known
+results a conjecture links to); T0 answers the complementary question — for a specific goal, how FAR is
+it from established ground? It reports, all as exact graph computations, the goal's `status`
+(proved/refuted → resolved, gap 0; else open/unknown), `distance_to_known` (BFS hops to the nearest
+proved theorem/lemma/axiom, or None if no path reaches proof), `open_dependencies` (the transitive
+`depends_on` nodes still unresolved — the concrete lemmas to discharge), and a `gap_score ∈ [0,1]`
+(0 resolved, →1 as the goal gets farther / more dependent, exactly 1.0 when no path to proved ground
+exists). `frontier_gaps` ranks open goals SMALLEST-gap first — the ones closest to being settled with
+what is already known — a prioritization distinct from impact's centrality. WHY it matters: it gives the
+research director a proximity-to-proof signal, not just a centrality one; a heavily-entangled conjecture
+can still be unreachable, and a lightly-linked one may be nearly in hand. Honest boundary surfaced by
+the measure itself: "known ground" is the engine's OWN proved theorems/axioms, so a goal in a domain
+with no proved anchor (e.g. a graph bound while only arithmetic is kernel-proved) truthfully shows a
+large gap — a real limitation made visible, not hidden. 7 tests (proved/refuted resolve to 0, near
+< isolated, open-dependency widens the gap, unknown reported honestly, frontier ordering + from_report
+integration, determinism); full suite **1639 green**, ruff clean. Roadmap T0 🟡→🟢 (newly touched;
+progress ~48/103 — user check-in at 49 is 1 away).
+
+---
+
 ## 2026-07-30 — P2: reverse-engineer a finding into its general principle
 
 New `generalize.py` (Track P2). Where `identities.py` EXPLAINS one finding (`6|n³−n` holds because

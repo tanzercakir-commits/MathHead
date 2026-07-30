@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 36 modules · 271 discovery tests (full suite 1561 green) · 42 ADRs ·
+_Last updated: 2026-07-30 · 36 modules · 272 discovery tests (full suite 1562 green) · 42 ADRs ·
 roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._
 
 ## Done — by cluster
@@ -42,8 +42,8 @@ roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._
 
 1. **Deeper kernel floor (M)** — derive/soundness-check the remaining primitives (integer-divisibility
    base facts; make SumInduction's induction step explicit). Highest-rigor, on the thread just advanced.
-2. **Report/ladder polish** — surface `residue_derivable`/`crt_derivable` and the analogy/catalog in the
-   rendered report header; small, closes loops.
+2. ~~**Report/ladder polish** — surface `residue_derivable`/`crt_derivable` in the rendered report.~~
+   ✅ DONE (2026-07-30): report header now shows the M-floor trust base (RESIDUE 7/7, CRT 7/7).
 3. **Sixth domain or richer invariants** — e.g. compositions / Young tableaux, or non-linear relation
    mining (products/ratios) that could surface an unattributed candidate honestly.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).

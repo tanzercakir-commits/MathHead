@@ -55,6 +55,15 @@ def test_proved_arithmetic_facts_are_kernel_verified():
     assert "kernel-verified" in render(r)                 # surfaced in the report
 
 
+def test_report_surfaces_the_shrunk_trust_base():
+    r = run_report(max_n=5)
+    tb = r.meta["trust_base"]
+    # every modular fact's RESIDUE and CRT are derived from the factor theorem / Bézout (M-floor)
+    assert tb["residue_derived"] == tb["modular_facts"] and tb["modular_facts"] >= 7
+    assert tb["crt_derived"] == tb["modular_facts"]
+    assert "trust base (M-floor)" in render(r)
+
+
 def test_frontier_invariant_values_are_solver_confirmed():
     r = run_report(max_n=5)
     assert r.frontier and all(x["confirmed"] and x["certainty"] == "solver_verified"

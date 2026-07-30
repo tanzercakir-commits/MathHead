@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-07-30 — Report surfaces the shrunk trust base (M-floor made visible)
+
+Closed the loop from the RESIDUE/CRT derivations: the flagship report header now shows the trust base
+— "RESIDUE derived from the factor theorem (7/7), CRT from Bézout (7/7) — primitives are theorems, not
+axioms". `meta.trust_base` carries the counts; computed from the arithmetic findings' `residue_derivable`
+/`crt_derivable` flags. Small polish, but it makes the deepest result (a shrunk kernel trust base)
+legible in the one artifact a reader sees. 1 test (discovery suite 272); full suite **1562 green**,
+ruff clean. (Rationale inline; DECISIONS.md frozen.)
+
+---
+
 ## 2026-07-30 — Bookkeeping: consolidated to THREE fixed tracking files
 
 Tidied the record-keeping to a fixed, minimal set (no more ad-hoc new docs): **PLAN** =

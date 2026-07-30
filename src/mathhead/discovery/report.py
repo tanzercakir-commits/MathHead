@@ -125,7 +125,12 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     open_bounded.extend(front_survived)
     refuted.extend(front_refuted)
 
-    for f in run_arithmetic_discovery():
+    _arith = run_arithmetic_discovery()
+    _modular = [f for f in _arith if f.verdict == "proved"]
+    _trust = {"residue_derived": sum(f.residue_derivable for f in _modular),
+              "crt_derived": sum(f.crt_derivable for f in _modular),
+              "modular_facts": len(_modular)}
+    for f in _arith:
         item = {"statement": f.claim, "modulus": f.modulus}
         if f.verdict == "proved":
             proved.append({**item, "status": "proved", "certainty": f.certainty,
@@ -247,6 +252,7 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         "determinism": "memoized generation + fixed seed -> same report every run",
         "kernel_version": KERNEL_VERSION,
         "kernel_axioms": kernel_axioms,   # every rule/primitive the kernel proofs rest on (M5)
+        "trust_base": _trust,             # RESIDUE/CRT derived from factor theorem + Bézout (M-floor)
         "dead_ends": len(memory.records()),                 # negative knowledge recorded (Y)
         "top_lesson": top_lesson,         # the witness that refutes the most conjectures (Y2)
     }
@@ -286,6 +292,11 @@ def render(report: DiscoveryReport) -> str:
     if report.meta.get("kernel_axioms"):
         lines.append(f"_kernel v{report.meta.get('kernel_version')} · axioms: "
                      f"{', '.join(report.meta['kernel_axioms'])}_")
+    tb = report.meta.get("trust_base")
+    if tb and tb.get("modular_facts"):
+        lines.append(f"_trust base (M-floor): RESIDUE derived from the factor theorem "
+                     f"({tb['residue_derived']}/{tb['modular_facts']}), CRT from Bézout "
+                     f"({tb['crt_derived']}/{tb['modular_facts']}) — primitives are theorems, not axioms_")
     if report.meta.get("dead_ends"):
         lesson = report.meta.get("top_lesson") or {}
         extra = (f"; top witness refutes {lesson['refutes']}" if lesson.get("refutes", 0) > 1 else "")

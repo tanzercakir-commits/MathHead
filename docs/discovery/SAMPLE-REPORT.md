@@ -2,6 +2,7 @@
 
 _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
+_trust base (M-floor): RESIDUE derived from the factor theorem (7/7), CRT from Bézout (7/7) — primitives are theorems, not axioms_
 _negative knowledge: 4 dead end(s) recorded_
 _knowledge graph: 64 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×15, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_

@@ -100,21 +100,20 @@ W0-breadth junk filter for new patterns. **Emphasis: value/depth over marginal n
 
 ## Next — prioritized candidates
 
-_(✅ this batch: AB1, P2, T0, S2, AA4, U0, T2, U1, P5 touched; M-floor complete; 6th domain; non-linear +
-ratio/monotone mining; conjecture dedup. The whole kernel trust base + discovery-mining breadth are built.)_
+**DISCOVERY-MINING SUBSYSTEM COMPLETE end-to-end:** build (linear/nonlinear/ratio/monotone) → dedup (P5)
+→ surface in report (AC2) → drive the director (AC0/T2) → log strategy failures (S3/Y) → junk-filter (W0).
+That whole loop is now wired and tested — the last three proposed items (report wiring, S3, W0 breadth)
+plus the AC0 director wiring are all done.
 
-**Honest note on what remains:** the easily-reachable NEW phases are thinning. Of the ~37 achievable
-untouched, most valuable remaining work is now DEPTH — hardening the ~26 touched-but-partial phases toward
-fully-✅ — rather than touching marginal new phases (notation synonyms X2, failed-strategy log S3, etc.).
-Going forward, prioritize VALUE over the touched-count.
+**Honest note:** easily-reachable NEW phases are thin; remaining high-value work is DEPTH (harden ~26
+touched-partials to fully-✅) or a couple of stretch items. Prioritizing VALUE over touched-count.
 
-1. **Depth pass** — take 🟢-partials to fully-✅ by hardening + cross-checks (higher value than marginal
-   new-phase touches now). E.g. wire the new miners (nonlinear/ratio/monotone + P5 dedup) into `run_report`
-   so the deterministic report SURFACES them (currently they exist but aren't in the one report).
-2. **S3 strategy-failure log** — feed S2 portfolio `exhausted`/`unsolved` outcomes into failure memory,
-   so the engine learns which strategies fail where (a real S2→Y integration, not a bare log).
-3. **W0 breadth** — extend the trivial/junk filter to the new ratio & monotone patterns.
-4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
+1. **Depth: X0 knowledge-graph edges** — infer `generalizes`/`specializes` edges (reserved but not
+   populated) from the P2 generalization + subclass structure. Richer semantic graph.
+2. **Depth: proof_tree for sum identities** — extend T3 proof-dependency trees to the SumInduction proofs
+   (currently only modular/CRT). Rounds out proof-tree coverage.
+3. **X2 notation/technique map** — problem-structure → applicable-technique lookup (feeds S1 selection).
+4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch, external dep).
 
 ## Open — will NOT fake (🔴 honest boundary)
 

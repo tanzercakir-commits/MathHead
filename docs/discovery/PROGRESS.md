@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — P5: normalize + deduplicate conjectures across miners
+
+New `conjecture_normalize.py` (Track P5). The engine now mines conjectures from several sources — linear
+laws (`relations`), degree-2 laws (`nonlinear_relations`), constant ratios (`pattern_mining`) — and they
+OVERLAP: the Handshake Lemma surfaces as the linear law `2·num_edges = sum_degrees` AND as the ratio
+`sum_degrees/num_edges = 2`, the same equation in different clothes. P5 puts every linear-form conjecture
+into one CANONICAL key (divide by the gcd to primitive form, then fix the sign so the alphabetically-first
+feature is positive) so duplicates collapse and multi-source agreement becomes visible. A ratio `A/B =
+p/q` is first turned into the relation `q·A − p·B = 0` before keying, so it collides with the equivalent
+linear law — verified: over Kₙ, Handshake is reported ONCE with corroboration = 2 (found independently as
+a law and as a ratio), instead of twice. HONEST: dedups by exact equality of the LINEAR NORMAL FORM only —
+non-linear laws are keyed on their product feature names so a quadratic never collides with a linear law,
+it never over-merges genuinely-different conjectures, and it carries every source forward as provenance so
+a merge is auditable. 8 tests; full suite **1710 green**, ruff clean. Roadmap P5 🟢 (newly touched;
+progress ~54/103, next user check-in at 59 — 5 away).
+
+---
+
 ## 2026-07-30 — U1: walk a number-theory claim along the representation chain
 
 New `nt_chain.py` (Track U1). Where U0 registers individual bridges, U1 is the CHAIN — routing a claim

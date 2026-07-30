@@ -17,6 +17,9 @@ Layers so far:
                  reducible (lower-law × invariant) laws; honest empirical status, degree-2 bounded
   * pattern_mining — ratio & monotonicity patterns (P0 breadth): CONSTANT ratios (rediscovers Handshake as
                  sum_degrees/num_edges = 2) + MONOTONIC trends over an ordered family; exact, empirical
+  * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
+                 collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
+                 keeps provenance; honest (dedups exact linear normal form only, never over-merges)
   * conjectures— conjecture generation (P0/P1): subclass laws + inequality bounds
   * refute     — counterexample-first refutation (Q0): minimal counterexample or an honest
                  'no_counterexample_within_bound'
@@ -192,6 +195,12 @@ from .congruence import (
     derive_crt,
     derive_residue,
     residue_is_derivable,
+)
+from .conjecture_normalize import (
+    NormalizedConjecture,
+    from_law,
+    from_ratio,
+    normalize_conjectures,
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .cross_check import CrossCheck, all_consistent, cross_check, disagreements
@@ -546,6 +555,10 @@ __all__ = [
     "MonotonicTrend",
     "constant_ratios",
     "monotonic_trends",
+    "NormalizedConjecture",
+    "normalize_conjectures",
+    "from_law",
+    "from_ratio",
     "ChainStep",
     "ChainWalk",
     "walk_divisibility_chain",

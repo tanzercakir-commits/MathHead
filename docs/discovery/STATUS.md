@@ -1,0 +1,55 @@
+# Discovery Engine — Status & Next (living tracker)
+
+> The at-a-glance view: where we are, what's next, what we will NOT fake. The full plan is
+> `IDEAL-ENGINE-ROADMAP.md` (103 phases); the narrative log is `PROGRESS.md`; the rationale is
+> `DECISIONS.md`. This file is the short todo. Update it whenever a track moves.
+
+_Last updated: 2026-07-30 · 36 modules · 271 discovery tests (full suite 1561 green) · 42 ADRs ·
+roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._
+
+## Done — by cluster
+
+**Trust / judge (M, Q, R)**
+- Proof KERNEL, LCF-style, forge-guarded — 3 judgments: Divides (RESIDUE/CRT), SumIdentity, PolyIdentity.
+- Trust base SHRUNK: RESIDUE derived from the factor theorem, CRT derived from Bézout (both now theorems,
+  not axioms) — `congruence.py`.
+- Provenance (hash + axiom list + replay), independent second checker, adversarial soundness battery
+  (600+ false claims, 0 breaches).
+- Counterexample-first refutation with minimal witnesses; epistemic-status vocabulary + 4-rung ladder.
+
+**Matter / measure (N, O)**
+- FIVE object domains through one pipeline: graphs, arithmetic, permutations, integer partitions,
+  set partitions — each pinned to an OEIS oracle.
+- Exact invariants per domain; linear-law mining (Handshake, spectral identities); frontier bridge
+  (χ, Hamiltonicity via MathHead SAT/UNSAT).
+
+**Discover / prove / explain (P, S, T, W)**
+- Discover→refute→PROVE closed in arithmetic (kernel-verified); constructive certificates (graphs);
+  constructive BIJECTIONS (Glaisher/Euler, conjugation, Foata/Mahonian).
+- Explanations: algebraic (factorization), structural (double counting, clique bound, cycle degree),
+  bijective. Interestingness ranking (heuristic). Cross-domain analogy detection (P3).
+
+**Knowledge / grade / direct (X, Y, AC, AF)**
+- Knowledge graph + impact analysis; failure memory (negative knowledge); research director
+  (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
+- One deterministic report; `ARCHITECTURE.md` synthesis.
+
+## Next — prioritized candidates
+
+1. **Deeper kernel floor (M)** — derive/soundness-check the remaining primitives (integer-divisibility
+   base facts; make SumInduction's induction step explicit). Highest-rigor, on the thread just advanced.
+2. **Report/ladder polish** — surface `residue_derivable`/`crt_derivable` and the analogy/catalog in the
+   rendered report header; small, closes loops.
+3. **Sixth domain or richer invariants** — e.g. compositions / Young tableaux, or non-linear relation
+   mining (products/ratios) that could surface an unattributed candidate honestly.
+4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
+
+## Open — will NOT fake (🔴 honest boundary)
+
+- **Novel mathematics.** 0 established; genuine novelty needs a real literature corpus (X1 full ingest)
+  AND exploration beyond elementary/small-object territory. Not claimed.
+- **Universal graph/combinatorial proofs.** Structural arguments + bijections are sample-verified;
+  the universal step is classical, recorded not machine-checked.
+- **Learned models** (interestingness W3, proof-guidance S4, representation search U2) — transparent
+  heuristics only; a learned/RL model with human feedback is out of scope.
+- **New concept/definition generation (Z), independence analysis (AB2/AB3)** — research frontier.

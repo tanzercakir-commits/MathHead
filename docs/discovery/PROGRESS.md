@@ -6,7 +6,16 @@
 
 ---
 
-## 2026-07-29 — Structured known-results catalog (X1/W2): the auditable basis for "0 novel"
+## 2026-07-30 — Bookkeeping: STATUS.md tracker + date corrections
+
+Added `docs/discovery/STATUS.md` — a short living TODO/status view (done-by-cluster, prioritized next
+candidates, and the honest 🔴 boundary of what we will NOT fake) so the plan is legible without reading
+the 103-phase roadmap. Corrected four entries misdated 2026-07-29 → 07-30 (this morning's session), and
+the analogy entry's track label P4 → P3. Docs only; suite unaffected.
+
+---
+
+## 2026-07-30 — Structured known-results catalog (X1/W2): the auditable basis for "0 novel"
 
 The scorecard's attribution was a flat substring list; now it's a structured, cited KNOWLEDGE BASE.
 New `known_results.py`: 21 entries across 5 domains, each with name, reference (author-year or OEIS),
@@ -19,7 +28,7 @@ until one is ingested. 4 tests (discovery suite 271); full suite **1561 green**,
 
 ---
 
-## 2026-07-29 — Shrinking the kernel's trusted base: RESIDUE DERIVED from the factor theorem (M-floor)
+## 2026-07-30 — Shrinking the kernel's trusted base: RESIDUE DERIVED from the factor theorem (M-floor)
 
 The honest caveat carried by every kernel ADR — "RESIDUE is a trusted PRIMITIVE, not derived" — is now
 removed for the modular fragment. New `congruence.py` DERIVES the residue principle, using the kernel's
@@ -44,7 +53,7 @@ suite 261); full suite **1551 green**, ruff clean. ADR-D0040. Roadmap M (kernel 
 
 ---
 
-## 2026-07-29 — Cross-domain analogy detection (P4)
+## 2026-07-30 — Cross-domain analogy detection (P3)
 
 With five domains and a rich explanation layer, the engine now notices when the SAME proof technique
 recurs across genuinely different objects. New `analogy.py` tags each explained finding with its
@@ -58,7 +67,7 @@ ADR-D0041. Roadmap P4.
 
 ---
 
-## 2026-07-29 — M-floor continued: CRT derived from Bézout
+## 2026-07-30 — M-floor continued: CRT derived from Bézout
 
 The other modular primitive, CRT, is now derived too. `congruence.derive_crt(m1,m2)`: extended Euclid
 gives s·m1 + t·m2 = 1, so x = x·(s·m1+t·m2) = s·m1·x + t·m2·x, each term divisible by m1·m2 (using

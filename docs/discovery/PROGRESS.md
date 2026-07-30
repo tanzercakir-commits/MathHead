@@ -7,6 +7,22 @@
 
 ---
 
+## 2026-07-30 — T2: rank candidate lemmas by importance × likelihood
+
+New `lemma_ranking.py` (Track T2). The research director faces a queue of open goals; two exact signals
+already exist but pull apart — `impact.py` (X3) measures IMPORTANCE (entanglement with known results) and
+`gap.py` (T0) measures proximity-to-proof. A goal can be important yet unreachable, or reachable yet
+peripheral. T2 fuses them into one actionable priority: importance = `related_to` entanglement normalized
+over the open set, likelihood = `1 − gap_score`, priority = a transparent weighted sum (default 0.5/0.5,
+adjustable). `rank_lemmas` returns open goals highest-priority first — both worth settling AND within
+reach; `next_lemma` gives the single top target for the director (AC0). Verified on a hand-built graph: a
+near+entangled conjecture outranks an isolated one, and resolved (proved/refuted) nodes are excluded.
+HONEST: a transparent heuristic over two EXACT structural signals — not a learned model (that is W3/S4,
+🔴) — every component exposed for audit, and it ranks ATTENTION only, never truth. 7 tests; full suite
+**1687 green**, ruff clean. Roadmap T2 🟢 (newly touched; progress ~52/103, next user check-in at 59).
+
+---
+
 ## 2026-07-30 — U0: a verified registry of representation transforms
 
 New `representations.py` (Track U0). The engine already crosses between representations everywhere —

@@ -108,6 +108,9 @@ Layers so far:
   * gap          — goal ↔ knowledge GAP measure (T0): BFS distance from a goal to proved ground +
                  unresolved dependencies → a [0,1] gap; ranks open goals CLOSEST-to-reach first
                  (complement to impact's entanglement view; honest when no proof anchor exists)
+  * lemma_ranking — rank open goals by IMPORTANCE × LIKELIHOOD (T2): fuses impact's entanglement with
+                 gap's proximity-to-proof into one transparent priority (weighted, auditable, not learned);
+                 `next_lemma` = what the director should attack next
   * portfolio    — resource-bounded proof-strategy portfolio + budget manager (S2): races direct-residue
                  vs CRT-prime-powers under a shared step-budget, cheapest-first; reports the winner +
                  a full cost ledger; honest status solved / unsolved / exhausted (never a fake proof)
@@ -233,6 +236,7 @@ from .knowledge_graph import (
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
+from .lemma_ranking import RankedLemma, next_lemma, rank_lemmas
 from .mutate import Mutation, mutate_inequality, repair, strengthen
 from .director import CycleResult, ResearchDirector
 from .divisibility import (
@@ -468,6 +472,9 @@ __all__ = [
     "GapMeasure",
     "measure_gap",
     "frontier_gaps",
+    "RankedLemma",
+    "rank_lemmas",
+    "next_lemma",
     "structural_explanations",
     "Permutation",
     "generate_permutations",

@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 56 modules · 370 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 57 modules · 377 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -53,6 +53,9 @@ _Last updated: 2026-07-30 · 56 modules · 370 discovery tests · 28 phases ✅ 
   (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
 - Goal↔knowledge GAP measure (T0): BFS distance from a goal to proved ground + open dependencies →
   a [0,1] gap; ranks open goals closest-to-reach first (complements impact's entanglement) — `gap.py`.
+- Lemma ranking by IMPORTANCE × LIKELIHOOD (T2): fuses impact's entanglement with gap's proximity-to-proof
+  into one transparent priority; `next_lemma` = the director's next target (heuristic, not learned) —
+  `lemma_ranking.py`.
 - Algorithm→proof BRIDGE (AA4, S/M): links a discovered algorithm to its warrant — residue-exhaustion →
   kernel Theorem (universal), greedy-coloring/max-clique → constructive certificate (witnessed); honest
   about the strength gap, never conflated — `algorithm_proof.py`.
@@ -74,10 +77,10 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~51 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~52 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
-ceiling ≈ 91, so ~40 achievable phases remain (many are deepening partials to full). **User check-in at
-49 done** — next at 59 (8 to go). Recently done: AB1, P2, T0, S2, AA4, U0; M-floor now COMPLETE
+ceiling ≈ 91, so ~39 achievable phases remain (many are deepening partials to full). **User check-in at
+49 done** — next at 59 (7 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2; M-floor now COMPLETE
 (SumInduction derived + elementary divisibility lemmas explicit — M2, deepening); SIXTH domain compositions
 added; NON-LINEAR (degree-2) law mining (deepens O2 — already ✅, count-neutral, but rediscovers 2E=n²−n).
 

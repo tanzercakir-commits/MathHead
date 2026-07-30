@@ -147,7 +147,7 @@ P6 🟡 (LLM-periferi) doğal-dil sezgisinden aday konjektür — yargıç zorun
 ```
 T0 🟡 Hedef ↔ mevcut bilgi arası "boşluk" ölçümü  🟢 gap.py: bir hedef için KANITLANMIŞ zemine BFS mesafesi + çözülmemiş bağımlılıklar → [0,1] boşluk skoru; açık hedefleri "ele en yakın" (en küçük boşluk) sıralar; impact'in dolanıklık görüşünü TAMAMLAR (mesafe ≠ merkezilik); kanıt-çıpası yoksa dürüstçe boşluk=1.0 (aritmetik-dışı hedeflerin gerçek sınırını yüzeye çıkarır); ADR-D0045
 T1 🔴 Eksik kavram/lemma tahmini (bottleneck: "F, μ invariant'ını koruyor mu?")
-T2 🟢 Aday lemma sıralama (önem/olabilirlik)
+T2 🟢 Aday lemma sıralama (önem/olabilirlik)  🟢 lemma_ranking.py: açık hedefleri ÖNEM × OLABİLİRLİK ile sıralar — impact'in dolanıklığı (önem = related_to derecesi, normalize) ile gap'in kanıta-yakınlığını (olabilirlik = 1−gap_score) tek şeffaf önceliğe kaynaştırır (ağırlıklı toplam, denetlenebilir, ÖĞRENİLMİŞ DEĞİL); next_lemma = direktörün sıradaki hedefi; yalnız DİKKATİ sıralar, doğruluğu değil; ADR-D0052
 T3 🟢 Proof dependency graph üretimi (lemma → ana hedef bağlantısı)  ✅ (proof_tree: CRT ispatı → prime-power lemmaları; residue → tam-vaka yaprağı; render_tree; ADR-D0015)
 ```
 

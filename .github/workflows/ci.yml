@@ -60,6 +60,7 @@ jobs:
           python-version: "3.11"
       - name: Install (dev + solvers)
         run: |
+          sudo apt-get update && sudo apt-get install -y nauty   # v2A4 scale generator (geng)
           python -m pip install --upgrade pip
           pip install -e ".[dev,solvers]"
       - name: Test with coverage gate

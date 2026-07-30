@@ -31,6 +31,10 @@ Layers so far:
                  the engine's OWN generators (9 land on their OEIS pins: A000088, derangements A000166 …);
                  unmatched refined families (triangle-free, χ=3 graphs) = pending EXTERNAL lookup —
                  human-in-the-loop; discovery only via OEIS referee acceptance, never self-declared
+  * nauty_scale — SCALE via nauty/geng (v2A4): non-isomorphic generation to n≈9 (274k), counts to n=10
+                 (12M, A000088 continues exactly); CROSS-VALIDATED class-by-class vs the pure generator
+                 (equal canonical-key sets n≤5, counts n=6); graph6 decoder; filtered classes (-c/-t/-b)
+                 extend the radar's pending prefixes to 10 terms; refuses to truncate (hard_cap raises)
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -270,6 +274,16 @@ from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
 from .lemma_ranking import RankedLemma, next_lemma, rank_lemmas
 from .mutate import Mutation, mutate_inequality, repair, strengthen
+from .nauty_scale import (
+    cross_validate as geng_cross_validate,
+)
+from .nauty_scale import (
+    decode_graph6,
+    extended_radar_sequences,
+    geng_available,
+    geng_count,
+    geng_graphs,
+)
 from .director import CycleResult, ResearchDirector
 from .divisibility import (
     DivLemma,
@@ -589,6 +603,12 @@ __all__ = [
     "extract_natural_sequences",
     "radar",
     "LOCAL_CORPUS",
+    "geng_available",
+    "geng_count",
+    "geng_graphs",
+    "geng_cross_validate",
+    "decode_graph6",
+    "extended_radar_sequences",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

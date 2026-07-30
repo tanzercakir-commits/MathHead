@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — v2A4 ✅ scale via nauty/geng, cross-validated — the haystack grows 10 000×
+
+New `nauty_scale.py` (nauty 2.8.8 installed; CI updated to install it too — tests skip gracefully where
+absent). The pure-Python generator is honest-bounded at n≤7 (1044 graphs); geng (McKay & Piperno) now
+takes the engine to full counts at n=10 (**12 005 168 classes — A000088 continues exactly**) and object
+enumeration at n≈9 (274k). NO BLIND TRUST: geng's output is cross-validated CLASS BY CLASS against the
+pure generator (equal canonical-key sets for every n≤5, equal count at n=6), and the triangle-free
+filtered counts agree with the engine's own independent computation — a third path to the same numbers.
+graph6 decoding implemented + round-trip tested; `hard_cap` REFUSES to silently truncate oversized
+classes. Payoff for the radar: the pending prefixes for the human's external OEIS lookup grew from 7 to
+10 terms (triangle-free `1,1,2,3,7,14,38,107,410,1897`), and a bipartite class was added. This is the
+strategic pivot in action: the haystack the engine can search grew ~10 000× while every trust anchor
+stayed machine-checked. 8 tests; full suite **1757 green**, ruff clean. Roadmap v2A4 ✅ (ADR-D0062).
+Kademe 1: 4/6.
+
+---
+
 ## 2026-07-30 — v2A0/A1/A2: the OEIS radar is live (2 pending external lookups)
 
 New `oeis_radar.py` — the Real Discovery Program's lowest honest bar, instrumented. v2A1 EXTRACTION:

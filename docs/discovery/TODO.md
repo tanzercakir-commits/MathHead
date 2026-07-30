@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 65 modules · 438 discovery tests · 30 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-07-30 · 66 modules · 446 discovery tests · 31 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -113,7 +113,11 @@ honest Nones for e-π/noise). **v2A1 ✅, v2A0/A2 🟢** (OEIS radar live — 11
 engine's own generators; 9 land exactly on their OEIS pins incl. derangements A000166 & connected graphs
 A001349; 2 PENDING external lookup: triangle-free `1,1,2,3,7,14,38` and χ=3 `0,0,0,1,3,16,84` — human
 checks oeis.org; runtime auto-query correctly refused, robots.txt respected).
-Next up (Kademe 1): v2A4 nauty/geng scale → v2A5 rich invariants → Kademe 2 counterexample hunter.
+**v2A4 ✅** (nauty/geng: counts to n=10 = 12M classes, A000088 continues exactly; class-by-class
+cross-validation vs the pure generator; pending radar prefixes extended to 10 terms — triangle-free
+`…,107,410,1897`, plus bipartite A-class added).
+Next up (Kademe 1): v2A5 rich invariants → Kademe 2 counterexample hunter (v2B0 conjecture DB is the
+"max moment" — will flag before starting).
 
 ## Next — prioritized candidates
 

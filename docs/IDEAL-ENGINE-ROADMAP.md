@@ -155,7 +155,7 @@ T3 🟢 Proof dependency graph üretimi (lemma → ana hedef bağlantısı)  ✅
 ```
 S0 🟢 Strateji kayıt defteri (forward/backward, best-first, MCTS, resolution, superposition, rewriting, induction, case-split, symmetry, QE, Gröbner, ILP, exhaustive...)  🟢 İLK STRATEJİ: modül-çarpanlama + CRT (tek tümevarımın çözemediğini ispatlar; direct→fallback mini-portföy; ADR-D0011)
 S1 🟡 Problem sınıflandırıcı (discrete/finite-large/symmetry/existential/polynomial) → portföy seçici  🟢 İLK PORTFÖY: induction → factoring+CRT → residue-exhaustion (tam karar); kazanan yöntem kaydediliyor; ADR-D0014
-S2 🟡 Paralel portföy yürütücü + kaynak/bütçe yöneticisi
+S2 🟡 Paralel portföy yürütücü + kaynak/bütçe yöneticisi  🟢 portfolio.py: modüler ispat portföyünü (direct-residue vs CRT-prime-powers) PAYLAŞILAN adım-bütçesi altında ucuzdan-pahalıya yürütür; kazanan = ispatlayan en düşük-maliyetli strateji (yarışta ilk biten); tam maliyet defteri (hangi başlatıldı/atlandı, harcanan); DÜRÜST durum solved/unsolved/exhausted — bütçe yetmezse "exhausted" der, asla sahte ispat üretmez; idealize-paralel deterministik model (OS thread/duvar-saati yok, tekrarüretilebilirlik önce); ADR-D0046
 S3 🟢 Başarısız stratejilerin kaydı (Track Y'ye besleme)
 S4 🔴 (RL/öğrenilmiş) ispat rehberliği — arama uzayı patlamasına karşı
 ```

@@ -7,6 +7,34 @@
 
 ---
 
+## 2026-07-30 — S2: resource-bounded strategy portfolio + budget manager  ⭐ user check-in @ 49
+
+New `portfolio.py` (Track S2). S0 is the strategy registry and S1 the classifier that picks a portfolio;
+S2 RUNS several strategies under one shared budget and accounts for the resource each consumes. For a
+modular claim `m | p(n)` the kernel offers two strategies with very different costs: direct-residue (a
+single sweep at m, cost ≈ m) and crt-prime-powers (a sweep at each prime power + a CRT combine, cost
+≈ Σpᵢ^{eᵢ} + #parts — far cheaper for composite m: 30 → 13 vs 30). The executor models an idealized
+PARALLEL race under a shared step-budget, deterministically (no OS threads / wall-clock — reproducibility
+first): it launches affordable strategies cheapest-first while cumulative cost fits the budget, runs each
+(kernel-checked), and names the WINNER as the lowest-cost strategy that actually proves it — the one that
+would finish first in a real race — plus a full cost ledger. Honest `status`: **solved** (winner named),
+**unsolved** (strategies ran but none proved it — e.g. a FALSE claim → refuted, surfaced not hidden), or
+**exhausted** (budget too small to launch anything — says so, names the costs it could not afford). By
+construction it never reports a proof it did not kernel-check. Verified: 6|n³−n at budget 100 → direct
+wins (cost 6 < CRT 7); 30|n⁵−n at budget 15 → only CRT affordable, wins; budget 5 → exhausted; 5∤n³−n →
+unsolved/refuted. 7 tests; full suite **1646 green**, ruff clean.
+
+**⭐ USER CHECK-IN — 49 touched reached.** This is the ~10-phase notification the user asked for. State
+of play: 103 phases / 21 tracks (plan frozen, guarded), **28 fully ✅**, **~49 touched** (✅ + real
+partials). 12 phases are 🔴 honest open-research boundaries I will NOT fake (novel-to-literature math,
+learned/RL models, forcing/independence AB2–3, missing-concept prediction T1/S4), so the achievable
+ceiling is ≈ 91 → **~42 achievable phases remain**. Roadmap S2 🟡→🟢 (newly touched). This batch since
+the last check-in: AB1 (axiom-minimal proofs), M-floor SumInduction derivation, P2 (generalization),
+T0 (gap measure), S2 (portfolio) — plus the trust base is now fully shrunk (RESIDUE, CRT, AND
+SumInduction all derived, no longer primitives). Next check-in at 59.
+
+---
+
 ## 2026-07-30 — T0: goal ↔ knowledge gap measurement
 
 New `gap.py` (Track T0). `impact.py` (X3) ranks the open frontier by ENTANGLEMENT (how many known

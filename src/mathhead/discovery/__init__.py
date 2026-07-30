@@ -96,6 +96,9 @@ Layers so far:
   * gap          — goal ↔ knowledge GAP measure (T0): BFS distance from a goal to proved ground +
                  unresolved dependencies → a [0,1] gap; ranks open goals CLOSEST-to-reach first
                  (complement to impact's entanglement view; honest when no proof anchor exists)
+  * portfolio    — resource-bounded proof-strategy portfolio + budget manager (S2): races direct-residue
+                 vs CRT-prime-powers under a shared step-budget, cheapest-first; reports the winner +
+                 a full cost ledger; honest status solved / unsolved / exhausted (never a fake proof)
 
 The judge (MathHead: verify / counterexample / certificate) enters at the refutation and proof
 tracks (Q/R) — it is intentionally NOT coupled to this object+invariant layer yet.
@@ -267,6 +270,7 @@ from .permutations import (
     generate_permutations,
     statistic_distribution,
 )
+from .portfolio import PortfolioRun, StrategyOutcome, run_portfolio
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
 from .serialize import content_hash, deduplicate, reproducible_sort, serialize
 from .set_partitions import (
@@ -496,4 +500,7 @@ __all__ = [
     "prove_modular_divisibility",
     "prove_by_residues",
     "factor_prime_powers",
+    "PortfolioRun",
+    "StrategyOutcome",
+    "run_portfolio",
 ]

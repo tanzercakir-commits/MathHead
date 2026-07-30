@@ -35,7 +35,7 @@ _Last updated: 2026-07-30 · 41 modules · 276 discovery tests · 23 phases ✅ 
 **Knowledge / grade / direct (X, Y, AC, AF)**
 - Knowledge graph + impact analysis; failure memory (negative knowledge); research director
   (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
-- One deterministic report; `ARCHITECTURE.md` synthesis.
+- One deterministic report; object-model infra (parametric families N4, generic serialization N3).
 
 ## Automation
 
@@ -50,8 +50,9 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-39 → **41 / 103** phases touched (20→22 fully ✅). Working through the ~52 achievable untouched phases;
-12 remain 🔴 open-research (won't fake). Next check-in at 49. Recently done: N4 (families), N3 (serialize).
+**~41 / 103** phases touched (fully-done ✅ count is in the auto stats line above). Working through the
+~52 achievable untouched phases; 12 remain 🔴 open-research (won't fake). Next user check-in at 49
+touched. Recently done: N4 (families), N3 (serialize).
 
 ## Next — prioritized candidates
 

@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-07-30 — v2A3 ✅ PSLQ constant-formula hunt + 2 real bugs caught by the fuzzer
+
+**v2A3 (`pslq_hunt.py`) — the Real Discovery Program's first completed phase.** The BBP formula for π was
+found by an integer-relation search, not a human derivation; this is that instrument on mpmath, with the
+honesty protocol as the design core. TWO-PRECISION PROTOCOL: a relation is discovered at 60 digits and
+re-verified FROM SCRATCH at 220 — an artifact that only "holds" at low precision dies at the second gate.
+NOISE REJECTION: bounded coefficient height; unrelated constants must yield None. Calibration results:
+rediscovered **6ζ(2)=π², 90ζ(4)=π⁴, √2→x²−2, φ→x²−x−1** (residuals ~10⁻²²⁰), and honestly returned None
+for e-π, γ-ln2, the noise-control literal, and π-as-algebraic. Status is ALWAYS `numerical_conjecture` —
+PSLQ evidence is not proof, and the kernel cannot check transcendental identities; we never label these
+proved. 8 tests. Roadmap v2A3 ✅ (ADR-D0060).
+
+**Two REAL pre-existing bugs found by Hypothesis (the property fuzzer) during this increment — both
+fixed:** (1) `compute.simplify` was not idempotent (`x*(-x-1)` re-simplified to `-x*(x+1)` — sympy's
+simplify is not a canonical form); fixed with a bounded fixpoint loop so `simplify(simplify(e)) ==
+simplify(e)`. (2) `find_root_newton('1/0', …)` crashed with a raw `KeyError: 'ComplexInfinity'` from
+sympy's lambdify printer instead of returning an honest error; the compile step is now guarded. Neither
+was caused by this session's work — the fuzzer simply hit the examples now and pinned them; exactly the
+verification culture working as intended. Full suite **1742 green**, ruff clean.
+
+---
+
 ## 2026-07-30 — AE2 honest hunt RAN + v2 REAL DISCOVERY PROGRAM approved & formalized ⭐
 
 **The hunt (AE2, `candidate_hunt.py`):** wide net (6 parametric families + the all-graphs sample, all

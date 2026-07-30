@@ -23,6 +23,10 @@ Layers so far:
   * candidate_hunt — the HONEST hunt (AE2): wide-net mining over families + all-graphs, everything
                  attributed vs the catalog; unattributed survivors = candidates for scrutiny, NEVER
                  discoveries (ran: 4 candidates, all textbook family formulas — the boundary, proven)
+  * pslq_hunt   — PSLQ constant-formula hunt (v2A3, Real Discovery Program): integer relations among
+                 constants via mpmath.pslq with a TWO-PRECISION protocol (found @60 digits, re-verified
+                 @220) + noise rejection; rediscovers 6ζ(2)=π², 90ζ(4)=π⁴, √2, φ; e-π honestly None;
+                 status always numerical_conjecture, never proved (the BBP road, honestly instrumented)
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -297,6 +301,13 @@ from .feature_conjectures import (
     surviving_inequalities,
 )
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
+from .pslq_hunt import (
+    CONSTANTS,
+    NumericalConjecture,
+    find_algebraic,
+    find_relation,
+    hunt_constants,
+)
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
@@ -557,6 +568,11 @@ __all__ = [
     "robustness_report",
     "HuntResult",
     "hunt",
+    "NumericalConjecture",
+    "find_relation",
+    "find_algebraic",
+    "hunt_constants",
+    "CONSTANTS",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

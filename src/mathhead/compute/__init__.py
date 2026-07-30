@@ -153,6 +153,13 @@ def simplify(expression: str) -> ComputeResult:
         return _error("simplify", str(exc), t0)
     try:
         result = sympy.simplify(expr)
+        # sympy.simplify is not a canonical form (e.g. x*(-x-1) re-simplifies to -x*(x+1)); iterate to a
+        # bounded FIXPOINT so simplify(simplify(e)) == simplify(e) — a stable, idempotent output.
+        for _ in range(3):
+            again = sympy.simplify(sympy.sympify(str(result), evaluate=True))
+            if str(again) == str(result):
+                break
+            result = again
     except Exception as exc:  # noqa: BLE001 - SymPy failure is reported honestly
         return _error("simplify", f"could not simplify: {exc}", t0, "COMPUTE_FAILED")
     return ComputeResult("ok", "simplify", str(result), f"'{expression}' simplified.", "OK", _meta(t0))
@@ -2965,8 +2972,13 @@ def find_root_newton(expression: str, symbol: str, x0: float,
         expr, var = _single_var(expression, symbol)
     except ComputeError as exc:
         return _error("find_root_newton", str(exc), t0)
-    f = sympy.lambdify(var, expr, "mpmath")
-    df = sympy.lambdify(var, sympy.diff(expr, var), "mpmath")
+    try:
+        # compile OUTSIDE the numeric loop but INSIDE a guard: an expression containing e.g.
+        # ComplexInfinity ('1/0' → zoo) makes lambdify's printer raise — report it, never crash
+        f = sympy.lambdify(var, expr, "mpmath")
+        df = sympy.lambdify(var, sympy.diff(expr, var), "mpmath")
+    except Exception as exc:  # noqa: BLE001 - printer/compile failures reported honestly
+        return _error("find_root_newton", f"cannot compile expression: {exc}", t0, "COMPUTE_FAILED")
     try:
         with mp.workdps(30):
             x = mp.mpf(str(x0))

@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 63 modules · 423 discovery tests · 28 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-07-30 · 64 modules · 431 discovery tests · 29 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -108,7 +108,9 @@ referee acceptance, self-verifying counterexample witness, Lean kernel check). K
 v2 section (16 phases, guarded). AE2's honest hunt sealed the lesson: 40 findings → 4 unattributed-in-
 catalog → ALL four textbook family formulas. Catalog-miss ≠ literature-novel, proven on our own output.
 
-Next up (Kademe 1): v2A3 PSLQ constant-formula hunt (mpmath ready) → v2A0-A2 OEIS radar → v2A4-A5 scale.
+Progress: **v2A3 ✅** (PSLQ hunt live — rediscovered 6ζ(2)=π², 90ζ(4)=π⁴, √2, φ at 220-digit
+verification; honest Nones for e-π/noise; status always numerical_conjecture).
+Next up (Kademe 1): v2A1 natural-family sequence extractor → v2A0/A2 OEIS radar → v2A4-A5 scale.
 
 ## Next — prioritized candidates
 

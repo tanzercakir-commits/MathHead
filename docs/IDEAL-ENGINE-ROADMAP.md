@@ -302,7 +302,7 @@ Toplam: 22 track, ~103 aşama.
 v2A0 🟡 OEIS erişim katmanı: sorgu-bazlı eşleştirici (API/yerel döküm; lisans + atıf)
 v2A1 🟡 Doğal aile → sayma dizisi üreticisi (6 alandan sistematik dizi çıkarımı)
 v2A2 🟡 OEIS radarı: eşleşmeyen doğal dizi tespiti → insan-onaylı gönderim dosyası (kabul = dış-onaylı keşif)
-v2A3 🟡 PSLQ sabit-formül avı (mpmath.pslq): iki-hassasiyet protokolü, gürültü reddi, numerical_conjecture statüsü
+v2A3 ✅ PSLQ sabit-formül avı (mpmath.pslq): iki-hassasiyet protokolü, gürültü reddi, numerical_conjecture statüsü — pslq_hunt.py: 60 hanede keşif → 220 hanede sıfırdan yeniden-doğrulama (ikinci kapıda ölmeyen kalır); kalibrasyon: 6ζ(2)=π², 90ζ(4)=π⁴, √2→x²−2, φ→x²−x−1 yeniden-keşfedildi (residual~10⁻²²⁰); e-π, γ-ln2, gürültü-sabiti, π-cebirsel DÜRÜSTÇE None; statü asla proved değil; ADR-D0060
 v2A4 🟡 nauty/geng ölçek entegrasyonu (n~20-30) + hızlı invariant yolu
 v2A5 🟡 Zengin invariant kütüphanesi (independence, domination, girth, diameter, matching, energy, spectral radius)
 ```

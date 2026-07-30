@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 54 modules · 357 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 55 modules · 363 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -32,6 +32,9 @@ _Last updated: 2026-07-30 · 54 modules · 357 discovery tests · 28 phases ✅ 
   #{comps of n} = 2^(n−1) PROVED by the cut-point bijection (comp ↔ subset of {1..n−1}) — `compositions.py`.
 - Exact invariants per domain; linear-law mining (Handshake, spectral identities); frontier bridge
   (χ, Hamiltonicity via MathHead SAT/UNSAT).
+- NON-LINEAR (degree-2) law mining: same exact null-space over a polynomial feature map; rediscovers
+  `2·num_edges = n²−n` on Kₙ, filters reducible (lower-law × invariant) laws, honest empirical status —
+  `nonlinear_relations.py`.
 
 **Discover / prove / explain (P, S, T, W)**
 - Discover→refute→PROVE closed in arithmetic (kernel-verified); constructive certificates (graphs);
@@ -73,17 +76,18 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 ceiling ≈ 91, so ~41 achievable phases remain (many are deepening partials to full). **User check-in at
 49 done** — next at 59 (9 to go). Recently done: N3–N6, O4, P1, AB1, P2, T0, S2, AA4; M-floor now COMPLETE
 (SumInduction derived + elementary divisibility lemmas explicit — M2, deepening); SIXTH domain compositions
-added (deepens N/O/P — N0 already ✅, count-neutral, but a real new domain with a constructive bijection).
+added; NON-LINEAR (degree-2) law mining (deepens O2 — already ✅, count-neutral, but rediscovers 2E=n²−n).
 
 ## Next — prioritized candidates
 
-1. **Deeper kernel floor (M)** — make the remaining ELEMENTARY integer-divisibility lemmas explicit &
-   checked (`m|a ∧ m|b ⇒ m|a+b`; `m|a ⇒ m|a·k`) that `congruence`/`sum_derivation` currently lean on
-   as "elementary". (✅ SumInduction step now explicit; RESIDUE/CRT/SumInduction all derived.)
-2. **Richer / non-linear invariant mining** — relations.py mines LINEAR laws (null-space); add
-   product/ratio mining that could surface an honest unattributed candidate. (✅ sixth domain done.)
-3. **U-track representation bridges (U0/U1)** — make an explicit representation chain
-   (Diophantine → modular → finite-residue) the engine can actually walk on a concrete claim.
+_(✅ M-floor COMPLETE — RESIDUE, CRT, SumInduction all derived + elementary divisibility lemmas explicit;
+the whole kernel trust base is now auditable. ✅ sixth domain compositions done.)_
+
+1. **Richer / non-linear invariant mining** — relations.py mines LINEAR laws (null-space); add
+   product/ratio mining that could surface an honest unattributed candidate. Highest discovery value.
+2. **U-track representation bridges (U0/U1)** — make the engine's representation transforms explicit &
+   verified (graph↔matrix↔SAT, divisibility↔finite-residue) as a typed registry with round-trip checks.
+3. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-07-30 — Non-linear (degree-2) relation mining (richer O2)
+
+New `nonlinear_relations.py` — `relations.py` mines only LINEAR laws (null space of the affine feature
+matrix). Many real identities are quadratic (`num_edges = n(n−1)/2` on complete graphs), so this extends
+the SAME exact null-space machinery to a DEGREE-2 polynomial feature map: it augments the invariants with
+every pairwise product invᵢ·invⱼ and square invᵢ², then mines the null space of that matrix. Two honest
+guards keep the output meaningful: (1) constant invariants are dropped from the feature map (a constant
+like num_components≡1 only spawns degenerate X = X·const laws — those belong to `discover_constants`);
+(2) REDUCIBLE laws that factor as (a lower law)·(a common invariant) are filtered — e.g.
+`2·num_edges·max_degree = sum_degrees·max_degree` is just Handshake × max_degree, not a new fact.
+Results: on complete graphs it rediscovers `num_vertices + 2·num_edges = num_vertices²` (i.e. 2·num_edges
+= n²−n, the edge count C(n,2)) plus other genuine Kₙ identities; on the rich all-graphs sample it returns
+only `4·num_edges² = sum_degrees²` (the square of Handshake) — honestly finding NO new universal quadratic
+law, rather than manufacturing one. Same exact rational arithmetic, same honesty contract: every law is
+`status="empirical"` (sample-true conjecture, not a theorem), degree-2 bounded (a cubic identity like
+num_triangles = C(n,3) is deliberately not forced). 6 tests, each verifying the mined law holds EXACTLY
+over the sample; full suite **1673 green**, ruff clean. HONEST accounting: DEEPENS the already-✅ O2, so
+the touched count stays ~50/103.
+
+---
+
 ## 2026-07-30 — M-floor COMPLETE: elementary divisibility lemmas made explicit
 
 New `divisibility.py` (Track M, kernel floor — completes the trust-base thread). After `congruence.py`

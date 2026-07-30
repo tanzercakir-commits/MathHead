@@ -12,6 +12,9 @@ Layers so far:
   * invariants — property & invariant evaluation (O0/O1)
   * relations  — automatic relation discovery (O2): finds empirical linear laws
                  (e.g. rediscovers the Handshake Lemma) + constant invariants
+  * nonlinear_relations — degree-2 (non-linear) relation mining (O2 richer): same exact null-space over a
+                 polynomial feature map (products/squares); rediscovers 2·num_edges = n²−n on Kₙ; filters
+                 reducible (lower-law × invariant) laws; honest empirical status, degree-2 bounded
   * conjectures— conjecture generation (P0/P1): subclass laws + inequality bounds
   * refute     — counterexample-first refutation (Q0): minimal counterexample or an honest
                  'no_counterexample_within_bound'
@@ -282,6 +285,7 @@ from .judge import (
     judge_inequality,
     judge_task,
 )
+from .nonlinear_relations import NonlinearLaw, discover_polynomial_laws
 from .novelty import is_subclass_specific, novel_subclass_laws
 from .object_store import ObjectStore
 from .objects import Graph, MathObject
@@ -505,6 +509,8 @@ __all__ = [
     "DiscoveredLaw",
     "discover_linear_laws",
     "discover_constants",
+    "NonlinearLaw",
+    "discover_polynomial_laws",
     "Conjecture",
     "subclass_laws",
     "bound_conjectures",

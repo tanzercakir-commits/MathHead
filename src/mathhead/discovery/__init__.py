@@ -62,6 +62,9 @@ Layers so far:
                  Euler's distinct=odd theorem (A000009) and conjugation symmetry
   * set_partitions — a FIFTH object domain: Bell numbers (A000110), Stirling 2nd kind (A008277),
                  rediscovers B(n)=Σ_k S(n,k) with an independent Stirling-recurrence cross-check
+  * compositions — a SIXTH object domain (ordered partitions): #comps of n = 2^(n−1) (A011782) PROVED by
+                 the CUT-POINT bijection (comp ↔ subset of {1..n−1}, explicit + invertible), #k-part =
+                 C(n−1,k−1); architecture generalizes to a 6th type with a constructive-bijection gem
   * bijections  — CONSTRUCTIVE bijections proving the equidistributions: Glaisher (Euler distinct=odd),
                  conjugation, and Foata's Φ (Mahonian inv~maj); verified on the sample (constructive_bijection)
   * director    — the research director (AC): goal-driven multi-cycle loop with cross-cycle memory;
@@ -144,6 +147,16 @@ from .coloring import (
     ColoringVerification,
     coloring_bounds,
     verify_chromatic_number,
+)
+from .compositions import (
+    Composition,
+    CompositionLaw,
+    composition_to_cutset,
+    compositions_into_k_parts,
+    count_compositions,
+    cutset_to_composition,
+    discover_composition_laws,
+    generate_compositions,
 )
 from .congruence import (
     ResidueDerivation,
@@ -430,6 +443,14 @@ __all__ = [
     "count_set_partitions",
     "discover_set_partition_laws",
     "stirling2",
+    "Composition",
+    "CompositionLaw",
+    "generate_compositions",
+    "count_compositions",
+    "compositions_into_k_parts",
+    "composition_to_cutset",
+    "cutset_to_composition",
+    "discover_composition_laws",
     "LEVELS",
     "classify",
     "ladder_summary",

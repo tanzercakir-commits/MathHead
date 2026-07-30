@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — Sixth object domain: integer compositions (cut-point bijection)
+
+New `compositions.py` — a SIXTH domain through the same pipeline (after graphs, arithmetic, permutations,
+integer partitions, set partitions). A composition of n is an ORDERED tuple of positive parts summing to
+n. The gem is a clean CONSTRUCTIVE bijection: the cut-point map sends a composition (a₁,…,a_k) to its set
+of partial sums {a₁, a₁+a₂, …} ⊆ {1,…,n−1}; it is explicit and invertible (`cutset_to_composition`
+round-trips every composition) and lands on ALL 2^(n−1) subsets — so it PROVES #{compositions of n} =
+2^(n−1) (OEIS A011782) constructively, at the same honesty level (`constructive_bijection`) as
+Euler/Glaisher in `bijections.py`, not by count-and-hope. Also mines #{comps into k parts} = C(n−1,k−1)
+(stars and bars, bounded_check). Honest bound n ≤ 15 (2^14 comps), no silent cap; deterministic,
+memoized. WHY it matters: the architecture absorbed a sixth type with ZERO changes to the report /
+ladder / explanations / scorecard — more evidence the object+invariant+law pipeline is genuinely
+domain-independent. 7 tests; full suite **1653 green**, ruff clean. HONEST accounting: this DEEPENS the
+Matter/Discover clusters (N0 "combinatorial obj" is already ✅), so the touched-phase count stays 49/103
+— a real new domain, not a new checkbox. N0 line updated to "six domains" (ADR-D0047).
+
+---
+
 ## 2026-07-30 — S2: resource-bounded strategy portfolio + budget manager  ⭐ user check-in @ 49
 
 New `portfolio.py` (Track S2). S0 is the strategy registry and S1 the classifier that picks a portfolio;

@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 51 modules · 336 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 52 modules · 343 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -25,8 +25,9 @@ _Last updated: 2026-07-30 · 51 modules · 336 discovery tests · 28 phases ✅ 
 - Counterexample-first refutation with minimal witnesses; epistemic-status vocabulary + 4-rung ladder.
 
 **Matter / measure (N, O)**
-- FIVE object domains through one pipeline: graphs, arithmetic, permutations, integer partitions,
-  set partitions — each pinned to an OEIS oracle.
+- SIX object domains through one pipeline: graphs, arithmetic, permutations, integer partitions,
+  set partitions, and COMPOSITIONS — each pinned to an OEIS oracle. Compositions add a constructive gem:
+  #{comps of n} = 2^(n−1) PROVED by the cut-point bijection (comp ↔ subset of {1..n−1}) — `compositions.py`.
 - Exact invariants per domain; linear-law mining (Handshake, spectral identities); frontier bridge
   (χ, Hamiltonicity via MathHead SAT/UNSAT).
 
@@ -66,7 +67,8 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
 ceiling ≈ 91, so ~42 achievable phases remain (many are deepening partials to full). **User check-in at
 49 REACHED** — next at 59. Recently done: N3–N6, O4, P1, AB1, P2, T0, S2; M-floor DEEPENED (SumInduction
-derived — M2, already-touched).
+derived — M2, already-touched); SIXTH domain compositions added (deepens N/O/P — N0 already ✅, so count
+stays 49, but a real new domain with a constructive-bijection proof).
 
 ## Next — prioritized candidates
 

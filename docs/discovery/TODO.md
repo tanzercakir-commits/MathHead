@@ -83,13 +83,12 @@ added; NON-LINEAR (degree-2) law mining (deepens O2 — already ✅, count-neutr
 
 ## Next — prioritized candidates
 
-_(✅ M-floor COMPLETE — RESIDUE, CRT, SumInduction all derived + elementary divisibility lemmas explicit;
-the whole kernel trust base is now auditable. ✅ sixth domain compositions. ✅ non-linear degree-2 mining.)_
+_(✅ M-floor COMPLETE — full kernel trust base auditable. ✅ 6th domain compositions. ✅ non-linear
+degree-2 mining. ✅ U0 verified representation registry.)_
 
-1. **U-track representation bridges (U0/U1)** — make the engine's representation transforms explicit &
-   verified (graph↔matrix↔SAT, divisibility↔finite-residue) as a typed registry with round-trip checks.
-2. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
-3. **Ratio / monotonicity mining** — beyond degree-2 equalities: monotone + ratio patterns (P0 breadth).
+1. **T-track goal decomposition (T-follow-ons to T0)** — use the gap measure to drive sub-goal selection.
+2. **Ratio / monotonicity mining** — beyond degree-2 equalities: monotone + ratio patterns (P0 breadth).
+3. **U1 number-theory representation chain** — Diophantine → modular → finite-residue, walked concretely.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

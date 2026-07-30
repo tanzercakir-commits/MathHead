@@ -39,10 +39,14 @@ _Last updated: 2026-07-30 · 39 modules · 264 discovery tests · 21 phases ✅ 
 
 ## Automation
 
-Bookkeeping is CI-enforced (no longer a manual chore): `python scripts/gen_status.py` refreshes this
-file's stats line + `SAMPLE-REPORT.md`; `--check` guards the frozen PLAN (103 phases / 21 tracks) and
-sample freshness. `tests/test_trackers.py` + a dedicated CI job fail the build if the plan shrinks or
-the sample goes stale. Run `gen_status.py` after each task.
+Bookkeeping is automated at three levels (no longer a manual chore):
+- **commit-time (local):** `scripts/hooks/pre-commit` auto-refreshes `SAMPLE-REPORT.md` + this file's
+  stats line, re-stages them, and blocks the commit if the PLAN shrank. Activate once per clone:
+  `git config core.hooksPath scripts/hooks`.
+- **CI:** a dedicated `trackers` job runs `scripts/gen_status.py --check`.
+- **test suite:** `tests/test_trackers.py` enforces the plan integrity + sample freshness in pytest.
+
+Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verify).
 
 ## Next — prioritized candidates
 

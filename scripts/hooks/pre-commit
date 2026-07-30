@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# MathHead — pre-commit tracker automation (complements the CI `trackers` job).
+#
+# On every commit: refresh SAMPLE-REPORT.md + TODO's stats line from the live engine, re-stage them,
+# and GUARD the frozen PLAN (103 phases / 21 tracks). If the engine can't be imported (deps not
+# installed locally), warn and continue — CI is the hard gate. If the PLAN shrank, BLOCK the commit.
+#
+# Activate once per clone:  git config core.hooksPath scripts/hooks
+set -uo pipefail
+
+if ! python scripts/gen_status.py >/tmp/gen_status.out 2>&1; then
+    echo "pre-commit: gen_status refresh skipped (deps missing?) — CI will still enforce."
+    cat /tmp/gen_status.out
+    exit 0
+fi
+
+# re-stage the regenerated trackers so the commit always includes current docs
+git add docs/discovery/SAMPLE-REPORT.md docs/discovery/TODO.md 2>/dev/null || true
+
+# hard guard: the frozen plan must not silently shrink
+if ! python scripts/gen_status.py --check; then
+    echo "pre-commit: BLOCKED — the frozen PLAN (103 phases / 21 tracks) failed its integrity check."
+    exit 1
+fi

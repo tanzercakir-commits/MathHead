@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-07-30 — Tracker automation completed with a commit-time git hook
+
+Closed the automation loop locally: `scripts/hooks/pre-commit` runs `gen_status.py` on every commit —
+refreshes SAMPLE-REPORT.md + TODO's stats line, re-stages them, and blocks the commit if the frozen
+PLAN shrank. Activated here via `git config core.hooksPath scripts/hooks` (one-liner per clone; graceful
+skip if deps aren't installed, since CI is the hard gate). So the trackers now stay current at three
+levels — commit hook (local), the `trackers` CI job, and `tests/test_trackers.py` — with no manual
+step. Docs/tooling only.
+
+---
+
 ## 2026-07-30 — Tracker automation: plan-integrity guard + sample freshness in CI
 
 Wired the bookkeeping into automation so it can't silently drift. New `scripts/gen_status.py`:

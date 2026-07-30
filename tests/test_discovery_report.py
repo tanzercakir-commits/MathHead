@@ -2,6 +2,24 @@
 from mathhead.discovery import DiscoveryReport, render, run_report
 
 
+def test_report_surfaces_multi_miner_corroboration():
+    # P5 dedup makes cross-miner agreement visible in the report: Handshake is found BOTH as a linear
+    # law and as a constant ratio, so it is reported once with corroboration 2
+    r = run_report(max_n=4)
+    corr = r.meta.get("corroboration")
+    assert corr and any(c["corroboration"] >= 2 and {"linear", "ratio"} <= set(c["sources"])
+                        for c in corr)
+    assert any("num_edges" in c["statement"] and "sum_degrees" in c["statement"] for c in corr)
+    assert "corroboration" in render(r)
+
+
+def test_wellsampled_report_surfaces_a_degree2_law():
+    # in the well-determined regime the report carries a non-linear (degree-2) empirical law
+    r = run_report(max_n=6)
+    deg2 = [x for x in r.empirical_laws if "degree-2" in x.get("scope", "")]
+    assert any("^2" in x["statement"] for x in deg2)         # e.g. 4*num_edges^2 = sum_degrees^2
+
+
 def test_report_has_all_four_honest_sections():
     r = run_report(max_n=6)
     assert isinstance(r, DiscoveryReport)

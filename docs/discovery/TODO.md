@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 60 modules · 401 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 60 modules · 403 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -70,7 +70,9 @@ _Last updated: 2026-07-30 · 60 modules · 401 discovery tests · 28 phases ✅ 
 - Number-theory representation CHAIN (U1): walks a divisibility claim Diophantine→modular→finite-residue
   →decision; ∀ kernel-confirmed, ∃ surfaces the honest gap (`5|n³−n` false ∀ but true ∃); explicit ledger
   of chain links walked vs not (lattice/SAT/alg-geometry) — `nt_chain.py`.
-- One deterministic report; object-model infra (parametric families N4, generic serialization N3).
+- One deterministic report — now SURFACES the new miners: degree-2 laws (in the well-determined regime,
+  guarded against small-n overfitting) + a P5 CORROBORATION line (Handshake found by linear AND ratio
+  miners, ×2). Object-model infra (parametric families N4, generic serialization N3).
 
 ## Automation
 

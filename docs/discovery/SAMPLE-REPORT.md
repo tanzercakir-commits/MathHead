@@ -4,9 +4,10 @@ _MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _trust base (M-floor): RESIDUE derived from the factor theorem (7/7), CRT from Bézout (7/7) — primitives are theorems, not axioms_
 _negative knowledge: 4 dead end(s) recorded_
-_knowledge graph: 64 nodes · 129 edges (axiom×8, conjecture×20, counterexample×4, law×15, theorem×17)_
+_corroboration (P5): 1 fact(s) found by >1 miner — e.g. `2*num_edges = sum_degrees` via linear, ratio (×2)_
+_knowledge graph: 65 nodes · 140 edges (axiom×8, conjecture×20, counterexample×4, law×16, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
-_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=37 · FORMALLY_SPECIFIED=10 · FORMALLY_PROVED=17_
+_solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=38 · FORMALLY_SPECIFIED=10 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
 - 0.615 · `(n*(n+1)*(n+2)) % 6 == 0`
@@ -40,13 +41,14 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=37 · FORMALLY_
 - `(connected and n>=3) => Hamiltonian` — counterexample: {'n': 3, 'edges': [(0, 2), (1, 2)]}
 - `sum_(i=1..n) 2**i = n**7/1260 - n**6/60 + 31*n**5/180 - 11*n**4/12 + 281*n**3/90 - 76*n**2/15 + 704*n/105 - 2` — counterexample: {'note': 'not a polynomial identity'}
 
-## DISCOVERED (empirical — holds on the sample, NOT proven) (15)
+## DISCOVERED (empirical — holds on the sample, NOT proven) (16)
 - `2*num_edges = sum_degrees` — all graphs n<=6 (support 209)
 - `trees: num_triangles = 0` — trees (support 14)
 - `trees: num_vertices = num_edges + 1` — trees (support 14)
 - `trees: num_vertices = num_edges + num_components` — trees (support 14)
 - `forests: num_triangles = 0` — forests (support 43)
 - `forests: num_vertices = num_edges + num_components` — forests (support 43)
+- `4*num_edges^2 = sum_degrees^2` — all graphs n<=6 (degree-2) (support 209)
 - `|S_n| = n!` — permutations S_n (n≤6) (support None)
 - `sum_(π in S_n) fix(π) = n!` — permutations S_n (n≤6) (support None)
 - `sum_(π in S_n) inv(π) = n! · C(n,2) / 2` — permutations S_n (n≤6) (support None)
@@ -103,6 +105,6 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=37 · FORMALLY_
 - **recurrence** spans: permutations, set partitions
 
 ## HONEST SCORECARD (Track AF — is any of this NEW?)
-- 48 findings · 17 verified · 48 attributable to KNOWN mathematics · **0 novel-to-literature established**
+- 49 findings · 17 verified · 49 attributable to KNOWN mathematics · **0 novel-to-literature established**
 - _the engine correctly REDISCOVERS known mathematics; novelty vs. the literature is not established (needs corpus ingestion, X1/W2 — not built)_
 

@@ -64,6 +64,43 @@ def _graph_findings(max_n: int):
     return empirical, refuted, survived
 
 
+def _richer_laws(max_n: int):
+    """Wire the newer miners into the report: degree-2 (non-linear) laws as fresh empirical findings,
+    and a P5 corroboration summary — facts found INDEPENDENTLY by more than one miner (e.g. the Handshake
+    Lemma as a linear law AND as a constant ratio). Returns (new_empirical_items, corroboration)."""
+    from math import comb
+
+    from .conjecture_normalize import normalize_conjectures
+    from .invariants import NUMERIC_INVARIANTS
+    from .nonlinear_relations import discover_polynomial_laws
+    from .pattern_mining import constant_ratios
+    from .relations import discover_linear_laws
+
+    graphs = [g for n in range(max_n + 1) for g in generate_graphs(n)]
+    with_edges = [g for g in graphs if g.num_edges > 0]
+    linear = discover_linear_laws(graphs, holds_over=f"all graphs n<={max_n}")
+    ratios = constant_ratios(with_edges)                        # over edge-having graphs (denominator ≠ 0)
+
+    # degree-2 mining OVERFITS when samples ≤ features (huge null space of sample-true-but-meaningless
+    # laws). Only surface non-linear laws in the WELL-DETERMINED regime; otherwise honestly skip them.
+    k = len(NUMERIC_INVARIANTS)
+    n_features = k + comb(k + 1, 2) + 1                         # linear + products/squares + affine
+    nonlinear = (discover_polynomial_laws(graphs, holds_over=f"all graphs n<={max_n}")
+                 if len(graphs) > n_features else [])
+
+    new_items = [{"statement": law.expression, "status": "empirical",
+                  "scope": f"all graphs n<={max_n} (degree-2)", "support": law.support}
+                 for law in nonlinear]
+
+    # P5: dedup across miners; surface the multi-source (corroborated) facts
+    corroboration = [
+        {"statement": nc.representative, "corroboration": nc.corroboration,
+         "sources": sorted({s[0] for s in nc.sources})}
+        for nc in normalize_conjectures(linear=linear, nonlinear=nonlinear, ratios=ratios)
+        if nc.corroboration > 1]
+    return new_items, corroboration
+
+
 def _frontier_laws(max_n: int):
     """Mine the FRONTIER (NP-hard invariant) laws — coloring bounds + Hamiltonicity implications —
     counterexample-first over the graph sample. Pure/local (χ, ω, Hamiltonicity are exact
@@ -120,6 +157,9 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     report."""
     empirical, refuted, survived = _graph_findings(max_n)
     proved, open_bounded = [], list(survived)
+
+    richer_empirical, _corroboration = _richer_laws(max_n)     # degree-2 laws + P5 corroboration
+    empirical.extend(richer_empirical)
 
     front_survived, front_refuted = _frontier_laws(max_n)
     open_bounded.extend(front_survived)
@@ -255,6 +295,7 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
         "trust_base": _trust,             # RESIDUE/CRT derived from factor theorem + Bézout (M-floor)
         "dead_ends": len(memory.records()),                 # negative knowledge recorded (Y)
         "top_lesson": top_lesson,         # the witness that refutes the most conjectures (Y2)
+        "corroboration": _corroboration,  # facts found by >1 miner independently (P5 dedup)
     }
 
     # interestingness ranking across all buckets (Track W1) — heuristic, transparent
@@ -301,6 +342,11 @@ def render(report: DiscoveryReport) -> str:
         lesson = report.meta.get("top_lesson") or {}
         extra = (f"; top witness refutes {lesson['refutes']}" if lesson.get("refutes", 0) > 1 else "")
         lines.append(f"_negative knowledge: {report.meta['dead_ends']} dead end(s) recorded{extra}_")
+    corr = report.meta.get("corroboration")
+    if corr:
+        top = corr[0]
+        lines.append(f"_corroboration (P5): {len(corr)} fact(s) found by >1 miner — e.g. "
+                     f"`{top['statement']}` via {', '.join(top['sources'])} (×{top['corroboration']})_")
     kg = report.meta.get("knowledge_graph")
     if kg:
         lines.append(f"_knowledge graph: {kg['nodes']} nodes · {kg['edges']} edges "

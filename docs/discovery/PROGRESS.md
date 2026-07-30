@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-07-30 — Report wiring: the new miners now SURFACE in run_report (AC2 depth)
+
+Modified `report.py`. The batch's new discovery miners (non-linear degree-2 laws, ratio/monotone
+patterns, P5 dedup) were built but not visible in the engine's ONE deterministic report — half-wired.
+This surfaces them, honestly. New `_richer_laws(max_n)`: (1) mines degree-2 laws and adds them as fresh
+empirical findings — but ONLY in the WELL-DETERMINED regime (samples > features), because degree-2 mining
+OVERFITS when the sample is small (at n≤4, 19 graphs ≪ 36 features → a huge null space of sample-true-but-
+meaningless laws; the guard skips them rather than polluting the report — a real honesty save caught while
+testing); (2) runs P5 `normalize_conjectures` across the linear + non-linear + ratio miners and adds a
+`meta["corroboration"]` list of facts found by MORE THAN ONE miner. Result: at n≤6 the report carries the
+clean `4·num_edges² = sum_degrees²` degree-2 law, and at every n a corroboration line — `2·num_edges =
+sum_degrees` found by BOTH the linear and ratio miners (×2), rendered as
+`_corroboration (P5): 1 fact(s) found by >1 miner …_`. SAMPLE-REPORT.md regenerated to match. 2 new report
+tests pin the wiring; full suite **1713 green**, ruff clean. HONEST accounting: DEEPENS the already-✅ AC2,
+count stays ~54/103 — it makes the batch's capabilities actually USED in the primary output, and the
+overfitting guard keeps the addition honest rather than noisy.
+
+---
+
 ## 2026-07-30 — AC0 wiring: the director now goal-selects via T2 (loop closed)
 
 Modified `director.py` (Track AC0). The research director previously picked its next goal from raw

@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-30 — Tracker automation: plan-integrity guard + sample freshness in CI
+
+Wired the bookkeeping into automation so it can't silently drift. New `scripts/gen_status.py`:
+`refresh` regenerates `SAMPLE-REPORT.md` and rewrites TODO.md's stats line from the live engine;
+`--check` guards the frozen PLAN (asserts exactly **103 phases across 21 tracks** — the full to-do
+list can never be silently lost) and that the sample report is in sync (code = docs). New
+`tests/test_trackers.py` enforces all of it inside pytest, and a dedicated `trackers` CI job gives a
+fast early signal. So: the plan is guarded, the sample stays current, and "did we lose the list?" is
+now answered by CI, not memory. 4 tests (discovery + tracker suite); full suite green, ruff clean.
+
+Verified the plan is intact: 103 phases / 21 tracks, byte-for-byte since the original roadmap commit
+(f034464).
+
+---
+
 ## 2026-07-30 — Report surfaces the shrunk trust base (M-floor made visible)
 
 Closed the loop from the RESIDUE/CRT derivations: the flagship report header now shows the trust base

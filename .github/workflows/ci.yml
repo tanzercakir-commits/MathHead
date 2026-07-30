@@ -6,6 +6,23 @@ on:
     branches: [ main ]
 
 jobs:
+  # Tracker integrity — fast early signal that the frozen PLAN (103 phases / 21 tracks) is intact
+  # and SAMPLE-REPORT.md is in sync with the engine. Full enforcement is in tests/test_trackers.py.
+  trackers:
+    name: tracker integrity (plan preserved + sample fresh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install (core + dev)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Check trackers (plan not shrunk; sample fresh)
+        run: python scripts/gen_status.py --check
+
   # Cross-platform / cross-Python matrix — CORE + dev only (no optional solvers,
   # which have no Windows/macOS wheels). Proves the engine installs and passes
   # everywhere the project claims to support (Python 3.10–3.12 × 3 OSes).

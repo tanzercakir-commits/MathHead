@@ -8,8 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 36 modules · 272 discovery tests (full suite 1562 green) · 42 ADRs ·
-roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._
+_Last updated: 2026-07-30 · 39 modules · 264 discovery tests · 21 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -37,6 +36,13 @@ roadmap: 20 phases ✅ full + ~50 phases with honest 🟢 slices, of 103._
 - Knowledge graph + impact analysis; failure memory (negative knowledge); research director
   (goal-driven, cross-cycle). Honest scorecard + structured cited catalog (0 novel, auditable).
 - One deterministic report; `ARCHITECTURE.md` synthesis.
+
+## Automation
+
+Bookkeeping is CI-enforced (no longer a manual chore): `python scripts/gen_status.py` refreshes this
+file's stats line + `SAMPLE-REPORT.md`; `--check` guards the frozen PLAN (103 phases / 21 tracks) and
+sample freshness. `tests/test_trackers.py` + a dedicated CI job fail the build if the plan shrinks or
+the sample goes stale. Run `gen_status.py` after each task.
 
 ## Next — prioritized candidates
 

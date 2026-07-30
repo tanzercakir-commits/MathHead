@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — Ratio & monotonicity pattern mining (P0 breadth)
+
+New `pattern_mining.py`. P0 is "pattern mining: equality / inequality / MONOTONICITY / periodicity /
+asymptotic / forbidden-structure"; equalities (linear + degree-2) and inequalities were already covered,
+so this adds two more of the listed kinds, exactly. CONSTANT RATIOS: invariant pairs (A,B) with A/B one
+exact rational across the sample (skipping pairs where B=0 anywhere; keeping only the ≥1 direction to drop
+the inverse duplicate) — this rediscovers the Handshake Lemma in RATIO form, `sum_degrees/num_edges = 2`,
+on every edge-having family. MONOTONIC TRENDS: over objects sorted by a key invariant, which invariants
+move strictly/weakly monotonically — on Kₙ ordered by num_vertices, num_edges / sum_degrees / num_triangles
+/ max_degree all strictly increase. Exact `Fraction` arithmetic (a reported ratio is exact, not a float),
+and the same honesty as the rest of O2/P0: every pattern is `status="empirical"` — sample-true conjecture,
+not a theorem; monotonicity is a statement over the given ordering, not a universal-trend proof. 7 tests;
+full suite **1694 green**, ruff clean. HONEST accounting: DEEPENS the already-✅ P0, so the touched count
+stays ~52/103.
+
+---
+
 ## 2026-07-30 — T2: rank candidate lemmas by importance × likelihood
 
 New `lemma_ranking.py` (Track T2). The research director faces a queue of open goals; two exact signals

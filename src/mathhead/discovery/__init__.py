@@ -15,6 +15,8 @@ Layers so far:
   * nonlinear_relations — degree-2 (non-linear) relation mining (O2 richer): same exact null-space over a
                  polynomial feature map (products/squares); rediscovers 2·num_edges = n²−n on Kₙ; filters
                  reducible (lower-law × invariant) laws; honest empirical status, degree-2 bounded
+  * pattern_mining — ratio & monotonicity patterns (P0 breadth): CONSTANT ratios (rediscovers Handshake as
+                 sum_degrees/num_edges = 2) + MONOTONIC trends over an ordered family; exact, empirical
   * conjectures— conjecture generation (P0/P1): subclass laws + inequality bounds
   * refute     — counterexample-first refutation (Q0): minimal counterexample or an honest
                  'no_counterexample_within_bound'
@@ -293,6 +295,12 @@ from .judge import (
     judge_task,
 )
 from .nonlinear_relations import NonlinearLaw, discover_polynomial_laws
+from .pattern_mining import (
+    MonotonicTrend,
+    RatioPattern,
+    constant_ratios,
+    monotonic_trends,
+)
 from .novelty import is_subclass_specific, novel_subclass_laws
 from .object_store import ObjectStore
 from .objects import Graph, MathObject
@@ -530,6 +538,10 @@ __all__ = [
     "discover_constants",
     "NonlinearLaw",
     "discover_polynomial_laws",
+    "RatioPattern",
+    "MonotonicTrend",
+    "constant_ratios",
+    "monotonic_trends",
     "RepresentationBridge",
     "verify_representations",
     "all_faithful",

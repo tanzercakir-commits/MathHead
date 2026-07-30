@@ -115,7 +115,7 @@ O4 ♻️🟢 Numerik + sembolik + exact değerlendirme yolları + tutarlılık 
 
 **Track U — Temsil dönüştürücü & arama (§2)**
 ```
-U0 🟢 Temsiller arası köprüler: algebra ↔ graph ↔ SAT ↔ matrix ↔ poly-ideal ↔ program ↔ optimization
+U0 🟢 Temsiller arası köprüler: algebra ↔ graph ↔ SAT ↔ matrix ↔ poly-ideal ↔ program ↔ optimization  🟢 representations.py: DOĞRULANMIŞ temsil-dönüşümü kütüğü — graph↔komşuluk-matrisi + kompozisyon↔kesim-altkümesi (round-trip: decode∘encode=kimlik, tüm örnekte), graph→derece-dizisi (Handshake Σderece=2|E| korunur), bölünebilirlik→kalıntı-tablosu (KARAR: tablo sıfır ⟺ kernel m|p(n) ispatlar, verdictler uyuşur); dönüşümlerin SADIK olduğunu doğrular (O4 değer-tutarlılığını tamamlar); ADR-D0051
 U1 🟡 Sayı-teorisi zinciri: Diophantine → modular → lattice → SAT/SMT → finite residue → alg. geometri
 U2 🔴 Representation SEARCH: hangi temsil problemi kolaylaştırır? (otonom seçim — açık problem)
 U3 ♻️🟢 Dönüşüm anlam-koruyor mu doğrulaması (cross_check)

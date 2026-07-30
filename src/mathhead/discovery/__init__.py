@@ -51,6 +51,9 @@ Layers so far:
                  SumInduction is a theorem about PolyIdentity, not a trusted primitive (Σi, Σi², Σi³ …)
   * cross_check — multi-path invariant consistency (O4): |E| four ways, #triangles three ways
                  (count / Handshake / trace / MathHead spectrum); catches any measurement bug
+  * representations — verified registry of representation TRANSFORMS (U0): graph↔matrix + composition↔
+                 subset (round-trip), graph→degseq (preserves Handshake), divisibility→residue-table
+                 (decides, agrees with kernel); confirms the encoders are faithful, complement to O4
   * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
                  bijection, recurrence) recurring across two+ domains
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
@@ -310,6 +313,15 @@ from .permutations import (
 )
 from .portfolio import PortfolioRun, StrategyOutcome, run_portfolio
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .representations import (
+    RepresentationBridge,
+    adjacency_to_graph,
+    all_faithful,
+    divisibility_to_residue_table,
+    graph_to_adjacency,
+    graph_to_degree_sequence,
+    verify_representations,
+)
 from .serialize import content_hash, deduplicate, reproducible_sort, serialize
 from .set_partitions import (
     SetPartition,
@@ -511,6 +523,13 @@ __all__ = [
     "discover_constants",
     "NonlinearLaw",
     "discover_polynomial_laws",
+    "RepresentationBridge",
+    "verify_representations",
+    "all_faithful",
+    "graph_to_adjacency",
+    "adjacency_to_graph",
+    "graph_to_degree_sequence",
+    "divisibility_to_residue_table",
     "Conjecture",
     "subclass_laws",
     "bound_conjectures",

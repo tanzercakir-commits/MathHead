@@ -7,6 +7,26 @@
 
 ---
 
+## 2026-07-30 — U0: a verified registry of representation transforms
+
+New `representations.py` (Track U0). The engine already crosses between representations everywhere —
+graph↔matrix, graph↔SAT, divisibility↔finite-residue, composition↔subset. U0 makes that plurality
+EXPLICIT and VERIFIED: each bridge is registered with the guarantee it offers and a check that confirms
+it on a sample. Where O4 (`cross_check`) confirms invariant VALUES agree across computation paths, U0
+confirms the TRANSFORMS themselves are faithful — a complementary net that catches a broken
+encoder/decoder, not just a mismeasured number. Three honest guarantee kinds: round_trip (invertible —
+graph↔adjacency-matrix and composition↔cut-point-subset both satisfy decode∘encode = identity over the
+whole sample), invariant_preserving (lossy but keeps a stated invariant — graph→degree-sequence preserves
+Σdeg = 2|E|), and decision (the target representation DECIDES a claim — the residue table [p(r) mod m] is
+all-zero iff the kernel proves m|p(n); the two verdicts must AGREE, checked on a 4-case battery incl.
+6|n³−n true and 5∤n³−n false). All four bridges faithful; a False would be a real encoding bug. Caught a
+genuine latent issue while building: the decoder must emit canonical `frozenset` edges or round-trip
+equality silently fails against `generate_graphs` — exactly the kind of encoder bug this registry exists
+to catch. 7 tests; full suite **1680 green**, ruff clean. Roadmap U0 🟢 (newly touched; progress
+~51/103, next user check-in at 59).
+
+---
+
 ## 2026-07-30 — Non-linear (degree-2) relation mining (richer O2)
 
 New `nonlinear_relations.py` — `relations.py` mines only LINEAR laws (null space of the affine feature

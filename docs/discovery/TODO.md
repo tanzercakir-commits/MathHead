@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 53 modules · 350 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 54 modules · 357 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -17,7 +17,9 @@ _Last updated: 2026-07-30 · 53 modules · 350 discovery tests · 28 phases ✅ 
 - Trust base SHRUNK: RESIDUE derived from the factor theorem, CRT derived from Bézout, and SumInduction
   derived from the kernel's own PolyIdentity (the induction STEP `g(n)=g(n−1)+f(n)` is now an explicit
   kernel-checked identity, base = eval at n=1) — all three now theorems, not axioms —
-  `congruence.py` + `sum_derivation.py`.
+  `congruence.py` + `sum_derivation.py`. **M-floor COMPLETE:** the last "elementary integer divisibility"
+  hand-wave is now explicit — `m|a∧m|b⇒m|a+b` and `m|a⇒m|a·k` get constructive witnesses + a 4624-case
+  exhaustive check (0 failures), resting only on ℤ's ring axioms — `divisibility.py`.
 - Axiom-MINIMAL proof search (AB1): of the kernel-checked proofs of `m|p(n)` (direct RESIDUE vs
   CRT-over-prime-powers), pick the fewest-axiom one — `6|n³−n` needs RESIDUE(6) alone — `axiom_minimize.py`.
 - Provenance (hash + axiom list + replay), independent second checker, adversarial soundness battery
@@ -69,9 +71,9 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 **~50 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
 ceiling ≈ 91, so ~41 achievable phases remain (many are deepening partials to full). **User check-in at
-49 done** — next at 59 (9 to go). Recently done: N3–N6, O4, P1, AB1, P2, T0, S2, AA4; M-floor DEEPENED
-(SumInduction derived — M2); SIXTH domain compositions added (deepens N/O/P — N0 already ✅, count-neutral,
-but a real new domain with a constructive-bijection proof).
+49 done** — next at 59 (9 to go). Recently done: N3–N6, O4, P1, AB1, P2, T0, S2, AA4; M-floor now COMPLETE
+(SumInduction derived + elementary divisibility lemmas explicit — M2, deepening); SIXTH domain compositions
+added (deepens N/O/P — N0 already ✅, count-neutral, but a real new domain with a constructive bijection).
 
 ## Next — prioritized candidates
 

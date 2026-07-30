@@ -37,6 +37,9 @@ Layers so far:
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
   * congruence — DERIVE RESIDUE from the factor theorem (M-floor): shrinks the trusted base — residue
                  -exhaustion becomes a theorem about PolyIdentity, not a black-box axiom
+  * divisibility — make the ELEMENTARY divisibility lemmas explicit (M-floor completion): m|a∧m|b⇒m|a+b
+                 and m|a⇒m|a·k, each with a constructive witness quotient + exhaustive bounded check
+                 (0 failures) — the last hand-wave in congruence/sum_derivation's "elementary" base
   * axiom_minimize — prove with the FEWEST axioms (AB1): enumerates kernel-checked proofs of `m|p(n)`
                  (direct RESIDUE(m) vs CRT-over-prime-powers) and returns the axiom-minimal one
                  (6|n³−n needs RESIDUE(6) alone, not CRT's three rules)
@@ -226,6 +229,14 @@ from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
 from .mutate import Mutation, mutate_inequality, repair, strengthen
 from .director import CycleResult, ResearchDirector
+from .divisibility import (
+    DivLemma,
+    LemmaReport,
+    absorption_lemma,
+    additive_lemma,
+    verify_lemmas,
+    witness_divides,
+)
 from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
 from .evaluation import Scorecard, attribute, render_scorecard
 from .evaluation import evaluate as evaluate_report
@@ -374,6 +385,12 @@ __all__ = [
     "ResidueDerivation",
     "derive_crt",
     "crt_chain_is_derivable",
+    "DivLemma",
+    "LemmaReport",
+    "additive_lemma",
+    "absorption_lemma",
+    "witness_divides",
+    "verify_lemmas",
     "AxiomProof",
     "candidate_proofs",
     "minimal_axiom_proof",

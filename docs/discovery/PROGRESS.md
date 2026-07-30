@@ -7,6 +7,26 @@
 
 ---
 
+## 2026-07-30 — M-floor COMPLETE: elementary divisibility lemmas made explicit
+
+New `divisibility.py` (Track M, kernel floor — completes the trust-base thread). After `congruence.py`
+(RESIDUE, CRT) and `sum_derivation.py` (SumInduction), the kernel's trusted base read "PolyIdentity +
+elementary integer divisibility". That last phrase was the one remaining hand-wave — the two lemmas the
+derivations lean on were cited, never exhibited. This module exhibits them: ADDITIVE (`m|a ∧ m|b ⇒
+m|a+b`, witness quotient a/m + b/m, from distributivity ms+mt=m(s+t)) and ABSORPTION (`m|a ⇒ m|a·k`,
+witness (a/m)·k, from associativity (ms)k=m(sk)). These are EXACTLY the steps in the RESIDUE derivation:
+n≡r ⇒ m|(n−r), ABSORPTION gives m|(n−r)·q(n)=p(n)−p(r), ADDITIVE combines with m|p(r) to get m|p(n) — a
+test pins that correspondence. Each instance carries a constructive witness verified by exact integer
+arithmetic; `verify_lemmas(8)` exhausts 4624 cases (2312 additive + 2312 absorption) with ZERO failures.
+HONEST status: `bounded_check` + constructive witness per instance; the universal ∀ rests on ℤ's ring
+axioms (distributivity/associativity) — the bedrock the whole kernel already stands on, recorded not
+re-proved (there is no "below"). Net effect: the entire kernel trust base is now auditable — exact
+polynomial identity + these elementary lemmas + induction, nothing hand-waved. 7 tests; full suite
+**1667 green**, ruff clean. HONEST accounting: DEEPENS the already-touched M2, so the count stays ~50/103
+— it closes a rigor gap, not a checkbox.
+
+---
+
 ## 2026-07-30 — AA4: connect a discovered algorithm to its proof (the S/M bridge)
 
 New `algorithm_proof.py` (Track AA4). The engine discovers algorithms that DECIDE or CONSTRUCT

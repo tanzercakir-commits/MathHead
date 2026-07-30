@@ -37,6 +37,8 @@ Layers so far:
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
   * congruence — DERIVE RESIDUE from the factor theorem (M-floor): shrinks the trusted base — residue
                  -exhaustion becomes a theorem about PolyIdentity, not a black-box axiom
+  * cross_check — multi-path invariant consistency (O4): |E| four ways, #triangles three ways
+                 (count / Handshake / trace / MathHead spectrum); catches any measurement bug
   * analogy    — cross-domain analogy detection (P4): the same proof technique (double counting,
                  bijection, recurrence) recurring across two+ domains
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
@@ -127,6 +129,7 @@ from .congruence import (
     residue_is_derivable,
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
+from .cross_check import CrossCheck, all_consistent, cross_check, disagreements
 from .generate import count_non_isomorphic, generate_graphs
 from .graph_proofs import (
     Certificate,
@@ -301,6 +304,10 @@ __all__ = [
     "ResidueDerivation",
     "derive_crt",
     "crt_chain_is_derivable",
+    "cross_check",
+    "all_consistent",
+    "CrossCheck",
+    "disagreements",
     "IdentityFinding",
     "discover_factorization",
     "run_identity_discovery",

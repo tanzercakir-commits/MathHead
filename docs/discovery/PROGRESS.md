@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-07-30 — O4: multi-path invariant consistency cross-check
+
+The verification engine now verifies its OWN measurements. New `cross_check.py`: compute each
+invariant by INDEPENDENT routes and confirm agreement — |E| four ways (edge count, Handshake Σdeg/2,
+trace(A²)/2, MathHead's Σλ²/2) and #triangles three ways (combinatorial, trace(A³)/6, MathHead Σλ³/6).
+`all_consistent` runs it over all graphs n≤5 AND the adversarial stress set: 0 disagreements — a
+self-test of the invariant + spectral code (any route mismatch is a real bug caught). 5 tests; full
+suite **1593 green**, ruff clean. Roadmap O4 ✅ (progress ~44/103).
+
+---
+
 ## 2026-07-30 — N-track COMPLETE: object store (N6) + adversarial generators (N5)
 
 Finished the whole object-model track (N0–N6). **N6** `object_store.py`: a content-deduplicated store

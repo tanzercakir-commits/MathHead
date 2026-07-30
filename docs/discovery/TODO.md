@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 43 modules · 286 discovery tests · 25 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 44 modules · 291 discovery tests · 26 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -50,9 +50,9 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~43 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N (object
-model) is now COMPLETE — N0–N6.** Working through the ~52 achievable untouched phases; 12 remain 🔴
-open-research (won't fake). Next user check-in at 49 touched. Recently done: N3, N4, N5, N6.
+**~44 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+(N0–N6); Track O nearly complete (O0–O4).** Working through the ~52 achievable untouched phases; 12
+remain 🔴 open-research (won't fake). Next user check-in at 49 touched. Recently done: N3–N6, O4.
 
 ## Next — prioritized candidates
 

@@ -57,6 +57,13 @@ def test_every_proof_carries_a_kernel_checked_term():
     assert all(f.kernel_verified for f in findings)
 
 
+def test_every_proof_has_residue_derivable_from_factor_theorem():
+    # the RESIDUE step is no longer a black-box primitive: it is DERIVABLE from the factor theorem
+    # (verified via the kernel's own PolyIdentity rule) for every modular law in the family
+    findings = run_arithmetic_discovery(check_upto=40)
+    assert all(f.residue_derivable for f in findings)
+
+
 def test_every_proof_has_provenance_hash_and_axioms():
     # M4/M5: each kernel-verified law carries a stable proof-artifact hash and its full axiom list
     f = _by_expr()

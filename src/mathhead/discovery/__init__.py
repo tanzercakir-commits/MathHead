@@ -35,6 +35,8 @@ Layers so far:
   * kernel     — minimal LCF-style PROOF KERNEL (M1/M2): a Theorem exists only if a proof TERM is
                  kernel-checked; three judgments — Divides (RESIDUE/CRT), SumIdentity (SumInduction),
                  PolyIdentity (Identity); rational polys; forge-guarded; rejects false claims
+  * congruence — DERIVE RESIDUE from the factor theorem (M-floor): shrinks the trusted base — residue
+                 -exhaustion becomes a theorem about PolyIdentity, not a black-box axiom
   * identities — factorization discovery, kernel-verified (PolyIdentity), that EXPLAINS the modular
                  divisibilities: n³−n = n(n−1)(n+1) ⇒ 3 consecutive ints ⇒ divisible by 3!=6
   * structural_explanations — WHY the graph laws hold: double counting (handshake), the clique bound
@@ -96,6 +98,12 @@ from .coloring import (
     ColoringVerification,
     coloring_bounds,
     verify_chromatic_number,
+)
+from .congruence import (
+    ResidueDerivation,
+    check_residue_derivation,
+    derive_residue,
+    residue_is_derivable,
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .generate import count_non_isomorphic, generate_graphs
@@ -253,6 +261,10 @@ __all__ = [
     "prove_divides",
     "prove_sum_identity",
     "prove_identity",
+    "derive_residue",
+    "check_residue_derivation",
+    "residue_is_derivable",
+    "ResidueDerivation",
     "IdentityFinding",
     "discover_factorization",
     "run_identity_discovery",

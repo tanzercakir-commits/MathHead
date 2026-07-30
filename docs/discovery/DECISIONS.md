@@ -883,6 +883,31 @@
 
 ---
 
+## ADR-D0040 — Derive RESIDUE from the factor theorem, using the kernel's own PolyIdentity rule
+
+- **Status:** Accepted · 2026-07-29 (M-floor — shrink the trusted base)
+- **Context:** Since ADR-D0022 the kernel has minted Divides theorems via RESIDUE, but RESIDUE was a
+  TRUSTED PRIMITIVE — "if p(r)≡0 for all residues then m|p(n) for all n" was asserted, not derived.
+  Every kernel ADR flagged this. The deepest honest improvement is to derive it from something more
+  primitive, WITHOUT enlarging the trust base.
+- **Decision:** Add `congruence.py` deriving RESIDUE from the FACTOR THEOREM: for each residue r,
+  p(x) − p(r) = (x − r)·q_r(x) is an exact polynomial identity verified by the kernel's EXISTING
+  `PolyIdentity` rule; combined with m | (n − r) for n ≡ r (mod m) and the residue check m | p(r), it
+  yields m | p(n) for all n, over all residue classes. The universal-over-n step is the factor theorem
+  (a polynomial identity, machine-checked), not re-enumeration. An independent checker re-verifies the
+  derivation with NO kernel. Arithmetic findings carry a `residue_derivable` flag; the RESIDUE fast
+  path stays for performance, now backed by a derivation.
+- **Consequences:** The modular fragment's trusted base shrinks from "residue-exhaustion" to "the
+  factor theorem (exact polynomial arithmetic, already trusted via PolyIdentity) + elementary integer
+  divisibility (m|a∧m|b⇒m|a+b, m|a⇒m|a·k)" — strictly more primitive and auditable. Residue-exhaustion
+  becomes a theorem, not an axiom, closing the standing caveat for this fragment. The derivation reuses
+  the kernel's own rule, so no new machinery is trusted; the independent checker gives the M-spirit
+  second opinion. Honest remaining floor: SumInduction and the base integer-divisibility facts are
+  still primitive — deriving those is the next M step. False claims remain non-derivable (the residue
+  values don't vanish), so soundness is preserved.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

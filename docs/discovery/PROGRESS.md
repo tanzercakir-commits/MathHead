@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-07-29 — Shrinking the kernel's trusted base: RESIDUE DERIVED from the factor theorem (M-floor)
+
+The honest caveat carried by every kernel ADR — "RESIDUE is a trusted PRIMITIVE, not derived" — is now
+removed for the modular fragment. New `congruence.py` DERIVES the residue principle, using the kernel's
+OWN `PolyIdentity` rule (no new trusted machinery):
+
+- for each residue r, the FACTOR THEOREM gives p(x) − p(r) = (x − r)·q_r(x) — verified EXACTLY as a
+  kernel PolyIdentity (the universal step: it holds for all x, hence all integers n);
+- for n ≡ r (mod m): m | (n − r), so m | (n − r)·q_r(n) = p(n) − p(r); with the residue check m | p(r),
+  we get m | p(n). Ranging r over all residues covers every n.
+
+So residue-exhaustion is no longer a black box — it is a THEOREM about the factor theorem plus
+elementary integer divisibility. An independent checker re-verifies the whole derivation WITHOUT the
+kernel. All 7 modular family laws are now `residue_derivable` (6|n³−n, 30|n⁵−n, 42|n⁷−n, …); false
+claims (4∤n²+1) are correctly not derivable — the factor identities still hold, but the residues don't
+vanish.
+
+The trusted base for the modular fragment shrank from "residue-exhaustion" to "the factor theorem
+(exact polynomial arithmetic, already in the kernel) + m|a∧m|b⇒m|a+b, m|a⇒m|a·k". 6 tests (discovery
+suite 261); full suite **1551 green**, ruff clean. ADR-D0040. Roadmap M (kernel floor).
+
+**Next:** derive SumInduction/PolyIdentity likewise, or corpus-backed novelty.
+
+---
+
 ## 2026-07-29 — Consolidation: ARCHITECTURE.md, an honest synthesis of the whole engine
 
 After 5 domains, the kernel, constructive certificates/bijections, and the meta layers, wrote

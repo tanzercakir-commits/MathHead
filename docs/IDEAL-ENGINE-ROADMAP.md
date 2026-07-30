@@ -158,7 +158,7 @@ S4 🔴 (RL/öğrenilmiş) ispat rehberliği — arama uzayı patlamasına karş
 ```
 W0 🟢 Trivial filtreler (x=x, "n=73421 ise n²≥n") — çöp teoremleri ele  ✅ (novelty: alt-sınıfa-özgü mü yoksa kısıtlanmış-evrensel mi; handshake-restriction eleniyor; ADR-D0012)
 W1 🟡 İlginçlik bileşenleri: novelty/generality/surprise/usefulness/compression/connectivity − triviality  🟢 interestingness.score: her bileşen adlandırılmış deterministik proxy + belgelenmiş ağırlıklar → [0,1] skor + bileşen dökümü; raporda MOST INTERESTING; DÜRÜST: öğrenilmiş değil (W3 açık); ADR-D0026
-W2 🟡 Novelty = literatür/bilgi-grafiğiyle eşdeğerlik kontrolü (Track X'e bağlı)
+W2 🟡 Novelty = literatür/bilgi-grafiğiyle eşdeğerlik kontrolü (Track X'e bağlı)  🟢 known_results yapılandırılmış+atıflı katalog (21 sonuç, 5 alan); attributed_findings her bulguyu bilinen teorem+atıfla eşler; scorecard 0-novel denetlenebilir; gerçek korpus katalogu GENİŞLETİR, hükmü değiştirmez; ADR-D0042
 W3 🔴 Öğrenilmiş ilginçlik modeli + insan geri-bildirim döngüsü (tam otomatik DEĞİL — belge de kabul ediyor)
 ```
 
@@ -193,7 +193,7 @@ V4   🟡 (LLM-periferi) makale/jargon → aday formal — yargıç + testler zo
 **Track X — Bilgi grafiği & etki analizi (§12)**
 ```
 X0 🟡 Semantik şema: teorem/tanım/lemma/karşı-örnek/açık-problem + ilişkiler (generalizes, equivalent-under, invalidates)  🟢 knowledge_graph: tipli düğümler (theorem/law/conjecture/counterexample/axiom) + ilişkiler; from_report YALNIZ kesin kenarları kurar (depends_on kernel aksiyomlarından, refuted_by tanıktan, related_to ortak invariant); generalizes/equivalent_to şemada REZERVE ama tahmin edilmez (yargılı geçiş X3'e); Mermaid export; ADR-D0027
-X1 🟡 İçe aktarım: OEIS, teorem kitaplıkları, makale meta — lisans/hukuk dahil
+X1 🟡 İçe aktarım: OEIS, teorem kitaplıkları, makale meta — lisans/hukuk dahil  🟢 KISMİ: known_results kataloğu (OEIS A000041/A000009/A000088/A000110/A000142/A008277/A008292 + adlandırılmış teoremler) atıf temeli; tam korpus ingest açık; ADR-D0042
 X2 🟢 Notasyon eşanlamlıları + teknik ↔ problem-yapısı eşlemesi
 X3 🟡 Otomatik etki analizi: yeni sonuç hangi açık problemi çözer / sınırı iyileştirir / varsayımı kaldırır  🟢 impact.py: bilgi grafiği üzerinde KESİN yapısal analiz — load-bearing aksiyomlar (RESIDUE(m=2) 6 ispat taşır), hub'lar, açık-cephe (en dolanık çözülmemiş konjektürler); raporda özet; DÜRÜST: kendi bilgisi içinde etki (literatür ingest X1/W2 açık); ADR-D0028
 ```

@@ -6,6 +6,19 @@
 
 ---
 
+## 2026-07-29 — Structured known-results catalog (X1/W2): the auditable basis for "0 novel"
+
+The scorecard's attribution was a flat substring list; now it's a structured, cited KNOWLEDGE BASE.
+New `known_results.py`: 21 entries across 5 domains, each with name, reference (author-year or OEIS),
+domain, and identifying markers. `evaluation.attribute` sources from it (single source of truth; the
+dead inline list removed). `attributed_findings(report)` pairs every finding with the known theorem it
+matches + citation — the auditable basis for the honest "rediscovery, not discovery" verdict (48
+findings, 100% attributed, 0 novel). Delivered a "Rediscovered Mathematics" catalog artifact grouped
+by domain. A real literature corpus would EXTEND this catalog; the 0-novel verdict does not change
+until one is ingested. 4 tests (discovery suite 271); full suite **1561 green**, ruff clean. ADR-D0042.
+
+---
+
 ## 2026-07-29 — Shrinking the kernel's trusted base: RESIDUE DERIVED from the factor theorem (M-floor)
 
 The honest caveat carried by every kernel ADR — "RESIDUE is a trusted PRIMITIVE, not derived" — is now

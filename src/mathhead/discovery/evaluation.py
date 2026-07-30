@@ -21,49 +21,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-# curated registry: (substring/marker that identifies the finding, human name, reference)
-KNOWN_RESULTS = [
-    ("2*num_edges = sum_degrees", "Handshake Lemma", "classical"),
-    ("2*num_edges", "Handshake Lemma", "classical"),
-    ("% ", "modular divisibility (elementary number theory; Fermat's little theorem family)",
-     "classical"),
-    ("sum_(i=1..n)", "power sums (Faulhaber)", "classical"),
-    ("spectral_moment", "adjacency spectral-moment identities (trace formulas)", "spectral graph theory"),
-    ("chromatic_number", "graph coloring bounds (ω≤χ≤Δ+1; Brooks)", "classical"),
-    ("clique_number", "clique/chromatic relation", "classical"),
-    ("Hamiltonian", "Hamiltonicity conditions (Dirac / necessary conditions)", "classical"),
-    ("Dirac", "Dirac's theorem", "Dirac 1952"),
-    ("|S_n| = n!", "permutation count", "OEIS A000142"),
-    ("fix(π)", "fixed-point sum / linearity of expectation", "classical"),
-    ("inv(π)", "inversion statistics", "classical"),
-    ("Mahonian", "MacMahon equidistribution (inv ~ maj)", "MacMahon 1913"),
-    ("Eulerian", "Eulerian numbers", "OEIS A008292"),
-    ("Euler)", "Euler's partition theorem (distinct = odd)", "Euler 1748"),
-    ("partitions of n", "integer partition identities", "classical"),
-    ("conjugation", "partition conjugation symmetry", "classical"),
-    ("Bell numbers", "Bell numbers", "OEIS A000110"),
-    ("Stirling", "Stirling numbers of the 2nd kind", "OEIS A008277"),
-    ("set partitions", "set-partition enumeration", "classical"),
-    ("trees:", "tree edge-count / forest identities", "classical"),
-    ("num_triangles", "triangle / spectral counting", "classical"),
-    ("= n*(n", "elementary polynomial factorization", "classical"),
-    ("num_components", "component / degree bounds", "classical"),
-    ("max_degree", "degree bounds", "classical"),
-    ("min_degree", "degree bounds", "classical"),
-    ("sum_degrees", "degree-sum bounds", "classical"),
-    ("= (", "elementary polynomial factorization", "classical"),
-    ("*(", "elementary polynomial factorization", "classical"),
-]
-
 _TRIVIAL_MARKERS = ("chromatic_number <= num_vertices",)   # textbook-trivial
 
 
 def attribute(statement: str):
-    """Return (name, reference) of the known result this finding matches, or None."""
-    for marker, name, ref in KNOWN_RESULTS:
-        if marker in statement:
-            return (name, ref)
-    return None
+    """Return (name, reference) of the known result this finding matches, or None. Sourced from the
+    structured `known_results` catalog (X1/W2)."""
+    from .known_results import attribute as _catalog_attribute
+    kr = _catalog_attribute(statement)
+    return (kr.name, kr.reference) if kr else None
 
 
 def _is_verified(item: dict) -> bool:

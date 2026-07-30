@@ -928,6 +928,27 @@
 
 ---
 
+## ADR-D0042 — Attribution runs off ONE structured, cited catalog; the corpus gap is named, not faked
+
+- **Status:** Accepted · 2026-07-29 (X1/W2 — known-results catalog)
+- **Context:** The honest scorecard's attribution lived as a flat substring list inside `evaluation.py`
+  — fine for a verdict, weak as an auditable basis. W2 (novelty vs. literature) wants a real knowledge
+  base, but a full literature corpus can't be ingested here. The risk is either a hand-wavy list or a
+  fake "corpus".
+- **Decision:** Make `known_results.py` the single, structured, CITED catalog (name, reference, domain,
+  markers) and have `evaluation.attribute` source from it (removing the duplicate inline list).
+  `attributed_findings` pairs every finding with its known theorem + citation, so the "0 novel" verdict
+  is auditable line by line. Name the limit explicitly: a real corpus would EXTEND the catalog, and the
+  verdict stays 0-novel until one is ingested — no pretending the curated catalog is the literature.
+- **Consequences:** Attribution is now principled and inspectable (one catalog, cited), and the
+  scorecard's honesty is backed by a per-finding audit rather than a substring match buried in code.
+  The catalog is the clean extension point for a future corpus (X1) — add entries, the same attribution
+  runs. Producing the "Rediscovered Mathematics" artifact from it makes the engine's actual output
+  legible to a human at a glance. The 0-novel verdict is unchanged and now better-supported: everything
+  the engine finds is a cited, known theorem.
+
+---
+
 <!-- New decision template:
 ## ADR-D#### — title
 - **Status:** Proposed | Accepted | Superseded (ADR-D####) · YYYY-MM-DD

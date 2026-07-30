@@ -57,6 +57,8 @@ Layers so far:
                  accumulates dead ends, tracks ladder progress, picks the next goal from the frontier
   * evaluation  — the honest scorecard (AF): correctness + attribution to KNOWN results; states
                  plainly that novelty-vs-literature is 0 established (rediscovery, not discovery)
+  * known_results — a structured, cited catalog of the KNOWN mathematics the engine touches (X1/W2);
+                 the auditable basis for attribution and the honest 0-novel verdict
   * adversarial — red-team the verifier: a systematic battery of false claims (600+) the kernel and
                  checker must all reject, plus positive controls; proves soundness on the sweep
   * provenance — proof-artifact hash + axiom list + deterministic replay (M4/M5)
@@ -148,6 +150,7 @@ from .knowledge_graph import (
     Node,
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
+from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
 from .director import CycleResult, ResearchDirector
 from .epistemic_ladder import LEVELS, classify, ladder_summary, rung_of
 from .evaluation import Scorecard, attribute, render_scorecard
@@ -320,6 +323,10 @@ __all__ = [
     "evaluate_report",
     "attribute",
     "render_scorecard",
+    "CATALOG",
+    "KnownResult",
+    "attributed_findings",
+    "catalog_size",
     "RobustnessReport",
     "robustness_report",
     "Analogy",

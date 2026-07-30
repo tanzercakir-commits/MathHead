@@ -93,13 +93,18 @@ mining + RATIO/MONOTONICITY mining (deepen O2/P0 — already ✅, count-neutral,
 
 ## Next — prioritized candidates
 
-_(✅ M-floor COMPLETE. ✅ 6th domain compositions. ✅ non-linear degree-2 mining. ✅ U0 registry.
-✅ T2 lemma ranking. ✅ ratio/monotonicity mining.)_
+_(✅ this batch: AB1, P2, T0, S2, AA4, U0, T2, U1, P5 touched; M-floor complete; 6th domain; non-linear +
+ratio/monotone mining; conjecture dedup. The whole kernel trust base + discovery-mining breadth are built.)_
 
-1. **U1 number-theory representation chain** — Diophantine → modular → finite-residue, walked concretely
-   with an honest ledger of which roadmap links are traversed vs not (lattice / SAT / alg-geometry).
-2. **W0 breadth / trivial-filter follow-ons** — extend the junk-theorem filter to ratio/monotone patterns.
-3. **AC-track director wiring** — feed `next_lemma` (T2) into the ResearchDirector's goal choice.
+**Honest note on what remains:** the easily-reachable NEW phases are thinning. Of the ~37 achievable
+untouched, most valuable remaining work is now DEPTH — hardening the ~26 touched-but-partial phases toward
+fully-✅ — rather than touching marginal new phases (notation synonyms X2, failed-strategy log S3, etc.).
+Going forward, prioritize VALUE over the touched-count.
+
+1. **AC-track director wiring** — feed `next_lemma` (T2) + `frontier_gaps` (T0) into ResearchDirector's
+   goal choice, closing the discover→prioritize→pursue loop. High value (integrates the new signals).
+2. **W0 breadth** — extend the trivial/junk filter to the new ratio & monotone patterns.
+3. **Depth pass** — take 🟢-partials (S1, W1, X0…) to fully-✅ by hardening + cross-checks.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

@@ -103,10 +103,12 @@ untouched, most valuable remaining work is now DEPTH — hardening the ~26 touch
 fully-✅ — rather than touching marginal new phases (notation synonyms X2, failed-strategy log S3, etc.).
 Going forward, prioritize VALUE over the touched-count.
 
-1. **AC-track director wiring** — feed `next_lemma` (T2) + `frontier_gaps` (T0) into ResearchDirector's
-   goal choice, closing the discover→prioritize→pursue loop. High value (integrates the new signals).
-2. **W0 breadth** — extend the trivial/junk filter to the new ratio & monotone patterns.
-3. **Depth pass** — take 🟢-partials (S1, W1, X0…) to fully-✅ by hardening + cross-checks.
+1. **Depth pass** — take 🟢-partials to fully-✅ by hardening + cross-checks (higher value than marginal
+   new-phase touches now). E.g. wire the new miners (nonlinear/ratio/monotone + P5 dedup) into `run_report`
+   so the deterministic report SURFACES them (currently they exist but aren't in the one report).
+2. **S3 strategy-failure log** — feed S2 portfolio `exhausted`/`unsolved` outcomes into failure memory,
+   so the engine learns which strategies fail where (a real S2→Y integration, not a bare log).
+3. **W0 breadth** — extend the trivial/junk filter to the new ratio & monotone patterns.
 4. **M6 Lean bridge** — export a kernel proof to an external checker for cross-sealing (stretch).
 
 ## Open — will NOT fake (🔴 honest boundary)

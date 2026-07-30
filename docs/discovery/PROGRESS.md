@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — S3: record proof-strategy failures into the failure memory (S→Y loop)
+
+New `strategy_log.py` (Track S3). S2's portfolio reports an honest status per problem — solved / unsolved
+/ exhausted — but until now a non-solution just evaporated. S3 is the feedback edge from S2 into Track Y
+(`failure_memory`): `exhausted` → a `timeout` record (a resource failure — the budget could afford no
+strategy), `unsolved` → a `dead_end` record (strategies ran, none settled it), `solved` → nothing (a
+success is not a failure). Recording is idempotent (the memory dedups by fingerprint), so re-logging a
+failed problem never inflates the count. Alongside the logging, `diagnose_portfolio` aggregates exact
+per-strategy statistics — times launched, times SKIPPED as unaffordable, times it won — and exposes the
+`bottleneck`: the strategy most often skipped. On a battery mixing tight and ample budgets, the bottleneck
+is `direct-residue` (the O(m) full sweep, skipped whenever CRT fits a smaller budget) — a real, actionable
+insight the engine now keeps instead of silently re-deriving. This closes the S→Y loop: portfolio dead
+ends accumulate alongside refuted conjectures in the shared negative-knowledge store. 7 tests; full suite
+**1720 green**, ruff clean. Roadmap S3 🟢 (newly touched; progress ~55/103, next user check-in at 59 — 4
+away).
+
+---
+
 ## 2026-07-30 — Report wiring: the new miners now SURFACE in run_report (AC2 depth)
 
 Modified `report.py`. The batch's new discovery miners (non-linear degree-2 laws, ratio/monotone

@@ -122,6 +122,9 @@ Layers so far:
   * portfolio    — resource-bounded proof-strategy portfolio + budget manager (S2): races direct-residue
                  vs CRT-prime-powers under a shared step-budget, cheapest-first; reports the winner +
                  a full cost ledger; honest status solved / unsolved / exhausted (never a fake proof)
+  * strategy_log — feed S2 portfolio FAILURES into the failure memory (S3, S→Y loop): exhausted→timeout,
+                 unsolved→dead_end (idempotent); per-strategy diagnostics surface the bottleneck (the
+                 strategy most often skipped as unaffordable) — negative knowledge, not silent repetition
   * algorithm_proof — connect a discovered ALGORITHM to its PROOF (AA4, S/M bridge): residue-exhaustion →
                  KERNEL Theorem (kernel_verified, universal); greedy-coloring / max-clique → CONSTRUCTIVE
                  certificate (constructive_bounded, witnessed); honest about the strength gap, never conflated
@@ -379,6 +382,12 @@ from .strategy import (
     prove_by_residues,
     prove_modular_divisibility,
 )
+from .strategy_log import (
+    StrategyDiagnostics,
+    diagnose_portfolio,
+    log_and_diagnose,
+    log_portfolio_run,
+)
 
 __all__ = [
     "Graph",
@@ -615,6 +624,10 @@ __all__ = [
     "PortfolioRun",
     "StrategyOutcome",
     "run_portfolio",
+    "StrategyDiagnostics",
+    "log_portfolio_run",
+    "diagnose_portfolio",
+    "log_and_diagnose",
     "AlgorithmProof",
     "link_algorithm_to_proof",
     "bridge_modular_algorithm",

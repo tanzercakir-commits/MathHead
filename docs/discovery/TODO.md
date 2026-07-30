@@ -8,7 +8,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 60 modules · 403 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
+_Last updated: 2026-07-30 · 61 modules · 410 discovery tests · 28 phases ✅ full, of 103 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -51,6 +51,8 @@ _Last updated: 2026-07-30 · 60 modules · 403 discovery tests · 28 phases ✅ 
 - Resource-bounded strategy PORTFOLIO + budget manager (S2): races direct-residue vs CRT-prime-powers
   under a shared step-budget (cheapest-first); winner = lowest-cost kernel-checked proof; honest
   status solved / unsolved / exhausted (says "exhausted", never a fake proof) — `portfolio.py`.
+- Strategy-failure LOG (S3, S→Y loop): feeds portfolio exhausted→timeout / unsolved→dead_end into the
+  failure memory (idempotent) + per-strategy diagnostics surfacing the bottleneck — `strategy_log.py`.
 
 **Knowledge / grade / direct (X, Y, AC, AF, T)**
 - Knowledge graph + impact analysis; failure memory (negative knowledge); research director
@@ -87,10 +89,10 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~54 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
+**~55 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
 (N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
-ceiling ≈ 91, so ~37 achievable phases remain (many are deepening partials to full). **User check-in at
-49 done** — next at 59 (5 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5; M-floor now COMPLETE
+ceiling ≈ 91, so ~36 achievable phases remain (many are deepening partials to full). **User check-in at
+49 done** — next at 59 (4 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5, S3; M-floor now COMPLETE
 (SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2
 mining + RATIO/MONOTONICITY mining (O2/P0); director now goal-selects via T2 (AC0 wiring — loop closed,
 count-neutral). **Shifting emphasis: value/depth over marginal new-phase touches (see note below).**

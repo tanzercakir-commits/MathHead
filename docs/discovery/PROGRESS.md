@@ -7,6 +7,29 @@
 
 ---
 
+## 2026-07-30 — v2A5 ✅ rich invariants — KADEME 1 COMPLETE on day one ⭐
+
+New `rich_invariants.py`. Open graph-theory conjectures (the Graffiti corpus, Wagner's RL-refuted list)
+live on invariants the engine did not have; now it does: independence number α, domination number γ,
+matching number ν, girth, diameter, radius — all EXACT (no heuristics; exponential brute force with an
+honest small-n scope). Anchored the classical way: the PETERSEN GRAPH gives all six textbook values at
+once (α=4, γ=3, ν=5, girth=5, diam=2, radius=2 — all verified), and KÖNIG'S THEOREM (ν = n − α on
+bipartite graphs) is tested as a cross-check LAW across the whole bipartite family — the same
+oracle-by-classical-theorem pattern as `families.py`. Conventions are explicit, never silent (girth=0
+for acyclic; diameter/radius=−1 for disconnected). Kept in an OWN registry so the v1 pipeline stays
+byte-stable; the Kademe-2 hunter consumes them directly. Energy (float-valued) deliberately deferred —
+introducing floats into the exact-arithmetic culture needs design, not a slip. 6 tests; full suite
+**1763 green**, ruff clean. Roadmap v2A5 ✅ (ADR-D0063).
+
+**⭐ KADEME 1 COMPLETE (in one day):** A1/A3/A4/A5 ✅, A0/A2 🟢 (human-loop-bound by design). The
+engine now has: a live PSLQ instrument, a live OEIS radar with 10-term pending prefixes, a 10 000×
+bigger cross-validated haystack, and the six invariants open conjectures are written in. Next is
+Kademe 2 — the counterexample hunter. v2B1 (adaptive search core) is safe engineering; **v2B0/B2
+(conjecture formalization) is the flagged MAX MOMENT** — a subtly wrong formalization would make a
+"counterexample" worthless, so that step deserves the strongest model setting the user chooses.
+
+---
+
 ## 2026-07-30 — v2A4 ✅ scale via nauty/geng, cross-validated — the haystack grows 10 000×
 
 New `nauty_scale.py` (nauty 2.8.8 installed; CI updated to install it too — tests skip gracefully where

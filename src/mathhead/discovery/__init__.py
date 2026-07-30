@@ -35,6 +35,9 @@ Layers so far:
                  (12M, A000088 continues exactly); CROSS-VALIDATED class-by-class vs the pure generator
                  (equal canonical-key sets n≤5, counts n=6); graph6 decoder; filtered classes (-c/-t/-b)
                  extend the radar's pending prefixes to 10 terms; refuses to truncate (hard_cap raises)
+  * rich_invariants — the rich invariant library (v2A5): α (independence), γ (domination), ν (matching),
+                 girth, diameter, radius — exact, anchored on Petersen (α=4,γ=3,ν=5,girth=5,diam=2) and
+                 König's ν=n−α on the whole bipartite family; own registry (v1 pipeline stays byte-stable)
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -384,6 +387,16 @@ from .permutations import (
 )
 from .portfolio import PortfolioRun, StrategyOutcome, run_portfolio
 from .relations import DiscoveredLaw, discover_constants, discover_linear_laws
+from .rich_invariants import (
+    RICH_INVARIANTS,
+    diameter,
+    domination_number,
+    girth,
+    independence_number,
+    matching_number,
+    petersen,
+    radius,
+)
 from .representations import (
     RepresentationBridge,
     adjacency_to_graph,
@@ -609,6 +622,14 @@ __all__ = [
     "geng_cross_validate",
     "decode_graph6",
     "extended_radar_sequences",
+    "RICH_INVARIANTS",
+    "independence_number",
+    "domination_number",
+    "matching_number",
+    "girth",
+    "diameter",
+    "radius",
+    "petersen",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

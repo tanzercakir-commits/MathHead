@@ -48,6 +48,11 @@ Layers so far:
                  rewire variant; float scores STEER, integer certificates DECIDE; calibration RESULT:
                  the transcribed A–H statement is refuted by certified witnesses from n=18 (D(7,8)+mid
                  vertex; n=19 balanced = the Wagner shape) — REDISCOVERY, source-check pending
+  * frankl      — the LIVE hunt on an OPEN conjecture (v2B3): Frankl union-closed sets (1979, open);
+                 bitmask set-family domain; exact integer violation certificates (union-closure verified
+                 inside the certifier); exhaustive formalization guard m≤4 (4959 union-closed families,
+                 0 violations); seeded SA hunts report not_found_within_budget HONESTLY (a witness would
+                 refute a 45-year conjecture — the value is the instrument, stated up front)
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -255,6 +260,13 @@ from .conjecture_normalize import (
 )
 from .conjectures import Conjecture, bound_conjectures, subclass_laws
 from .cross_check import CrossCheck, all_consistent, cross_check, disagreements
+from .frankl import (
+    FRANKL_INFO,
+    certify_violation as frankl_certify_violation,
+    guard_exhaustive as frankl_guard_exhaustive,
+    hunt_frankl,
+    union_closure,
+)
 from .gap import GapMeasure, frontier_gaps, measure_gap
 from .generalize import (
     Generalization,
@@ -678,6 +690,11 @@ __all__ = [
     "certify_lambda1_plus_mu_below",
     "lambda1_below",
     "sqrt_bound_above",
+    "FRANKL_INFO",
+    "frankl_certify_violation",
+    "frankl_guard_exhaustive",
+    "hunt_frankl",
+    "union_closure",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

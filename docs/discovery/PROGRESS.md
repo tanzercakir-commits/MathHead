@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-07-30 — v2B3 ✅ the engine hunts LIVE on an OPEN problem: Frankl union-closed ⭐
+
+New `frankl.py` — Kademe 2 complete (4/4). The target: Frankl's union-closed sets conjecture (1979) —
+statement transcription-certain, genuinely OPEN (Gilmer 2022 proved a constant fraction; follow-ups hit
+the (3−√5)/2 ≈ 0.382 wall; the full 1/2 stands). A SEVENTH object domain arrives with it: set families
+as int bitmasks (union = OR). The violation certificate is PURE INTEGER and verifies the FULL definition
+inside itself (union-closure included — a bogus state can never certify): F union-closed, F ≠ {∅}, and
+2·freq(x) < |F| for EVERY live element. Formalization guard: EXHAUSTIVE over m ≤ 4 — all 65 535 families
+enumerated, 4 959 union-closed, ZERO violations — and the power-set equality boundary (every element in
+exactly half) is correctly refused. Seeded SA hunts (generator-set moves, closure with explicit size-cap
+refusal) at m = 6..8 report `not_found_within_budget` with best_score reaching +1 — ONE above the
+equality wall, exactly where a 45-year-old conjecture should hold the line. The honest expectation was
+stated up front: a witness would refute Frankl; the value is the INSTRUMENT — the engine now runs live
+hunts on open mathematics with self-verifying verdicts. 7 tests; full suite **1781 green**, ruff clean.
+Roadmap v2B3 ✅ (ADR-D0065).
+
+---
+
 ## 2026-07-30 — v2B0/B1/B2 ✅ (max mode): the counterexample hunter is LIVE and CALIBRATED ⭐⭐
 
 **The result:** the transcribed Aouchiche–Hansen statement (`λ₁ + μ ≥ √(n−1) + 1` for connected n≥3) is

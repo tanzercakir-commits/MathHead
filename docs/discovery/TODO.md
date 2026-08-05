@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 70 modules · 463 discovery tests · 34 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 71 modules · 470 discovery tests · 34 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -123,8 +123,11 @@ D(8,8)+mid = the described shape of Wagner's RL witness) — every verdict a pur
 (Bareiss–Sylvester + integer square test, zero floats). Two equality families engine-certified: stars
 AND D(12,12) n=26 (λ₁=4 exactly). Max-mode catch: the formalization-risk materialized and was resolved
 by COMPUTING (double-star asymptotics → certified family scan), not by trusting memory. HUMAN TASK:
-verify Conj. 2.1 wording at arXiv:2104.14516 before any external framing. Next: v2B3 live hunt on a
-genuinely OPEN target (needs new curated entries), or Kademe 3 (Graffiti service / SAT frontier / Lean).
+verify Conj. 2.1 wording at arXiv:2104.14516 before any external framing. **v2B3 ✅ — the engine now hunts LIVE on a genuinely open problem:** Frankl union-closed (1979, open).
+Bitmask set-family domain; pure-integer violation certificates (union-closure verified inside the
+certifier); exhaustive guard m≤4 (4959 union-closed families, 0 violations); seeded hunts honestly
+not_found_within_budget (best_score reached +1 — one above the equality wall). Kademe 2: 4/4 COMPLETE.
+Next: Kademe 3 (v2C0 Graffiti-style conjecture service / v2C1 SAT frontier / v2C2 Lean bridge).
 
 ## Next — prioritized candidates
 

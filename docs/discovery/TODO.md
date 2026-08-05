@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 80 modules · 516 discovery tests · 53 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 81 modules · 532 discovery tests · 54 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -168,7 +168,9 @@ because 12 phases are 🔴 open research. v4 is therefore built ONLY from in-con
 phases (each with a measurable DONE), ending in a FINAL AUDIT (v4F7). Discipline: the DUAL-AGENT
 loop (implementer agent → adversarial mentor/tester/evaluator agent → gate; see AGENT-PROTOCOL.md).
 
-Status: **0/8 — sprint launched.** Order: F0 (RUP/DRAT UNSAT certification) → F1/F2 (check()
+Status: **1/8 — v4F0 ✅** (RUP-checked UNSAT: Ramsey UNSAT verdicts now carry an INDEPENDENTLY
+verified refutation proof — pure-Python checker, no solver in the loop; strengthened-formula
+honesty IN the tier name; dual-agent gate passed 2×; bonus: fuzzer's 3rd real bug fixed). Order: F0 (RUP/DRAT UNSAT certification) → F1/F2 (check()
 coverage waves) → F3/F4 (hardening sweeps) → F5 (scale runs incl. R(3,6) attempt) → F6 (knowledge-graph
 depth) → F7 (final audit + v1.2.0).
 

@@ -40,6 +40,8 @@ def test_example_3_bracket_r33(capsys):
 def test_honesty_page_lists_every_tier_the_engine_emits():
     text = (_MANUAL / "honesty.md").read_text()
     for tier in ("kernel_verified", "exact_integer_certificate", "independently_verified_witness",
+                 "independently_verified_unsat_proof",
+                 "independently_verified_unsat_proof_of_strengthened_formula",
                  "solver_verified_with_derived_lemmas", "no_counterexample_within_bound",
                  "numerical_conjecture", "empirical"):
         assert tier in text

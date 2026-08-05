@@ -24,11 +24,13 @@ r = check("num_triangles <= num_edges", max_n=6)
 ```console
 $ mathhead-discover bracket 3 5 --lo 13 --hi 14 --strengthen
 n=13: SAT  [independently_verified_witness]  → R(3,5) > 13
-n=14: UNSAT  [solver_verified_with_derived_lemmas]  → R(3,5) <= 14
+n=14: UNSAT  [independently_verified_unsat_proof_of_strengthened_formula]  → R(3,5) <= 14
 R(3,5) = 14
 ```
-The UNSAT side lists its two derived degree lemmas — one of which cites the engine's *own* R(3,4)=9
-bracket. Self-referential, and labelled.
+The UNSAT side carries the solver's DRUP refutation, re-checked by the engine's own pure-Python RUP
+checker — and its tier says, verbatim, that the proof refutes the *strengthened* formula: the two
+derived degree lemmas (one of which cites the engine's *own* R(3,4)=9 bracket) are listed on the
+verdict. Self-referential, and labelled.
 
 ## 4 · A live hunt that honestly fails
 

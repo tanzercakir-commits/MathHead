@@ -45,10 +45,20 @@ _CMP = {
 }
 
 
+def _bool(val: Any, what: str) -> Any:
+    """Logical connectives take PROPOSITIONS. `implies(0,0)` etc. must be a clean parse error,
+    not a Z3Exception escaping to the caller (found by the K2 parser fuzzer)."""
+    if not z3.is_bool(val):
+        raise _IneqError(f"{what} requires boolean operands (comparisons/propositions), "
+                         f"not arithmetic values")
+    return val
+
+
 def _node(node: ast.AST, rvars: dict[str, Any]) -> Any:
     """ast node -> Z3 expression (arithmetic ArithRef or logical BoolRef)."""
     if isinstance(node, ast.BoolOp):
-        vals = [_node(v, rvars) for v in node.values]
+        name = "and" if isinstance(node.op, ast.And) else "or"
+        vals = [_bool(_node(v, rvars), name) for v in node.values]
         if isinstance(node.op, ast.And):
             return z3.And(*vals)
         if isinstance(node.op, ast.Or):
@@ -56,7 +66,7 @@ def _node(node: ast.AST, rvars: dict[str, Any]) -> Any:
         raise _IneqError("disallowed bool operator")
     if isinstance(node, ast.UnaryOp):
         if isinstance(node.op, ast.Not):
-            return z3.Not(_node(node.operand, rvars))
+            return z3.Not(_bool(_node(node.operand, rvars), "not"))
         if isinstance(node.op, ast.USub):
             return -_node(node.operand, rvars)
         if isinstance(node.op, ast.UAdd):
@@ -91,9 +101,11 @@ def _node(node: ast.AST, rvars: dict[str, Any]) -> Any:
         return parts[0] if len(parts) == 1 else z3.And(*parts)
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
         if node.func.id == "implies" and len(node.args) == 2:
-            return z3.Implies(_node(node.args[0], rvars), _node(node.args[1], rvars))
+            return z3.Implies(_bool(_node(node.args[0], rvars), "implies"),
+                              _bool(_node(node.args[1], rvars), "implies"))
         if node.func.id == "iff" and len(node.args) == 2:
-            return _node(node.args[0], rvars) == _node(node.args[1], rvars)
+            return _bool(_node(node.args[0], rvars), "iff") == \
+                _bool(_node(node.args[1], rvars), "iff")
         raise _IneqError(f"disallowed call: {node.func.id}")
     if isinstance(node, ast.Name):
         if node.id not in rvars:
@@ -134,10 +146,12 @@ def prove_inequality(goal: str, assumptions: list[str] | None = None,
     try:
         g = _translate(goal, rvars)
         assumps = [_translate(a, rvars) for a in assumptions]
-    except (_IneqError, SyntaxError, ValueError) as exc:
+    except (_IneqError, SyntaxError, ValueError, z3.Z3Exception) as exc:
         return _err(f"parse error: {exc}", t0, seed, timeout_ms)
     if not z3.is_bool(g):
         return _err("the goal must be a comparison/proposition (e.g. 'x**2 >= 0')", t0, seed, timeout_ms)
+    if not all(z3.is_bool(a) for a in assumps):
+        return _err("each assumption must be a comparison/proposition", t0, seed, timeout_ms)
     solver = solver_config(timeout_ms, seed)
     for a in assumps:
         solver.add(a)
@@ -181,7 +195,7 @@ def find_real_solution(constraints: list[str],
         if not isinstance(constraints, list) or not constraints:
             raise _IneqError("constraint list cannot be empty")
         cs = [_translate(c, rvars) for c in constraints]
-    except (_IneqError, SyntaxError, ValueError) as exc:
+    except (_IneqError, SyntaxError, ValueError, z3.Z3Exception) as exc:
         return _err(f"parse error: {exc}", t0, seed, timeout_ms)
     if not all(z3.is_bool(c) for c in cs):
         return _err("each constraint must be a comparison/proposition", t0, seed, timeout_ms)

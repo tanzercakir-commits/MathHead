@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-08-05 — v4F0 ✅ RUP-certified UNSAT — the first DUAL-AGENT-gated phase 🔐
+
+The Ramsey UNSAT tier upgrade the docstrings promised: `rup_check.py` — a pure-Python
+two-watched-literal BCP DRUP/RUP checker (NO solver import; adapted from J2's `drat.py`, cross-validated
+against it + differential fuzz). `ramsey_decide` now logs the Glucose3 DRUP proof and re-checks it
+independently: pass → `independently_verified_unsat_proof`; lemma runs → the honest truth is in the tier
+NAME (`..._of_strengthened_formula`); check fails → the tier NEVER upgrades (fallback + note, tested).
+R(3,3)@6 0.01s · R(3,4)@9 5.4s · R(3,5)/R(4,4) lemma runs <0.1s. Negative battery: fake/truncated
+proofs → refuted; budget → budget_exceeded (never a fake verdict).
+
+**The dual-agent loop worked exactly as designed on its first outing:** implementer built; the
+adversarial evaluator independently re-ran everything, attacked with corrupted proofs + a 400-CNF
+adversarial fuzz (0 false "verified"), verified the deletion-ignoring soundness argument, and PASSed
+twice (initial + delta round). Its findings (None-input crash, RUP-vs-RAT trap documentation) went back
+to the implementer and were closed. **Bonus catch:** the round surfaced the Hypothesis fuzzer's THIRD
+real pre-existing bug — ill-typed logical connectives (`implies(0,0)`) crashed three v1-core parsers
+(inequality/induction/smt) with a raw Z3Exception; fixed with typed operand validation + 7 permanent
+landmine regressions. Full suite **1849 green**, zero deselects. v4: 1/8.
+
+---
+
 ## 2026-08-05 — v4 MAX-FUNCTIONALITY sprint launched + the DUAL-AGENT discipline 🚀
 
 User redirect: forget release steps; goal = MAXIMUM FUNCTIONALITY, and "go to the end". The honest

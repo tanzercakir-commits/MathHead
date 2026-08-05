@@ -62,7 +62,12 @@ def test_string_parsers_never_crash_on_arbitrary_unicode(s):
 # a handful of classic parser landmines, checked exhaustively
 _LANDMINES = [
     "", " ", "()", "(", ")", "((((((((((", "1/0", "x**", "**x", ",", "==", "and",
-    "forall(", "exists(x)", "implies(p)", "box()", "select()", "x y", "0x1", "1e", "--", "+"
+    "forall(", "exists(x)", "implies(p)", "box()", "select()", "x y", "0x1", "1e", "--", "+",
+    # the third real bug this fuzzer caught (v4F0 follow-up): logical connectives over
+    # non-boolean operands used to escape as z3.Z3Exception from the inequality, induction,
+    # and bit-vector parsers
+    "implies(0,0)", "iff(0,0)", "not(0)", "0 and x", "0 or x", "implies(x>0,1)",
+    "implies(0,0) and x>1",
 ]
 
 

@@ -58,9 +58,12 @@ Layers so far:
   * lean_export — Lean 4 cross-seal EXPORT (v2C2/M6): kernel Divides theorems as decide-over-ZMod m
                  (≡ our RESIDUE rule, re-checked by Lean's kernel), PolyIdentity as ring; status honest:
                  export_written_pending_external_check — never claimed verified without the lake build
-  * ramsey_sat  — the SAT frontier (v2C1): Ramsey 2-colouring CNF on pysat; R(3,3)=6 and R(3,4)=9
-                 bracketed by the engine, R(4,4)>17 witnessed; SAT witnesses re-verified by BRUTE FORCE
-                 (independently_verified_witness), UNSAT honestly solver_verified (DRAT = next step)
+  * ramsey_sat  — the SAT frontier (v2C1+v4F0): Ramsey 2-colouring CNF on pysat; R(3,3)=6 and
+                 R(3,4)=9 bracketed by the engine, R(4,4)>17 witnessed; SAT witnesses re-verified by
+                 BRUTE FORCE (independently_verified_witness); UNSAT verdicts carry the solver's DRUP
+                 proof re-checked by the independent pure-Python RUP checker (rup_check) —
+                 independently_verified_unsat_proof, with an honest ..._of_strengthened_formula tier
+                 when derived lemmas were added, and an honest solver_verified fallback otherwise
   * frankl      — the LIVE hunt on an OPEN conjecture (v2B3): Frankl union-closed sets (1979, open);
                  bitmask set-family domain; exact integer violation certificates (union-closure verified
                  inside the certifier); exhaustive formalization guard m≤4 (4959 union-closed families,
@@ -435,6 +438,7 @@ from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree, sum_proof_tree
 from .ramsey_sat import RamseyVerdict, bracket_ramsey, ramsey_cnf, ramsey_decide
 from .refute import RefutationResult, refute
+from .rup_check import RupCheckResult, check_drup_lines, check_drup_proof, parse_drup
 from .report import DiscoveryReport, render, run_report
 from .partitions import (
     Partition,
@@ -734,6 +738,10 @@ __all__ = [
     "ramsey_cnf",
     "ramsey_decide",
     "bracket_ramsey",
+    "RupCheckResult",
+    "check_drup_lines",
+    "check_drup_proof",
+    "parse_drup",
     "LeanExport",
     "export_kernel_theorems",
     "ProgramFind",

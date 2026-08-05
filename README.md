@@ -20,7 +20,7 @@ VERDICT: refuted   [exact_integer_certificate]
 
 $ mathhead-discover bracket 3 5 --lo 13 --hi 14 --strengthen
 n=13: SAT   [independently_verified_witness]  → R(3,5) > 13
-n=14: UNSAT [solver_verified_with_derived_lemmas]  → R(3,5) <= 14
+n=14: UNSAT [independently_verified_unsat_proof_of_strengthened_formula]  → R(3,5) <= 14
 R(3,5) = 14
 ```
 
@@ -29,7 +29,7 @@ LCF-style proof kernel (forge-guarded, trust base fully derived); refute conject
 counterexample-first over ALL connected graphs (nauty-scale, exact invariants incl. α, γ, ν,
 girth, diameter); certify spectral counterexamples in **pure integer arithmetic** (no floats in
 any verdict); bracket Ramsey numbers — R(3,3)=6 · R(3,4)=9 · R(3,5)=14 · R(4,4)=18 — with
-independently re-verified SAT witnesses; hunt live on open problems (Frankl union-closed) with
+independently re-verified SAT witnesses and independently RUP-checked UNSAT proofs; hunt live on open problems (Frankl union-closed) with
 honest `not_found_within_budget` outcomes; run PSLQ constant-relation searches with a
 two-precision protocol; export kernel theorems to Lean 4 for external cross-sealing.
 
@@ -40,6 +40,7 @@ two-precision protocol; export kernel theorems to Lean 4 for external cross-seal
 | `kernel_verified` | universal machine proof in the LCF-style kernel (+ proof hash) |
 | `exact_integer_certificate` | self-verifying witness, pure integer arithmetic |
 | `independently_verified_witness` | solver output re-checked by brute force, no solver in the loop |
+| `independently_verified_unsat_proof(_of_strengthened_formula)` | DRUP refutation re-checked by a pure-Python RUP checker; the `strengthened` variant says the proof is of base + derived lemmas, not the bare encoding |
 | `solver_verified(_with_derived_lemmas)` | solver verdict; any added lemmas are listed on the verdict |
 | `constructive_bounded` / `interval_certified` | explicit witness / certified enclosure, sample-bounded |
 | `numerical_conjecture` / `empirical` | evidence, **never** presented as proof |

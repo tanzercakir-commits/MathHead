@@ -32,7 +32,10 @@ shape at n=19 rediscovered); the Frankl equality wall measured (best slack +1 ac
 
 **4 · Limitations, stated plainly.** Everything above is rediscovery or rediscovery-grade; novelty
 against the literature is not claimed and cannot be claimed without corpus ingestion and human
-review. Plain `solver_verified` UNSATs are not kernel-grade (DRAT logging is the recorded next
-step). The Lean export awaits an external `lake build`.
+review. Ramsey UNSAT verdicts now carry solver DRUP proofs re-checked by an independent
+pure-Python RUP checker; when derived lemmas were added, the tier says verbatim that the proof
+refutes the *strengthened* formula, and a proof that cannot be checked within budget falls back to
+plain `solver_verified` — which remains not kernel-grade. The Lean export awaits an external
+`lake build`.
 
 *Draft status: to be expanded into a preprint; see CITATION.cff for how to cite the software.*

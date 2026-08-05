@@ -126,7 +126,10 @@ def _run(assumptions: list[str], goal: str | None, translate, theory: str,
                                None, _meta(t0, seed, timeout_ms, theory))
     try:
         a_z3, g_z3, read_model = translate(assumptions, goal)
-    except SmtParseError as exc:
+    except (SmtParseError, z3.Z3Exception) as exc:
+        # Z3Exception: an ill-TYPED formula the grammar admits syntactically, e.g. a logical
+        # connective over non-boolean operands ('0 and x', 'implies(x>0,1)') — a clean parse
+        # error, never an escaping exception (found by the K2 parser fuzzer).
         return ReasoningResult("error", "PARSE_ERROR", str(exc),
                                None, _meta(t0, seed, timeout_ms, theory))
     return _decide(a_z3, g_z3, read_model, theory, t0, seed, timeout_ms)

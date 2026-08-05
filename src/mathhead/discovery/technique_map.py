@@ -43,6 +43,8 @@ TECHNIQUES: dict = {
     ],
     "finite_coloring_ramsey": [
         ("SAT encode + witness recheck", "ramsey_sat.ramsey_decide", "independently_verified_witness"),
+        ("DRUP proof + independent RUP recheck", "rup_check.check_drup_lines",
+         "independently_verified_unsat_proof"),
     ],
     "set_family": [
         ("generator evolution + integer certificate", "frankl.hunt_frankl",

@@ -10,8 +10,17 @@ and no blue K_t" as CNF and let the solver decide. Semantics, exactly:
 
 Honesty tiers, kept separate: a SAT verdict is upgraded to `independently_verified_witness` — the
 returned colouring is re-checked by BRUTE FORCE (every s-subset scanned for a red clique, every
-t-subset for a blue one) with no solver in the loop; an UNSAT verdict stays `solver_verified`
-(kernel-grade UNSAT needs DRAT proof logging — recorded as the honest next step, not claimed).
+t-subset for a blue one) with no solver in the loop. An UNSAT verdict (v4F0, closing the "DRAT
+logging = next step" debt) asks the solver for its DRUP proof and re-checks it with the
+INDEPENDENT pure-Python RUP checker (`rup_check`, the J2 `mathhead.drat` idea at this frontier —
+no solver in the loop), earning `independently_verified_unsat_proof`. Two honest boundaries:
+
+  * with `strengthen=True` the proof refutes the STRENGTHENED formula (base + derived lemmas),
+    not the bare encoding — the tier says so verbatim:
+    `independently_verified_unsat_proof_of_strengthened_formula`, lemma list on the verdict;
+  * if the proof cannot be obtained or checked within budget, the verdict FALLS BACK to plain
+    `solver_verified(_with_derived_lemmas)` with the reason on `unsat_proof_note` — the upgrade
+    is never claimed without the check actually passing.
 
 Calibration anchors (classical): R(3,3)=6 — SAT at 5 (the pentagon 2-colouring), UNSAT at 6;
 R(3,4)=9 — SAT at 8, UNSAT at 9.
@@ -56,10 +65,15 @@ class RamseyVerdict:
     t: int
     satisfiable: bool
     meaning: str                    # "R(s,t) > n" | "R(s,t) <= n"
-    certainty: str                  # "independently_verified_witness" | "solver_verified" |
-    #                                 "solver_verified_with_derived_lemmas"
+    certainty: str                  # SAT: "independently_verified_witness";
+    #                                 UNSAT: "independently_verified_unsat_proof" |
+    #                                 "independently_verified_unsat_proof_of_strengthened_formula" |
+    #                                 (fallback) "solver_verified(_with_derived_lemmas)"
     red_edges: tuple = ()           # the witness colouring, when SAT
     lemmas_used: tuple = ()         # derived (implied) lemmas added to help UNSAT — each documented
+    unsat_proof_checked: bool = False   # DRUP proof re-checked by the independent RUP checker
+    unsat_proof_lemmas: int = 0     # lemmas in the checked proof (0 when no proof was checked)
+    unsat_proof_note: str = ""      # honest provenance: what was checked / why the check was skipped
 
 
 def _degree_lemmas(n: int, s: int, t: int, ev: dict, top: int):
@@ -107,22 +121,50 @@ def _degree_lemmas(n: int, s: int, t: int, ev: dict, top: int):
     return clauses, tuple(lemmas), top
 
 
-def ramsey_decide(n: int, s: int, t: int, strengthen: bool = False) -> RamseyVerdict:
-    """Decide the K_n instance with a SAT solver; SAT witnesses are re-verified independently.
-    `strengthen=True` adds the DERIVED degree lemmas (implied ⇒ equisatisfiable); an UNSAT obtained
-    with them is labelled `solver_verified_with_derived_lemmas` — the lemma list rides the verdict."""
+def ramsey_decide(n: int, s: int, t: int, strengthen: bool = False,
+                  certify_unsat: bool = True) -> RamseyVerdict:
+    """Decide the K_n instance with a SAT solver; BOTH verdict kinds are re-verified independently.
+
+    SAT → the witness colouring is re-checked by brute force (`independently_verified_witness`).
+    UNSAT → with `certify_unsat=True` (the default) the solver's DRUP proof is re-checked by the
+    independent pure-Python RUP checker; on success the tier is `independently_verified_unsat_proof`
+    — or, with `strengthen=True`, `independently_verified_unsat_proof_of_strengthened_formula`,
+    because the refuted formula is base + derived lemmas, NOT the bare encoding (the lemma list
+    rides the verdict). If the proof cannot be verified within budget the tier honestly falls back
+    to `solver_verified(_with_derived_lemmas)` and `unsat_proof_note` says why.
+
+    `strengthen=True` adds the DERIVED degree lemmas (implied ⇒ equisatisfiable)."""
     from pysat.solvers import Glucose3
     ev, clauses = ramsey_cnf(n, s, t)
     lemmas = ()
     if strengthen:
         extra, lemmas, _top = _degree_lemmas(n, s, t, ev, max(ev.values()))
         clauses = clauses + extra
-    with Glucose3(bootstrap_with=clauses) as solver:
+    with Glucose3(bootstrap_with=clauses, with_proof=certify_unsat) as solver:
         sat = solver.solve()
         model = solver.get_model() if sat else None
+        proof = solver.get_proof() if (not sat and certify_unsat) else None
     if not sat:
-        tier = "solver_verified_with_derived_lemmas" if lemmas else "solver_verified"
-        return RamseyVerdict(n, s, t, False, f"R({s},{t}) <= {n}", tier, (), lemmas)
+        fallback = "solver_verified_with_derived_lemmas" if lemmas else "solver_verified"
+        if not certify_unsat:
+            return RamseyVerdict(n, s, t, False, f"R({s},{t}) <= {n}", fallback, (), lemmas,
+                                 unsat_proof_note="certify_unsat=False: DRUP proof not requested")
+        from .rup_check import check_drup_lines
+        res = check_drup_lines(clauses, proof)
+        if res.ok:
+            tier = ("independently_verified_unsat_proof_of_strengthened_formula" if lemmas
+                    else "independently_verified_unsat_proof")
+            scope = ("the STRENGTHENED formula (base encoding + the derived lemmas listed in "
+                     "lemmas_used)" if lemmas else "the base encoding")
+            return RamseyVerdict(
+                n, s, t, False, f"R({s},{t}) <= {n}", tier, (), lemmas,
+                unsat_proof_checked=True, unsat_proof_lemmas=res.lemmas_checked,
+                unsat_proof_note=f"DRUP proof of {scope} re-checked by the pure-Python RUP "
+                                 f"checker (no solver in the loop): {res.message}")
+        # The check did not pass — NEVER claim the upgraded tier; say exactly what happened.
+        return RamseyVerdict(
+            n, s, t, False, f"R({s},{t}) <= {n}", fallback, (), lemmas,
+            unsat_proof_note=f"independent RUP check did not pass ({res.status}): {res.message}")
     pos = {v for v in model if v > 0}
     red = {e for e, var in ev.items() if var in pos}
     if not _check_colouring(n, s, t, red):              # the solver lied? never accept silently
@@ -143,5 +185,6 @@ def bracket_ramsey(s: int, t: int, n_lo: int, n_hi: int):
         value = None                                     # flip not inside range — no claim
     return {"verdicts": verdicts, "ramsey_value": value,
             "note": "value = first UNSAT n, valid only when the SAT->UNSAT flip is inside the range; "
-                    "SAT verdicts carry independently verified witnesses, UNSAT are solver_verified "
-                    "(DRAT logging = the recorded next step toward kernel-grade UNSAT)"}
+                    "SAT verdicts carry independently verified witnesses, UNSAT verdicts carry "
+                    "DRUP proofs re-checked by the independent RUP checker (falling back to "
+                    "solver_verified, honestly labelled, only if the check cannot be completed)"}

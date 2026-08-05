@@ -17,11 +17,17 @@ def test_r33_bracketed_exactly():
     sat5 = next(v for v in r["verdicts"] if v.n == 5)
     assert sat5.satisfiable and sat5.certainty == "independently_verified_witness"
     unsat6 = next(v for v in r["verdicts"] if v.n == 6)
-    assert not unsat6.satisfiable and unsat6.certainty == "solver_verified"
+    assert not unsat6.satisfiable                                   # v4F0: UNSAT is RUP-certified
+    assert unsat6.certainty == "independently_verified_unsat_proof"
+    assert unsat6.unsat_proof_checked and unsat6.unsat_proof_lemmas > 0
 
 
 def test_r34_bracketed_exactly():
-    assert bracket_ramsey(3, 4, 8, 9)["ramsey_value"] == 9          # R(3,4) = 9
+    r = bracket_ramsey(3, 4, 8, 9)
+    assert r["ramsey_value"] == 9                                   # R(3,4) = 9
+    unsat9 = next(v for v in r["verdicts"] if v.n == 9)             # v4F0 DONE criterion: the
+    assert unsat9.certainty == "independently_verified_unsat_proof"  # UNSAT passes the in-engine
+    assert unsat9.unsat_proof_checked and unsat9.unsat_proof_lemmas > 0  # independent RUP check
 
 
 def test_sat_witness_is_independently_recheckable():
@@ -48,7 +54,11 @@ def test_strengthening_preserves_known_verdicts():
     a = ramsey_decide(8, 3, 4, strengthen=True)
     b = ramsey_decide(9, 3, 4, strengthen=True)
     assert a.satisfiable and not b.satisfiable
-    assert b.certainty == "solver_verified_with_derived_lemmas" and b.lemmas_used
+    # v4F0: the RUP-checked proof refutes the STRENGTHENED formula — the tier says so verbatim,
+    # never claiming a proof of the bare encoding.
+    assert b.certainty == "independently_verified_unsat_proof_of_strengthened_formula"
+    assert b.lemmas_used and b.unsat_proof_checked
+    assert "STRENGTHENED" in b.unsat_proof_note
 
 
 def test_r35_and_r44_bracketed_with_engine_derived_lemmas():

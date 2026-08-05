@@ -148,7 +148,13 @@ def _parse_claim(claim: str, var: str, k: Any) -> Any:
         tree = ast.parse(claim, mode="eval")
     except SyntaxError as exc:
         raise InductionParseError(f"syntax error: {exc.msg}") from exc
-    expr = _build(tree.body, var, k)
+    try:
+        expr = _build(tree.body, var, k)
+    except z3.Z3Exception as exc:
+        # e.g. a logical connective over non-boolean operands ('not(0)', 'implies(0,0) and n>1')
+        # — syntactically admitted, ill-typed for Z3; a clean parse error, never a crash
+        # (found by the K2 parser fuzzer).
+        raise InductionParseError(f"ill-typed formula: {exc}") from exc
     if not z3.is_bool(expr):
         raise InductionParseError("the claim must be a boolean formula (a (in)equality or logical combination)")
     return expr

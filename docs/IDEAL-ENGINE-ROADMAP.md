@@ -74,7 +74,7 @@ M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_
 **Track Q — Karşı-örnek-önce (§6)**
 ```
 Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)  ✅ (refute: counterexample-first bounded scan; survivor = no_counterexample_within_bound)
-Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)
+Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)  🟢 GENİŞLETİLDİ: ramsey_sat (v2C1) SAT cephesini Ramsey-tipi problemlere taşıdı — R(3,3)=6/R(3,4)=9 bracketlendi, tanıklar bağımsız doğrulı; çapraz-bağ ADR-D0067
 Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama  ✅ (v2 enstrümanlarıyla TESLİM EDİLDİ: adaptive_search — tohumlu SA bağlı-graf + ağaç uzayları, tamsayı-sertifikalı verdictler; frankl.hunt_frankl — küme-aile uzayında jeneratör-evrimi; çapraz-referans ADR-D0064/65)
 Q3   🟡 Model checking + interval arithmetic + sembolik test yolları
 Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)  ✅ (minimal: en küçük n, sonra en az kenar; ör. T≤E → K6−e)
@@ -86,7 +86,7 @@ Q6   🔴 Onarılmış konjektür önerisi (ek varsayımla ifade geçerli mi?)
 ```
 R0 ♻️🟢 Bağımsız sertifika kontrolcüleri (MathHead: subset-sum, boyama, DRAT/DRUP, çarpanlama...)  ✅ (MathHead; + discovery.judge köprüsü kuruldu)
 R1   🟡 Yeni sertifika türleri: LP dual, Gröbner basis kontrolü, coverage manifesto, canonical-labeling, interval izi  🟢 İLK DİLİM: grafik alanı için KONSTRÜKTİF sertifikalar — χ≤Δ+1 (greedy boyama tanığı), χ≤n (kimlik boyama), ω≤χ (maksimum klik, MathHead ile çift-doğrulanmış: K_ω, (ω−1)-boyanamaz→unsat); bağımsız checker sahteleri reddeder; DÜRÜST etiket `constructive_bounded` (tanıklı ama evrensel ∀G ispat DEĞİL — o M1/M2 kernel gerektirir); ADR-D0021
-R2   🟢 Kernel sertifikayı yeniden-hesaplamadan kontrol edebilsin (certificate-check API)
+R2   🟢 Kernel sertifikayı yeniden-hesaplamadan kontrol edebilsin (certificate-check API)  ✅ (TESLİM EDİLMİŞTİ, çapraz-bağ: graph_proofs.check_certificate tanığı yeniden-türetmeden doğrular; provenance.replay ispat artefaktını yeniden-hesapsız tekrar-kontrol eder; spectral_cert/ramsey_sat tanıkları da kendi bağımsız checker'larını taşır)
 R3 ♻️🟢 Epistemik durum sözlüğü (MathHead certainty/stability → §14: UNFORMALIZED..INDEPENDENTLY_VERIFIED..LIKELY_INDEPENDENT)  ✅ (Verdict, MathHead certainty taşıyor; empirical→proved/refuted; ADR-D0006)
 R4   🟢 "Çözemedim; yalnızca şu sınıra kadar karşı-örnek yok" — bounded-honesty her çıktının sözleşmesi  ✅ (Q0 no_counterexample_within_bound + judge not_applicable)
 ```

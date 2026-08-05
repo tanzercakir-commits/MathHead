@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-07-30 — v3 PRODUCT programme launched + v3P0 ✅ the single-door check() API ⭐
+
+**New goal, user-locked:** turn MathHead into a product mathematicians WANT — not a toy. Formalized as
+the v3 extension (9 phases, own guard, v3P# lowercase IDs — cannot leak into v1/v2 counts). Measurable
+DONE: a mathematician who finds the repo can install, run 3 real checks (witnessed refutation + kernel
+proof + Ramsey bracket), read the honesty contract, and cite it — within 10 minutes, all CI-proven.
+Positioning: "bring your conjecture — I'll refute it, prove it, or tell you exactly how far it
+survived." The differentiator no other tool has: an EPISTEMIC TIER on every verdict.
+
+**v3P0 ✅ (`product.py`):** one call, one honest envelope. `check("6 | n^3 - n")` → proved,
+kernel_verified, proof hash. `check("5 | n^3 - n")` → refuted, exact residue witness (n=2). Sum
+identities → SumInduction proof or smallest-n exact witness. Graph bounds → counterexample-first over
+ALL connected graphs (geng): `num_triangles <= num_edges` → refuted at n=6 with the 16>14 witness;
+`clique_number <= chromatic_number` → OPEN, "survived ALL 143 connected graphs n≤7 — NOT proved,
+honestly open." Unrecognized input → `unsupported` + suggested instruments — the engine refuses to
+guess. 7 quickstart tests lock the product surface in CI. Task-widget discipline is now live too (the
+goal + phases visible with timers, per the user's request). Full suite **1822 green**, ruff clean.
+Roadmap v3P0 ✅ (ADR-D0072); TODO carries the v3 workstream section.
+
+---
+
 ## 2026-07-30 — DEEP RUN: R(3,5)=14 and R(4,4)=18 — the engine's own results become its lemmas ⭐⭐
 
 The self-referential chain of the day. Plain CNF (even Cadical195) could not settle the UNSAT sides

@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 78 modules · 504 discovery tests · 43 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 79 modules · 511 discovery tests · 44 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -144,6 +144,13 @@ ring ≡ PolyIdentity) at docs/discovery/lean/MathheadKernel.lean; status honest
 export_written_pending_external_check (lake build = human/CI step; nothing claimed Lean-verified).
 **KADEME 3: C0 ✅ C1 ✅ C2 🟢 — complete to its honest in-container limit. v2 program: 15/16 phases
 touched, only Kademe 4 (Alpha Centauri, 🔴 research horizon) remains.**
+
+## v3 — PRODUCT PROGRAMME (the new primary workstream; goal: a tool mathematicians WANT)
+
+User goal locked 2026-07-30. DONE = install + 3 real checks + honesty contract + citation in 10 min,
+CI-proven. **v3P0 ✅** — `check()` single door: proved/refuted/open/unsupported envelopes with epistemic
+tiers, exact witnesses, proof hashes; quickstart trio test-locked. Next: v3P1 CLI → v3P2 README →
+v3P3/P4 docs site + executable gallery → v3P5-P8 citation/version/deploy/community.
 
 ## Next — prioritized candidates
 

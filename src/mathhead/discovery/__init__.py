@@ -379,6 +379,7 @@ from .feature_conjectures import (
     feature_table,
     surviving_inequalities,
 )
+from .product import CheckResult, check
 from .program_search import (
     ProgramFind,
     conjecture_and_prove,
@@ -739,6 +740,8 @@ __all__ = [
     "evolve",
     "evaluate_program",
     "conjecture_and_prove",
+    "CheckResult",
+    "check",
     "IntervalVerdict",
     "double_star_slack_interval",
     "cross_check_certifiers",

@@ -340,7 +340,7 @@ v2D2 🔴 Yeni tanım üretimi (Track Z'nin v2 hali; matematiksel ZEVK problemi 
 > Pazar farkı: hiçbir araç verdict başına EPİSTEMİK KADEME vermiyor; bizim dürüstlük sözleşmemiz ürünün ruhu.
 
 ```
-v3P0 🟡 Ürün çekirdeği: check() tek-kapı API — ifade → yapı sınıflandırma → enstrüman → dürüst verdict zarfı
+v3P0 ✅ Ürün çekirdeği: check() tek-kapı API — ifade → yapı sınıflandırma → enstrüman → dürüst verdict zarfı — product.py: modüler (kernel ispat / kesin kalıntı-tanığıyla refütasyon), toplam-kimliği (SumInduction / en-küçük-n tanığı), graf-sınırı (counterexample-first, bağlı graflar; en-küçük tanık ör. T≤E → n=6, 16>14; survivor dürüstçe OPEN); tanınmayan girdi 'unsupported' + enstrüman önerisi — ASLA tahmin yok; 7 quickstart-testi CI'da; ADR-D0072
 v3P1 🟡 CLI: mathhead-discover check/bracket/hunt/report komutları
 v3P2 🟡 README ürün-sınıfı yeniden yazım (30-saniye değer önermesi + 3 canlı örnek + kademe tablosu)
 v3P3 🟡 Docs sitesi (mkdocs-material): quickstart + 5 işlenmiş örnek + API referans + DÜRÜSTLÜK SÖZLEŞMESİ sayfası

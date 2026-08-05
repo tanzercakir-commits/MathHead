@@ -350,3 +350,29 @@ v3P6 ✅ Sürüm cilası: CHANGELOG + semver v1.1.0 + pip extras denetimi — 1.
 v3P7 🟢 GitHub Pages docs deploy CI + repo vitrini (badges, topics) — .github/workflows/docs.yml (mkdocs gh-deploy, main push'ta); İLK deploy repo ayarında Pages'in gh-pages branch'e açılmasını ister (insan adımı, kayıtlı); ADR-D0075
 v3P8 ✅ Topluluk yüzeyi: issue şablonları + CONTRIBUTING + "conjecture wanted" şablonu — conjecture_wanted.md (ifade formları + dürüst-atıf alanı), bug_report.md ('kademe kanıtı abartıyorsa = en yüksek-öncelik bug sınıfı'), CONTRIBUTING.md (dürüstlük kuralları = katkı kuralları); ADR-D0075
 ```
+
+---
+
+## v4 EKİ — MAKSİMUM FONKSİYONELLİK SPRİNTİ (2026-08-05, kullanıcı: "release'i boşver; hedef maksimum fonksiyonellik; sonuna kadar git")
+
+> TASARIM İLKESİ (v1'den alınan ders): "sonuna kadar gitmek" bir irade ayarı değil, PLAN TASARIMIDIR.
+> v1'in 103/103 kapanamamasının nedeni 12 🔴 açık-araştırma fazıdır (dürüstçe bitirilemez). Bu v4 planı
+> BİLEREK yalnızca konteyner-içi TAMAMLANABİLİR fazlardan oluşur: her fazın ölçülebilir DONE ölçütü var,
+> son faz bir FİNAL DENETİMdir (rakip-plan disiplini). Bu plana "sonuna kadar" gidilir ve gidilecektir.
+>
+> ÇALIŞMA DİSİPLİNİ — İKİLİ AJAN DÖNGÜSÜ (kullanıcı talebi): her faz iki ayrı ajanla koşar:
+>   Ajan-2 IMPLEMENTER (uygular, test yazar) → Ajan-1 MENTOR/TESTER/EVALUATOR (düşmanca dener: kırmaya
+>   çalışır, kademe-abartısı arar, DONE ölçütünü kanıta karşı denetler) → FAIL ise bulgular implementer'a
+>   geri döner (döngü) → PASS ise orkestratör tam suite + commit + tracker günceller.
+>   Protokol: docs/discovery/AGENT-PROTOCOL.md
+
+```
+v4F0 ⬜ RUP/DRAT UNSAT sertifikası → Ramsey: UNSAT verdiktleri çözücü-sözüne değil BAĞIMSIZ kontrol edilen çürütme-ispatına dayansın — J2'nin DRUP/RUP altyapısı ramsey_sat'a bağlanır; DONE: R(3,3)≤6 ve R(3,4)≤9 UNSAT'ları motor-içi bağımsız RUP kontrolünden geçer, yeni dürüstlük kademesi verdikte görünür; lemmalı koşularda ispatın GÜÇLENDİRİLMİŞ formüle ait olduğu dürüstçe etiketlenir; testler CI'da
+v4F1 ⬜ check() kapsama dalgası 1 (aynı domainlerde derinlik): polinom kongrüansları p(n) ≡ q(n) (mod m), graf-sınırında >= yönü ve invA == invB eşitlik iddiaları, karşılaştırmalı toplam-eşitsizlikleri; DONE: en az 3 yeni ifade formu proved/refuted/open yollarıyla tek kapıdan geçer, quickstart+docs örnekleri güncellenir, testler CI'da
+v4F2 ⬜ check() kapsama dalgası 2 (yeni domainler tek kapıya): permütasyon ve partisyon iddiaları ("all perms of n: inv <= n(n-1)/2" tarzı sınırlar, sayım kimlikleri) mevcut domain motorlarına yönlendirilir; DONE: en az 2 yeni domain check()'ten tanık/ispatla erişilir, unsupported-mesajları yeni kapsamı bilir, testler CI'da
+v4F3 ⬜ Sertleştirme süpürmesi A: dokunulmuş-kısmi fazların ilk yarısı (M/Q/R/S/N/O kümeleri) tam ✅'a — her biri için eksik listesi çıkarılır, kapatılır, kanıt testi eklenir; DONE: hedef listedeki her faz ya ✅ ya da kapanamama nedeni tek cümleyle roadmap'e işlenmiş
+v4F4 ⬜ Sertleştirme süpürmesi B: ikinci yarı (P/T/U/W/X/AA/AC kümeleri) aynı disiplinle; DONE: aynı ölçüt
+v4F5 ⬜ Ölçek koşuları: geng n=8 bağlı-graf invariant süpürmesi konjektür servisine; R(3,6)=18 denemesi (türetilmiş derece-lemmaları: kırmızı≤5, mavi≤R(3,5)−1=13 — motorun KENDİ bracket'i, öz-referanslı zincir büyür); Frankl büyük bütçe; DONE: her koşu dürüst kademeyle kayıtlı, zaman-aşımı asla sonuç gibi yazılmaz
+v4F6 ⬜ Bilgi-grafı derinliği: X0 generalizes/specializes kenarları P2 genellemesinden beslenir + kalan derinlik kalemleri (T3 ispat-ağacı boşlukları); DONE: kenarlar sorgulanabilir + testli
+v4F7 ⬜ FİNAL DENETİM (rakip-plan disiplini): evaluator-ajan v4F0..F6'nın HER DONE ölçütünü kanıta karşı denetler; kapanamayan varsa dürüstçe listelenir; v1.2.0 sürüm + CHANGELOG; DONE: denetim raporu docs'ta, tam suite yeşil, tracker'lar senkron
+```

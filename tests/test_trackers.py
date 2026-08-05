@@ -28,6 +28,7 @@ def test_v2_extension_is_guarded_and_cannot_leak_into_v1():
     # phase IDs (v2A0…) can never inflate the original 103
     assert gen_status.v2_count() == gen_status.V2_PHASES_EXPECTED == 16
     assert gen_status.v3_count() == gen_status.V3_PHASES_EXPECTED == 9
+    assert gen_status.v4_count() == gen_status.V4_PHASES_EXPECTED == 8
     phases, _, _ = gen_status.roadmap_counts()
     assert phases == 103                                   # unchanged AFTER the v2 append
 

@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-08-05 — v4 MAX-FUNCTIONALITY sprint launched + the DUAL-AGENT discipline 🚀
+
+User redirect: forget release steps; goal = MAXIMUM FUNCTIONALITY, and "go to the end". The honest
+diagnosis was written into the plan itself: v1 can never close 103/103 because 12 phases are 🔴 open
+research — "going to the end" is PLAN DESIGN, not a missing setting. So v4 (8 phases, guarded:
+V4_PHASES_EXPECTED=8 in gen_status + test_trackers) contains ONLY in-container-completable phases,
+each with a measurable DONE, closing with a FINAL AUDIT phase (v4F7) in the competitor-roadmap style.
+Also per user request: the DUAL-AGENT self-control loop is now the working discipline — Agent-2
+IMPLEMENTER builds, Agent-1 MENTOR/TESTER/EVALUATOR adversarially gates (PASS required before any
+commit; max 3 FAIL rounds then honest "blocked") — contract in docs/discovery/AGENT-PROTOCOL.md.
+First target: v4F0 (RUP/DRAT-checked UNSAT for Ramsey — solver's word replaced by an independently
+verified refutation proof).
+
+---
+
 ## 2026-08-05 — Release verification pass: full suite GREEN (1833/1833) 🟢
 
 Post-release sanity gate. The v1.1.0 sync sweep had left one transient scare on record — a full-suite

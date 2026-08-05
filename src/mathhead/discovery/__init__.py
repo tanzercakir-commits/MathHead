@@ -51,6 +51,9 @@ Layers so far:
   * conjecture_service — Graffiti-style conjecture FEED (v2C0): sharpness-ranked invariant inequalities
                  over the rich registry, counterexample-first on all connected graphs; rediscovers ω≤χ
                  (sharpest), diameter≤2·radius, Ore's γ≤α; every item empirical + known-result caveat
+  * ramsey_sat  — the SAT frontier (v2C1): Ramsey 2-colouring CNF on pysat; R(3,3)=6 and R(3,4)=9
+                 bracketed by the engine, R(4,4)>17 witnessed; SAT witnesses re-verified by BRUTE FORCE
+                 (independently_verified_witness), UNSAT honestly solver_verified (DRAT = next step)
   * frankl      — the LIVE hunt on an OPEN conjecture (v2B3): Frankl union-closed sets (1979, open);
                  bitmask set-family domain; exact integer violation certificates (union-closure verified
                  inside the certifier); exhaustive formalization guard m≤4 (4959 union-closed families,
@@ -414,6 +417,7 @@ from .oeis_radar import (
 )
 from .objects import Graph, MathObject
 from .proof_tree import ProofNode, proof_tree, render_tree, sum_proof_tree
+from .ramsey_sat import RamseyVerdict, bracket_ramsey, ramsey_cnf, ramsey_decide
 from .refute import RefutationResult, refute
 from .report import DiscoveryReport, render, run_report
 from .partitions import (
@@ -708,6 +712,10 @@ __all__ = [
     "ServiceConjecture",
     "run_service",
     "service_invariants",
+    "RamseyVerdict",
+    "ramsey_cnf",
+    "ramsey_decide",
+    "bracket_ramsey",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

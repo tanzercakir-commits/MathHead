@@ -7,6 +7,22 @@
 
 ---
 
+## 2026-07-30 — v2C1 ✅ the SAT frontier: R(3,3)=6 and R(3,4)=9 bracketed by the engine
+
+New `ramsey_sat.py`. Heule's programme (Boolean Pythagorean triples, Schur 5) settled open finite
+combinatorics with SAT; this is the engine's on-ramp. K_n edge-2-colouring CNF (no red K_s, no blue
+K_t) on pysat/Glucose3, with the semantics stated exactly (SAT at n ⟹ R(s,t) > n; UNSAT ⟹ R(s,t) ≤ n)
+and the honesty tiers kept SEPARATE: every SAT witness is re-verified by BRUTE FORCE with no solver in
+the loop — a lying model would be refused, never accepted — earning `independently_verified_witness`;
+UNSAT verdicts stay `solver_verified` (kernel-grade UNSAT needs DRAT proof logging — recorded as the
+honest next step, not claimed). Calibration: **R(3,3) = 6** (SAT@5 = the pentagon colouring, UNSAT@6)
+and **R(3,4) = 9** bracketed by the engine's own flip detection; **R(4,4) > 17** established with an
+independently verified 68-red-edge colouring (exactly C(17,2)/2 — the Paley self-complementarity
+surfacing in the witness). A flip outside the scanned range claims NOTHING. 5 tests; full suite
+**1791 green**, ruff clean. Roadmap v2C1 ✅ (ADR-D0067).
+
+---
+
 ## 2026-07-30 — v2C0 ✅ the Graffiti-style conjecture service (Kademe 3 opens)
 
 New `conjecture_service.py`. Graffiti (Fajtlowicz, 1980s) proved a machine's conjecture FEED can drive

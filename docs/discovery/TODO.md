@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 72 modules · 475 discovery tests · 35 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 73 modules · 480 discovery tests · 36 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -130,7 +130,10 @@ not_found_within_budget (best_score reached +1 — one above the equality wall).
 **v2C0 ✅ Graffiti-style conjecture service:** sharpness-ranked feed over the rich invariants — 330
 candidates → 74 survivors on all connected n≤6; ω≤χ sharpest (138 equality graphs = perfect graphs),
 diameter≤2·radius, Ore's γ≤α rediscovered; every item empirical + known-result caveat.
-Next: v2C1 SAT frontier (Ramsey encodings on pysat) → v2C2 Lean bridge (the flagged MAX step).
+**v2C1 ✅ SAT frontier:** R(3,3)=6 and R(3,4)=9 bracketed by the engine (SAT→UNSAT flip), R(4,4)>17
+witnessed; SAT witnesses brute-force re-verified (independently_verified_witness), UNSAT honestly
+solver_verified (DRAT logging = recorded next step). Next: v2C2 Lean bridge (the flagged MAX step) —
+then Kademe 3 complete; beyond lies only Kademe 4 (Alpha Centauri, 🔴).
 
 ## Next — prioritized candidates
 

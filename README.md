@@ -2,6 +2,55 @@
 
 ![CI](https://github.com/tanzercakir-commits/MathHead/actions/workflows/ci.yml/badge.svg)
 
+**Bring your conjecture — MathHead refutes it (with a witness), proves it (with a kernel proof),
+or tells you exactly how far it survived.** A deterministic mathematics engine with an honesty
+contract: **every verdict carries its epistemic tier.**
+
+```console
+$ pip install mathhead[solvers]        # + `apt install nauty` for graph generation at scale
+
+$ mathhead-discover check "6 | n^3 - n"
+VERDICT: proved   [kernel_verified]
+  proof     : kernel hash 7b24fe07c5c0df35
+
+$ mathhead-discover check "num_triangles <= num_edges" --max-n 6
+VERDICT: refuted   [exact_integer_certificate]
+  witness   : n=6 graph with num_triangles=16 > num_edges=14
+
+$ mathhead-discover bracket 3 5 --lo 13 --hi 14 --strengthen
+n=13: SAT   [independently_verified_witness]  → R(3,5) > 13
+n=14: UNSAT [solver_verified_with_derived_lemmas]  → R(3,5) <= 14
+R(3,5) = 14
+```
+
+**What it can do today** (each claim CI-tested): prove modular facts and sum identities in an
+LCF-style proof kernel (forge-guarded, trust base fully derived); refute conjectures
+counterexample-first over ALL connected graphs (nauty-scale, exact invariants incl. α, γ, ν,
+girth, diameter); certify spectral counterexamples in **pure integer arithmetic** (no floats in
+any verdict); bracket Ramsey numbers — R(3,3)=6 · R(3,4)=9 · R(3,5)=14 · R(4,4)=18 — with
+independently re-verified SAT witnesses; hunt live on open problems (Frankl union-closed) with
+honest `not_found_within_budget` outcomes; run PSLQ constant-relation searches with a
+two-precision protocol; export kernel theorems to Lean 4 for external cross-sealing.
+
+**The honesty contract** — the tier rides every verdict, strongest first:
+
+| tier | meaning |
+|---|---|
+| `kernel_verified` | universal machine proof in the LCF-style kernel (+ proof hash) |
+| `exact_integer_certificate` | self-verifying witness, pure integer arithmetic |
+| `independently_verified_witness` | solver output re-checked by brute force, no solver in the loop |
+| `solver_verified(_with_derived_lemmas)` | solver verdict; any added lemmas are listed on the verdict |
+| `constructive_bounded` / `interval_certified` | explicit witness / certified enclosure, sample-bounded |
+| `numerical_conjecture` / `empirical` | evidence, **never** presented as proof |
+| `no_counterexample_within_bound` | survived exhaustive attack to the stated bound — honestly open |
+
+It never bluffs: unsupported input is refused with suggestions, unfinished hunts say so, and
+nothing is ever labelled stronger than what was actually checked.
+
+---
+
+## The verification core (MCP)
+
 **A deterministic verification & counterexample engine for AI-generated mathematics** —
 callable by an AI (e.g. Claude) over **MCP**.
 

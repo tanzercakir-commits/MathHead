@@ -7,6 +7,20 @@
 
 ---
 
+## 2026-07-30 — v3P1 ✅ CLI + v3P2 ✅ product README
+
+**v3P1 (`mathhead-discover`)**: the product on the command line — `check` (any supported statement, tier
++ witness + proof hash printed), `bracket s t --lo --hi [--strengthen]` (Ramsey with the lemma list
+riding each UNSAT verdict), `hunt frankl`, `report`; `--json` for machines. New pyproject entry point;
+ZERO touches on the frozen v1 MCP-router CLI. 5 CLI tests in CI. **v3P2 (README)**: the hero a
+mathematician reads in 30 seconds — the promise line, three REAL console examples (kernel proof with
+hash, the n=6 triangle/edge refutation witness, the R(3,5)=14 bracket), the "what it can do today"
+paragraph (every claim CI-tested), and the 7-row honesty-tier table — the differentiator, front and
+center. Existing MCP-core content preserved below. Full suite **1827 green**, ruff clean. Roadmap
+v3P1/P2 ✅ (ADR-D0073). v3: 3/9 done.
+
+---
+
 ## 2026-07-30 — v3 PRODUCT programme launched + v3P0 ✅ the single-door check() API ⭐
 
 **New goal, user-locked:** turn MathHead into a product mathematicians WANT — not a toy. Formalized as

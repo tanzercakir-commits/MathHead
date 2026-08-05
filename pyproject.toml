@@ -54,6 +54,7 @@ solvers = [
 [project.scripts]
 mathhead = "mathhead.cli:main"
 mathhead-server = "mathhead.server.mcp_server:main"
+mathhead-discover = "mathhead.discovery.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/tanzercakir-commits/MathHead"

@@ -1,6 +1,6 @@
 # Worked Examples
 
-Eight real sessions — outputs are verbatim engine output, locked by CI (`tests/test_docs_examples.py`).
+Eleven real sessions — outputs are verbatim engine output, locked by CI (`tests/test_docs_examples.py`).
 
 ## 1 · A modular proof, universally
 
@@ -124,3 +124,76 @@ exact summation 1+2+⋯+201 = 20301 > 20300.5 convicts it — the solver only po
 does NOT land on an integer upgrades nothing: `"sum_(i=1..n) (2*i-1) <= n^2 + (n-1)*(n-2)/2"`
 holds at every integer but fails between 1 and 2 over the reals — the engine keeps it honestly
 `open [no_counterexample_within_bound]`.
+
+## 9 · Permutation bounds: all of S_n scanned, the witness in one-line notation (v4F2)
+
+`check()` now reaches the permutation domain: `"all perms of n: invA <= invB"` (also `>=`/`==`), with
+`inversions`, `descents`, `major_index`, `fixed_points`, `cycles` (alias `num_cycles`) — or an
+exact-rational `g(n)` on the right. Every permutation of every `n` up to the honest n! wall
+(`min(max_n, 7)`) is scanned:
+
+```console
+$ mathhead-discover check "all perms of n: inversions <= n*(n-1)/2"
+VERDICT: open   [no_counterexample_within_bound]
+  statement : all perms of n: inversions <= n*(n-1)/2
+  checked   : ALL 5913 permutations over every n <= 7
+  note      : survived the exhaustive scan of every S_n up to the bound — a finite scan never proves the universal claim; NOT proved, honestly open
+```
+
+The bound is a true theorem (the reversal attains it) — and the verdict still says `open`, because a
+finite scan proves nothing universal. A false bound is convicted with the permutation in hand:
+
+```console
+$ mathhead-discover check "all perms of n: descents <= fixed_points"
+VERDICT: refuted   [exact_integer_certificate]
+  statement : all perms of n: descents <= fixed_points
+  witness   : {'n': 2, 'perm': [1, 0], 'descents': 1, 'fixed_points': 0}
+  checked   : first counterexample found in S_2 (every permutation of every smaller n scanned)
+  note      : explicit permutation witness (one-line notation); both sides recomputed exactly
+```
+
+## 10 · Partition counting identities: Euler's theorem, Glaisher verified per n — still OPEN (v4F2)
+
+```console
+$ mathhead-discover check "partitions(n, odd) == partitions(n, distinct)"
+VERDICT: open   [no_counterexample_within_bound]
+  statement : partitions(n, odd) == partitions(n, distinct)
+  checked   : all n <= 20, both counts exact
+  note      : the two counts agree exactly for every n <= 20 — NOT proved, honestly open; constructive bijection (Glaisher) verified for every n <= 20 — classical theorem, universal step not machine-checked here
+```
+
+Euler's theorem is classical, and the engine even re-verifies Glaisher's explicit bijection for every
+`n <= 20` — but the universal step is a theorem of the literature, not of this machine, so the tier
+stays `no_counterexample_within_bound`. A false counting identity is refuted at the smallest n, both
+counts in hand:
+
+```console
+$ mathhead-discover check "partitions(n, all) == partitions(n, distinct)"
+VERDICT: refuted   [exact_integer_certificate]
+  statement : partitions(n, all) == partitions(n, distinct)
+  witness   : {'n': 2, 'count_all': 2, 'count_distinct': 1}
+  checked   : smallest n where the two counts differ (n=2)
+  note      : both families of partitions of 2 enumerated exhaustively; the counts differ — the identity is false
+```
+
+## 11 · The composition identity: a per-n constructive bijection that still says OPEN (v4F2)
+
+```console
+$ mathhead-discover check "compositions(n) == 2^(n-1)"
+VERDICT: open   [no_counterexample_within_bound]
+  statement : compositions(n) == 2^(n-1)
+  checked   : all n <= 12, count vs formula exact
+  note      : the exact count matches the formula for every n <= 12 — NOT proved, honestly open; constructive bijection (cut-point) verified for every n <= 12 — classical theorem, universal step not machine-checked here
+```
+
+```console
+$ mathhead-discover check "compositions(n) == n^2"
+VERDICT: refuted   [exact_integer_certificate]
+  statement : compositions(n) == n^2
+  witness   : {'n': 2, 'compositions_count': 2, 'rhs': '4'}
+  checked   : smallest n where count and formula differ (n=2)
+  note      : all compositions of 2 enumerated exhaustively; the count disagrees with the right side — the identity is false
+```
+
+Set-partition/Bell counts (`set_partitions(n) == bell(n)`) are NOT in the surface yet — the
+`unsupported` message says so instead of guessing.

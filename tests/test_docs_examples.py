@@ -77,6 +77,41 @@ def test_example_8_sum_inequality_chain_and_the_sound_direction():  # v4F1
     assert "no counterexample among n <= 40" in o.checked_up_to
 
 
+def test_example_9_permutation_bounds(capsys):                    # v4F2
+    r = check("all perms of n: inversions <= n*(n-1)/2")          # a true theorem — still OPEN
+    assert (r.verdict, r.tier) == ("open", "no_counterexample_within_bound")
+    assert r.checked_up_to == "ALL 5913 permutations over every n <= 7"
+    assert "a finite scan never proves the universal claim" in r.notes
+    assert main(["check", "all perms of n: descents <= fixed_points"]) == 0
+    out = capsys.readouterr().out
+    assert "refuted   [exact_integer_certificate]" in out
+    assert "{'n': 2, 'perm': [1, 0], 'descents': 1, 'fixed_points': 0}" in out
+    perm = check("all perms of n: descents <= fixed_points").witness["perm"]
+    assert sum(1 for i in range(len(perm) - 1) if perm[i] > perm[i + 1]) == 1     # independent
+    assert sum(1 for i, v in enumerate(perm) if i == v) == 0
+
+
+def test_example_10_partition_identity(capsys):                   # v4F2
+    r = check("partitions(n, odd) == partitions(n, distinct)")    # Euler's theorem — still OPEN
+    assert (r.verdict, r.tier) == ("open", "no_counterexample_within_bound")
+    assert "constructive bijection (Glaisher) verified for every n <= 20" in r.notes
+    assert "universal step not machine-checked here" in r.notes
+    assert main(["check", "partitions(n, all) == partitions(n, distinct)"]) == 0
+    out = capsys.readouterr().out
+    assert "refuted   [exact_integer_certificate]" in out
+    assert "{'n': 2, 'count_all': 2, 'count_distinct': 1}" in out
+
+
+def test_example_11_composition_identity(capsys):                 # v4F2
+    r = check("compositions(n) == 2^(n-1)")
+    assert (r.verdict, r.tier) == ("open", "no_counterexample_within_bound")
+    assert "constructive bijection (cut-point) verified for every n <= 12" in r.notes
+    bad = check("compositions(n) == n^2")
+    assert (bad.verdict, bad.tier) == ("refuted", "exact_integer_certificate")
+    assert bad.witness == {"n": 2, "compositions_count": 2, "rhs": "4"}
+    assert check("set_partitions(n) == bell(n)").verdict == "unsupported"   # docs say NOT covered
+
+
 def test_example_3_bracket_r33(capsys):
     assert main(["bracket", "3", "3", "--lo", "5", "--hi", "6"]) == 0
     assert "R(3,3) = 6" in capsys.readouterr().out

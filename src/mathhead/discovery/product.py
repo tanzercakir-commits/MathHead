@@ -1,5 +1,5 @@
 """
-mathhead.discovery.product — the single-door product API (v3P0 + v4F1): `check(statement)`.
+mathhead.discovery.product — the single-door product API (v3P0 + v4F1 + v4F2): `check(statement)`.
 
 The product promise: bring your conjecture — the engine refutes it (with a witness), proves it (with a
 kernel proof), or tells you exactly how far it survived. One call, one honest envelope:
@@ -13,7 +13,7 @@ kernel proof), or tells you exactly how far it survived. One call, one honest en
     >>> check("sum_degrees == 2*num_edges")       # → open (equality NEVER 'proved' from a finite scan)
     >>> check("clique_number <= chromatic_number")  # → open, no counterexample up to the stated bound
 
-Supported statement forms (the v4F1 product surface — parsed deterministically, never guessed):
+Supported statement forms (the v4F2 product surface — parsed deterministically, never guessed):
   * modular:      "m | poly(n)"  or  "m divides poly(n)"
   * congruence:   "p(n) ≡ q(n) (mod m)"  or ASCII  "p(n) = q(n) mod m"   (reduced to m | (p−q);
                   integer-coefficient polynomials in n only — anything else is an honest refusal)
@@ -25,8 +25,22 @@ Supported statement forms (the v4F1 product surface — parsed deterministically
   * graph bound:  "invA <= [k*]invB [+ c]", the mirrored ">=", and equalities "invA == [k*]invB [+ c]"
                   over the rich+classic invariants, checked counterexample-first on ALL connected
                   graphs up to `max_n` (an equality that survives is OPEN, never proved)
+  * permutation:  "all perms of n: invA <= invB" (also ">=" / "==") over inversions, descents,
+                  major_index, fixed_points, cycles (alias num_cycles); the right side may instead
+                  be an exact-rational
+                  expression in n ("all perms of n: inversions <= n*(n-1)/2"). ALL of S_1..S_cap is
+                  scanned (cap = min(max_n, 7) — the honest n! wall); a violation refutes with the
+                  permutation in hand; a survivor is OPEN — a finite scan never proves the claim
+  * partitions:   "partitions(n, odd) == partitions(n, distinct)" over the filters odd | distinct |
+                  all — both counts exhaustively compared for every n <= 20; equal counts stay OPEN
+                  (for the odd/distinct pair the engine additionally verifies Glaisher's constructive
+                  bijection per n — still not a universal machine proof, and it says so)
+  * compositions: "compositions(n) == g(n)" — the exact count vs the formula for every n <= 12; when
+                  g(n) is 2^(n-1) the engine re-verifies the cut-point bijection per n (same honesty)
 Anything else → verdict "unsupported" with the recognized structure + suggested instruments (X2 map) —
-an honest refusal, never a fabricated answer.
+an honest refusal, never a fabricated answer. Route-wide guard: any numeric constant (literal or
+evaluated) beyond 4000 digits is refused up front — CPython's int↔str conversion raises past ~4300
+digits, and the engine refuses rather than crashes.
 """
 from __future__ import annotations
 
@@ -36,6 +50,11 @@ from dataclasses import dataclass, field
 _SUM_WITNESS_BOUND = 40          # smallest-n witness scan bound for comparative sum inequalities
 _DIRECT_SUM_BOUND = 10_000       # up to here, integer hints are re-verified by DIRECT summation
 _MAX_MODULUS = 10**6             # residue exhaustion beyond this is an honest refusal, not a hang
+_MAX_CONST_DIGITS = 4000         # constants beyond this many digits are refused ROUTE-WIDE:
+_CONST_LIMIT = 10 ** _MAX_CONST_DIGITS   # CPython int↔str conversion raises past ~4300 digits,
+                                 # so the engine refuses up front — never a crash (v4F2)
+_OVERSIZED = (f"a numeric constant exceeds {_MAX_CONST_DIGITS} digits — refused up front "
+              "(CPython int↔str conversion overflows past ~4300 digits)")
 
 
 @dataclass
@@ -49,6 +68,25 @@ class CheckResult:
     proof_hash: str = ""
     instruments: tuple = ()
     notes: str = ""
+
+
+def _oversized_constant(*exprs) -> bool:
+    """True when any exact numeric atom in the given sympy expressions has more than
+    _MAX_CONST_DIGITS digits (numerator or denominator) — the route-wide guard behind every
+    'constant exceeds 4000 digits' refusal. Checked WITHOUT string conversion (bit-level)."""
+    import sympy
+    return any(abs(a.p) >= _CONST_LIMIT or a.q >= _CONST_LIMIT
+               for expr in exprs for a in expr.atoms(sympy.Rational))
+
+
+def _too_big(x) -> bool:
+    """An EVALUATED exact value too large to print or certify (same guard, at evaluation time)."""
+    import sympy
+    try:
+        r = sympy.Rational(x)
+    except (TypeError, ValueError):
+        return False
+    return abs(r.p) >= _CONST_LIMIT or r.q >= _CONST_LIMIT
 
 
 def _check_modular(stmt: str, m: int, expr: str) -> CheckResult:
@@ -67,7 +105,12 @@ def _check_modular(stmt: str, m: int, expr: str) -> CheckResult:
                            notes=f"residue exhaustion over {m} residues is infeasible; "
                                  "bound = 10^6 — the engine refuses to guess")
     try:
-        poly = _int_poly_in_n(sympy.expand(sympy.sympify(expr)))
+        expanded = sympy.expand(sympy.sympify(expr))
+        if _oversized_constant(expanded):                          # v4F2: refusal, never a crash
+            return CheckResult(stmt, "modular_divisibility", "unsupported", "none",
+                               instruments=("kernel.prove_divides",),
+                               notes=f"{_OVERSIZED} — the engine refuses to guess")
+        poly = _int_poly_in_n(expanded)
     except (KernelError, sympy.SympifyError, sympy.PolynomialError, TypeError, ValueError) as exc:
         # v4F1 honesty fix: poly_from_sympy would silently int()-TRUNCATE rational coefficients
         # ("2 | n/2" became a FALSE kernel proof) and crash on foreign symbols. Refuse instead.
@@ -134,6 +177,8 @@ def _check_congruence(stmt: str, lhs: str, rhs: str, m: int) -> CheckResult:
     try:
         p = sympy.expand(sympy.sympify(lhs))
         q = sympy.expand(sympy.sympify(rhs))
+        if _oversized_constant(p, q):                              # v4F2: refusal, never a crash
+            return _cong_unsupported(stmt, _OVERSIZED)
         p_poly, q_poly = _int_poly_in_n(p), _int_poly_in_n(q)   # noqa: F841 — validates BOTH sides
         d_poly = _int_poly_in_n(p - q)
     except (KernelError, sympy.SympifyError, sympy.PolynomialError, TypeError, ValueError) as exc:
@@ -167,8 +212,13 @@ def _check_sum(stmt: str, f_expr: str, g_expr: str) -> CheckResult:
     from .kernel import KernelError, poly_from_sympy_q, prove_sum_identity
     from .provenance import proof_hash as _hash
     i, n = sympy.Symbol("i"), sympy.Symbol("n")
-    f_poly = poly_from_sympy_q(str(sympy.expand(sympy.sympify(f_expr).subs(i, n))))
-    g_poly = poly_from_sympy_q(str(sympy.expand(sympy.sympify(g_expr))))
+    ff0, gg0 = sympy.sympify(f_expr), sympy.sympify(g_expr)
+    if _oversized_constant(ff0, gg0):                              # v4F2: refusal, never a crash
+        return CheckResult(stmt, "sum_identity", "unsupported", "none",
+                           instruments=("kernel.prove_sum_identity",),
+                           notes=f"{_OVERSIZED} — the engine refuses to guess")
+    f_poly = poly_from_sympy_q(str(sympy.expand(ff0.subs(i, n))))
+    g_poly = poly_from_sympy_q(str(sympy.expand(gg0)))
     try:
         _thm, term = prove_sum_identity(f_poly, g_poly)
         return CheckResult(stmt, "sum_identity", "proved", "kernel_verified",
@@ -235,6 +285,8 @@ def _verify_integer_hint(ff, gg, rel, cand, closed):
             lhs = closed.subs(n, k0)          # kernel-verified closed form, exact rational eval
             method = "kernel-verified closed form, exact evaluation"
         rhs = gg.subs(n, k0)
+        if _too_big(lhs) or _too_big(rhs):                # cannot print/certify → upgrades nothing
+            return None
         delta = sympy.simplify(lhs - rhs)
         if not delta.is_number:
             return None
@@ -257,11 +309,18 @@ def _check_sum_inequality(stmt: str, f_expr: str, rel: str, g_expr: str) -> Chec
     except (sympy.SympifyError, TypeError, ValueError) as exc:
         return CheckResult(stmt, "sum_inequality", "unsupported", "none",
                            notes=f"could not parse the two sides ({exc}) — the engine refuses to guess")
+    if _oversized_constant(ff, gg):                                # v4F2: refusal, never a crash
+        return CheckResult(stmt, "sum_inequality", "unsupported", "none",
+                           notes=f"{_OVERSIZED} — the engine refuses to guess")
     # 1) smallest-n witness search, exact arithmetic
     acc, sums = sympy.Integer(0), []
     for k in range(1, _SUM_WITNESS_BOUND + 1):
         acc = acc + ff.subs(i, k)
         sums.append(acc)
+        if _too_big(acc) or _too_big(gg.subs(n, k)):               # evaluated blow-up: refuse too
+            return CheckResult(stmt, "sum_inequality", "unsupported", "none",
+                               notes=f"{_OVERSIZED.replace('a numeric constant', 'an evaluated value')}"
+                                     f" at n={k} — the engine refuses to guess")
         delta = sympy.simplify(acc - gg.subs(n, k))          # LHS − RHS at n=k
         if not delta.is_number:
             return CheckResult(stmt, "sum_inequality", "unsupported", "none",
@@ -391,10 +450,249 @@ def _check_graph_bound(stmt: str, max_n: int) -> CheckResult | None:
                        notes="survived exhaustive small-order attack; NOT proved — honestly open")
 
 
+# --- permutation invariant bounds: "all perms of n: invA <= invB-or-g(n)"  (v4F2) ---------------
+
+_MAX_PERM_N = 7                  # the honest n! wall (7! = 5040); generate_permutations refuses beyond
+_PERM_PREFIX = re.compile(r"^\s*all\s+perms\s+of\s+n\b")
+_PERM_STMT = re.compile(r"^\s*all\s+perms\s+of\s+n\s*:\s*(\w+)\s*(<=|>=|==|=)\s*(.+?)\s*$")
+_PERM_INVARIANT_NAMES = ("inversions", "descents", "major_index", "fixed_points",
+                         "cycles (alias num_cycles)")
+
+
+def _perm_invariants() -> dict:
+    from . import permutations as perms
+    return {"inversions": perms.inversions, "descents": perms.descents,
+            "major_index": perms.major_index, "fixed_points": perms.fixed_points,
+            "cycles": perms.num_cycles, "num_cycles": perms.num_cycles}
+
+
+def _perm_unsupported(stmt: str, why: str) -> CheckResult:
+    return CheckResult(stmt, "permutation_bound", "unsupported", "none",
+                       instruments=("permutations.generate_permutations",),
+                       notes=f"{why} — the permutation surface is 'all perms of n: "
+                             "invA <= / >= / == invB-or-g(n)' with invariants "
+                             f"{', '.join(_PERM_INVARIANT_NAMES)} and g(n) an exact-rational "
+                             "expression in n; the engine refuses to guess")
+
+
+def _check_perm_bound(stmt: str, max_n: int) -> CheckResult | None:
+    if not _PERM_PREFIX.match(stmt):
+        return None
+    m = _PERM_STMT.match(stmt)
+    if not m:
+        return _perm_unsupported(stmt, "could not read the claim after 'all perms of n'")
+    lhs, rel, rhs = m.group(1), "==" if m.group(2) == "=" else m.group(2), m.group(3)
+    structure = "permutation_equality" if rel == "==" else "permutation_inequality"
+    invs = _perm_invariants()
+    if lhs not in invs:
+        return _perm_unsupported(stmt, f"unknown left invariant '{lhs}'")
+    rhs_fn, expr = invs.get(rhs), None
+    if rhs_fn is None:
+        import sympy
+        nsym = sympy.Symbol("n")
+        try:
+            expr = sympy.expand(sympy.sympify(rhs))
+        except (sympy.SympifyError, TypeError, ValueError) as exc:
+            return _perm_unsupported(stmt, f"the right side is neither a known invariant nor a "
+                                           f"readable expression in n ({exc})")
+        if expr.free_symbols - {nsym}:
+            return _perm_unsupported(stmt, f"the right side has free symbols other than n "
+                                           f"({expr.free_symbols - {nsym}})")
+        if _oversized_constant(expr):                              # v4F2: refusal, never a crash
+            return _perm_unsupported(stmt, _OVERSIZED)
+    from fractions import Fraction
+
+    from .permutations import generate_permutations
+    holds = {"<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b, "==": lambda a, b: a == b}[rel]
+    cap, checked = max(1, min(max_n, _MAX_PERM_N)), 0
+    for k in range(1, cap + 1):
+        rv = None
+        if expr is not None:
+            import sympy
+            val = expr.subs(sympy.Symbol("n"), k)
+            try:
+                rat = sympy.Rational(val)
+                rv = Fraction(int(rat.p), int(rat.q))
+            except (TypeError, ValueError):
+                return _perm_unsupported(stmt, f"the right side does not evaluate to an exact "
+                                               f"rational at n={k}")
+            if _too_big(rat):                                      # evaluated blow-up: refuse too
+                return _perm_unsupported(stmt, _OVERSIZED + f" when evaluated at n={k}")
+        for p in generate_permutations(k):
+            la = invs[lhs](p)
+            rb = invs[rhs](p) if rhs_fn is not None else rv
+            checked += 1
+            if not holds(la, rb):
+                rb_out = rb if isinstance(rb, int) else (int(rb) if rb.denominator == 1 else str(rb))
+                rhs_key = rhs if rhs_fn is not None else "rhs"      # expression key would collide w/ 'n'
+                return CheckResult(stmt, structure, "refuted", "exact_integer_certificate",
+                                   witness={"n": k, "perm": list(p.perm), lhs: la, rhs_key: rb_out},
+                                   checked_up_to=f"first counterexample found in S_{k} "
+                                                 f"(every permutation of every smaller n scanned)",
+                                   instruments=("exhaustive S_n scan",),
+                                   notes="explicit permutation witness (one-line notation); both "
+                                         "sides recomputed exactly"
+                                         + ("" if rel != "==" else
+                                            " (equality broken — either direction convicts)"))
+    if max_n < 1:
+        capped = f" (max_n={max_n} < 1 clamped to n=1 — S_1 is the smallest scannable ensemble)"
+    elif max_n > _MAX_PERM_N:
+        capped = f" (scan honestly capped at n={_MAX_PERM_N}: n! growth)"
+    else:
+        capped = ""
+    return CheckResult(stmt, structure, "open", "no_counterexample_within_bound",
+                       checked_up_to=f"ALL {checked} permutations over every n <= {cap}{capped}",
+                       instruments=("exhaustive S_n scan",),
+                       notes="survived the exhaustive scan of every S_n up to the bound — a finite "
+                             "scan never proves the universal claim; NOT proved, honestly open")
+
+
+# --- partition counting identities: "partitions(n, odd) == partitions(n, distinct)"  (v4F2) -----
+
+_PARTITION_ID_BOUND = 20         # p(20) = 627 — exhaustive per-n counting stays instant
+_PART_PREFIX = re.compile(r"^\s*partitions\s*\(")
+_PART_STMT = re.compile(r"^\s*partitions\s*\(\s*n\s*(?:,\s*(\w+)\s*)?\)\s*(?:==|=)\s*"
+                        r"partitions\s*\(\s*n\s*(?:,\s*(\w+)\s*)?\)\s*$")
+
+
+def _partition_filters() -> dict:
+    from .partitions import into_distinct_parts, into_odd_parts
+    return {"odd": into_odd_parts, "distinct": into_distinct_parts, "all": lambda _p: True}
+
+
+def _part_unsupported(stmt: str, why: str) -> CheckResult:
+    return CheckResult(stmt, "partition_count_identity", "unsupported", "none",
+                       instruments=("partitions.generate_partitions",),
+                       notes=f"{why} — the partition surface is exactly "
+                             "'partitions(n, odd|distinct|all) == partitions(n, odd|distinct|all)' "
+                             "('parts <= k' filters and closed-form right sides are NOT supported); "
+                             "the engine refuses to guess")
+
+
+def _check_partition_identity(stmt: str) -> CheckResult | None:
+    if not _PART_PREFIX.match(stmt):
+        return None
+    m = _PART_STMT.match(stmt)
+    if not m:
+        return _part_unsupported(stmt, "could not read the statement as a two-sided partition count")
+    fl, fr = (m.group(1) or "all"), (m.group(2) or "all")
+    filters = _partition_filters()
+    if fl not in filters or fr not in filters:
+        bad = fl if fl not in filters else fr
+        return _part_unsupported(stmt, f"unknown partition filter '{bad}'")
+    from .partitions import generate_partitions
+    for k in range(1, _PARTITION_ID_BOUND + 1):
+        parts = generate_partitions(k)
+        a = sum(1 for p in parts if filters[fl](p))
+        b = sum(1 for p in parts if filters[fr](p))
+        if a != b:
+            return CheckResult(stmt, "partition_count_identity", "refuted",
+                               "exact_integer_certificate",
+                               witness={"n": k, f"count_{fl}": a, f"count_{fr}": b},
+                               checked_up_to=f"smallest n where the two counts differ (n={k})",
+                               instruments=("exhaustive partition counting",),
+                               notes=f"both families of partitions of {k} enumerated exhaustively; "
+                                     "the counts differ — the identity is false")
+    notes = (f"the two counts agree exactly for every n <= {_PARTITION_ID_BOUND} — "
+             "NOT proved, honestly open")
+    instruments = ("exhaustive partition counting",)
+    if {fl, fr} == {"odd", "distinct"}:
+        from .bijections import certify_euler_bijection
+        if certify_euler_bijection(_PARTITION_ID_BOUND).verified:
+            notes += ("; constructive bijection (Glaisher) verified for every n <= "
+                      f"{_PARTITION_ID_BOUND} — classical theorem, universal step not "
+                      "machine-checked here")
+            instruments = ("exhaustive partition counting", "bijections.certify_euler_bijection")
+    return CheckResult(stmt, "partition_count_identity", "open", "no_counterexample_within_bound",
+                       checked_up_to=f"all n <= {_PARTITION_ID_BOUND}, both counts exact",
+                       instruments=instruments, notes=notes)
+
+
+# --- composition counting identity: "compositions(n) == g(n)"  (v4F2) ---------------------------
+
+_COMPOSITION_ID_BOUND = 12       # 2^11 = 2048 compositions at n=12 — exhaustive stays instant
+_COMP_PREFIX = re.compile(r"^\s*compositions\s*\(")
+_COMP_STMT = re.compile(r"^\s*compositions\s*\(\s*n\s*\)\s*(?:==|=)\s*(.+?)\s*$")
+
+
+def _comp_unsupported(stmt: str, why: str) -> CheckResult:
+    return CheckResult(stmt, "composition_count_identity", "unsupported", "none",
+                       instruments=("compositions.generate_compositions",),
+                       notes=f"{why} — the composition surface is 'compositions(n) == g(n)' with "
+                             "g an expression in n (filtered composition counts are NOT supported); "
+                             "the engine refuses to guess")
+
+
+def _cutpoint_verified(k: int) -> bool:
+    """Re-verify the cut-point bijection {compositions of k} ↔ {subsets of {1..k−1}} from the PUBLIC
+    pieces (injective + onto all 2^(k−1) subsets + round-tripping inverse) — check() trusts its own
+    verification, not another module's flag."""
+    from .compositions import composition_to_cutset, cutset_to_composition, generate_compositions
+    comps = generate_compositions(k)
+    images = {composition_to_cutset(c) for c in comps}
+    if not (len(comps) == len(images) == (1 << (k - 1))):
+        return False
+    return all(cutset_to_composition(k, composition_to_cutset(c)).parts == c.parts for c in comps)
+
+
+def _check_composition_identity(stmt: str) -> CheckResult | None:
+    if not _COMP_PREFIX.match(stmt):
+        return None
+    m = _COMP_STMT.match(stmt)
+    if not m:
+        return _comp_unsupported(stmt, "could not read the statement as 'compositions(n) == g(n)'")
+    import sympy
+    nsym = sympy.Symbol("n")
+    try:
+        expr = sympy.sympify(m.group(1))
+    except (sympy.SympifyError, TypeError, ValueError) as exc:
+        return _comp_unsupported(stmt, f"could not parse the right side ({exc})")
+    if expr.free_symbols - {nsym}:
+        return _comp_unsupported(stmt, f"free symbols other than n: {expr.free_symbols - {nsym}}")
+    if _oversized_constant(expr):                                  # v4F2: refusal, never a crash
+        return _comp_unsupported(stmt, _OVERSIZED)
+    from .compositions import count_compositions
+    for k in range(1, _COMPOSITION_ID_BOUND + 1):
+        c = count_compositions(k)
+        try:
+            rat = sympy.Rational(expr.subs(nsym, k))               # pi etc. → honest refusal: the
+        except (TypeError, ValueError):                            # tier PROMISES integer arithmetic
+            return _comp_unsupported(stmt, f"the right side does not evaluate to an exact "
+                                           f"rational at n={k}")
+        if _too_big(rat):                                          # evaluated blow-up: refuse too
+            return _comp_unsupported(stmt, _OVERSIZED + f" when evaluated at n={k}")
+        if c * rat.q != rat.p:
+            return CheckResult(stmt, "composition_count_identity", "refuted",
+                               "exact_integer_certificate",
+                               witness={"n": k, "compositions_count": c, "rhs": str(rat)},
+                               checked_up_to=f"smallest n where count and formula differ (n={k})",
+                               instruments=("exhaustive composition counting",),
+                               notes=f"all compositions of {k} enumerated exhaustively; the count "
+                                     "disagrees with the right side — the identity is false")
+    notes = (f"the exact count matches the formula for every n <= {_COMPOSITION_ID_BOUND} — "
+             "NOT proved, honestly open")
+    instruments = ("exhaustive composition counting",)
+    if sympy.simplify(expr - 2 ** (nsym - 1)) == 0 and all(
+            _cutpoint_verified(k) for k in range(1, _COMPOSITION_ID_BOUND + 1)):
+        notes += ("; constructive bijection (cut-point) verified for every n <= "
+                  f"{_COMPOSITION_ID_BOUND} — classical theorem, universal step not "
+                  "machine-checked here")
+        instruments = ("exhaustive composition counting",
+                       "compositions.composition_to_cutset (cut-point bijection)")
+    return CheckResult(stmt, "composition_count_identity", "open", "no_counterexample_within_bound",
+                       checked_up_to=f"all n <= {_COMPOSITION_ID_BOUND}, count vs formula exact",
+                       instruments=instruments, notes=notes)
+
+
 def check(statement: str, max_n: int = 7) -> CheckResult:
     """The product's single door. Parse deterministically, route to the right instrument, return an
     honest verdict envelope. Unrecognized input → 'unsupported' + suggestions, never a guess."""
     s = statement.strip()
+    if re.search(rf"\d{{{_MAX_CONST_DIGITS + 1},}}", s):           # v4F2: literal monsters refused
+        return CheckResult(s, "oversized_constant", "unsupported", "none",
+                           notes=f"a numeric literal in the statement exceeds {_MAX_CONST_DIGITS} "
+                                 "digits — refused up front (CPython int↔str conversion overflows "
+                                 "past ~4300 digits); the engine refuses to guess")
     m = re.match(r"^\s*(\d+)\s*(?:\||divides)\s*(.+)$", s)
     if m:
         return _check_modular(s, int(m.group(1)), m.group(2))
@@ -407,6 +705,15 @@ def check(statement: str, max_n: int = 7) -> CheckResult:
     m = re.match(r"^\s*sum_\(i=1\.\.n\)\s*(.+?)\s*=\s*(.+)$", s)
     if m:
         return _check_sum(s, m.group(1), m.group(2))
+    res = _check_perm_bound(s, max_n)
+    if res is not None:
+        return res
+    res = _check_partition_identity(s)
+    if res is not None:
+        return res
+    res = _check_composition_identity(s)
+    if res is not None:
+        return res
     res = _check_graph_bound(s, max_n)
     if res is not None:
         return res
@@ -417,5 +724,10 @@ def check(statement: str, max_n: int = 7) -> CheckResult:
                        notes="statement form not in the supported surface (modular 'm | p(n)'; "
                              "congruences 'p(n) ≡ q(n) (mod m)'; sum identities and comparative "
                              "sum inequalities 'sum_(i=1..n) f(i) = / <= / >= g(n)'; graph "
-                             "invariant bounds/equalities 'invA <= / >= / == [k*]invB [+ c]'); "
+                             "invariant bounds/equalities 'invA <= / >= / == [k*]invB [+ c]'; "
+                             "permutation bounds 'all perms of n: invA <= / >= / == invB-or-g(n)'; "
+                             "partition counting identities "
+                             "'partitions(n, odd|distinct|all) == partitions(n, ...)'; the "
+                             "composition identity 'compositions(n) == g(n)' — set-partition/Bell "
+                             "counts are NOT yet supported); "
                              "suggested instruments listed — the engine refuses to guess")

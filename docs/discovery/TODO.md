@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 81 modules · 564 discovery tests · 55 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 81 modules · 598 discovery tests · 56 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -168,7 +168,7 @@ because 12 phases are 🔴 open research. v4 is therefore built ONLY from in-con
 phases (each with a measurable DONE), ending in a FINAL AUDIT (v4F7). Discipline: the DUAL-AGENT
 loop (implementer agent → adversarial mentor/tester/evaluator agent → gate; see AGENT-PROTOCOL.md).
 
-Status: **2/8 — v4F0 ✅ v4F1 ✅.** F0: RUP-checked UNSAT (independent pure-Python proof checker;
+Status: **3/8 — v4F0 ✅ v4F1 ✅ v4F2 ✅** (wave 2: permutation bounds, partition counting identities with live Glaisher re-verification, composition identities with cut-point bijection — all through the single door; route-wide huge-constant guard). F0: RUP-checked UNSAT (independent pure-Python proof checker;
 strengthened-formula honesty in the tier name; fuzzer's 3rd real bug fixed as a bonus). F1: check()
 coverage wave 1 — congruences p≡q (mod m) via the kernel gate, graph >=/== (never proved by finite
 scan), sum-inequalities via the kernel-closed-form + z3 NRA chain (integer-hint exact upgrade);

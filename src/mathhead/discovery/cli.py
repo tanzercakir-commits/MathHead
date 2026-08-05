@@ -41,9 +41,11 @@ def main(argv=None) -> int:
     ap.add_argument("--json", action="store_true")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    p = sub.add_parser("check", help="check a statement (modular / sum identity / graph bound)")
+    p = sub.add_parser("check", help="check a statement (modular / congruence / sums / graph / "
+                                     "permutations / partitions / compositions)")
     p.add_argument("statement")
-    p.add_argument("--max-n", type=int, default=7, help="graph scan bound (connected graphs)")
+    p.add_argument("--max-n", type=int, default=7,
+                   help="scan bound (connected graphs; permutation scans cap honestly at 7)")
 
     p = sub.add_parser("bracket", help="bracket a Ramsey number R(s,t) by SAT")
     p.add_argument("s", type=int)

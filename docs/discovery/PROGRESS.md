@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-08-05 — v4F2 ✅ check() coverage wave 2 — permutations, partitions, compositions through the single door
+
+Three NEW domains reach `check()`: permutation bounds (`all perms of n: invA <= invB|g(n)` — full S_n
+scan honestly capped at n=7, refutations carry a one-line-notation permutation witness, every witness
+independently re-computed in tests); partition counting identities (`partitions(n, odd) ==
+partitions(n, distinct)` n≤20 — the Glaisher bijection is LIVE re-verified inside every check() call,
+proven by the evaluator's monkeypatch attack: corrupt the bijection and the note disappears, no flag
+reading); composition identities (`compositions(n) == 2^(n-1)` n≤12 — cut-point bijection re-verified
+injective+surjective+round-trip in-route). Tier discipline held everywhere: finite scans and per-n
+bijections NEVER yield proved — `no_counterexample_within_bound` + "universal step not machine-checked
+here" notes, pinned by tests. Closing round: a route-WIDE huge-constant guard (4000 digits, 3 layers —
+closed a pre-existing crash class that also hit the older sum/modular routes), non-rational RHS honest
+refusal (pi), num_cycles alias documented. Dual-agent gate: evaluator PASS. Full suite **1922 green**.
+v4: 3/8.
+
+---
+
 ## 2026-08-05 — v4F1 ✅ check() coverage wave 1 — three new statement forms through the single door
 
 Congruences `p(n) ≡ q(n) (mod m)` reduce to the kernel gate `m | (p−q)` (same proof hash as the

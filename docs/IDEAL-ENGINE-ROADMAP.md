@@ -317,7 +317,7 @@ v2B3 🟡 Canlı av: açık konjektürlerde tanık araması (tanık kendini doğ
 
 **Kademe 3 — konjektür servisi + cephe**
 ```
-v2C0 🟡 Keskinlik-tespitli konjektür servisi (Graffiti-tarzı; W0 novelty filtreli; insanlara yayın)
+v2C0 ✅ Keskinlik-tespitli konjektür servisi (Graffiti-tarzı; W0 novelty filtreli; insanlara yayın) — conjecture_service.py: zengin kütük (α,γ,ν,girth,diam,radius) + klasikler üzerinde A≤B / A≤B+c / A≤2B formları, tüm bağlı graflarda counterexample-first (142 graf, 330 aday → 74 survivor); KESKİNLİK sıralaması (eşitliğe ulaşan graf sayısı + en küçük eşitlik tanığı): ω≤χ 138-keskin (mükemmel graflar), diameter≤2·radius, Ore γ≤α, γ≤ν; baskılanan offset-formlar düşürülür; her madde empirical + 'bilinen-sonuç, insanlara saldırı listesi' kaydı; ADR-D0066
 v2C1 🟡 SAT cephesi: Ramsey-tipi sonlu problem kodlayıcıları (pysat üstüne; DRAT ispat-log hedefi)
 v2C2 🟡 Lean 4 / mathlib köprüsü: kernel ispat exportu + "bilinen mi?" kâhini (M6'yı kapsar)
 ```

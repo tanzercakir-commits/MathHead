@@ -48,6 +48,9 @@ Layers so far:
                  rewire variant; float scores STEER, integer certificates DECIDE; calibration RESULT:
                  the transcribed A–H statement is refuted by certified witnesses from n=18 (D(7,8)+mid
                  vertex; n=19 balanced = the Wagner shape) — REDISCOVERY, source-check pending
+  * conjecture_service — Graffiti-style conjecture FEED (v2C0): sharpness-ranked invariant inequalities
+                 over the rich registry, counterexample-first on all connected graphs; rediscovers ω≤χ
+                 (sharpest), diameter≤2·radius, Ore's γ≤α; every item empirical + known-result caveat
   * frankl      — the LIVE hunt on an OPEN conjecture (v2B3): Frankl union-closed sets (1979, open);
                  bitmask set-family domain; exact integer violation certificates (union-closure verified
                  inside the certifier); exhaustive formalization guard m≤4 (4959 union-closed families,
@@ -244,6 +247,12 @@ from .conjecture_db import (
     small_n_guard,
 )
 from .conjecture_db import Conjecture as ConjectureEntry
+from .conjecture_service import (
+    ConjectureFeed,
+    ServiceConjecture,
+    run_service,
+    service_invariants,
+)
 from .congruence import (
     ResidueDerivation,
     check_residue_derivation,
@@ -695,6 +704,10 @@ __all__ = [
     "frankl_guard_exhaustive",
     "hunt_frankl",
     "union_closure",
+    "ConjectureFeed",
+    "ServiceConjecture",
+    "run_service",
+    "service_invariants",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

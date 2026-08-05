@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-30 — v2C0 ✅ the Graffiti-style conjecture service (Kademe 3 opens)
+
+New `conjecture_service.py`. Graffiti (Fajtlowicz, 1980s) proved a machine's conjecture FEED can drive
+human mathematics — dozens of papers. This is that instrument on the engine's rich invariants: forms
+A≤B / A≤B+c / A≤2B over {α, γ, ν, girth, diameter, radius} + classics, counterexample-first over ALL
+connected graphs n≤6 (142 graphs, 330 candidates → 74 survivors, exact integers throughout), ranked by
+SHARPNESS (equality witnesses — Graffiti's hallmark): ω ≤ χ tops the feed with 138 equality graphs
+(the perfect-graph phenomenon, surfaced by ranking alone), then diameter ≤ 2·radius, Ore's γ ≤ α,
+γ ≤ ν, radius ≤ diameter. Dominated offset forms are dropped; every item is `empirical` and carries
+the AE2 caveat verbatim (almost certainly KNOWN — a list for humans to attack, not a novelty claim).
+Each survivor ships its smallest equality witness, and a test re-computes the equality on that witness
+exactly. 5 tests; full suite **1786 green**, ruff clean. Roadmap v2C0 ✅ (ADR-D0066).
+
+---
+
 ## 2026-07-30 — v2B3 ✅ the engine hunts LIVE on an OPEN problem: Frankl union-closed ⭐
 
 New `frankl.py` — Kademe 2 complete (4/4). The target: Frankl's union-closed sets conjecture (1979) —

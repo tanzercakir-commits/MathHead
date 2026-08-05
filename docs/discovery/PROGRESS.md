@@ -7,6 +7,20 @@
 
 ---
 
+## 2026-07-30 — v3P3 ✅ docs site + v3P4 ✅ the gallery that cannot rot
+
+**v3P3**: a real manual (mkdocs-material, builds clean): Home (what it does today, each claim CI-locked),
+Quickstart (install + the trio: proved / refuted / honestly-open, then R(3,3) before the coffee cools),
+**The Honesty Contract** — the product's soul as a first-class page: three enforced rules, the 10-row
+tier table, and the self-audit truth stated plainly ("0 novel-to-literature established — a tool that
+would fake that number would fake anything"), Worked Examples (5 real sessions incl. the honest failed
+hunt), API & CLI (the single door + the import-tested instrument map). **v3P4**: the docs are
+EXECUTABLE — `test_docs_examples.py` runs the documented commands verbatim and asserts the documented
+outputs, and checks the honesty page lists every tier the engine emits; the manual cannot drift from
+the code without CI failing. Full suite green. Roadmap v3P3/P4 ✅ (ADR-D0074). v3: 5/9.
+
+---
+
 ## 2026-07-30 — v3P1 ✅ CLI + v3P2 ✅ product README
 
 **v3P1 (`mathhead-discover`)**: the product on the command line — `check` (any supported statement, tier

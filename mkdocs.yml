@@ -1,0 +1,16 @@
+site_name: MathHead
+site_description: "Bring your conjecture — it gets refuted, proved, or you learn exactly how far it survived."
+repo_url: https://github.com/tanzercakir-commits/MathHead
+docs_dir: docs/manual
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: deep purple
+  features: [navigation.sections, content.code.copy]
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - The Honesty Contract: honesty.md
+  - Worked Examples: examples.md
+  - API & CLI: api.md

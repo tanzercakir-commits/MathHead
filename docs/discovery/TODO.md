@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 80 modules · 516 discovery tests · 46 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 80 modules · 516 discovery tests · 48 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -151,8 +151,10 @@ User goal locked 2026-07-30. DONE = install + 3 real checks + honesty contract +
 CI-proven. **v3P0 ✅** — `check()` single door: proved/refuted/open/unsupported envelopes with epistemic
 tiers, exact witnesses, proof hashes; quickstart trio test-locked. **v3P1 ✅ CLI** (`mathhead-discover check/bracket/hunt/report`, tiers
 printed, --json, 5 tests). **v3P2 ✅ README** (product hero + 3 live console examples + the 7-row
-honesty-tier table). Next: v3P3/P4 docs site + executable gallery → v3P5-P8 citation/version/deploy/
-community.
+honesty-tier table). **v3P3 ✅ docs site** (mkdocs-material: index/quickstart/honesty/examples/api; the contract page
+states the 0-novel truth plainly). **v3P4 ✅ executable gallery** (docs cannot rot — CI runs the
+documented commands verbatim). Next: v3P5 citation/whitepaper → v3P6 version/CHANGELOG → v3P7 Pages
+deploy CI → v3P8 community surface.
 
 ## Next — prioritized candidates
 

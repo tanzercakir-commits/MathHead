@@ -26,3 +26,4 @@ scratch/
 # Rendered visualization/report artifacts (delivered to user, not source)
 /discovery_report.html
 /kg_proof_axiom.html
+site/

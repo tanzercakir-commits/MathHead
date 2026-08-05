@@ -1,6 +1,6 @@
 # MathHead — Discovery Run Report
 
-_MathHead 1.0.1 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
+_MathHead 1.1.0 · seed 42 · graphs n≤6 · memoized generation + fixed seed -> same report every run_
 _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(m=5), RESIDUE(m=7), RESIDUE(m=8), SUM_INDUCTION_
 _trust base (M-floor): RESIDUE derived from the factor theorem (7/7), CRT from Bézout (7/7) — primitives are theorems, not axioms_
 _negative knowledge: 4 dead end(s) recorded_

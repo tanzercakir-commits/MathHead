@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use MathHead in your research, please cite it as below."
+title: "MathHead: a deterministic mathematics engine with an honesty contract"
+type: software
+authors:
+  - family-names: "Çakır"
+    given-names: "Tanzer"
+version: 1.1.0
+date-released: 2026-07-30
+repository-code: "https://github.com/tanzercakir-commits/MathHead"
+abstract: >-
+  A verification and discovery engine for finite mathematics: an LCF-style proof kernel with a fully
+  derived trust base, counterexample-first refutation at nauty scale, pure-integer spectral
+  certificates, SAT-bracketed Ramsey numbers with independently re-verified witnesses, live hunts on
+  open conjectures, and Lean 4 export. Every verdict carries an explicit epistemic tier.
+keywords: [automated-reasoning, combinatorics, graph-theory, SAT, proof-kernel, conjecture-checking]
+license: MIT

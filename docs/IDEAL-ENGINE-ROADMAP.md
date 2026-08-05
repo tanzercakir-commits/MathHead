@@ -345,8 +345,8 @@ v3P1 ✅ CLI: mathhead-discover check/bracket/hunt/report komutları — discove
 v3P2 ✅ README ürün-sınıfı yeniden yazım (30-saniye değer önermesi + 3 canlı örnek + kademe tablosu) — hero: 'Konjektürünü getir…' + 3 gerçek konsol örneği (kernel ispat, n=6 tanıklı refütasyon, R(3,5)=14 bracket) + 7-katmanlı dürüstlük-kademe tablosu + 'bugün yapabildikleri' (her iddia CI-testli); mevcut MCP-core içeriği korunarak altta; ADR-D0073
 v3P3 ✅ Docs sitesi (mkdocs-material): quickstart + 5 işlenmiş örnek + API referans + DÜRÜSTLÜK SÖZLEŞMESİ sayfası — mkdocs.yml + docs/manual/{index,quickstart,honesty,examples,api}.md; sözleşme sayfası 10-katman kademe tablosu + '0 novel-to-literature' gerçeğini AÇIKÇA yazar; mkdocs build yerelde doğrulandı; ADR-D0074
 v3P4 ✅ Örnek galerisi = çalıştırılabilir testler (docs çürüyemez; CI koşar) — tests/test_docs_examples.py: quickstart üçlüsü CLI'dan BİREBİR belgedeki çıktıyla koşar, örnek 1-3 doğrulanır, honesty sayfasının motorun yaydığı HER kademeyi listelediği test edilir; ADR-D0074
-v3P5 🟡 Sitabilite: CITATION.cff + whitepaper taslağı (yöntem + dürüst değerlendirme bölümü)
-v3P6 🟡 Sürüm cilası: CHANGELOG + semver v1.1.0 + pip extras denetimi
-v3P7 🟡 GitHub Pages docs deploy CI + repo vitrini (badges, topics)
-v3P8 🟡 Topluluk yüzeyi: issue şablonları + CONTRIBUTING + "conjecture wanted" şablonu
+v3P5 ✅ Sitabilite: CITATION.cff + whitepaper taslağı (yöntem + dürüst değerlendirme bölümü) — CITATION.cff (v1.1.0, yazar, abstract) + docs/manual/whitepaper.md (kernel/enstrümanlar/sonuçlar/SINIRLILIKLAR AÇIKÇA: 'her şey yeniden-keşif; yenilik iddia edilmiyor'); nav'a eklendi; ADR-D0075
+v3P6 ✅ Sürüm cilası: CHANGELOG + semver v1.1.0 + pip extras denetimi — 1.0.1→1.1.0 (yalnız EK yüzeyler, semver minor); CHANGELOG 1.1.0 bölümü ürün-özeti + Honesty alt-başlığıyla; DÜRÜSTLÜK YAKALAMASI: paket PyPI'DA YOK — README/quickstart git-install'a çevrildi (yalan talimat düzeltildi), PyPI yayını kullanıcının release adımı; ADR-D0075
+v3P7 🟢 GitHub Pages docs deploy CI + repo vitrini (badges, topics) — .github/workflows/docs.yml (mkdocs gh-deploy, main push'ta); İLK deploy repo ayarında Pages'in gh-pages branch'e açılmasını ister (insan adımı, kayıtlı); ADR-D0075
+v3P8 ✅ Topluluk yüzeyi: issue şablonları + CONTRIBUTING + "conjecture wanted" şablonu — conjecture_wanted.md (ifade formları + dürüst-atıf alanı), bug_report.md ('kademe kanıtı abartıyorsa = en yüksek-öncelik bug sınıfı'), CONTRIBUTING.md (dürüstlük kuralları = katkı kuralları); ADR-D0075
 ```

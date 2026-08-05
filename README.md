@@ -7,7 +7,8 @@ or tells you exactly how far it survived.** A deterministic mathematics engine w
 contract: **every verdict carries its epistemic tier.**
 
 ```console
-$ pip install mathhead[solvers]        # + `apt install nauty` for graph generation at scale
+$ pip install "mathhead[solvers] @ git+https://github.com/tanzercakir-commits/MathHead"
+$ # (PyPI release pending — until then, install from git.)  + `apt install nauty` for scale
 
 $ mathhead-discover check "6 | n^3 - n"
 VERDICT: proved   [kernel_verified]

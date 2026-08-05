@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-07-30 — v3P5-P8 ✅ THE PRODUCT TARGET IS REACHED (in-container limit) 🏁
+
+The release layer, in one sweep. **v3P5**: CITATION.cff (v1.1.0, software citation with abstract) and
+the whitepaper draft — kernel, instruments, results, and a Limitations section that says it plainly
+("everything is rediscovery-grade; novelty is not claimed"). **v3P6**: version 1.0.1 → 1.1.0 (additive
+surfaces only — semver minor), CHANGELOG release section — plus an honesty catch that matters: the
+package is NOT on PyPI, so the README/quickstart install lines were rewritten to git-install (a lying
+install command is a product bug of the worst kind); PyPI publish is recorded as the user's release
+step. **v3P7** 🟢: docs deploy workflow (mkdocs gh-deploy on main); first deploy needs Pages enabled in
+repo settings — a recorded human step. **v3P8**: the community surface — a "Conjecture wanted" issue
+template (bring a statement, get an honest verdict), a bug template that names tier-overstatement as
+the highest-severity bug class, and a CONTRIBUTING whose contribution rules ARE the honesty rules.
+
+**v3 PROGRAMME: 8✅ + 1🟢 of 9 — DONE to the in-container limit.** The measurable target holds: a
+mathematician can clone, `pip install` from git, run the quickstart trio (proved / refuted-with-witness
+/ honestly-open), bracket R(3,3) in seconds, read the Honesty Contract, and cite via CITATION.cff —
+every step CI-proven by the executable gallery. Human release steps remaining: enable GitHub Pages,
+publish to PyPI, optional Zenodo DOI.
+
+---
+
 ## 2026-07-30 — v3P3 ✅ docs site + v3P4 ✅ the gallery that cannot rot
 
 **v3P3**: a real manual (mkdocs-material, builds clean): Home (what it does today, each claim CI-locked),

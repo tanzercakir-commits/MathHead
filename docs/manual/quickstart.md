@@ -1,7 +1,7 @@
 # Quickstart
 
 ```bash
-pip install mathhead[solvers]
+pip install "mathhead[solvers] @ git+https://github.com/tanzercakir-commits/MathHead"
 # optional, for graph generation at scale:
 sudo apt-get install nauty
 ```

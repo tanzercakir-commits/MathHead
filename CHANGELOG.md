@@ -4,6 +4,24 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-30
+
+The product release: the discovery engine becomes a first-class surface.
+
+### Added
+- `mathhead.discovery.check()` — the single-door product API (verdict + epistemic tier + witness +
+  proof hash), and the `mathhead-discover` CLI (`check` / `bracket` / `hunt` / `report`).
+- The discovery engine itself (80+ modules): LCF-style kernel with fully derived trust base; rich
+  invariants; nauty-scale generation; pure-integer spectral certificates + interval cross-route;
+  Ramsey SAT bracketing (R(3,3)=6, R(3,4)=9, R(3,5)=14, R(4,4)=18) with derived-lemma honesty tiers;
+  adversarial hunters (graphs, trees, Frankl set families); PSLQ; OEIS radar; program evolution;
+  Lean 4 export; Graffiti-style conjecture service; honest scorecard.
+- Docs site (mkdocs-material) with an executable example gallery; CITATION.cff; whitepaper draft.
+
+### Honesty
+- Every verdict carries an explicit epistemic tier; unsupported input is refused, never guessed;
+  the self-audit (0 novel-to-literature established) ships in the scorecard and the docs.
+
 ### Added (Track L)
 
 - **External-validation harnesses (L5).** The LLM-trap catch-rate benchmark

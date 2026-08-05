@@ -8,7 +8,8 @@ _MANUAL = Path(__file__).parent.parent / "docs" / "manual"
 
 
 def test_manual_pages_exist():
-    for page in ("index.md", "quickstart.md", "honesty.md", "examples.md", "api.md"):
+    for page in ("index.md", "quickstart.md", "honesty.md", "examples.md", "api.md",
+                 "whitepaper.md"):
         assert (_MANUAL / page).exists()
 
 

@@ -42,3 +42,20 @@ def test_cnf_shape_and_determinism():
     assert len(ev) == 10 and len(clauses) == 20                     # C(5,3)=10 red + 10 blue clauses
     a, b = ramsey_decide(5, 3, 3), ramsey_decide(5, 3, 3)
     assert a.red_edges == b.red_edges and a.meaning == "R(3,3) > 5"
+
+
+def test_strengthening_preserves_known_verdicts():
+    a = ramsey_decide(8, 3, 4, strengthen=True)
+    b = ramsey_decide(9, 3, 4, strengthen=True)
+    assert a.satisfiable and not b.satisfiable
+    assert b.certainty == "solver_verified_with_derived_lemmas" and b.lemmas_used
+
+
+def test_r35_and_r44_bracketed_with_engine_derived_lemmas():
+    # R(3,5) = 14: red-deg <= 4 (self-contained) + blue-deg <= 8 (cites the engine's OWN R(3,4)=9)
+    assert ramsey_decide(13, 3, 5, strengthen=True).satisfiable
+    v14 = ramsey_decide(14, 3, 5, strengthen=True)
+    assert not v14.satisfiable and len(v14.lemmas_used) == 2
+    # R(4,4) = 18: red/blue-deg <= 8, both citing the engine's own R(3,4) bracket
+    v18 = ramsey_decide(18, 4, 4, strengthen=True)
+    assert not v18.satisfiable and "engine's OWN bracket" in v18.lemmas_used[0]

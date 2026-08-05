@@ -7,6 +7,22 @@
 
 ---
 
+## 2026-07-30 — DEEP RUN: R(3,5)=14 and R(4,4)=18 — the engine's own results become its lemmas ⭐⭐
+
+The self-referential chain of the day. Plain CNF (even Cadical195) could not settle the UNSAT sides
+within budget; the unlock was DERIVED DEGREE LEMMAS — implied clauses, each a documented theorem of the
+base formula, so satisfiability is exactly preserved (`solver_verified_with_derived_lemmas`, lemma list
+riding every verdict): red-degree ≤ t−1 for s=3 (self-contained: N_red is pairwise blue); and the
+beautiful one — blue/red-degree ≤ 8 justified by **R(3,4)=9, THE ENGINE'S OWN BRACKET from this same
+module**. With them: **R(3,5)=14** (SAT@13 independently witnessed; UNSAT@14 in 0s — per-vertex 4+8=12 <
+13, the classical R(3,5) ≤ R(2,5)+R(3,4) argument reborn as cardinality clauses) and **R(4,4)=18**
+(SAT@17 witnessed; UNSAT@18 in 0s — 8+8=16 < 17). The Ramsey scoreboard: **R(3,3)=6 · R(3,4)=9 ·
+R(3,5)=14 · R(4,4)=18 — all four classical small Ramsey numbers, engine-bracketed.** Frankl deep hunts
+(m=10, 11): the equality wall again — best_score +1, measured. 2 new tests; suite green; honest tier
+labels throughout (a lemma-backed UNSAT is never presented as plain solver output).
+
+---
+
 ## 2026-07-30 — SCIENCE RUN: R(3,5) > 13 witnessed; the Frankl equality wall holds ⭐ day capstone
 
 Instruments, not construction — the built engine RUN at larger budgets. **Ramsey:** R(3,5) > 13

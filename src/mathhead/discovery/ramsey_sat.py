@@ -56,25 +56,79 @@ class RamseyVerdict:
     t: int
     satisfiable: bool
     meaning: str                    # "R(s,t) > n" | "R(s,t) <= n"
-    certainty: str                  # "independently_verified_witness" | "solver_verified"
+    certainty: str                  # "independently_verified_witness" | "solver_verified" |
+    #                                 "solver_verified_with_derived_lemmas"
     red_edges: tuple = ()           # the witness colouring, when SAT
+    lemmas_used: tuple = ()         # derived (implied) lemmas added to help UNSAT — each documented
 
 
-def ramsey_decide(n: int, s: int, t: int) -> RamseyVerdict:
-    """Decide the K_n instance with a SAT solver; SAT witnesses are re-verified independently."""
+def _degree_lemmas(n: int, s: int, t: int, ev: dict, top: int):
+    """DERIVED (implied) per-vertex degree bounds — sound strengthenings, each a documented theorem
+    of the base formula, so adding them preserves satisfiability exactly:
+
+      * s == 3:  red-degree(v) ≤ t−1. Proof: two red neighbours joined red ⇒ red K₃; so N_red(v) is
+        pairwise blue; t red neighbours would be a blue K_t. Self-contained.
+      * s == t == 4:  red- and blue-degree(v) ≤ 8. Proof: N_red(v) must avoid red K₃ (else red K₄
+        with v) AND blue K₄; hence |N_red(v)| ≤ R(3,4)−1 = 8 — where R(3,4)=9 is THE ENGINE'S OWN
+        bracket (this module, independently witnessed at 8, solver-refuted at 9). Blue symmetric.
+
+    Returns (clauses, lemma_descriptions, new_top)."""
+    from pysat.card import CardEnc, EncType
+    clauses, lemmas = [], []
+    if s == 3:
+        bound = t - 1
+        for v in range(n):
+            lits = [ev[(min(v, u), max(v, u))] for u in range(n) if u != v]
+            enc = CardEnc.atmost(lits=lits, bound=bound, top_id=top, encoding=EncType.seqcounter)
+            clauses += enc.clauses
+            top = max(top, enc.nv)
+        lemmas.append(f"red-degree <= {bound} per vertex (N_red pairwise blue; t red nbrs = blue K_t)")
+        if t == 5:
+            # blue side: N_blue(v) must avoid red K3 AND blue K4 (else blue K5 with v)
+            # ⟹ |N_blue(v)| <= R(3,4)-1 = 8, where R(3,4)=9 is the engine's OWN bracket.
+            for v in range(n):
+                lits = [ev[(min(v, u), max(v, u))] for u in range(n) if u != v]
+                enc = CardEnc.atmost(lits=[-x for x in lits], bound=8, top_id=top,
+                                     encoding=EncType.seqcounter)
+                clauses += enc.clauses
+                top = max(top, enc.nv)
+            lemmas.append("blue-degree <= 8 per vertex (N_blue avoids red K3 + blue K4 ⟹ "
+                          "|N_blue| <= R(3,4)-1 = 8; R(3,4)=9 is the engine's OWN bracket)")
+    elif s == 4 and t == 4:
+        for v in range(n):
+            lits = [ev[(min(v, u), max(v, u))] for u in range(n) if u != v]
+            for sign, name in ((1, "red"), (-1, "blue")):
+                enc = CardEnc.atmost(lits=[sign * x for x in lits], bound=8, top_id=top,
+                                     encoding=EncType.seqcounter)
+                clauses += enc.clauses
+                top = max(top, enc.nv)
+        lemmas.append("red/blue-degree <= 8 per vertex (|N_c(v)| <= R(3,4)-1 = 8; R(3,4)=9 is the "
+                      "engine's OWN bracket from this module)")
+    return clauses, tuple(lemmas), top
+
+
+def ramsey_decide(n: int, s: int, t: int, strengthen: bool = False) -> RamseyVerdict:
+    """Decide the K_n instance with a SAT solver; SAT witnesses are re-verified independently.
+    `strengthen=True` adds the DERIVED degree lemmas (implied ⇒ equisatisfiable); an UNSAT obtained
+    with them is labelled `solver_verified_with_derived_lemmas` — the lemma list rides the verdict."""
     from pysat.solvers import Glucose3
     ev, clauses = ramsey_cnf(n, s, t)
+    lemmas = ()
+    if strengthen:
+        extra, lemmas, _top = _degree_lemmas(n, s, t, ev, max(ev.values()))
+        clauses = clauses + extra
     with Glucose3(bootstrap_with=clauses) as solver:
         sat = solver.solve()
         model = solver.get_model() if sat else None
     if not sat:
-        return RamseyVerdict(n, s, t, False, f"R({s},{t}) <= {n}", "solver_verified")
+        tier = "solver_verified_with_derived_lemmas" if lemmas else "solver_verified"
+        return RamseyVerdict(n, s, t, False, f"R({s},{t}) <= {n}", tier, (), lemmas)
     pos = {v for v in model if v > 0}
     red = {e for e, var in ev.items() if var in pos}
     if not _check_colouring(n, s, t, red):              # the solver lied? never accept silently
         raise RuntimeError("SAT model failed the independent witness check — refusing the verdict")
     return RamseyVerdict(n, s, t, True, f"R({s},{t}) > {n}",
-                         "independently_verified_witness", tuple(sorted(red)))
+                         "independently_verified_witness", tuple(sorted(red)), lemmas)
 
 
 def bracket_ramsey(s: int, t: int, n_lo: int, n_hi: int):

@@ -33,6 +33,20 @@ def test_v2_extension_is_guarded_and_cannot_leak_into_v1():
     assert phases == 103                                   # unchanged AFTER the v2 append
 
 
+def test_done_counter_is_phase_anchored_and_bounded():
+    phases, _tracks, done = gen_status.roadmap_counts()
+    assert 0 <= done <= phases                             # done can never exceed the frozen plan
+    # the counter is LINE-anchored: only a ✅ on a v1 phase line counts — never prose/headers/v2+
+    synthetic = "\n".join([
+        "M0 🟡 something  ✅ closed",                      # counts (v1 phase line with ✅)
+        "M1 🟡 open phase, still in progress — no done-mark on this line",       # no glyph, no count
+        "> header prose with a stray ✅ glyph",            # never counts
+        "v2A0 ✅ v2 phase line",                           # never counts toward v1 done
+        "v4F0 ✅ v4 phase line",                           # never counts toward v1 done
+    ])
+    assert gen_status._done_phases(synthetic) == 1
+
+
 def test_three_tracking_files_exist_with_role_headers():
     assert "PLAN — DONMUŞ" in gen_status.ROADMAP.read_text(encoding="utf-8")
     assert "# Discovery Engine — TODO" in gen_status.TODO.read_text(encoding="utf-8")

@@ -7,6 +7,12 @@ TERM built out of those rules and nothing else. Forge-resistance is LCF-style �
 guarded constructor (its `__init__` always raises; only the module-private `_mint` builds one), so
 any `Theorem` value in the running system is, by construction, the output of a checked rule.
 
+HONEST CAVEAT — the guard is software engineering, not type theory. Python cannot seal a class:
+`object.__new__(Theorem)` (the very mechanism `_mint` uses) remains reachable to any code that
+chooses to bypass the kernel. The LCF guard is a TRIPWIRE — accidental forging is impossible and
+deliberate forging is loud and greppable — not a machine-checked guarantee; that stronger seal is
+exactly what the Lean cross-seal (M6) is for.
+
 FRAGMENT (honest scope). A judgment is `Divides(m, p)` = "∀ integer n, m divides p(n)", where p is a
 univariate integer polynomial (coefficients low→high, exact). Two inference rules:
 
@@ -203,7 +209,20 @@ class Identity:
 
 def check(term) -> Theorem:
     """Interpret a proof term, VERIFYING every rule application; return the Theorem it proves or
-    raise KernelError. This is the whole trusted core."""
+    raise KernelError. This is the whole trusted core. TOTAL over junk input: any conversion error
+    inside (NaN/str/None coefficients, junk moduli — TypeError/ValueError/arithmetic errors) is
+    wrapped into KernelError; a malformed term NEVER mints and NEVER escapes as a foreign
+    exception."""
+    try:
+        return _check(term)
+    except KernelError:
+        raise
+    except (TypeError, ValueError, OverflowError, ArithmeticError) as e:
+        raise KernelError(
+            f"malformed proof term ({type(e).__name__}: {e}) — nothing minted") from e
+
+
+def _check(term) -> Theorem:
     if isinstance(term, Residue):
         m = int(term.modulus)
         if m < 1:

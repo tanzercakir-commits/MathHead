@@ -83,7 +83,11 @@ class PortfolioRun:
 
 
 def run_portfolio(m: int, poly: tuple, budget: int) -> PortfolioRun:
-    """Run the modular-proof portfolio for `m | p(n)` under a shared step-`budget`, cheapest-first."""
+    """Run the modular-proof portfolio for `m | p(n)` under a shared step-`budget`, cheapest-first.
+    A negative budget is a caller error (the ledger invariant `spent ≤ budget` must hold even when
+    nothing launches) — rejected explicitly, never silently clamped."""
+    if budget < 0:
+        raise ValueError(f"budget must be ≥ 0, got {budget}")
     strategies = sorted(_strategies(m), key=lambda s: (s[1], s[0]))   # cheapest first, then by name
     launched, spent = [], 0
     for name, cost, _run in strategies:

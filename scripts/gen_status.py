@@ -43,12 +43,19 @@ V3_PHASES_EXPECTED = 9
 V4_PHASES_EXPECTED = 8
 
 
+def _done_phases(text: str) -> int:
+    """The ✅-done count, ANCHORED to v1 phase lines (^[A-Z]{1,2}[0-9]+): a phase is done iff its
+    own line carries a ✅. A ✅ glyph in prose, headers, or v2/v3/v4 lines NEVER counts — the
+    bookkeeping cannot be inflated by mentioning the mark in a note."""
+    return sum(1 for ln in text.splitlines()
+               if re.match(r"[A-Z]{1,2}[0-9]+", ln) and "✅" in ln)
+
+
 def roadmap_counts() -> tuple:
     t = ROADMAP.read_text(encoding="utf-8")
     phases = len(re.findall(r"(?m)^[A-Z]{1,2}[0-9]+", t))
     tracks = len(re.findall(r"(?m)^\*\*Track", t))
-    done = t.count("✅")
-    return phases, tracks, done
+    return phases, tracks, _done_phases(t)
 
 
 def v2_count() -> int:
@@ -84,8 +91,8 @@ def _stats_line() -> str:
     phases, tracks, done = roadmap_counts()
     today = datetime.date.today().isoformat()
     return (f"_Last updated: {today} · {module_count()} modules · {discovery_test_count()} "
-            f"discovery tests · {done} phases ✅ full, of {phases} v1 + {v2_count()} v2 "
-            f"(across {tracks} tracks)._")
+            f"discovery tests · {done}/{phases} v1 phases ✅ (phase-anchored count) + "
+            f"{v2_count()} v2 (across {tracks} tracks)._")
 
 
 def refresh() -> None:

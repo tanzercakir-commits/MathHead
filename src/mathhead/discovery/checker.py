@@ -51,6 +51,23 @@ def independently_verify(fn, m: int) -> bool:
     return _residue_ok(fn, m)
 
 
+def check_poly_identity(lhs, rhs) -> bool:
+    """Independently verify a polynomial IDENTITY p(n) = q(n) (∀n), given coefficient tuples
+    (low→high, rational OK) — the kernel's THIRD judgment kind (PolyIdentity). Orthogonal method:
+    the kernel subtracts coefficients; here we EVALUATE both sides exactly (Fraction) at deg+1
+    integer points — a degree-D polynomial agreeing at D+1 points is identical. Stdlib only."""
+    from fractions import Fraction
+
+    def ev(p, x):
+        acc = Fraction(0)
+        for c in reversed(p):
+            acc = acc * x + Fraction(c)
+        return acc
+
+    points = max(len(lhs), len(rhs))                    # ≥ degree + 1 evaluation points
+    return all(ev(lhs, k) == ev(rhs, k) for k in range(points + 1))
+
+
 def check_sum_identity(fn, g) -> bool:
     """Independently verify a SUM identity Σ_{i=1}^n f(i) = g(n), where g is a polynomial (sympy
     expr in `n`). Checks the base case f(1)=g(1) and the inductive step g(n)−g(n−1)=f(n) as a

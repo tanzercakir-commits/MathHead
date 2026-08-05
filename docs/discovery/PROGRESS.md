@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-08-05 — v4F3 ✅ hardening sweep A — 8 phase closures, 6 honest reasons, a structural bookkeeping fix
+
+The M/Q/R/S/N/O sweep (N and O were already complete): of 14 candidates, EIGHT closed with proof tests
+in test_discovery_hardening_v4f3.py — M0 (judge envelope ↔ kernel interface coherence), M1 (proof-term
+language closure: duck-typed impostors and direct construction cannot mint), M2 (side-condition
+totality, 14 violation cases, none mint), M5 (axiom manifest exactness + CRT lemma product), M7 (NEW
+rich_status: six-field honest status render), S0 (NEW strategy_registry: 14 import-verified strategy
+refs + 8 honestly implemented=False), S2 (portfolio ledger accounting invariants), S3 (S→Y failure
+loop end-to-end). SIX could not close honestly — one-sentence reasons now live on their roadmap lines
+(M3 different-language/team wing needs Lean; M6 Lean toolchain; Q1/Q3/R1/S1 separate instruments).
+Evaluator attacked with its own forge/side-condition/budget batteries (subclass forgery, TOCTOU, CRT
+nesting — nothing minted) and PASSed. Structural honesty upgrades from the round: the done counter is
+now PHASE-ANCHORED (a ✅ in prose/headers/v2+ lines can never inflate it — the implementer caught his
+own notes doing this mid-round), kernel.check() totalized to the KernelError contract (junk never
+escapes as a foreign exception, never mints), portfolio rejects negative budgets, and the LCF
+object.__new__ caveat is stated plainly in the kernel docstring. Full suite **1932 green**. v4: 4/8.
+
+---
+
 ## 2026-08-05 — v4F2 ✅ check() coverage wave 2 — permutations, partitions, compositions through the single door
 
 Three NEW domains reach `check()`: permutation bounds (`all perms of n: invA <= invB|g(n)` — full S_n

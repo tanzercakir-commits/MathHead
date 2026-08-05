@@ -324,6 +324,39 @@ def run_report(max_n: int = 6) -> DiscoveryReport:
     return report
 
 
+def rich_status(finding) -> dict:
+    """M7 — the RICH per-finding status block: STATUS / FOUNDATION / DEPENDENCIES / KERNEL /
+    PROOF_HASH / INDEPENDENT_CHECKER. Every field is derived from data the pipeline already
+    carries (verdict, kernel axioms, proof tree, hash, checker flag) — nothing is re-proved here
+    and nothing is dressed up: an unproved finding shows exactly what it lacks."""
+    from .proof_tree import proof_tree
+    from .provenance import KERNEL_VERSION
+    tree = proof_tree(finding)
+    deps = ([c.claim for c in tree.children]
+            or [tree.note or f"(leaf {tree.method} proof — no intermediate lemmas)"])
+    return {
+        "STATUS": finding.verdict,
+        "FOUNDATION": list(finding.axioms) if finding.axioms else ["(no kernel proof)"],
+        "DEPENDENCIES": deps,
+        "KERNEL": (f"v{KERNEL_VERSION} · theorem minted (LCF-checked proof term)"
+                   if finding.kernel_verified else f"v{KERNEL_VERSION} · NOT kernel-verified"),
+        "PROOF_HASH": finding.proof_hash or "(none)",
+        "INDEPENDENT_CHECKER": ("passed (re-verified without the prover)"
+                                if finding.independently_verified else "not confirmed"),
+    }
+
+
+def render_rich_status(finding) -> str:
+    """The M7 block as readable text — one labelled line per field."""
+    rs = rich_status(finding)
+    lines = [f"# {finding.claim}"]
+    for k in ("STATUS", "FOUNDATION", "DEPENDENCIES", "KERNEL", "PROOF_HASH",
+              "INDEPENDENT_CHECKER"):
+        v = rs[k]
+        lines.append(f"{k}: {', '.join(v) if isinstance(v, list) else v}")
+    return "\n".join(lines)
+
+
 def render(report: DiscoveryReport) -> str:
     """Render the report as readable Markdown."""
     lines = ["# MathHead — Discovery Run Report", ""]

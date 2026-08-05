@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 74 modules · 485 discovery tests · 37 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 75 modules · 491 discovery tests · 41 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -91,10 +91,10 @@ Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verif
 
 ## Progress toward the goal
 
-**~55 / 103** phases touched (fully-done ✅ count is in the auto stats line above). **Track N COMPLETE
-(N0–N6); Track O complete (O0–O4).** 28 fully ✅; 12 remain 🔴 open-research (won't fake) ⇒ achievable
-ceiling ≈ 91, so ~36 achievable phases remain (many are deepening partials to full). **User check-in at
-49 done** — next at 59 (4 to go). Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5, S3; M-floor now COMPLETE
+**~59 / 103** v1 phases touched (fully-done ✅ count is in the auto stats line above). **Tracks N and O
+complete.** Newly landed: AA0/AA1/AA2 (FunSearch skeleton — evolution rediscovers closed forms, kernel
+proves them independently, AA→M loop closed), Q2 ✅ (delivered by the v2 hunters), AE3 deepened (Lean
+export exists). 12 remain 🔴 open-research (won't fake). **USER CHECK-IN AT 59 REACHED** — next at 69. Recently done: AB1, P2, T0, S2, AA4, U0, T2, U1, P5, S3; M-floor now COMPLETE
 (SumInduction + elementary divisibility — M2, deepening); SIXTH domain compositions; NON-LINEAR degree-2 +
 RATIO/MONOTONICITY mining (O2/P0); director goal-selects via T2 (AC0); report surfaces new miners (AC2);
 W0-breadth junk filter for new patterns; T3 proof-trees now cover sum identities. **Emphasis: value/depth

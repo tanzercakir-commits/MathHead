@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-07-30 — AA0/AA1/AA2 ✅ the FunSearch skeleton: evolution finds, the kernel proves ⭐ v1 check-in @59
+
+New `program_search.py` (v1 Track AA, standard-engineering tier — honestly buildable, and now built).
+AA0: a tiny expression DSL ({+, −, ×, safe //}, constants, guards) with an EXACT-match evaluator — no
+float scoring anywhere. AA1: seeded mutation-only elitist evolution with deterministic restarts;
+rediscovers squares instantly and finds the triangular numbers as **((n+1) + n·n) // 2** — an elegant
+floor-division form (n²+n is always even, so it equals n(n+1)/2 exactly; the machine's own phrasing of
+Gauss). AA2: the winning program IS the conjecture (`program_found_empirical`); for partial-sum targets
+the closed form is handed to the KERNEL, which re-derives it from data and proves Σ_{i=1..n} i = g(n) by
+SumInduction — final status **kernel_verified with a proof hash**. Evolution and kernel arrive by
+INDEPENDENT routes; their agreement is the design. Σi² honestly exceeds this DSL/budget →
+`not_found_within_budget`, no proof claimed. Real FunSearch scale (LLM-guided mutation, big compute)
+stays Kademe 4 🔴 — not claimed. Cross-links recorded: **Q2 ✅** (random/adversarial/evolutionary
+counterexample search — delivered by adaptive_search + frankl), **AE3 deepened** (Lean export exists).
+6 tests; full suite **1802 green**, ruff clean. Roadmap AA0/AA1/AA2 ✅, Q2 ✅, AE3 annotated
+(ADR-D0069). **v1 progress: ~59/103 touched — the second 10-phase user check-in threshold, REACHED.**
+
+---
+
 ## 2026-07-30 — v2C2 🟢 the Lean bridge: kernel theorems exported for external cross-sealing ⭐ KADEME 3 DONE
 
 New `lean_export.py` (v2C2, covering v1's M6 export layer). The deepest available trust upgrade: have an

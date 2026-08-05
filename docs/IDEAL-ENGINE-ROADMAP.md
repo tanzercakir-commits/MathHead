@@ -75,7 +75,7 @@ M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_
 ```
 Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)  ✅ (refute: counterexample-first bounded scan; survivor = no_counterexample_within_bound)
 Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)
-Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama
+Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama  ✅ (v2 enstrümanlarıyla TESLİM EDİLDİ: adaptive_search — tohumlu SA bağlı-graf + ağaç uzayları, tamsayı-sertifikalı verdictler; frankl.hunt_frankl — küme-aile uzayında jeneratör-evrimi; çapraz-referans ADR-D0064/65)
 Q3   🟡 Model checking + interval arithmetic + sembolik test yolları
 Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)  ✅ (minimal: en küçük n, sonra en az kenar; ör. T≤E → K6−e)
 Q5   🔴 Başarısızlık mekanizması çıkarımı ("invariant iki çevrim bir tepe paylaşınca bozuluyor")
@@ -123,9 +123,9 @@ U3 ♻️🟢 Dönüşüm anlam-koruyor mu doğrulaması (cross_check)
 
 **Track AA — Program sentezi / çalıştırılabilir matematik (§10)**
 ```
-AA0 🟢 Aday program üreteci (DSL) + otomatik değerlendirici (FunSearch iskeleti)
-AA1 🟢 Evrimsel arama: iyi programları mutasyona uğrat + seç
-AA2 🟢 Programın davranışından konjektür çıkar
+AA0 🟢 Aday program üreteci (DSL) + otomatik değerlendirici (FunSearch iskeleti)  ✅ (program_search: ifade-ağacı DSL'i {+,−,×,güvenli //, sabitler} + TAM-eşleşme değerlendirici (float yok); overflow/sıfır-bölme korumalı; ADR-D0069)
+AA1 🟢 Evrimsel arama: iyi programları mutasyona uğrat + seç  ✅ (tohumlu mutasyon-only elitist evrim + deterministik restart'lar; kareleri ve üçgensel sayıları YENİDEN KEŞFEDER — ((n+1)+n·n)//2 zarif floor-form; bulamayınca dürüstçe not_found_within_budget; ADR-D0069)
+AA2 🟢 Programın davranışından konjektür çıkar  ✅ (kazanan program = kapalı-form konjektürü, program_found_empirical; kısmi-toplam hedeflerinde kapalı form KERNEL'e verilir — SumInduction ispatı + proof hash → kernel_verified; evrim ve kernel BAĞIMSIZ yollardan aynı forma varır, AA→M döngüsü kapandı; ADR-D0069)
 AA3 🟡 Dört seviye: DISCOVERED_HEURISTIC → EMPIRICALLY_VALIDATED → FORMALLY_SPECIFIED → FORMALLY_PROVED  🟢 epistemic_ladder: tüm certainty sözlüğünü 4 basamağa indirger, her bulguyu sınıflar (L2=23,L3=7,L4=17); muhafazakâr eşleme (L4 yalnız kernel/bağımsız doğrulanmış); raporda solidity dağılımı; ADR-D0031
 AA4 🟡 Bulunan algoritmayı ispata bağla (Track S/M köprüsü)  🟢 algorithm_proof.py: keşfedilen ALGORİTMAYI onu doğrulayan İSPATA bağlar — residue-exhaustion/CRT → KERNEL Teoremi (kernel_verified, evrensel ∀n, hash+aksiyom); greedy-coloring/max-clique → KONSTRÜKTİF sertifika (constructive_bounded, örnekte tanıklı, ∀G değil); İKİ modalitenin GÜÇ farkı hakkında dürüst — sertifikayı asla kernel_verified etiketlemez, ispat tutmazsa verified=False (sahte ispat yok); yeniden ispatlamaz, LİNKLER (S/AA → M köprüsü); ADR-D0048
 ```
@@ -232,7 +232,7 @@ AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme)
 AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)
 AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)
 AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret  🟢 DÜRÜST AV KURULDU ve ÇALIŞTIRILDI (candidate_hunt.py): geniş ağ (6 aile + tüm-graf örneklemi, tüm madenciler) → her bulgu kataloğa atıflandı → 40 bulgu, 36 atıflı, 4 "katalogda-yok" aday — DÖRDÜ DE ders-kitabı aile formülü çıktı (C_n: V=E; P_n/yıldız: V=E+1; tekerlek: 2V=E+2). SONUÇ: hedefin kendisi AÇIK; katalogda-yok ≠ literatürde-yeni birebir kanıtlandı; gerçek yenilik v2 programına (dış-onaylı kanallar: OEIS/karşı-örnek/Lean) devredildi; ADR-D0059
-AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export
+AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export  🟢 (rapor sözleşmesi + provenance uzun süredir tam; LEAN EXPORT artık VAR — lean_export.py 9 teorem, dış lake build beklemede; çapraz-referans v2C2/ADR-D0068)
 ```
 
 **Track AF — Değerlendirme, benchmark & provenance**

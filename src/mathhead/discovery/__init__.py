@@ -51,6 +51,10 @@ Layers so far:
   * conjecture_service — Graffiti-style conjecture FEED (v2C0): sharpness-ranked invariant inequalities
                  over the rich registry, counterexample-first on all connected graphs; rediscovers ω≤χ
                  (sharpest), diameter≤2·radius, Ore's γ≤α; every item empirical + known-result caveat
+  * program_search — the FunSearch SKELETON (AA0/AA1/AA2): tiny expression DSL + seeded evolutionary
+                 loop + conjecture extraction; evolution finds ((n+1)+n·n)//2 for Σi, the kernel proves
+                 the closed form INDEPENDENTLY (kernel_verified + hash) — the AA→M loop closed; real
+                 FunSearch scale stays Kademe 4 (🔴), honestly not claimed
   * lean_export — Lean 4 cross-seal EXPORT (v2C2/M6): kernel Divides theorems as decide-over-ZMod m
                  (≡ our RESIDUE rule, re-checked by Lean's kernel), PolyIdentity as ring; status honest:
                  export_written_pending_external_check — never claimed verified without the lake build
@@ -374,6 +378,12 @@ from .feature_conjectures import (
     discover_inequalities,
     feature_table,
     surviving_inequalities,
+)
+from .program_search import (
+    ProgramFind,
+    conjecture_and_prove,
+    evaluate_program,
+    evolve,
 )
 from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
 from .pslq_hunt import (
@@ -722,6 +732,10 @@ __all__ = [
     "bracket_ramsey",
     "LeanExport",
     "export_kernel_theorems",
+    "ProgramFind",
+    "evolve",
+    "evaluate_program",
+    "conjecture_and_prove",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-30 — SCIENCE RUN: R(3,5) > 13 witnessed; the Frankl equality wall holds ⭐ day capstone
+
+Instruments, not construction — the built engine RUN at larger budgets. **Ramsey:** R(3,5) > 13
+established with an independently verified 26-red-edge colouring of K₁₃ (consistent with the classical
+extremal graph); the UNSAT side at n=14 exceeded the plain-CNF budget and is recorded honestly as
+out-of-budget — symmetry breaking + DRAT logging are the noted next steps, no verdict claimed.
+**Frankl deep hunt (m=9, 3 seeds × 3000 steps):** best_score bottomed at **+1 — one above the equality
+wall — again**; a 45-year-old conjecture holding the line against our SA is exactly the honest expected
+outcome, now measured rather than presumed. Day totals: **1813 tests green · ~65/103 v1 + 15/16 v2 ·
+~50 commits pushed**. The engine began the day as a verifier of known mathematics; it ends it
+bracketing Ramsey numbers, certifying counterexamples in pure integers, hunting live on open problems,
+and exporting its kernel to Lean — with every claim carrying its honest epistemic label.
+
+---
+
 ## 2026-07-30 — M0 🟢 + V1 🟢 + AE0 ✅: the in-container completion boundary comes into sight
 
 Three closing slices. **M0** — the judge surface is now PINNED: the Verdict envelope's exact field list

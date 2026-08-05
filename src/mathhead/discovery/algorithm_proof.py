@@ -33,14 +33,16 @@ class AlgorithmProof:
     claim: str                  # what its output asserts
     modality: str               # "kernel" | "certificate" — HOW it is justified
     certainty: str              # "kernel_verified" (universal) | "constructive_bounded" (witnessed)
+                                # | "unproven" (the justification did NOT check out — never a tier)
     verified: bool              # the justification actually checked out
     evidence: dict = field(default_factory=dict)
 
 
 def bridge_modular_algorithm(m: int, poly: tuple) -> AlgorithmProof:
     """Link the residue/CRT decision algorithm for `m | p(n)` to the KERNEL Theorem that proves it.
-    certainty = kernel_verified (a universal ∀n machine proof) when the kernel accepts; else verified
-    False (the algorithm reports the claim is not provable — no fabricated proof)."""
+    certainty = kernel_verified (a universal ∀n machine proof) when the kernel accepts; else the link
+    is verified=False with certainty="unproven" — the failure path never carries a proof tier's name
+    (the algorithm reports the claim is not provable — no fabricated proof)."""
     claim = f"{m} | p(n) for all integers n"
     try:
         _thm, term = prove_divides(m, poly)
@@ -50,7 +52,7 @@ def bridge_modular_algorithm(m: int, poly: tuple) -> AlgorithmProof:
              "method": "modulus-factoring+CRT" if len(axioms_used(term)) > 1 else "residue-sweep"})
     except KernelError as exc:
         return AlgorithmProof(
-            "residue-exhaustion/CRT", claim, "kernel", "kernel_verified", False,
+            "residue-exhaustion/CRT", claim, "kernel", "unproven", False,
             {"reason": str(exc)})
 
 

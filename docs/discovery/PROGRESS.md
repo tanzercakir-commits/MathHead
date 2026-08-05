@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-08-05 — v4F4 ✅ hardening sweep B — 11 closures across P/T/U/W/X/AA/AC, mutation-tested
+
+Second sweep, same discipline: of 20 candidates, ELEVEN closed with proof tests
+(test_discovery_hardening_v4f4.py) — P5 (normalize/dedup pins: scaled/sign-flipped laws collapse to
+one key), T0 (gap-measure exactness), T2 (priority fusion re-computed by hand), U0 (bridge
+faithfulness incl. false-claim direction), U3 (validation is DISCRIMINATING: deleted-edge/inflated-
+degree/fake-table forgeries caught), W1 (interestingness transparency: six components, Σw=1, recompute
+matches), X2 (technique pointers resolve to callables + synonym→parser wiring, previously untested),
+AA3 (epistemic ladder totality, no inflation), AA4 (algorithm→proof bridge never overstates — plus a
+real fix from the evaluator: the failure path used to carry certainty="kernel_verified" with
+verified=False, now honestly "unproven"), AC0 (director policy totality), AC3 (state isolation).
+NINE honest one-line reasons for the rest (P2/P3/P6/U1/W2/X0/X1/X3/AC1 — corpus-, LLM-, or
+instrument-bound; X0 deliberately reserved for v4F6). The evaluator ran a 6/6 MUTATION battery
+(temporarily corrupting source — every mutation caught by the new tests, so they pin code, not
+arithmetic) and PASSed. Done counter now 52/103, phase-anchored. Full suite **1943 green**. v4: 5/8.
+
+---
+
 ## 2026-08-05 — v4F3 ✅ hardening sweep A — 8 phase closures, 6 honest reasons, a structural bookkeeping fix
 
 The M/Q/R/S/N/O sweep (N and O were already complete): of 14 candidates, EIGHT closed with proof tests

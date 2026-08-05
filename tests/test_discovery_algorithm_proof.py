@@ -22,7 +22,8 @@ def test_modular_algorithm_links_to_a_universal_kernel_proof():
 def test_false_modular_claim_yields_no_proof_not_a_fake_one():
     ap = bridge_modular_algorithm(5, _N3)                 # 5 ∤ n³−n
     assert not ap.verified and "proof_hash" not in ap.evidence
-    assert ap.certainty == "kernel_verified"             # the modality is still kernel; it just didn't check
+    assert ap.modality == "kernel"                       # the modality is still kernel…
+    assert ap.certainty == "unproven"                    # …but the failure NEVER wears a proof tier
 
 
 def test_greedy_coloring_links_to_a_bounded_certificate_not_a_kernel_proof():

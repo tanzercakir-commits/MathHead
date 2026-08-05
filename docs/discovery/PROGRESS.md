@@ -7,6 +7,40 @@
 
 ---
 
+## 2026-07-30 — v2B0/B1/B2 ✅ (max mode): the counterexample hunter is LIVE and CALIBRATED ⭐⭐
+
+**The result:** the transcribed Aouchiche–Hansen statement (`λ₁ + μ ≥ √(n−1) + 1` for connected n≥3) is
+REFUTED by certified witnesses starting at **n=18** (smallest: the double star D(7,8) with a subdivided
+centre edge), and at **n=19 the balanced D(8,8)+mid-vertex — exactly the described shape of Wagner's
+RL-found witness** ("two balanced stars whose centers are joined by a path", arXiv:2104.14516). Every
+verdict is a pure-INTEGER certificate: `λ₁ < p/q` decided by Sylvester positive-definiteness of the
+integer matrix pI−qA (fraction-free Bareiss minors) and `r+μ−1 < √(n−1)` by ONE integer square
+comparison — zero floats in any verdict. Bonus discovery about the boundary: TWO equality families are
+engine-certified — stars AND D(12,12) at n=26, where λ₁ = 4 EXACTLY (discriminant 49 is a perfect
+square). Plain (unsubdivided) double stars violate from n=27.
+
+**The max-mode catch — formalization risk materialized and was defeated by COMPUTING:** the first SA
+hunt stalled; hand-deriving the double-star spectrum (λ₁² = (a+b+1+√((a+b+1)²−4ab))/2) suggested easy
+violations, which conflicted with the "needed RL in 2021" prior → suspicion fell on OUR transcription.
+Resolution: the engine's exact certificates settled the mathematics unconditionally (certificates are
+self-verifying regardless of history), and the attribution question is quarantined honestly — the DB
+entry carries a TRANSCRIPTION CAVEAT requiring a human check of Conjecture 2.1's wording at
+arXiv:2104.14516 before any external framing. Status remains `refuted_in_literature` / REDISCOVERY —
+never a novelty claim.
+
+**The machinery (all deterministic):** `spectral_cert.py` (exact integer Sylvester/Bareiss + square
+tests; strict-boundary behaviour verified on λ₁(C4)=2, equality stars refused); `conjecture_db.py`
+(v2B0 — 4-defense entries: verbatim statement + domain, honest status, SMALL-n FORMALIZATION GUARD
+(the transcribed statement verified to HOLD on all 994 connected graphs n≤7 — a wrong formalization
+fails the suite), exact certify; 3 entries); `adaptive_search.py` (v2B1 — seeded SA on connected
+graphs + tree-space rewire variant with linear exact tree-ν (cross-checked ×300), float scores STEER /
+integer certificates DECIDE, honest statuses incl. float_candidate_uncertified; v2B2 — smoke tier
+finds K4 (χ>Δ) and a non-Hamiltonian tree instantly; `ah_calibration` scans the (subdivided)
+double-star families and returns every certified witness, smallest n first). 11 tests; full suite
+**1774 green**, ruff clean. Roadmap v2B0/B1/B2 ✅ (ADR-D0064). Kademe 2 core: COMPLETE.
+
+---
+
 ## 2026-07-30 — v2A5 ✅ rich invariants — KADEME 1 COMPLETE on day one ⭐
 
 New `rich_invariants.py`. Open graph-theory conjectures (the Graffiti corpus, Wagner's RL-refuted list)

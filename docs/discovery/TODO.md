@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-07-30 · 67 modules · 452 discovery tests · 31 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 70 modules · 463 discovery tests · 34 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -117,9 +117,14 @@ checks oeis.org; runtime auto-query correctly refused, robots.txt respected).
 design — external OEIS resolution). PSLQ hunt live; OEIS radar live (9 matched, 2 pending the user's
 browser check, prefixes now 10 terms via geng); nauty scale to n=10 counts (12M classes,
 cross-validated); rich invariants α/γ/ν/girth/diam/radius (Petersen-anchored, König-cross-checked).
-Next: **Kademe 2 — v2B1 adaptive search core (safe engineering), then v2B0/B2 conjecture
-formalization = the flagged "MAX MOMENT" (a subtle misstatement would invalidate a counterexample;
-consider switching the model to max for that step).**
+**KADEME 2 CORE COMPLETE (max mode): v2B0 ✅ v2B1 ✅ v2B2 ✅.** The transcribed Aouchiche–Hansen
+statement is REFUTED by certified witnesses from n=18 (smallest: D(7,8)+mid-vertex; n=19 balanced
+D(8,8)+mid = the described shape of Wagner's RL witness) — every verdict a pure-INTEGER certificate
+(Bareiss–Sylvester + integer square test, zero floats). Two equality families engine-certified: stars
+AND D(12,12) n=26 (λ₁=4 exactly). Max-mode catch: the formalization-risk materialized and was resolved
+by COMPUTING (double-star asymptotics → certified family scan), not by trusting memory. HUMAN TASK:
+verify Conj. 2.1 wording at arXiv:2104.14516 before any external framing. Next: v2B3 live hunt on a
+genuinely OPEN target (needs new curated entries), or Kademe 3 (Graffiti service / SAT frontier / Lean).
 
 ## Next — prioritized candidates
 

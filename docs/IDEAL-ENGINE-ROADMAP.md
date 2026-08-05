@@ -309,9 +309,9 @@ v2A5 🟡 Zengin invariant kütüphanesi (independence, domination, girth, diame
 
 **Kademe 2 — karşı-örnek avcısı (en kısa yol → yayınlanabilir sonuç)**
 ```
-v2B0 🟡 Açık-konjektür veritabanı (küratörlü ingest; kaynak + durum + sınanabilir form)
-v2B1 🟡 Adaptif arama çekirdeği (tavlama/evrimsel; deterministik tohumlu)
-v2B2 🟡 Kalibrasyon: bilinen-çürütülmüş konjektürlerin tanıklarını YENİDEN bul (Wagner seti)
+v2B0 ✅ Açık-konjektür veritabanı (küratörlü ingest; kaynak + durum + sınanabilir form) — conjecture_db.py: her giriş 4 savunmalı (verbatim ifade + alan kısıtı; dürüst statü refuted_in_literature/open; KÜÇÜK-n FORMALİZASYON ZIRHI — literatürün 'tutuyor' dediği aralıkta tükenmeli doğrulama, ihlal = BİZİM ifademiz yanlış demek; kesin certify — verdictte float yasak); 3 giriş: A–H spektral-eşleşme (transkripsiyon-kaydı: insan kaynak-kontrolü arXiv:2104.14516'da), χ≤Δ, conn⟹Ham; ADR-D0064
+v2B1 ✅ Adaptif arama çekirdeği (tavlama/evrimsel; deterministik tohumlu) — adaptive_search.py: tohumlu SA bağlı-graf uzayında (kenar-toggle, bağlılık korunur) + AĞAÇ-uzayı rewire varyantı (döngü-kenarı değişimi); ağaç-ν lineer kesin DP (300 rastgele ağaçta genel kesin ν ile birebir); float skor YÖNLENDİRİR, tamsayı sertifika KARAR VERİR; float_candidate_uncertified / not_found_within_budget dürüst statüler; ADR-D0064
+v2B2 ✅ Kalibrasyon: bilinen-çürütülmüş konjektürlerin tanıklarını YENİDEN bul (Wagner seti) — BAŞARILDI: transkribe A–H ifadesi n=18'den itibaren SERTİFİKALI tanıklarla çürütüldü (en küçük: D(7,8)+orta-köşe n=18; n=19 dengeli D(8,8)+orta = Wagner'ın RL tanığının TARİF EDİLEN ŞEKLİ 'merkezleri yolla birleşik iki dengeli yıldız'); her verdict saf-TAMSAYI sertifika (Bareiss-Sylvester λ₁<p/q + tamsayı kare testi, floatsız); İKİ eşitlik ailesi motor-sertifikalı: yıldızlar + D(12,12) n=26 (λ₁=4 TAM); smoke kademesi (χ≤Δ→K4, conn⟹Ham→ağaç) anında; YENİDEN-KEŞİF olarak etiketli, dış iddia öncesi insan kaynak-kontrolü şart; ADR-D0064
 v2B3 🟡 Canlı av: açık konjektürlerde tanık araması (tanık kendini doğrular — dürüstlük içkin)
 ```
 

@@ -38,6 +38,16 @@ Layers so far:
   * rich_invariants — the rich invariant library (v2A5): α (independence), γ (domination), ν (matching),
                  girth, diameter, radius — exact, anchored on Petersen (α=4,γ=3,ν=5,girth=5,diam=2) and
                  König's ν=n−α on the whole bipartite family; own registry (v1 pipeline stays byte-stable)
+  * spectral_cert — EXACT spectral certificates (v2B): λ₁ < p/q decided by integer Sylvester (Bareiss
+                 minors of pI−qA), r < √m by one integer square test — counterexample verdicts contain
+                 NO floats; equality cases (stars, D(12,12)) correctly refused
+  * conjecture_db — curated conjecture database (v2B0): verbatim statements + domain restrictions +
+                 honest status + small-n formalization GUARD (exhaustive agreement where the literature
+                 says the conjecture holds) + exact certify; A–H entry carries a transcription caveat
+  * adaptive_search — the counterexample hunter (v2B1/B2): seeded SA on connected graphs + tree-space
+                 rewire variant; float scores STEER, integer certificates DECIDE; calibration RESULT:
+                 the transcribed A–H statement is refuted by certified witnesses from n=18 (D(7,8)+mid
+                 vertex; n=19 balanced = the Wagner shape) — REDISCOVERY, source-check pending
   * conjecture_normalize — normalize + DEDUP conjectures across miners (P5): one canonical linear-form key
                  collapses duplicates (Handshake as a linear law AND as a ratio → one, corroboration 2);
                  keeps provenance; honest (dedups exact linear normal form only, never over-merges)
@@ -179,6 +189,15 @@ from .adversarial_objects import (
     random_graphs,
     stress_set,
 )
+from .adaptive_search import (
+    HuntOutcome,
+    ah_calibration,
+    double_star,
+    hunt as adaptive_hunt,
+    hunt_multi,
+    tree_hunt,
+    tree_matching_number,
+)
 from .analogy import Analogy, find_analogies
 from .axiom_minimize import (
     AxiomProof,
@@ -213,6 +232,13 @@ from .compositions import (
     discover_composition_laws,
     generate_compositions,
 )
+from .conjecture_db import (
+    AH_SPECTRAL_MATCHING,
+    CONJECTURES,
+    lambda1_power,
+    small_n_guard,
+)
+from .conjecture_db import Conjecture as ConjectureEntry
 from .congruence import (
     ResidueDerivation,
     check_residue_derivation,
@@ -422,6 +448,12 @@ from .sequences import (
     run_sequence_discovery,
 )
 from .spectral_bounds import SpectralBoundFinding, run_spectral_bounds, spectral_radius
+from .spectral_cert import (
+    SpectralCertificate,
+    certify_lambda1_plus_mu_below,
+    lambda1_below,
+    sqrt_bound_above,
+)
 from .spectral import (
     discover_spectral_laws,
     num_distinct_eigenvalues,
@@ -630,6 +662,22 @@ __all__ = [
     "diameter",
     "radius",
     "petersen",
+    "ConjectureEntry",
+    "CONJECTURES",
+    "AH_SPECTRAL_MATCHING",
+    "small_n_guard",
+    "lambda1_power",
+    "HuntOutcome",
+    "adaptive_hunt",
+    "hunt_multi",
+    "tree_hunt",
+    "tree_matching_number",
+    "double_star",
+    "ah_calibration",
+    "SpectralCertificate",
+    "certify_lambda1_plus_mu_below",
+    "lambda1_below",
+    "sqrt_bound_above",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

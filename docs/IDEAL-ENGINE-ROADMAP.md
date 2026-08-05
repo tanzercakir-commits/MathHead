@@ -76,7 +76,7 @@ M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_
 Q0 ♻️🟢 Küçük sonlu tam tarama (MathHead bounded + N üreticileri)  ✅ (refute: counterexample-first bounded scan; survivor = no_counterexample_within_bound)
 Q1 ♻️🟢 SAT/SMT + constraint programming saldırısı (MathHead frontier'i genişlet)  🟢 GENİŞLETİLDİ: ramsey_sat (v2C1) SAT cephesini Ramsey-tipi problemlere taşıdı — R(3,3)=6/R(3,4)=9 bracketlendi, tanıklar bağımsız doğrulı; çapraz-bağ ADR-D0067
 Q2   🟢 Rastgele + adversarial + evrimsel karşı-örnek arama  ✅ (v2 enstrümanlarıyla TESLİM EDİLDİ: adaptive_search — tohumlu SA bağlı-graf + ağaç uzayları, tamsayı-sertifikalı verdictler; frankl.hunt_frankl — küme-aile uzayında jeneratör-evrimi; çapraz-referans ADR-D0064/65)
-Q3   🟡 Model checking + interval arithmetic + sembolik test yolları
+Q3   🟡 Model checking + interval arithmetic + sembolik test yolları  🟢 INTERVAL-ARİTMETİK DİLİMİ (interval_check.py): mpmath.iv directed-rounding ile A–H çift-yıldız slack'inin SERTİFİKALI kapaması; üç-değerli dürüst verdict (violation/no-violation/undecided — D(12,12) eşitliği dürüstçe undecided, kapama [0,0]); tamsayı-Sylvester'a TAM BAĞIMSIZ ikinci kesin yol, 7/7 çapraz-uyum testli; ADR-D0070
 Q4   🟡 Minimal karşı-örnek indirgeme (delta-debugging)  ✅ (minimal: en küçük n, sonra en az kenar; ör. T≤E → K6−e)
 Q5   🔴 Başarısızlık mekanizması çıkarımı ("invariant iki çevrim bir tepe paylaşınca bozuluyor")
 Q6   🔴 Onarılmış konjektür önerisi (ek varsayımla ifade geçerli mi?)

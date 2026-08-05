@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — Q3 🟢 interval path + X2 ✅ technique map (two certifiers agree 7/7)
+
+New `interval_check.py` (Q3 slice): mpmath.iv (directed rounding) evaluates the closed-form double-star
+slack as a CERTIFIED enclosure — a second rigorous route to the A–H verdicts, fully independent of the
+integer-Sylvester certificates. Three-valued and honest: violation_certified / no_violation_certified /
+undecided — and at the D(12,12) equality it answers UNDECIDED with enclosure [0,0], exactly right,
+since interval arithmetic cannot (and must not) certify strictness at equality. Cross-check: 7/7
+agreement between the two independent certifiers (a disagreement would mean a certifier bug — returned
+loudly, never swallowed). New `technique_map.py` (X2): notation synonyms (λ₁/μ=ν/α/γ/χ/ω) + a
+structure→technique map (7 problem structures, each entry carrying its verdict tier from
+kernel_verified down to heuristic_float) with STRUCTURAL honesty — every technique pointer names a real
+`module.attr` and a test imports every one, so the map cannot drift from the codebase; a deterministic
+keyword classifier routes statements to structures, feeding S1's portfolio selection. 6 tests; full
+suite **1808 green**, ruff clean. Roadmap Q3 🟢, X2 ✅ (ADR-D0070). v1 at ~62/103 touched.
+
+---
+
 ## 2026-07-30 — AA0/AA1/AA2 ✅ the FunSearch skeleton: evolution finds, the kernel proves ⭐ v1 check-in @59
 
 New `program_search.py` (v1 Track AA, standard-engineering tier — honestly buildable, and now built).

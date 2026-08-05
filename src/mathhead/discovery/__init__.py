@@ -393,6 +393,7 @@ from .pslq_hunt import (
     find_relation,
     hunt_constants,
 )
+from .interval_check import IntervalVerdict, cross_check_certifiers, double_star_slack_interval
 from .invariants import (
     INVARIANTS,
     NUMERIC_INVARIANTS,
@@ -480,6 +481,7 @@ from .set_partitions import (
     stirling2,
 )
 from .structural_explanations import structural_explanations
+from .technique_map import SYNONYMS, TECHNIQUES, classify_statement, suggest_techniques
 from .trivial_filter import nontrivial_ratios, nontrivial_trends
 from .sequences import (
     SumIdentityFinding,
@@ -736,6 +738,13 @@ __all__ = [
     "evolve",
     "evaluate_program",
     "conjecture_and_prove",
+    "IntervalVerdict",
+    "double_star_slack_interval",
+    "cross_check_certifiers",
+    "SYNONYMS",
+    "TECHNIQUES",
+    "classify_statement",
+    "suggest_techniques",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

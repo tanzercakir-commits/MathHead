@@ -9,8 +9,12 @@ check(statement: str, max_n: int = 7) -> CheckResult
 `CheckResult`: `verdict` (proved/refuted/open/unsupported) · `tier` · `witness` · `checked_up_to` ·
 `proof_hash` · `instruments` · `notes`.
 
-Supported statement forms: `"m | poly(n)"` · `"sum_(i=1..n) f(i) = g(n)"` ·
-`"invA <= [k*]invB [+ c]"` (rich + classic graph invariants, connected graphs).
+Supported statement forms: `"m | poly(n)"` · `"p(n) ≡ q(n) (mod m)"` (ASCII: `"p(n) = q(n) mod m"`;
+integer coefficients only) · `"sum_(i=1..n) f(i) = g(n)"` · `"sum_(i=1..n) f(i) <= g(n)"` / `">="`
+(smallest-n witness first, then kernel closed form + z3 real-relaxation proof; an integer z3
+hint is re-verified by exact arithmetic before any refutation) ·
+`"invA <= [k*]invB [+ c]"`, the mirrored `">="`, and equalities `"invA == [k*]invB [+ c]"`
+(rich + classic graph invariants, connected graphs; a surviving equality stays `open`, never proved).
 
 ## CLI
 

@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-08-05 — v4F1 ✅ check() coverage wave 1 — three new statement forms through the single door
+
+Congruences `p(n) ≡ q(n) (mod m)` reduce to the kernel gate `m | (p−q)` (same proof hash as the
+divisibility form — tested); graph bounds gain the `>=` mirror and `==` equality claims (refuted with
+minimal witnesses or honestly open — a finite scan NEVER proves an equality, pinned by test);
+comparative sum-inequalities prove via a two-link chain (kernel-verified closed form, then z3 NRA on
+the difference for real n≥1 — sound direction only; tier = solver_verified, the weakest link; z3's
+real model is only a HINT: integer hints are exactly re-verified and upgrade open→refuted with an
+exact_integer_certificate, non-integer hints stay open). Honesty catches shipped with the wave:
+three UNSOUND legacy behaviours closed (fake kernel_verified on `2 | n/2` and `0 | n`, a crash on
+`6 | x^3−x` — all now honest unsupported), huge-modulus refusal (m > 10^6), grammar-rejection vs
+solver-unknown named distinctly. Dual-agent gate: evaluator PASS + the behaviour-change patch
+explicitly APPROVED (soundness > backward compatibility). Full suite **1885 green**, ruff fully
+clean (2 pre-existing errors also cleared). v4: 2/8.
+
+---
+
 ## 2026-08-05 — v4F0 ✅ RUP-certified UNSAT — the first DUAL-AGENT-gated phase 🔐
 
 The Ramsey UNSAT tier upgrade the docstrings promised: `rup_check.py` — a pure-Python

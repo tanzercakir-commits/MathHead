@@ -7,7 +7,7 @@ from mathhead.discovery.adversarial_objects import (
     random_graphs,
     stress_set,
 )
-from mathhead.discovery.invariants import INVARIANTS, chromatic_number, is_connected, num_edges
+from mathhead.discovery.invariants import INVARIANTS, is_connected, num_edges
 
 
 def test_no_invariant_crashes_on_the_stress_set():

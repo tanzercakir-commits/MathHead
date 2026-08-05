@@ -32,3 +32,23 @@ def test_json_output_is_machine_readable(capsys):
     assert main(["--json", "check", "5 | n^3 - n"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert data["verdict"] == "refuted" and data["witness"]["n"] == 2
+
+
+def test_check_congruence_command(capsys):                        # v4F1
+    assert main(["check", "n^2 = n mod 2"]) == 0
+    out = capsys.readouterr().out
+    assert "proved   [kernel_verified]" in out and "kernel hash" in out
+
+
+def test_check_graph_equality_command_is_honestly_open(capsys):   # v4F1
+    assert main(["check", "sum_degrees == 2*num_edges", "--max-n", "5"]) == 0
+    out = capsys.readouterr().out
+    assert "open   [no_counterexample_within_bound]" in out
+    assert "universal claim not proved" in out
+
+
+def test_check_sum_inequality_command_json(capsys):               # v4F1
+    assert main(["--json", "check", "sum_(i=1..n) i <= n^2"]) == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["verdict"] == "proved" and data["tier"] == "solver_verified"
+    assert "closed form kernel_verified; inequality step z3" in data["notes"]

@@ -20,7 +20,7 @@ The tiers, strongest first:
 | `independently_verified_unsat_proof` | the solver's DRUP refutation re-checked by a pure-Python RUP checker — no solver in the loop |
 | `independently_verified_unsat_proof_of_strengthened_formula` | RUP-checked refutation of the base formula PLUS derived lemmas — the proof is of the strengthened formula, not the bare encoding; the lemma list rides the verdict |
 | `solver_verified_with_derived_lemmas` | solver verdict; every added lemma listed on the verdict |
-| `solver_verified` | plain solver verdict (the fallback when a DRUP proof cannot be obtained or checked within budget — the verdict says why) |
+| `solver_verified` | plain solver verdict — the fallback when a DRUP proof cannot be obtained or checked within budget, and the tier of a proof chain whose weakest link is a solver (e.g. a comparative sum bound: kernel-verified closed form, then the z3 NRA inequality step — the verdict names the chain) |
 | `constructive_bounded` | explicit checked witness over a stated sample — not a universal proof |
 | `interval_certified` | certified enclosure (directed rounding); refuses strictness at equality |
 | `numerical_conjecture` | two-precision PSLQ evidence — never presented as proof |

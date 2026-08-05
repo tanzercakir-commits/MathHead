@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-07-30 — M0 🟢 + V1 🟢 + AE0 ✅: the in-container completion boundary comes into sight
+
+Three closing slices. **M0** — the judge surface is now PINNED: the Verdict envelope's exact field list
+(status/certainty/reason_code/detail/source_status/engine) is test-locked and judge determinism is
+asserted; the kernel side was already sealed by M4/M5 provenance. **V1** — `statement_parse.py`: the
+engine's own statement strings are decomposed deterministically into quantifier / domain restriction /
+size precondition / relation / invariants (resolved through X2's synonym table) — no LLM, no guessing;
+anything unrecognized stays VISIBLE in `unrecognized`, and a test checks the parsed domain against every
+`conjecture_db` entry's recorded domain (a formalization-consistency loop). **AE0** — annotated ✅
+honestly: the v0.1 scope (finite combinatorics + graphs) was not only fixed but LIVED — all 7 object
+domains sit inside it, zero scope creep. 5 tests; full suite **1813 green**, ruff clean. Roadmap
+M0/V1 🟢, AE0 ✅ (ADR-D0071). **v1 at ~65/103 — and an important honest inventory: every remaining
+untouched v1 phase is 🔴 research-frontier (12), LLM-periphery (P6/V4), needs-humans (AD3/AF3), or
+needs-infra (AG1/AG5). The achievable-in-container work is nearly complete.**
+
+---
+
 ## 2026-07-30 — Q3 🟢 interval path + X2 ✅ technique map (two certifiers agree 7/7)
 
 New `interval_check.py` (Q3 slice): mpmath.iv (directed rounding) evaluates the closed-form double-star

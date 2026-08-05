@@ -507,6 +507,7 @@ from .sum_derivation import (
     derive_sum_identity,
     sum_induction_is_derivable,
 )
+from .statement_parse import ParsedStatement, parse_statement
 from .strategy import (
     factor_prime_powers,
     prove_by_residues,
@@ -745,6 +746,8 @@ __all__ = [
     "TECHNIQUES",
     "classify_statement",
     "suggest_techniques",
+    "ParsedStatement",
+    "parse_statement",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

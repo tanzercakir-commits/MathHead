@@ -61,7 +61,7 @@ KÜME 4 — BİLGİ, ARAYÜZ, ÜRÜNLEŞME     (glue + hafıza + insan + ölçek
 
 **Track M — Güvenilir çekirdek & proof kernel (§1)**
 ```
-M0 ♻️🟡 MathHead yargıç yüzeyini (envelope + determinizm + provenance/meta) kernel arayüzü olarak sabitle
+M0 ♻️🟡 MathHead yargıç yüzeyini (envelope + determinizm + provenance/meta) kernel arayüzü olarak sabitle  🟢 PİNLENDİ: Verdict zarfı (status/certainty/reason_code/detail/source_status/engine) alan-alan test-kilidli + judge determinizmi pinli (test_discovery_statement_parse.test_m0); kernel provenance (hash+aksiyom) zaten M4/M5'te mühürlü; ADR-D0071
 M1   🟡 Minimal proof-term dili tasarla (LCF-stili / bağımlı tip) — "yalnızca izin verilen kurallar"  🟢 İLK KERNEL: proof-term ADT (RESIDUE yaprağı + CRT kompozisyon) modüler-polinom parçası için; Theorem forge-korumalı (yalnız kernel _mint eder); ADR-D0022  🟢 GENİŞLETİLDİ: ikinci yargı SumIdentity (SumInduction kuralı, rasyonel polinom aritmetiği); tek kernel iki alanı da kapsar, yargılar karışmaz; ADR-D0024
 M2   🟡 Kernel: tip kontrolü + kural kontrolü + nihai terim teoremi gerçekten kuruyor mu?  🟢 kernel.check terimi yorumlar, her kural yan-koşulunu doğrular (residue taraması; CRT eşit-polinom+ikili-aitlik-asal), yanlış iddiayı/forge'u/uyumsuz-polinomu reddeder; prover AYRIK & güvenilmez; ADR-D0022 + GÜVEN TABANI KÜÇÜLDÜ: RESIDUE artık PRİMİTİF değil — çarpan teoreminden türetiliyor (congruence.derive_residue: her r için p(x)−p(r)=(x−r)q(x) kernel PolyIdentity ile doğrulanır); residue-exhaustion bir AKSİYOM değil TEOREM; bağımsız checker kernel'siz yeniden doğrular; ADR-D0040 + SUMINDUCTION DA TÜRETİLDİ: tümevarım ADIMI artık açık — g(n)=g(n−1)+f(n) kernel'in KENDİ PolyIdentity kuralıyla doğrulanır (sum_derivation.derive_sum_identity), taban n=1 değerlendirmesi; SumInduction bir primitif değil PolyIdentity üzerine TEOREM; kernel SumInduction kuralıyla birebir tutarlı (Σi, Σi², Σi³); ADR-D0043 + M-TABANI TAMAMLANDI: "elementer tamsayı bölünebilirliği" el-sallaması artık AÇIK — m|a∧m|b⇒m|a+b ve m|a⇒m|a·k lemmaları konstrüktif tanık (bölüm) + tüm aralıkta tükenmeli kontrol (4624 kontrol, 0 hata); ℤ halka aksiyomlarına dayanır, altında başka bir şey yok (divisibility.py); ADR-D0049
 M3   🟡 Bağımsız İKİNCİ checker (farklı dil/ekip) — kernel'i çapraz doğrula  🟢 İLK BAĞIMSIZ CHECKER: modüler-polinom ispatlarını dik/stdlib kalıntı yöntemiyle yeniden doğrular, yanlışı/bozuk-CRT'yi reddeder (ADR-D0016)
@@ -190,7 +190,7 @@ AB3 🔴 Bağımsızlık ihtimali değerlendirmesi ("ispat bulamadım" ≠ "ispa
 **Track V — Doğal dilden güvenli formelleştirme (§3)**
 ```
 V0 ♻️🟢 Tanı-ya-da-reddet tabanı (MathHead interpret_natural)
-V1   🟡 Bileşen ayrıştırma: tanım/niceleyici/önkoşul/örtük-varsayım/notasyon/hedef/temel
+V1   🟡 Bileşen ayrıştırma: tanım/niceleyici/önkoşul/örtük-varsayım/notasyon/hedef/temel  🟢 DETERMİNİSTİK DİLİM (statement_parse.py): motorun kendi ifade dizgeleri → niceleyici/alan-kısıtı/boyut-önkoşulu/ilişki/invariantlar (X2 eşanlam tablosuyla çözülür); LLM YOK, tahmin YOK — tanınmayan parça `unrecognized` olarak GÖRÜNÜR kalır; conjecture_db girişleriyle uyum testli; ADR-D0071
 V2   🟡 Aday formalizasyonlar A/B/C + aralarındaki farkı gösterme ("A süreklilik, C yalnızca ölçülebilirlik varsayar")
 V3   🟢 Formalizasyon testleri: bilinen örnek/karşı-örnek/sınır durumu ifadeyi doğru mu çürütüyor/doğruluyor?
 V4   🟡 (LLM-periferi) makale/jargon → aday formal — yargıç + testler zorunlu
@@ -229,7 +229,7 @@ AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme)
 
 **Track AE — Alan örneklemesi: sonlu kombinatorik + graf (v0.1)**
 ```
-AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)
+AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)  ✅ (kapsam sabitlendi VE yaşandı: 7 nesne alanının tamamı sonlu kombinatorik içinde — graf/aritmetik/permütasyon/bölüntü/küme-bölüntü/kompozisyon/küme-ailesi; kapsam dışına tek sapma yok)
 AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)
 AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret  🟢 DÜRÜST AV KURULDU ve ÇALIŞTIRILDI (candidate_hunt.py): geniş ağ (6 aile + tüm-graf örneklemi, tüm madenciler) → her bulgu kataloğa atıflandı → 40 bulgu, 36 atıflı, 4 "katalogda-yok" aday — DÖRDÜ DE ders-kitabı aile formülü çıktı (C_n: V=E; P_n/yıldız: V=E+1; tekerlek: 2V=E+2). SONUÇ: hedefin kendisi AÇIK; katalogda-yok ≠ literatürde-yeni birebir kanıtlandı; gerçek yenilik v2 programına (dış-onaylı kanallar: OEIS/karşı-örnek/Lean) devredildi; ADR-D0059
 AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export  🟢 (rapor sözleşmesi + provenance uzun süredir tam; LEAN EXPORT artık VAR — lean_export.py 9 teorem, dış lake build beklemede; çapraz-referans v2C2/ADR-D0068)

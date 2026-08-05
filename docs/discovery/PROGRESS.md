@@ -7,6 +7,19 @@
 
 ---
 
+## 2026-08-05 — Release verification pass: full suite GREEN (1833/1833) 🟢
+
+Post-release sanity gate. The v1.1.0 sync sweep had left one transient scare on record — a full-suite
+run printed "2 failed" right before the c2cba53 push, with the failing tests unidentified. Root cause
+confirmed harmless: SAMPLE-REPORT.md staleness against the freshly-bumped version string, which the
+pre-commit hook's `gen_status.py` refresh healed AT commit time (so the pushed tree was already
+consistent). Fresh full-suite run on the pushed tree: **1833 passed, 0 failed**, tracker check OK
+(103 v1 · 16 v2 · 9 v3 · sample fresh), branch in sync with origin. v3 stands at **8✅ + 1🟢 of 9**;
+the remaining human release steps are unchanged: enable GitHub Pages, publish to PyPI (then restore
+the plain pip install line), optional Zenodo DOI, revoke the 1-night PAT.
+
+---
+
 ## 2026-07-30 — v3P5-P8 ✅ THE PRODUCT TARGET IS REACHED (in-container limit) 🏁
 
 The release layer, in one sweep. **v3P5**: CITATION.cff (v1.1.0, software citation with abstract) and

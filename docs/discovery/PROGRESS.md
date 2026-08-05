@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-07-30 — v2C2 🟢 the Lean bridge: kernel theorems exported for external cross-sealing ⭐ KADEME 3 DONE
+
+New `lean_export.py` (v2C2, covering v1's M6 export layer). The deepest available trust upgrade: have an
+INDEPENDENT proof kernel (Lean 4 + mathlib) re-check ours. The correspondence is exact and documented in
+the export itself: our RESIDUE rule (finite residue exhaustion) ≡ Lean's `decide` over the FINITE type
+`ZMod m` — Lean's kernel performs the same exhaustion, machine-checked — transported to ∀ n : ℤ by
+`ZMod.intCast_zmod_eq_zero_iff_dvd`; composite moduli need no CRT on the Lean side (decide at m subsumes
+the split); PolyIdentity ≡ `ring`. Nine theorems (7 kernel Divides facts + 2 identities) are written to
+`docs/discovery/lean/MathheadKernel.lean` with the external instructions in the header. THE HONESTY IS
+THE DESIGN: Lean+mathlib cannot compile in this container, so the status is
+`export_written_pending_external_check`, the file says "NOT yet run", and nothing is claimed
+Lean-verified until a human/CI runs `lake build` — hence 🟢, not ✅. Tactic glue may need version
+adjustment (mathlib names drift); `decide` over `ZMod m` is the version-stable core. 5 tests; full suite
+**1796 green**, ruff clean. Roadmap v2C2 🟢 + v1 M6 annotated (ADR-D0068).
+
+**⭐ KADEME 3 complete to its honest in-container limit (C0 ✅ C1 ✅ C2 🟢). v2 program: 15/16 phases
+touched in ONE DAY — only Kademe 4 (Alpha Centauri: FunSearch-style construction search,
+autoformalization, new-definition generation — 🔴 research horizon) remains.**
+
+---
+
 ## 2026-07-30 — v2C1 ✅ the SAT frontier: R(3,3)=6 and R(3,4)=9 bracketed by the engine
 
 New `ramsey_sat.py`. Heule's programme (Boolean Pythagorean triples, Schur 5) settled open finite

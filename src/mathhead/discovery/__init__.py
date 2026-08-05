@@ -51,6 +51,9 @@ Layers so far:
   * conjecture_service — Graffiti-style conjecture FEED (v2C0): sharpness-ranked invariant inequalities
                  over the rich registry, counterexample-first on all connected graphs; rediscovers ω≤χ
                  (sharpest), diameter≤2·radius, Ore's γ≤α; every item empirical + known-result caveat
+  * lean_export — Lean 4 cross-seal EXPORT (v2C2/M6): kernel Divides theorems as decide-over-ZMod m
+                 (≡ our RESIDUE rule, re-checked by Lean's kernel), PolyIdentity as ring; status honest:
+                 export_written_pending_external_check — never claimed verified without the lake build
   * ramsey_sat  — the SAT frontier (v2C1): Ramsey 2-colouring CNF on pysat; R(3,3)=6 and R(3,4)=9
                  bracketed by the engine, R(4,4)>17 witnessed; SAT witnesses re-verified by BRUTE FORCE
                  (independently_verified_witness), UNSAT honestly solver_verified (DRAT = next step)
@@ -325,6 +328,7 @@ from .knowledge_graph import (
 )
 from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
+from .lean_export import LeanExport, export_kernel_theorems
 from .lemma_ranking import RankedLemma, next_lemma, rank_lemmas
 from .mutate import Mutation, mutate_inequality, repair, strengthen
 from .nauty_scale import (
@@ -716,6 +720,8 @@ __all__ = [
     "ramsey_cnf",
     "ramsey_decide",
     "bracket_ramsey",
+    "LeanExport",
+    "export_kernel_theorems",
     "Analogy",
     "find_analogies",
     "BijectionCertificate",

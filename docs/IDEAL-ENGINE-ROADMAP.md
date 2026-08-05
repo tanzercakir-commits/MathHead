@@ -67,7 +67,7 @@ M2   🟡 Kernel: tip kontrolü + kural kontrolü + nihai terim teoremi gerçekt
 M3   🟡 Bağımsız İKİNCİ checker (farklı dil/ekip) — kernel'i çapraz doğrula  🟢 İLK BAĞIMSIZ CHECKER: modüler-polinom ispatlarını dik/stdlib kalıntı yöntemiyle yeniden doğrular, yanlışı/bozuk-CRT'yi reddeder (ADR-D0016)
 M4   🟢 Deterministik proof replay + proof-artifact hash + kernel sürümleme  ✅ (provenance.proof_hash: kanonik+versiyonlu içerik hash'i, sıra-bağımsız; replay: kernel'i yeniden çalıştır; ArithmeticFinding.proof_hash + raporda [hash]; ADR-D0023)
 M5   🟢 Kullanılan aksiyomların tam listesi + bağımlı-teorem grafiği (provenance)  🟢 AKSİYOM LİSTESİ: provenance.axioms_used her teoremin dayandığı RESIDUE(m)/CRT kurallarını verir; raporda kernel-aksiyom manifestosu; bağımlı-teorem grafiği (proof_tree, T3) mevcut; ADR-D0023
-M6   🟡 Lean/harici ispat asistanına köprü: ispatı dışa aktar + Lean çekirdeğiyle çapraz-mühürle
+M6   🟡 Lean/harici ispat asistanına köprü: ispatı dışa aktar + Lean çekirdeğiyle çapraz-mühürle  🟢 EXPORT KATMANI KURULDU (v2C2 = lean_export.py): 9 teorem Lean 4 kaynağı olarak yazıldı, decide-over-ZMod korespondansı belgelendi; harici lake build ÇALIŞTIRILMADI — çapraz-mühür beklemede, dürüstçe
 M7   🟢 Zengin durum çıktısı (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_HASH/INDEPENDENT_CHECKER)
 ```
 
@@ -319,7 +319,7 @@ v2B3 🟡 Canlı av: açık konjektürlerde tanık araması (tanık kendini doğ
 ```
 v2C0 ✅ Keskinlik-tespitli konjektür servisi (Graffiti-tarzı; W0 novelty filtreli; insanlara yayın) — conjecture_service.py: zengin kütük (α,γ,ν,girth,diam,radius) + klasikler üzerinde A≤B / A≤B+c / A≤2B formları, tüm bağlı graflarda counterexample-first (142 graf, 330 aday → 74 survivor); KESKİNLİK sıralaması (eşitliğe ulaşan graf sayısı + en küçük eşitlik tanığı): ω≤χ 138-keskin (mükemmel graflar), diameter≤2·radius, Ore γ≤α, γ≤ν; baskılanan offset-formlar düşürülür; her madde empirical + 'bilinen-sonuç, insanlara saldırı listesi' kaydı; ADR-D0066
 v2C1 ✅ SAT cephesi: Ramsey-tipi sonlu problem kodlayıcıları (pysat üstüne; DRAT ispat-log hedefi) — ramsey_sat.py: K_n 2-boyama CNF (kırmızı K_s yok + mavi K_t yok); R(3,3)=6 ve R(3,4)=9 MOTOR TARAFINDAN BRACKETLENDİ (SAT→UNSAT geçişi), R(4,4)>17 tanıklı (68 kırmızı kenar = C(17,2)/2, Paley simetrisi); DÜRÜSTLÜK KATMANLARI AYRI: SAT tanığı KABA KUVVETLE bağımsız yeniden-doğrulanır (independently_verified_witness; solver yalan söylerse verdict REDDEDİLİR), UNSAT solver_verified kalır (kernel-seviye UNSAT için DRAT loglama = kayıtlı sonraki adım, iddia edilmedi); flip aralık dışındaysa değer İDDİA EDİLMEZ; ADR-D0067
-v2C2 🟡 Lean 4 / mathlib köprüsü: kernel ispat exportu + "bilinen mi?" kâhini (M6'yı kapsar)
+v2C2 🟢 Lean 4 / mathlib köprüsü: kernel ispat exportu + "bilinen mi?" kâhini (M6'yı kapsar) — lean_export.py: kernel'in 7 Divides teoremi + kimlikler Lean 4'e çevrildi (docs/discovery/lean/MathheadKernel.lean, 9 teorem); TEORİK KÖPRÜ TAM: RESIDUE kuralımız ≡ Lean'ın ZMod m üzerinde decide'ı (sonlu tip, Lean çekirdeği aynı taramayı yapar) + ZMod.intCast_zmod_eq_zero_iff_dvd ile ∀n:ℤ'ye taşınır; PolyIdentity ≡ ring; DÜRÜST: export_written_pending_external_check — Lean+mathlib konteynerde derlenemez, lake build = insan/CI adımı, o koşana dek hiçbir teorem Lean-verified SAYILMAZ (✅ değil 🟢 bu yüzden); ADR-D0068
 ```
 
 **Kademe 4 — Alpha Centauri (🔴 araştırma ufku; fizik yasası yasaklamıyor, yol haritası bilinmiyor)**

@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-05 · 73 modules · 480 discovery tests · 36 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-05 · 74 modules · 485 discovery tests · 37 phases ✅ full, of 103 v1 + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -132,8 +132,11 @@ candidates → 74 survivors on all connected n≤6; ω≤χ sharpest (138 equali
 diameter≤2·radius, Ore's γ≤α rediscovered; every item empirical + known-result caveat.
 **v2C1 ✅ SAT frontier:** R(3,3)=6 and R(3,4)=9 bracketed by the engine (SAT→UNSAT flip), R(4,4)>17
 witnessed; SAT witnesses brute-force re-verified (independently_verified_witness), UNSAT honestly
-solver_verified (DRAT logging = recorded next step). Next: v2C2 Lean bridge (the flagged MAX step) —
-then Kademe 3 complete; beyond lies only Kademe 4 (Alpha Centauri, 🔴).
+solver_verified (DRAT logging = recorded next step). **v2C2 🟢 Lean bridge:** 9 kernel theorems exported to Lean 4 (decide-over-ZMod ≡ our RESIDUE rule;
+ring ≡ PolyIdentity) at docs/discovery/lean/MathheadKernel.lean; status honest —
+export_written_pending_external_check (lake build = human/CI step; nothing claimed Lean-verified).
+**KADEME 3: C0 ✅ C1 ✅ C2 🟢 — complete to its honest in-container limit. v2 program: 15/16 phases
+touched, only Kademe 4 (Alpha Centauri, 🔴 research horizon) remains.**
 
 ## Next — prioritized candidates
 

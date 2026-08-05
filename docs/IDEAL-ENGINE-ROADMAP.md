@@ -328,3 +328,25 @@ v2D0 🔴 Program-uzayı yapı arayıcı (FunSearch-tarzı; büyük hesap ister)
 v2D1 🔴 Otoformalizasyon döngüsü (kaynak → tanım/konjektür → saldırı → geri-besleme)
 v2D2 🔴 Yeni tanım üretimi (Track Z'nin v2 hali; matematiksel ZEVK problemi — kimse çözmedi)
 ```
+
+---
+
+## v3 EKİ — ÜRÜN PROGRAMI (2026-07-30, kullanıcı hedefi: "matematikçilerin kullanmak isteyeceği ürün")
+
+> DONE kriteri (ölçülebilir): repo'yu bulan bir matematikçi 10 dakika içinde — kurar (`pip install`),
+> 3 gerçek kontrol koşar (tanıklı bir refütasyon + bir kernel ispatı + bir Ramsey bracket), dürüstlük
+> sözleşmesini okur ve atıf verir. Hepsi CI'da çalışan örnek-testlerle KANITLI. Konumlandırma:
+> **"Konjektürünü getir — çürüteyim, ispatlayayım, ya da tam olarak nereye kadar dayandığını söyleyeyim."**
+> Pazar farkı: hiçbir araç verdict başına EPİSTEMİK KADEME vermiyor; bizim dürüstlük sözleşmemiz ürünün ruhu.
+
+```
+v3P0 🟡 Ürün çekirdeği: check() tek-kapı API — ifade → yapı sınıflandırma → enstrüman → dürüst verdict zarfı
+v3P1 🟡 CLI: mathhead-discover check/bracket/hunt/report komutları
+v3P2 🟡 README ürün-sınıfı yeniden yazım (30-saniye değer önermesi + 3 canlı örnek + kademe tablosu)
+v3P3 🟡 Docs sitesi (mkdocs-material): quickstart + 5 işlenmiş örnek + API referans + DÜRÜSTLÜK SÖZLEŞMESİ sayfası
+v3P4 🟡 Örnek galerisi = çalıştırılabilir testler (docs çürüyemez; CI koşar)
+v3P5 🟡 Sitabilite: CITATION.cff + whitepaper taslağı (yöntem + dürüst değerlendirme bölümü)
+v3P6 🟡 Sürüm cilası: CHANGELOG + semver v1.1.0 + pip extras denetimi
+v3P7 🟡 GitHub Pages docs deploy CI + repo vitrini (badges, topics)
+v3P8 🟡 Topluluk yüzeyi: issue şablonları + CONTRIBUTING + "conjecture wanted" şablonu
+```

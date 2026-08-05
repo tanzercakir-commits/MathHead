@@ -37,6 +37,8 @@ TRACKS_EXPECTED = 21
 # The v2 extension (Real Discovery Program, user-approved 2026-07-30) — guarded the same way.
 # v2 phase IDs are lowercase-prefixed (v2A0…) so they can NEVER inflate the original 103 count.
 V2_PHASES_EXPECTED = 16
+# The v3 PRODUCT programme (user goal 2026-07-30: "a product mathematicians will want to use").
+V3_PHASES_EXPECTED = 9
 
 
 def roadmap_counts() -> tuple:
@@ -49,6 +51,10 @@ def roadmap_counts() -> tuple:
 
 def v2_count() -> int:
     return len(re.findall(r"(?m)^v2[A-D][0-9]+", ROADMAP.read_text(encoding="utf-8")))
+
+
+def v3_count() -> int:
+    return len(re.findall(r"(?m)^v3P[0-9]+", ROADMAP.read_text(encoding="utf-8")))
 
 
 def module_count() -> int:
@@ -96,6 +102,8 @@ def check() -> int:
         problems.append(f"PLAN tracks changed: {tracks} (expected {TRACKS_EXPECTED})")
     if v2_count() != V2_PHASES_EXPECTED:
         problems.append(f"v2 extension changed: {v2_count()} phases (expected {V2_PHASES_EXPECTED})")
+    if v3_count() != V3_PHASES_EXPECTED:
+        problems.append(f"v3 extension changed: {v3_count()} phases (expected {V3_PHASES_EXPECTED})")
     for f in (ROADMAP, TODO, PROGRESS, SAMPLE):
         if not f.exists():
             problems.append(f"missing tracking file: {f.name}")
@@ -105,7 +113,7 @@ def check() -> int:
         print("TRACKER CHECK FAILED:", *(f"\n  - {p}" for p in problems), file=sys.stderr)
         return 1
     print("tracker check OK:",
-          f"{phases} phases · {tracks} tracks · v2 {v2_count()} · sample fresh")
+          f"{phases} phases · {tracks} tracks · v2 {v2_count()} · v3 {v3_count()} · sample fresh")
     return 0
 
 

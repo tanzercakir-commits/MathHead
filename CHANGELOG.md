@@ -5,6 +5,22 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 ## [Unreleased]
 
 ### Added
+- BACKWARD DRUP/DRAT proof checking (`discovery.rup_check.check_drup_backward`, drat-trim's
+  marking idea in pure Python): the proof is replayed unchecked, the final conflict's
+  derivation cone is marked, and only marked lemmas are RUP-checked walking end-to-start —
+  with core-first propagation and a documented deletion-blind mode (both sound for RUP).
+  New honest status `not_rup_checkable` under `proof_format="drat"`: a marked lemma failing
+  RUP may be a genuine RAT step, which a RUP-only checker must report as undecided, never as
+  a refutation. `ramsey_decide_case_split` now certifies through the backward checker,
+  records the checker's verdict per case (`RamseyCase.rup_status`), supports
+  `solver_name="glucose42"` (a proof-emitting solver that solves BOTH heavy R(3,6)@18 cases —
+  the Koşu 4 "only cadical" barrier is gone), and keeps refusing `certify=True` with cadical:
+  pysat's CaDiCaL proof tracing was measured to write truncated files (concluding ⊥ never
+  flushed, all three cadical backends). SCALE-RUNS Koşu 6/6b record the R(3,6)@18 attempt
+  honestly: 16/16 cases UNSAT re-established with Glucose42, 14/16 case proofs
+  backward-RUP-certified (the (4,4) case at 93 535 checked lemmas), the two heavy checks
+  `budget_exceeded` — the case-split tier is deliberately UNCHANGED (a partial set of
+  certified cases upgrades nothing).
 - Readings wave 2 — the ∀/∃ quantifier ambiguity of modular/congruence statements: on
   `m | p(n)` and `p(n) ≡ q(n) (mod m)` the envelope now also carries `readings` — the ∀ reading
   (the main envelope itself, byte-identical to before) and the ∃ reading, DECIDED from the same

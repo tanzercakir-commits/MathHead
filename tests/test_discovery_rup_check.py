@@ -176,3 +176,142 @@ def test_cross_checked_by_the_j2_drat_checker():
     adds = [step for op, step in parse_drup(proof) if op == "a"]
     ok, msg = j2_rup_check(clauses, [list(step) for step in adds])
     assert ok, msg
+
+
+# --------------------------------------------------------------------------- #
+# The BACKWARD checker (drat-trim's marking idea): forward agreement, marking
+# savings, honest DRAT semantics, deletion reversal, budget, error paths
+# --------------------------------------------------------------------------- #
+def test_backward_agrees_with_forward_on_real_proofs():
+    from mathhead.discovery.rup_check import check_drup_backward
+    for n, s, t in ((6, 3, 3), (9, 3, 4)):
+        clauses, proof = _glucose_proof(n, s, t)
+        fwd = check_drup_lines(clauses, proof)
+        bwd = check_drup_backward(clauses, proof)
+        assert fwd.ok and bwd.ok, (n, s, t, fwd.status, bwd.status)
+        assert bwd.checked_lemmas <= bwd.total_lemmas and bwd.total_lemmas > 0
+        assert "backward" in bwd.message and bwd.visits > 0
+
+
+def test_backward_checks_only_the_derivation_cone():
+    """Marking skips lemmas outside ⊥'s cone — the entire speed-up. The flip side is honest
+    drat-trim semantics: a junk lemma the derivation never uses does not undermine `verified`
+    (the claim is exactly '⊥ follows from the input by the RUP chain over MARKED clauses'),
+    while the forward checker, which checks EVERY lemma, refutes the same proof."""
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses = [[1, 2], [1, -2], [-1, 2], [-1, -2], [5, 6]]
+    proof = ["5 7 0", "1 0", "-1 0", "0"]                    # "5 7" is junk: NOT RUP, never used
+    fwd = check_drup_lines(clauses, proof)
+    bwd = check_drup_backward(clauses, proof)
+    assert fwd.status == "refuted"                           # forward checks every lemma
+    assert bwd.status == "verified"                          # backward: ⊥'s cone is {1, -1}
+    assert bwd.checked_lemmas < bwd.total_lemmas == 4        # the junk lemma was never checked
+    # and on a REAL proof the cone is measurably smaller than the whole (the savings claim)
+    from mathhead.discovery.ramsey_sat import _degree_lemmas
+    from pysat.solvers import Glucose3
+    ev, clauses44 = ramsey_cnf(18, 4, 4)
+    extra, _lemmas, _top = _degree_lemmas(18, 4, 4, ev, max(ev.values()))
+    clauses44 = clauses44 + extra
+    with Glucose3(bootstrap_with=clauses44, with_proof=True) as solver:
+        assert not solver.solve()
+        proof44 = solver.get_proof()
+    res = check_drup_backward(clauses44, proof44)
+    assert res.ok and 0 < res.checked_lemmas < res.total_lemmas
+
+
+def test_backward_tampered_cone_is_still_rejected():
+    """Tampering INSIDE the derivation cone must refute — marking never excuses the root."""
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses, proof = _glucose_proof(6, 3, 3)
+    forged = ["1 0", *proof]                                 # a unit out of nowhere, then the rest
+    assert check_drup_backward(clauses, forged).status == "refuted"
+    adds = [ln for ln in proof if not ln.startswith("d ")]
+    assert check_drup_backward(clauses, adds[:2]).status == "refuted"   # no ⊥, no final conflict
+    assert check_drup_backward(clauses, []).status == "refuted"
+    _, sat_clauses = ramsey_cnf(5, 3, 3)                     # SATISFIABLE: no refutation exists
+    assert check_drup_backward(sat_clauses, proof).status == "refuted"
+
+
+def test_backward_drat_mode_reports_not_rup_checkable_never_refuted():
+    """A marked lemma failing RUP under proof_format='drat' may be a genuine RAT step — the
+    RUP-only checker reports `not_rup_checkable` (honestly undecided), NEVER `refuted`;
+    the same input under 'drup' (documented RUP-only solver output) IS a refutation."""
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses = [[1, 2], [1, -2], [-1, 2], [-1, -2]]
+    proof = ["3 0", "-3 0", "0"]                             # "3" is in ⊥'s cone but not RUP
+    drat = check_drup_backward(clauses, proof, proof_format="drat")
+    assert drat.status == "not_rup_checkable" and not drat.ok
+    assert "RAT" in drat.message and "UNDECIDED" in drat.message
+    drup = check_drup_backward(clauses, proof, proof_format="drup")
+    assert drup.status == "refuted" and "not RUP" in drup.message
+
+
+def test_backward_is_deletion_blind_by_design():
+    """`d` lines are parsed and counted but deliberately NOT applied — sound for RUP (ignoring
+    a deletion only ADDS clauses, and unit propagation is monotone in the clause set), and
+    measured necessary at scale: solver deletion info is over-eager (54% of checks on a
+    1.7M-lemma Glucose42 proof needed the deleted clauses back). An over-eager deletion of a
+    clause a later lemma still needs therefore costs nothing here."""
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses = [[1, 2], [1, -2], [-1, 2], [-1, -2]]
+    res = check_drup_backward(clauses, ["1 0", "d 1 2 0", "-1 0", "0"])
+    assert res.ok and res.deletions_applied == 1             # recognized, skipped, counted
+    # over-eager: [-1, 2] deleted though the lemma "-1" still needs it — blind mode is immune
+    res = check_drup_backward(clauses, ["1 0", "d -1 2 0", "-1 0", "0"])
+    assert res.ok and res.deletions_applied == 1
+    assert "deletion-blind" in res.message
+
+
+def test_backward_budget_and_error_paths():
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses, proof = _glucose_proof(6, 3, 3)
+    res = check_drup_backward(clauses, proof, visit_budget=1)
+    assert res.status == "budget_exceeded" and not res.ok and "no verdict" in res.message
+    assert check_drup_backward(clauses, None).status == "error"
+    assert check_drup_backward(None, proof).status == "error"
+    assert check_drup_backward(clauses, "1 0").status == "error"      # a str is not a line list
+    assert check_drup_backward(clauses, [42]).status == "error"
+    assert check_drup_backward(clauses, ["1 y 0"]).status == "error"
+    assert check_drup_backward(clauses, ["1 0 2"]).status == "error"  # interior zero
+    assert check_drup_backward(clauses, proof, proof_format="lrat").status == "error"
+    assert check_drup_backward([[1], [-1], []], ["0"]).status == "verified"   # empty input clause
+
+
+def test_backward_accepts_a_lazily_read_proof_stream():
+    """Multi-hundred-MB solver proofs are checked from disk, never held as a list — the
+    backward checker takes any iterable of lines."""
+    from mathhead.discovery.rup_check import check_drup_backward
+    clauses, proof = _glucose_proof(6, 3, 3)
+    res = check_drup_backward(clauses, (line for line in proof))
+    assert res.ok
+
+
+def test_backward_differential_against_forward_on_random_cnfs():
+    """Deterministic differential fuzz: forward-verified ⟹ backward-verified (a proof whose
+    EVERY lemma is RUP has every MARKED lemma RUP), and backward-refuted ⟹ forward-refuted.
+    Tampered proofs may honestly diverge the other way (junk outside the cone)."""
+    import random
+
+    from mathhead.discovery.rup_check import check_drup_backward
+    from mathhead.drat import refute
+    rng = random.Random(11)
+    tested = 0
+    while tested < 25:
+        nv, nc = rng.randint(3, 7), rng.randint(5, 25)
+        cnf = [[rng.choice([1, -1]) * rng.randint(1, nv) for _ in range(3)] for _ in range(nc)]
+        status, proof = refute(cnf)
+        if status != "unsat":
+            continue
+        tested += 1
+        variants = [proof]
+        if len(proof) > 1:
+            variants.append(proof[:-1] + [[rng.choice([1, -1]) * rng.randint(1, nv)]])
+            variants.append(proof[1:])
+        for candidate in variants:
+            lines = [" ".join(map(str, cl)) + " 0" for cl in candidate]
+            fwd = check_drup_proof(cnf, [("a", tuple(cl)) for cl in candidate])
+            bwd = check_drup_backward(cnf, lines)
+            if fwd.ok:
+                assert bwd.ok, (cnf, candidate, bwd.status)
+            if bwd.status == "refuted":
+                assert not fwd.ok, (cnf, candidate, fwd.status)

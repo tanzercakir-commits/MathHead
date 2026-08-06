@@ -59,7 +59,11 @@ _OWN_BRACKETS: dict = {
     (3, 6): 18,     # witnessed at 17 (independently_verified_witness, SCALE-RUNS Koşu 2a; pinned
                     # by test_r36_bracket_entry_and_its_honest_provenance); refuted at 18 by the
                     # two-level symmetry case split, Cadical195, 239 s (SCALE-RUNS Koşu 4 —
-                    # solver's word + prose covering argument, NOT a RUP-checked proof)
+                    # solver's word + prose covering argument, NOT a RUP-checked proof).
+                    # Koşu 6/6b (2026-08-06) re-established the same verdict with Glucose42 and
+                    # BACKWARD-RUP-certified 14 of the 16 case proofs; (5,4)/(5,5) ended
+                    # budget_exceeded (no verdict on those proofs), so the tier stands UNCHANGED
+                    # — a partial set of certified cases never upgrades anything
 }
 
 
@@ -223,6 +227,9 @@ class RamseyCase:
     constraint: str = ""            # THIS case's constraint, spelled out exactly as encoded
     rup_checked: bool = False       # this case's DRUP proof re-checked by the independent RUP checker
     rup_lemmas: int = 0
+    rup_status: str = ""            # the checker's own verdict on this case's proof: "verified" |
+    #                                 "refuted" | "not_rup_checkable" | "budget_exceeded" |
+    #                                 "error" | "" (no check attempted / certify=False)
     note: str = ""
 
 
@@ -385,26 +392,45 @@ def ramsey_decide_case_split(n: int, s: int, t: int, budget_per_case_s: float | 
       * ANY case timeout (and none SAT) -> outcome `undecided_within_budget`, NO tier, NO claim:
         a partial set of UNSAT cases proves nothing and is never reported as a result.
 
-    Solvers, honestly bounded: `solver_name="glucose3"` (default) enforces `budget_per_case_s`
-    in-process via interrupt and supports `certify`. `solver_name="cadical195"` runs each case in
-    a forked child process killed at the budget — pysat's Cadical195 `interrupt()` cannot stop a
-    running search (verified 2026-08-06: a 1 s interrupt timer left the solve running past 30 s)
-    — and REFUSES `certify=True`: Cadical emits DRAT-family proofs and this engine's RUP checker
-    documents a RUP-only soundness argument (see `rup_check`'s trap marker), so a Cadical UNSAT
-    stays the solver's word and is labelled accordingly."""
+    Proof checking (`certify=True`) goes through the independent BACKWARD checker
+    (`rup_check.check_drup_backward`, drat-trim's marking idea): only the lemmas in the final
+    conflict's derivation cone are RUP-checked, which is what makes the multi-million-lemma
+    proofs of the hard R(3,6)@18 cases checkable in pure Python at all. Each case records the
+    checker's own verdict on `rup_status` — "verified" | "refuted" | "not_rup_checkable" |
+    "budget_exceeded" | "error" — and `rup_checked` stays a bool that is True ONLY for
+    "verified"; a `budget_exceeded` check is never a result and silently costs the
+    `..._with_rup_checked_cases` tier, honestly.
+
+    Solvers, honestly bounded: `solver_name="glucose3"` (default) and `"glucose42"` enforce
+    `budget_per_case_s` in-process via interrupt and support `certify` (their DRUP output is
+    RUP-only, so a marked lemma's RUP failure honestly refutes the proof).
+    `solver_name="cadical195"` runs each case in a forked child process killed at the budget —
+    pysat's Cadical195 `interrupt()` cannot stop a running search (verified 2026-08-06: a 1 s
+    interrupt timer left the solve running past 30 s) — and REFUSES `certify=True`: pysat's
+    CaDiCaL proof tracing writes a TRUNCATED file (verified 2026-08-06 on all three cadical
+    backends: the binary DRAT stream ends mid-step with the concluding ⊥ missing — the
+    tracer's tail is never flushed through the pysat API), so no checkable proof can be
+    obtained, and the honest response is refusal rather than a silent downgrade. (The RAT-step
+    boundary documented in `rup_check` — Cadical emits DRAT-family proofs whose RAT steps a
+    RUP-only checker can never validate, only report `not_rup_checkable` — would apply even if
+    complete proofs were obtainable.)"""
     import multiprocessing as mp
     from threading import Timer
     from time import perf_counter
 
-    from pysat.solvers import Glucose3
+    from pysat.solvers import Glucose3, Glucose42
 
-    from .rup_check import check_drup_lines
-    if solver_name not in ("glucose3", "cadical195"):
-        raise ValueError(f"unsupported solver_name {solver_name!r}: glucose3 | cadical195")
+    from .rup_check import check_drup_backward
+    if solver_name not in ("glucose3", "glucose42", "cadical195"):
+        raise ValueError(f"unsupported solver_name {solver_name!r}: "
+                         "glucose3 | glucose42 | cadical195")
     if solver_name == "cadical195" and certify:
-        raise ValueError("certify=True requires glucose3: Cadical's DRAT-family output is outside "
-                         "the RUP checker's documented soundness argument — no honest RUP tier "
-                         "is available for it, so it is refused rather than silently downgraded")
+        raise ValueError("certify=True requires glucose3 or glucose42: pysat's CaDiCaL proof "
+                         "tracing yields truncated proofs (the concluding steps are never "
+                         "flushed — verified 2026-08-06), and Cadical's DRAT-family output is "
+                         "outside the RUP checker's documented soundness argument anyway — no "
+                         "honest RUP tier is available for it, so it is refused rather than "
+                         "silently downgraded")
     if second_level and (s != 3 or not fix_neighbourhood):
         raise ValueError("second_level requires s == 3 and fix_neighbourhood=True — its covering "
                          "argument uses red-triangle-freeness and N_red(0) = {1..D} (docstring)")
@@ -431,8 +457,9 @@ def ramsey_decide_case_split(n: int, s: int, t: int, budget_per_case_s: float | 
         formula = base + case_clauses
         t0 = perf_counter()
         proof = None
-        if solver_name == "glucose3":
-            with Glucose3(bootstrap_with=formula, with_proof=certify) as solver:
+        if solver_name in ("glucose3", "glucose42"):
+            glucose_cls = Glucose3 if solver_name == "glucose3" else Glucose42
+            with glucose_cls(bootstrap_with=formula, with_proof=certify) as solver:
                 if budget_per_case_s is not None:
                     timer = Timer(budget_per_case_s, solver.interrupt)
                     timer.start()
@@ -482,14 +509,18 @@ def ramsey_decide_case_split(n: int, s: int, t: int, budget_per_case_s: float | 
         case = RamseyCase(d, "unsat", dt, d1, desc)
         if certify:
             kwargs = {} if rup_visit_budget is None else {"visit_budget": rup_visit_budget}
-            rup = check_drup_lines(formula, proof, **kwargs)
+            rup = check_drup_backward(formula, proof, proof_format="drup", **kwargs)
+            case.rup_status = rup.status
             if rup.ok:
                 case.rup_checked, case.rup_lemmas = True, rup.lemmas_checked
-                case.note = "case-formula DRUP proof re-checked by the independent RUP checker"
+                case.note = ("case-formula DRUP proof re-checked by the independent backward "
+                             f"RUP checker ({rup.lemmas_checked} of {rup.total_lemmas} lemmas "
+                             "in the derivation cone)")
             else:
                 case.note = f"RUP check did not pass ({rup.status}): {rup.message}"
         else:
             case.note = "certify=False: DRUP proof not requested"
+        proof = None                                     # a hard case's proof can be huge — drop it
         cases.append(case)
     if any(c.status == "timeout" for c in cases):
         timed_out = [(c.d, c.d1) if c.d1 is not None else c.d

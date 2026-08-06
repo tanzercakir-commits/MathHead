@@ -174,6 +174,37 @@ def test_case_split_timeout_is_never_a_result():
     assert "prove NOTHING" in v.note
 
 
+def test_case_split_certify_records_backward_rup_status_per_case():
+    # the certify path now runs the BACKWARD checker; every case records the checker's own
+    # verdict on rup_status, and rup_checked stays True ONLY for "verified"
+    v = ramsey_decide_case_split(6, 3, 3, budget_per_case_s=60, certify=True)
+    assert v.outcome == "unsat"
+    assert v.certainty == "solver_verified_unsat_by_symmetry_case_split_with_rup_checked_cases"
+    assert all(c.rup_status == "verified" and c.rup_checked for c in v.cases)
+    assert any("backward" in c.note for c in v.cases)
+    w = ramsey_decide_case_split(6, 3, 3, budget_per_case_s=60, certify=False)
+    assert all(c.rup_status == "" and not c.rup_checked for c in w.cases)
+
+
+def test_case_split_glucose42_is_a_supported_proof_emitting_solver():
+    v = ramsey_decide_case_split(6, 3, 3, budget_per_case_s=60, certify=True,
+                                 solver_name="glucose42")
+    assert v.outcome == "unsat" and v.solver_name == "glucose42"
+    assert v.certainty == "solver_verified_unsat_by_symmetry_case_split_with_rup_checked_cases"
+    assert all(c.rup_status == "verified" for c in v.cases)
+
+
+def test_case_split_exhausted_rup_budget_costs_the_tier_honestly():
+    # an exhausted CHECK budget is never a result: the case stays honest (budget_exceeded,
+    # rup_checked=False) and the verdict keeps the plain case-split tier — no silent upgrade
+    v = ramsey_decide_case_split(6, 3, 3, budget_per_case_s=60, certify=True,
+                                 rup_visit_budget=1)
+    assert v.outcome == "unsat"                          # the CASES are still honestly UNSAT
+    assert v.certainty == "solver_verified_unsat_by_symmetry_case_split"
+    assert any(c.rup_status == "budget_exceeded" for c in v.cases)
+    assert all(not c.rup_checked for c in v.cases if c.rup_status == "budget_exceeded")
+
+
 def test_case_split_guards_refuse_unsound_or_unlabelable_configs():
     with pytest.raises(ValueError, match="unsupported solver_name"):
         ramsey_decide_case_split(5, 3, 3, solver_name="minisat")

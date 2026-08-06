@@ -1,4 +1,4 @@
-# Ölçek Koşuları — Sonuç Kayıtları (v4F5)
+# Ölçek Koşuları — Sonuç Kayıtları (v4F6)
 
 > Bu dosya bir TRACKER DEĞİLDİR (üç tracker: PLAN/TODO/PROGRESS) — DECISIONS.md gibi bir KAYIT
 > dosyasıdır: her ölçek koşusu tarih + komut/parametre + süre + sonuç + DÜRÜST KADEME ile buraya
@@ -224,3 +224,79 @@ Sonuç: **SAT, 0.8 s** — 64 kırmızı kenarlı boyama, kaba-kuvvet bağımsı
 DÜRÜST SINIR: üst taraf (UNSAT @ n=23) DENENMEDİ — R(3,6)@18'in (5,5) case'i 167 s idi; n=23 case-split'i
 kestirilebilir biçimde çok daha ağır, ayrı bütçelenmiş bir saldırı ister (kayıtlı sonraki adım).
 R(3,7) motorda BRACKET DEĞİL (tek taraf); _OWN_BRACKETS'a GİRMEDİ.
+
+---
+
+## Koşu 6 — R(3,6)@18 case ispatlarını makine-kontrollü kademeye yükseltme DENEMESİ (geri-yönlü RUP)
+
+- **Tarih:** 2026-08-06 · **Çözücü:** Glucose42 (pysat; DRUP-only ispat çıktısı) · **Kontrolcü:**
+  `rup_check.check_drup_backward` — YENİ geri-yönlü (drat-trim tarzı işaretlemeli) saf-Python RUP
+  kontrolcüsü: ileri geçişte lemmalar kontrolsüz eklenir, son çelişkinin türetim konisi işaretlenir,
+  SONDAN başa yalnız İŞARETLİ lemmalar RUP-kontrol edilir (her başarılı kontrol kendi çelişki-konisini
+  işaretler). İki drat-trim fikri daha: core-first yayılım (önce işaretli çekirdek üzerinde BCP) ve
+  silme-körü mod (`d` satırları sayılır ama UYGULANMAZ — RUP için sağlamlık modül docstring'inde;
+  ölçülen gerekçe: 1.7M-lemmalı Glucose42 ispatında silme-onurlu kontrollerin %54'ü silinen klozları
+  geri isteyip yayılımı İKİYE katlıyordu).
+- **Ön keşifler (bu koşuyu mümkün/dürüst kılan iki kayıt):**
+  1. **pysat CaDiCaL ispat dosyası KESİK** — üç cadical backend'inde de (103/153/195) binary DRAT
+     akışı adım ortasında bitiyor, sonuç ⊥ hiç yazılmıyor (tracer kuyruğu pysat API'sinden
+     floşlanmıyor; ham prfile baytları incelenerek doğrulandı, C-tarafı delete de floşlamıyor).
+     Cadical'dan KONTROL EDİLEBİLİR ispat alınamaz ⟹ `certify=True + cadical195` reddi kalıcı
+     (mesaj güncellendi); Koşu 4'ün "cadical'ın sözü" sınırı bugün de aynen geçerli.
+  2. **Glucose42 iki ağır case'i de İSPATLA çözüyor** — Koşu 4'te "yalnız cadical çözer" duvarı
+     yıkıldı: (5,4) 64 s / 3 409 074 satır (205 MB), (5,5) 1121 s / 9 551 150 satır (705 MB) —
+     ikisi de DRUP ispatı yazarak. (Lingeling (5,4)'te 280 s'de bitiremedi; probe kaydı.)
+- **SONUÇ KOŞUSU (üretim yolu, tek çağrı):** `ramsey_decide_case_split(18, 3, 6,
+  budget_per_case_s=1800, certify=True, strengthen=True, fix_neighbourhood=True,
+  second_level=True, solver_name="glucose42", rup_visit_budget=800_000_000)` —
+  toplam **3866 s**, maxRSS 4.0 GB. **16 case'in 16'sı UNSAT** (R(3,6) ≤ 18 Glucose42 ile
+  yeniden kuruldu; Koşu 4'ten bağımsız ikinci çözücü). Per-case RUP durumu (çözüm süresi;
+  `rup_status`; kontrol verisi):
+
+  ```text
+  (D=0,–):   0.02s verified (kök çelişki, koni boş)     (D=4,d1=1): 0.01s verified (koni boş)
+  (D=1,1):   0.01s verified (koni boş)                  (D=4,2): 0.01s verified (koni boş)
+  (D=2,1):   0.01s verified (koni boş)                  (D=4,3): 0.01s verified (koni boş)
+  (D=2,2):   0.01s verified (koni boş)                  (D=4,4): 4.30s budget_exceeded
+  (D=3,1):   0.01s verified (koni boş)                     — 43 486/101 431 lemma @ 800M ziyaret
+  (D=3,2):   0.01s verified (koni boş)                  (D=5,1): 0.01s verified (koni boş)
+  (D=3,3):   0.01s verified (koni boş)                  (D=5,2): 0.01s verified (koni boş)
+                                                        (D=5,3): 0.02s verified (koni boş)
+  (D=5,4): 68.55s budget_exceeded — 2 322/1 703 814 lemma @ 800M ziyaret
+  (D=5,5): 1115.98s budget_exceeded —   796/4 893 482 lemma @ 800M ziyaret
+  ```
+
+  13 "verified (koni boş)" case'inde formül, birim-yayılımla tek başına çelişiyor (kırmızı≤5 +
+  mavi≤13 lemmalarının kesişimi); geri-yönlü kontrolcü bunu ⊥'un RUP kontrolü olarak doğruladı —
+  çözücünün sözü değil, bağımsız kontrol.
+- **SEGMENT (kalibrasyon; üretim verdiktini DEĞİŞTİRMEZ):** (D=4,d1=4) tek-case, ayrı süreç,
+  `visit_budget=2_500_000_000`: çözüm 4.07 s (200 033 satır ispat, ~9.6 MB; 101 431 add —
+  üretim koşusuyla birebir aynı sayı: Glucose42 deterministik); geri-yönlü kontrol
+  **verified** — 93 535/101 431 lemma işaretli ve RUP-doğrulandı, 1 219 388 225 ziyaret,
+  **747.8 s**, maxRSS 171 MB. Yani (4,4) case'inin gerçek ihtiyacı ~1.22B ziyaret; üretim
+  koşusunun 800M bütçesi %34 kısa kaldı. Bu kalibrasyonla Koşu 6b koşuldu:
+- **KOŞU 6b — kalibre bütçeli üretim yeniden-koşusu (aynı komut,
+  `rup_visit_budget=1_400_000_000`):** toplam **5633.5 s**, maxRSS 4.07 GB; 16/16 UNSAT;
+  **14/16 case `rup_status=verified`** — (D=4,d1=4) bu kez sertifikalı: 93 535/101 431 lemma
+  (segmentle birebir aynı sayı — determinizmin kaydı), çözüm 4.16 s. Kalan iki ağır case yine
+  dürüst `budget_exceeded`: (D=5,d1=4) çözüm 64.18 s, 1.4B ziyarette 4 652/1 703 814 lemma;
+  (D=5,d1=5) çözüm 1131.92 s, 1.4B ziyarette 1 508/4 893 482 lemma.
+- **SONUÇ / KADEME:** her iki üretim verdikti de `solver_verified_unsat_by_symmetry_case_split`
+  — **KADEME YÜKSELMEDİ** (en iyi üretim sonucu 14/16 verified + 2 budget_exceeded; kısmî
+  sertifika ASLA kademe yükseltmez, `..._with_rup_checked_cases` yalnız 16/16'da kazanılır).
+  Zaman aşımı / bütçe aşımı sonuç DEĞİLDİR ve öyle yazılmamıştır: ağır case'lerin RUP durumu
+  "no verdict"tir, "refuted" değildir. R(3,6)=18 bracket'i Koşu 4'teki kademesiyle DURUYOR; bu
+  koşular o kademeyi İKİNCİ çözücüyle yeniden üretti ve 14 case'i çözücüden bağımsız sertifikaya
+  bağladı — zayıf halka artık yalnız (5,4)/(5,5) ispat kontrolleri + prose kapsama argümanı.
+- **Neden bütçe aşıldı (ölçülü, dürüst):** saf-Python geri-yönlü kontrolde her kontrol boş
+  atamadan başlıyor; çözücünün geç-aşama kök kapanışı (on binlerce literal) her kontrolde yeniden
+  türetiliyor — (5,4)'te ölçüm ~310k ziyaret/kontrol (500M ziyaret = 1 642 kontrol, 801 s;
+  1.2B = 3 867 kontrol, 1 372 s). drat-trim'in C'deki cevabı KALICI kök-seviyesi atama + geri
+  adımda onarım (incremental BCP); bu oturumda bilinçli olarak alınmadı — watch-invariant onarımı
+  ince ve yanlışı "sahte verified" üretir; dürüstlük-kritik bileşende acele edilmez. Kayıtlı
+  sonraki adım: kalıcı-kök BCP tasarımı (tahminî 50-100× kontrol hızlanması).
+- **Test pinleri (hızlı, mekanizma):** geri-yönlü kontrolcünün ileriyle uyumu + koni-atlama +
+  drat modunda `not_rup_checkable` + silme-körlük + bütçe/hata yolları + tembel akış girdisi
+  (`tests/test_discovery_rup_check.py`); case-split certify yolunun `rup_status` kaydı,
+  glucose42 desteği, bütçe-aşımının kademeyi dürüstçe düşürmesi
+  (`tests/test_discovery_ramsey_sat.py`). 3866 s'lik koşu test paketinde DEĞİL.

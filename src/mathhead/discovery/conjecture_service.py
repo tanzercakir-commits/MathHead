@@ -12,6 +12,11 @@ of papers came from a machine's conjecture feed. This is that instrument on the 
   * honest scope — survivors are `empirical` over the sample, never theorems; and the feed carries the
     AE2 lesson verbatim: most survivors are KNOWN results (γ ≤ α, radius ≤ diameter ≤ 2·radius …) — the
     feed is a list for HUMANS to attack, not a novelty claim.
+
+v4F5 adds the SCALE path: `run_service(n_max=8)` feeds all 11 117 connected 8-vertex graphs (geng)
+through the same counterexample-first mill, and `scale_sweep` answers the sharper question — which
+small-n survivors DIE when the haystack grows, and on WHICH graph (a refutation witness per kill).
+Scale results are recorded in docs/discovery/SCALE-RUNS.md, never inside the fast test suite.
 """
 from __future__ import annotations
 
@@ -114,3 +119,59 @@ def run_service(n_max: int = 6, max_const: int = 1) -> ConjectureFeed:
     feed.survivors = [s for s in feed.survivors
                       if not (s.form == "A<=B+c" and (s.lhs, s.rhs) in tight)]
     return feed
+
+
+def _conjecture_holds(s: ServiceConjecture, va: int, vb: int) -> bool:
+    """Does the conjecture's inequality hold on one (lhs, rhs) value pair? Exact integers."""
+    return va <= 2 * vb if s.form == "A<=2B" else va <= vb + s.const
+
+
+@dataclass
+class ScaleRefutation:
+    """A small-n survivor KILLED at scale — the witness graph and both values ride the record."""
+    statement: str
+    counterexample: tuple        # (n, sorted edge tuple) — the first violating graph, deterministic
+    lhs_value: int
+    rhs_value: int
+
+
+@dataclass
+class ScaleSweep:
+    n_small: int
+    n_max: int
+    small_survivor_count: int    # survivors of the n <= n_small feed (the input population)
+    scale_graphs: int            # connected graphs with n_small < n <= n_max actually swept
+    alive: list = field(default_factory=list)     # statements still unrefuted at n <= n_max
+    refuted: list = field(default_factory=list)   # ScaleRefutation, witness-carrying
+    note: str = ("alive = still-empirical over the LARGER sample, never theorems; every kill "
+                 "carries its counterexample graph — the scale sweep only ever demotes, it "
+                 "cannot upgrade a tier")
+
+
+def scale_sweep(n_small: int = 6, n_max: int = 8, max_const: int = 1) -> ScaleSweep:
+    """Which survivors of the small feed die when the haystack grows to n_max? (v4F5 scale path.)
+
+    Runs the n <= n_small feed, then tests each of its survivors over every connected graph with
+    n_small < n <= n_max (counterexample-first, exact integers). Deterministic: graphs arrive in
+    geng order, so the recorded witness is always the FIRST violating graph. Two mechanism
+    invariants (pinned by tests at small n): every `alive` statement is a survivor of
+    `run_service(n_max)`, and no `refuted` statement is."""
+    small = run_service(n_small, max_const=max_const)
+    invs = service_invariants()
+    big_graphs = _connected_sample(n_max)
+    new_graphs = [g for g in big_graphs if g.n > n_small]
+    sweep = ScaleSweep(n_small, n_max, len(small.survivors), len(new_graphs))
+    needed = sorted({s.lhs for s in small.survivors} | {s.rhs for s in small.survivors})
+    values = [{name: invs[name](g) for name in needed} for g in new_graphs]
+    for s in small.survivors:
+        kill = None
+        for g, v in zip(new_graphs, values):
+            if not _conjecture_holds(s, v[s.lhs], v[s.rhs]):
+                kill = ScaleRefutation(s.statement, (g.n, tuple(sorted(g.edges))),
+                                       v[s.lhs], v[s.rhs])
+                break
+        if kill is None:
+            sweep.alive.append(s.statement)
+        else:
+            sweep.refuted.append(kill)
+    return sweep

@@ -1,5 +1,5 @@
 """Discovery v2C0 — the Graffiti-style conjecture service (sharpness-ranked feed)."""
-from mathhead.discovery.conjecture_service import run_service, service_invariants
+from mathhead.discovery.conjecture_service import run_service, scale_sweep, service_invariants
 from mathhead.discovery.objects import Graph
 
 
@@ -43,3 +43,48 @@ def test_feed_is_honest_and_deterministic():
     assert [s.statement for s in a.survivors] == [s.statement for s in b.survivors]
     assert all(s.status == "empirical" and "not a novelty claim" in s.caveat for s in a.survivors)
     assert a.survivors[0].sharp_count >= a.survivors[-1].sharp_count   # sharpest-first
+
+
+# ---- v4F5 scale path (mechanism pins only — the real n=8 run lives in SCALE-RUNS.md) ----
+
+def test_small_n_survivor_count_is_pinned():
+    # the v2C0 baseline the scale sweep measures against: 330 candidates, 74 survivors at n <= 6
+    feed = run_service(6)
+    assert feed.tested == 330 and len(feed.survivors) == 74 and feed.graphs == 142
+
+
+def test_scale_sweep_is_consistent_with_the_survivor_filter():
+    # mechanism invariant at small n (fast): alive ⊆ survivors(n_max), refuted ∩ survivors(n_max) = ∅
+    sweep = scale_sweep(n_small=4, n_max=5)
+    big = {s.statement for s in run_service(5).survivors}
+    assert sweep.small_survivor_count == len(run_service(4).survivors)
+    assert sweep.scale_graphs == 21                          # connected graphs on 5 vertices
+    assert set(sweep.alive) <= big
+    assert all(r.statement not in big for r in sweep.refuted)
+    assert len(sweep.alive) + len(sweep.refuted) == sweep.small_survivor_count
+
+
+def test_scale_sweep_witnesses_really_violate():
+    invs = service_invariants()
+    sweep = scale_sweep(n_small=4, n_max=5)
+    assert sweep.refuted                                     # growing the haystack kills something
+    for r in sweep.refuted:
+        n, edges = r.counterexample
+        g = Graph(n, frozenset(edges))
+        lhs_name, rest = r.statement.split(" <= ")
+        assert invs[lhs_name](g) == r.lhs_value              # recomputed, not trusted
+        if rest.startswith("2*"):
+            assert r.lhs_value > 2 * invs[rest[2:]](g)
+        elif " + " in rest:
+            rhs_name, c = rest.split(" + ")
+            assert r.lhs_value > invs[rhs_name](g) + int(c)
+        else:
+            assert r.lhs_value > invs[rest](g)
+
+
+def test_scale_sweep_is_deterministic_and_only_demotes():
+    a, b = scale_sweep(4, 5), scale_sweep(4, 5)
+    assert a.alive == b.alive
+    assert [(r.statement, r.counterexample) for r in a.refuted] == \
+           [(r.statement, r.counterexample) for r in b.refuted]
+    assert "cannot upgrade a tier" in a.note

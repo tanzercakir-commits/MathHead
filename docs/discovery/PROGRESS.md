@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-08-06 — v4F5 ✅ scale runs — n=8 sweep, R(3,6)>17 witnessed, honest walls recorded
+
+Three scale runs, all recorded with honest tiers in the new docs/discovery/SCALE-RUNS.md. (1) geng
+n=8 sweep into the conjecture service: 11,970 new connected graphs (853+11,117, A001349-exact); of
+v2C0's 74 survivors, 60 live, 14 die with deterministic first witnesses (all 14 now machine-readable
+graph6+edge-list in the record; e.g. domination≤diameter falls at n=8 with γ=4>diam=3), 2 offset
+forms resurrect → 62 survivors at n≤8. (2) R(3,6): the self-referential lemma chain GREW — blue-degree
+≤ 13 = R(3,5)−1, now derived from the engine's own _OWN_BRACKETS table (t=4 branch free: blue≤5);
+SAT n=17 witness in 0.13s (brute-force re-verified; R(3,6)>17, independently_verified_witness);
+UNSAT n=18: two 600s segments timed out → undecided_within_budget, and the evaluator grep-verified
+that NO "R(3,6)≤18" claim leaked anywhere — the timeout was never written as a result. (3) Frankl
+17-hunt portfolio (248s): all honestly not_found_within_budget (best +1 above the wall); m=5
+exhaustive honestly refused (2^32) — guard_sampled(20k) instead, its coverage field says "proves
+NOTHING". Evaluator: geng counts independently confirmed, 5/5 witnesses re-computed outside the
+engine, the t=6 lemma soundness argument reconstructed from scratch — VERDICT SOUND, PASS. Ruff
+pinned (0.15.11). Full suite **1951 green**. v4: 6/8.
+
+---
+
 ## 2026-08-05 — v4F4 ✅ hardening sweep B — 11 closures across P/T/U/W/X/AA/AC, mutation-tested
 
 Second sweep, same discipline: of 20 candidates, ELEVEN closed with proof tests

@@ -36,6 +36,18 @@ def _edge_vars(n: int) -> dict:
     return {e: i + 1 for i, e in enumerate(combinations(range(n), 2))}
 
 
+# THE ENGINE'S OWN Ramsey brackets — every value here was established BY THIS MODULE (SAT witness
+# at R−1 independently re-checked by brute force, UNSAT at R with the RUP-checked proof), pinned by
+# tests in test_discovery_ramsey_sat.py. Derived degree lemmas cite ONLY this table, so the
+# self-referential chain is explicit: R(3,3) and R(3,4) fed R(3,5); R(3,5) now feeds R(3,6) (v4F5).
+# A value may be added ONLY once the engine has bracketed it itself — never from the literature.
+_OWN_BRACKETS: dict = {
+    (3, 3): 6,      # witnessed at 5, refuted at 6   (test_r33_bracketed_exactly)
+    (3, 4): 9,      # witnessed at 8, refuted at 9   (test_r34_bracketed_exactly)
+    (3, 5): 14,     # witnessed at 13, refuted at 14 (test_r35_and_r44_bracketed_...)
+}
+
+
 def ramsey_cnf(n: int, s: int, t: int):
     """CNF for: no red K_s and no blue K_t in a 2-colouring of K_n's edges."""
     ev = _edge_vars(n)
@@ -82,6 +94,11 @@ def _degree_lemmas(n: int, s: int, t: int, ev: dict, top: int):
 
       * s == 3:  red-degree(v) ≤ t−1. Proof: two red neighbours joined red ⇒ red K₃; so N_red(v) is
         pairwise blue; t red neighbours would be a blue K_t. Self-contained.
+      * s == 3, (3, t−1) ∈ `_OWN_BRACKETS` (today t ∈ {4, 5, 6}) — blue side: N_blue(v) must avoid
+        red K₃ AND blue K_{t−1} (else blue K_t with v); hence |N_blue(v)| ≤ R(3,t−1)−1, DERIVED
+        from the engine's own bracket table, never hard-coded: R(3,3)=6 gives blue ≤ 5 for t=4,
+        R(3,4)=9 gives blue ≤ 8 for t=5, R(3,5)=14 gives blue ≤ 13 for t=6. The self-referential
+        lemma chain GROWS (v4F5): R(3,3)/R(3,4) fed R(3,5); R(3,5) now feeds R(3,6).
       * s == t == 4:  red- and blue-degree(v) ≤ 8. Proof: N_red(v) must avoid red K₃ (else red K₄
         with v) AND blue K₄; hence |N_red(v)| ≤ R(3,4)−1 = 8 — where R(3,4)=9 is THE ENGINE'S OWN
         bracket (this module, independently witnessed at 8, solver-refuted at 9). Blue symmetric.
@@ -97,27 +114,32 @@ def _degree_lemmas(n: int, s: int, t: int, ev: dict, top: int):
             clauses += enc.clauses
             top = max(top, enc.nv)
         lemmas.append(f"red-degree <= {bound} per vertex (N_red pairwise blue; t red nbrs = blue K_t)")
-        if t == 5:
-            # blue side: N_blue(v) must avoid red K3 AND blue K4 (else blue K5 with v)
-            # ⟹ |N_blue(v)| <= R(3,4)-1 = 8, where R(3,4)=9 is the engine's OWN bracket.
+        # blue side: N_blue(v) must avoid red K3 AND blue K_{t-1} (else blue K_t with v)
+        # ⟹ |N_blue(v)| <= R(3,t-1)-1 — DERIVED from the engine's own bracket table, so the lemma
+        # exists exactly when the engine has bracketed R(3,t-1) itself (today t ∈ {4, 5, 6}).
+        r3 = _OWN_BRACKETS.get((3, t - 1))
+        blue_bound = None if r3 is None else r3 - 1
+        if blue_bound is not None:
             for v in range(n):
                 lits = [ev[(min(v, u), max(v, u))] for u in range(n) if u != v]
-                enc = CardEnc.atmost(lits=[-x for x in lits], bound=8, top_id=top,
+                enc = CardEnc.atmost(lits=[-x for x in lits], bound=blue_bound, top_id=top,
                                      encoding=EncType.seqcounter)
                 clauses += enc.clauses
                 top = max(top, enc.nv)
-            lemmas.append("blue-degree <= 8 per vertex (N_blue avoids red K3 + blue K4 ⟹ "
-                          "|N_blue| <= R(3,4)-1 = 8; R(3,4)=9 is the engine's OWN bracket)")
+            lemmas.append(f"blue-degree <= {blue_bound} per vertex (N_blue avoids red K3 + blue "
+                          f"K{t - 1} ⟹ |N_blue| <= R(3,{t - 1})-1 = {blue_bound}; "
+                          f"R(3,{t - 1})={blue_bound + 1} is the engine's OWN bracket)")
     elif s == 4 and t == 4:
+        bound44 = _OWN_BRACKETS[(3, 4)] - 1                  # derived, same table as the blue side
         for v in range(n):
             lits = [ev[(min(v, u), max(v, u))] for u in range(n) if u != v]
             for sign, name in ((1, "red"), (-1, "blue")):
-                enc = CardEnc.atmost(lits=[sign * x for x in lits], bound=8, top_id=top,
+                enc = CardEnc.atmost(lits=[sign * x for x in lits], bound=bound44, top_id=top,
                                      encoding=EncType.seqcounter)
                 clauses += enc.clauses
                 top = max(top, enc.nv)
-        lemmas.append("red/blue-degree <= 8 per vertex (|N_c(v)| <= R(3,4)-1 = 8; R(3,4)=9 is the "
-                      "engine's OWN bracket from this module)")
+        lemmas.append(f"red/blue-degree <= {bound44} per vertex (|N_c(v)| <= R(3,4)-1 = {bound44}; "
+                      f"R(3,4)={bound44 + 1} is the engine's OWN bracket from this module)")
     return clauses, tuple(lemmas), top
 
 

@@ -11,6 +11,9 @@ fraction; follow-ups reached (3−√5)/2 ≈ 0.381966, with examples showing th
 constant; the full 1/2 remains open. Literature reports exhaustive verification for small universes —
 we do NOT rely on that: our own FORMALIZATION GUARD exhaustively verifies the conjecture on every
 union-closed family over universes m ≤ 3 (256 candidate families) and, on demand, m = 4 (65 536).
+For m ≥ 5 exhaustion is dishonest (2^(2^m) candidates; m=5 already 2^32) — the v4F5 substitute is
+`guard_sampled`: bounded random sampling + generator evolution, exact certifier per sample, with a
+`coverage` field that says outright it proves nothing.
 
 HONEST EXPECTATION, stated up front: a witness would refute a 45-year conjecture; the overwhelmingly
 likely outcome of any bounded hunt is `not_found_within_budget`, and that is what we report. The value
@@ -109,6 +112,52 @@ def guard_exhaustive(m: int) -> FranklGuard:
         if not is_union_closed(fam):
             continue
         rep.union_closed += 1
+        if certify_violation(fam, m) is not None:
+            rep.violations += 1
+    return rep
+
+
+@dataclass
+class FranklSampledGuard:
+    """The honest m ≥ 5 substitute for the exhaustive guard (v4F5): RANDOM union-closed families,
+    generator-evolved, each certified. `coverage` says exactly what this is NOT — a proof."""
+    universe: int
+    seed: int
+    samples: int
+    distinct_families: int
+    violations: int
+    max_family_size: int
+    coverage: str = ("SAMPLED, not exhaustive: m >= 5 has 2^(2^m) candidate families (m=5: 2^32) — "
+                     "enumeration is dishonest there; zero violations over a sample supports the "
+                     "formalization only, it proves NOTHING about the conjecture")
+
+
+def guard_sampled(m: int, samples: int = 2000, seed: int = 0, n_gens: int = 6,
+                  cap: int = 4096) -> FranklSampledGuard:
+    """Bounded random sampling + generator evolution over universe m (the m=5 path — exhaustive
+    enumeration is refused there, see `guard_exhaustive`). Each sample: draw random generator
+    masks, MUTATE the previous sample's generators half the time (generator evolution — the walk
+    drifts through family space instead of resampling blindly), union-close (cap-refusing, never
+    truncating), and run the EXACT certifier. Deterministic per (m, samples, seed)."""
+    rng = random.Random(seed)
+    full = (1 << m) - 1
+    rep = FranklSampledGuard(m, seed, 0, 0, 0, 0)
+    seen = set()
+    gens = [rng.randrange(1, full + 1) for _ in range(n_gens)]
+    for _ in range(samples):
+        if rng.random() < 0.5 or not gens:                 # fresh draw
+            gens = [rng.randrange(1, full + 1) for _ in range(n_gens)]
+        else:                                              # evolve: mutate one generator
+            gens = list(gens)
+            gens[rng.randrange(len(gens))] = rng.randrange(1, full + 1)
+        fam = union_closure(gens, cap)
+        if fam is None or len(fam) < 2:
+            continue
+        rep.samples += 1
+        if fam not in seen:
+            seen.add(fam)
+            rep.distinct_families += 1
+        rep.max_family_size = max(rep.max_family_size, len(fam))
         if certify_violation(fam, m) is not None:
             rep.violations += 1
     return rep

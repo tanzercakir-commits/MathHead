@@ -38,7 +38,8 @@ dev = [
     "pytest>=8.0",
     "pytest-timeout>=2.3",   # guardrail for worst-case (timeout) tests
     "pytest-cov>=5.0",       # coverage report
-    "ruff>=0.6",             # lint (static guardrail)
+    "ruff==0.15.11",         # lint (static guardrail) — PINNED (v4F5): the gate must mean the
+                             # same thing in every environment; bump deliberately, never by drift
     "hypothesis>=6.0",       # property-based tests
     # NOTE: python-sat is deliberately NOT here — it has no Windows/macOS wheels, so a
     # cross-platform `[dev]` install must not require it. Install `[dev,solvers]` (Linux)

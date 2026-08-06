@@ -42,6 +42,7 @@ class CycleResult:
     open_frontier: list
     next_goal: str
     top_lemma: dict = field(default_factory=dict)   # T2 pick: {statement, priority, importance, likelihood}
+    rationale: dict = field(default_factory=dict)   # AD1: auditable WHY behind next_goal (see _decide)
 
 
 @dataclass
@@ -54,11 +55,50 @@ class ResearchDirector:
     def _select_next_goal(self, ranked: list, ladder: dict) -> str:
         """AC0 policy: pursue the highest-PRIORITY open conjecture (importance × likelihood, T2); if
         none, raise validated laws toward proof, else widen the bound."""
+        return self._decide(ranked, ladder)[0]
+
+    def _decide(self, ranked: list, ladder: dict) -> tuple:
+        """AD1 — the goal AND its auditable rationale: which branch of the total three-branch rule
+        fired, and the exact INPUTS that made it fire. Every field is recomputable from the same
+        inputs (the T2 priority is a transparent weighted sum, not a learned score) — a reviewer
+        can re-derive the decision, which is the whole point: an auditable WHY, not a CoT dump."""
+        ev = ladder.get("EMPIRICALLY_VALIDATED", 0)
+        fp = ladder.get("FORMALLY_PROVED", 0)
+        inputs: dict = {"open_goals_ranked": len(ranked),
+                        "empirically_validated": ev, "formally_proved": fp}
         if ranked:
-            return f"settle open conjecture: {ranked[0].statement}"
-        if ladder.get("EMPIRICALLY_VALIDATED", 0) > ladder.get("FORMALLY_PROVED", 0):
-            return "raise validated laws toward proof (find structural/kernel arguments)"
-        return "widen the sample bound to expose new structure"
+            top = ranked[0]
+            pri = getattr(top, "priority", None)          # stays TOTAL over duck-typed goals
+            imp = getattr(top, "importance", None)
+            lik = getattr(top, "likelihood", None)
+            inputs.update({"top_statement": top.statement, "top_priority": pri,
+                           "top_importance": imp, "top_likelihood": lik})
+            because = f"{len(ranked)} open goal(s) are ranked; the top one is pursued"
+            if None not in (pri, imp, lik):
+                because += (f" — priority {pri} = 0.5·importance({imp}) + "
+                            f"0.5·likelihood({lik}) (T2 transparent fusion)")
+            rationale = {
+                "policy": "AC0 total three-branch rule (deterministic, not learned)",
+                "branch": "settle",
+                "because": because,
+                "inputs": inputs}
+            return f"settle open conjecture: {top.statement}", rationale
+        if ev > fp:
+            rationale = {
+                "policy": "AC0 total three-branch rule (deterministic, not learned)",
+                "branch": "raise",
+                "because": (f"no open goal is ranked, and EMPIRICALLY_VALIDATED ({ev}) exceeds "
+                            f"FORMALLY_PROVED ({fp}) — validated laws outnumber proofs, so raise "
+                            "them toward proof"),
+                "inputs": inputs}
+            return "raise validated laws toward proof (find structural/kernel arguments)", rationale
+        rationale = {
+            "policy": "AC0 total three-branch rule (deterministic, not learned)",
+            "branch": "widen",
+            "because": (f"no open goal is ranked, and EMPIRICALLY_VALIDATED ({ev}) does not exceed "
+                        f"FORMALLY_PROVED ({fp}) — nothing to settle or raise, so widen the sample"),
+            "inputs": inputs}
+        return "widen the sample bound to expose new structure", rationale
 
     def run_cycle(self, max_n: int = 4, goal: str = "explore the sample") -> CycleResult:
         """One research cycle: run the pipeline, fold results into cross-cycle state, choose next goal."""
@@ -80,7 +120,7 @@ class ResearchDirector:
         kg = _kg_from_report(report)
         frontier = open_frontier(kg)
         ranked = rank_lemmas(kg)                        # T2: importance × likelihood
-        next_goal = self._select_next_goal(ranked, ladder)
+        next_goal, rationale = self._decide(ranked, ladder)
         top = ranked[0] if ranked else None
         top_lemma = ({"statement": top.statement, "priority": top.priority,
                       "importance": top.importance, "likelihood": top.likelihood} if top else {})
@@ -88,7 +128,8 @@ class ResearchDirector:
         result = CycleResult(
             cycle=len(self.cycles) + 1, goal=goal, max_n=max_n, ladder=ladder,
             new_findings=new_findings, new_dead_ends=new_dead_ends,
-            open_frontier=frontier[:3], next_goal=next_goal, top_lemma=top_lemma)
+            open_frontier=frontier[:3], next_goal=next_goal, top_lemma=top_lemma,
+            rationale=rationale)
         self.cycles.append(result)
         return result
 

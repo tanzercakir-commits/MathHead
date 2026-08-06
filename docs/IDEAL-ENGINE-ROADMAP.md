@@ -179,7 +179,7 @@ Z3 🔴 Kavramın dile yerleşmesi: tanım tutarlı mı + üretken mi (yeni teor
 
 **Track AB — Aksiyom & bağımsızlık analizi (§15)**
 ```
-AB0 🟢 Kullanılan aksiyomları izle (Track M provenance'tan)
+AB0 🟢 Kullanılan aksiyomları izle (Track M provenance'tan)  ✅ v1C: aksiyom izi EKSİKSİZ ve replay-tutarlı kanıtla pinli — axioms_used(term) bağımsız terim-yürüyüşüyle birebir (her RESIDUE yaprağı + CRT; 30|n⁵−n → {CRT, RESIDUE(2,3,5)}), replay aynı Teoremi aynı hash'le yeniden basar, boru hattındaki her kernel bulgusu aksiyomlarını taşır; kanıt: test_ab0_every_theorem_axiom_list_is_complete_and_replay_consistent
 AB1 ✅ Daha zayıf aksiyomla ispat ara (choice'suz, vb.) — axiom_minimize.py: direct-RESIDUE vs CRT, en az aksiyomlu ispatı seçer (6|n³−n ⇒ RESIDUE(6) tek başına)
 AB2 🔴 Model oluşturma / forcing (sonlu analog: T+P ve T+¬P modelleri)
 AB3 🔴 Bağımsızlık ihtimali değerlendirmesi ("ispat bulamadım" ≠ "ispat imkânsız")
@@ -189,11 +189,11 @@ AB3 🔴 Bağımsızlık ihtimali değerlendirmesi ("ispat bulamadım" ≠ "ispa
 
 **Track V — Doğal dilden güvenli formelleştirme (§3)**
 ```
-V0 ♻️🟢 Tanı-ya-da-reddet tabanı (MathHead interpret_natural)
-V1   🟡 Bileşen ayrıştırma: tanım/niceleyici/önkoşul/örtük-varsayım/notasyon/hedef/temel  🟢 DETERMİNİSTİK DİLİM (statement_parse.py): motorun kendi ifade dizgeleri → niceleyici/alan-kısıtı/boyut-önkoşulu/ilişki/invariantlar (X2 eşanlam tablosuyla çözülür); LLM YOK, tahmin YOK — tanınmayan parça `unrecognized` olarak GÖRÜNÜR kalır; conjecture_db girişleriyle uyum testli; ADR-D0071
-V2   🟡 Aday formalizasyonlar A/B/C + aralarındaki farkı gösterme ("A süreklilik, C yalnızca ölçülebilirlik varsayar")
-V3   🟢 Formalizasyon testleri: bilinen örnek/karşı-örnek/sınır durumu ifadeyi doğru mu çürütüyor/doğruluyor?
-V4   🟡 (LLM-periferi) makale/jargon → aday formal — yargıç + testler zorunlu
+V0 ♻️🟢 Tanı-ya-da-reddet tabanı (MathHead interpret_natural)  ✅ v1C: tanı-ya-da-reddet kanıtla pinli — UNDERSTOOD geri-anlatımlı (confirm-then-trust), çift-okuma AMBIGUOUS adaylarla, tanınmayan girdi UNRECOGNIZED + interpretation=None (yorum uydurulmaz), router yüzeyi aynı tabana düşer, deterministik; kanıt: test_v0_recognize_or_refuse_understands_restates_refuses_and_never_guesses
+V1   🟡 Bileşen ayrıştırma: tanım/niceleyici/önkoşul/örtük-varsayım/notasyon/hedef/temel  🟢 DETERMİNİSTİK DİLİM (statement_parse.py): motorun kendi ifade dizgeleri → niceleyici/alan-kısıtı/boyut-önkoşulu/ilişki/invariantlar (X2 eşanlam tablosuyla çözülür); LLM YOK, tahmin YOK — tanınmayan parça `unrecognized` olarak GÖRÜNÜR kalır; conjecture_db girişleriyle uyum testli; ADR-D0071  ✅ v1C: YEDİ bileşen artık ayrı ALAN — tanım=çağrılabilir kod işaretçisi (import-doğrulı, drift edemez), örtük-varsayım/temel sabit tablodan görünür (finite/simple/undirected), hedef üçlüsü yalnız belirsizliksiz noktada ayrılır (önkoşuldaki 'n>=3' asla iddia sanılmaz, aksi halde dürüstçe boş), motor-korpusunda total; kanıt: test_v1_seven_components_are_total_and_honest_over_the_engine_corpus
+V2   🟡 Aday formalizasyonlar A/B/C + aralarındaki farkı gösterme ("A süreklilik, C yalnızca ölçülebilirlik varsayar")  ✅ v1C: formalize.py — niceleyici-belirsiz graf sınırı için 3 deterministik aday (A bağlı / B tüm-graflar / C n-sabit), varsayım farkları makine-okunur (A−B = yalnız 'connected'), her aday dürüst zarftan geçer (A birebir check(); aynı metin A'da OPEN, B'de REFUTED, C'de sonlu-alan KARARLI [kendi dürüst kademesiyle: finite_domain_exhaustion — tüketme ispatı, tanık değil; honesty.md tablosunda] — sınırsız evrensel asla 'proved' olmaz), gramer+registry product'ın public yardımcılarından paylaşımlı (drift yapısal olarak imkânsız), tanınmayan ifade ValueError, LLM YOK; kanıt: test_v2_candidate_formalizations_split_verdicts_and_list_assumption_deltas
+V3   🟢 Formalizasyon testleri: bilinen örnek/karşı-örnek/sınır durumu ifadeyi doğru mu çürütüyor/doğruluyor?  ✅ v1C: bilinen karşı-örnek (2 izole köşe) B-okumasını çürütürken A-okumasının alan-varsayımınca dışlanır (probe: in_domain=False → hiçbir şey çürütmez), bilinen örnek doğrular, sınır-durum (K2, eşitlik) tam sınırda tutar; check() kapısında da tanık motor-dışı aritmetikle yeniden hesaplı; kanıt: test_v3_known_objects_correctly_refute_or_validate_each_formalization
+V4   🟡 (LLM-periferi) makale/jargon → aday formal — yargıç + testler zorunlu; v1C: kapanamaz — LLM-periferi fazı: konteynerde LLM erişimi yok, makale/jargon→formal boru hattı yargıç+testlerle uçtan uca denenemez (🟡 kalır)
 ```
 
 **Track X — Bilgi grafiği & etki analizi (§12)**
@@ -208,7 +208,7 @@ X3 🟡 Otomatik etki analizi: yeni sonuç hangi açık problemi çözer / sın�
 ```
 Y0 🟢 Denenen dönüşüm/kapanan-dal/timeout/işe-yaramaz-lemma/çürütülen-konjektür kaydı  ✅ (failure_memory: AttemptRecord + KINDS; raporda "negative knowledge" özeti; ADR-D0025)
 Y1 🟡 Kanonikleştirme (aynı çıkmaz iki kez denenmesin — attempt fingerprint)  ✅ (fingerprint: whitespace-normalize + kind-aware içerik hash'i; record idempotent; seen(); ADR-D0025)
-Y2 🟢 "Yeniden kullanılabilir ders" çıkarımı (family F için n yerine yapısal derinlikte tümevarım)  🟢 lessons(): çürütülen konjektürleri onları öldüren TANIK'a göre kümeler (en geniş refuter önce); yapısal-derinlik dersi gelecek tür; ADR-D0025
+Y2 🟢 "Yeniden kullanılabilir ders" çıkarımı (family F için n yerine yapısal derinlikte tümevarım)  🟢 lessons(): çürütülen konjektürleri onları öldüren TANIK'a göre kümeler (en geniş refuter önce); yapısal-derinlik dersi gelecek tür; ADR-D0025  ✅ v1C: lessons() kanıtla pinli — kümeleme ekleme-sırası bağımsız + idempotent (aynı çıkmazın tekrarı ders şişirmez), timeout/dead_end türleri derse SIZMAZ, ders kaydın ötesinde alan taşımaz (yalnız witness/refutes/statements — yapısal-derinlik dersi dürüstçe yok); kanıt: test_y2_lessons_cluster_by_killing_witness_deterministically_and_honestly
 ```
 
 **Track AC — Araştırma direktörü & tam döngü (mimari)**
@@ -221,18 +221,18 @@ AC3 🟡 Döngüler-arası durum + uzun-soluklu araştırma oturumu  🟢 Resear
 
 **Track AD — İnsan ortak-çalışma arayüzü (§16)**
 ```
-AD0 ♻️🟢 Kontrol yüzeyi (MathHead MCP/profil tabanı): aksiyom yasakla, teknik önceliklendir, lemaya odaklan, ispat-stili seç
-AD1   🟢 Kontrol-edilebilir karar gerekçesi (neden spektral yöntem? — CoT dökümü DEĞİL, denetlenebilir gerekçe)
-AD2   🟢 İnsan-okunur ispat + araştırma raporu üretimi
-AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme)
+AD0 ♻️🟢 Kontrol yüzeyi (MathHead MCP/profil tabanı): aksiyom yasakla, teknik önceliklendir, lemaya odaklan, ispat-stili seç  ✅ v1C: dört kontrol kanıtla pinli — aksiyom YASAĞI (proof_avoiding: CRT yasağı→direct-residue, RESIDUE(6) yasağı→CRT ayak izi, ikisi de yasaksa None ve yanlış iddiaya None — yasak asla ispat uydurmaz), ispat-stili seçimi (candidate_proofs adlı stiller), teknik/lemma önceliği (X2 en-güçlü-önce + bütçeli portföy: bütçe 13 → direct-residue skipped), profil-paket tabanı (♻️ PACKS + her-zaman-açık triage); kanıt: test_ad0_control_surface_bans_axioms_prioritizes_and_selects_proof_style
+AD1   🟢 Kontrol-edilebilir karar gerekçesi (neden spektral yöntem? — CoT dökümü DEĞİL, denetlenebilir gerekçe)  ✅ v1C: direktör kararı denetlenebilir gerekçe alanı taşır (CycleResult.rationale: dal + sayısal girdiler + neden) — dal yalnız kayıtlı girdilerden YENİDEN türetilir, settle-önceliği 0.5·önem+0.5·olabilirlik olarak rakamıyla yeniden hesaplanır, canlı döngüde next_goal gerekçenin dalıyla birebir, portföy kazananı maliyet defterinden bağımsız doğrulanır; kanıt: test_ad1_decision_rationale_is_auditable_and_recomputable
+AD2   🟢 İnsan-okunur ispat + araştırma raporu üretimi  ✅ v1C: render(run_report) tüm bölümleri (PROVED/REFUTED/DISCOVERED/OPEN/FRONTIER/EXPLANATIONS/SCORECARD) ve HER bulgu ifadesini birebir içerir + deterministik; render_rich_status kernel bulgusuna etiketli insan-okunur ispat bloğu (STATUS/FOUNDATION/DEPENDENCIES/KERNEL/PROOF_HASH/INDEPENDENT_CHECKER) basar; kanıt: test_ad2_report_and_proof_rendering_are_complete_and_deterministic
+AD3   🟡 Uzman-döngüde ilginçlik/onay geri bildirimi (Track W'ye besleme); v1C: kapanamaz — uzman-döngüde geri bildirim gerçek İNSAN uzman ister; konteynerde toplanamaz, sentetik etiketle W'ye beslemek dürüstlük ihlali olur (🟡 kalır)
 ```
 
 **Track AE — Alan örneklemesi: sonlu kombinatorik + graf (v0.1)**
 ```
 AE0 🟢 v0.1 kapsamını sabitle (sonlu kombinatorik + grafik teorisi)  ✅ (kapsam sabitlendi VE yaşandı: 7 nesne alanının tamamı sonlu kombinatorik içinde — graf/aritmetik/permütasyon/bölüntü/küme-bölüntü/kompozisyon/küme-ailesi; kapsam dışına tek sapma yok)
-AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)
-AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret  🟢 DÜRÜST AV KURULDU ve ÇALIŞTIRILDI (candidate_hunt.py): geniş ağ (6 aile + tüm-graf örneklemi, tüm madenciler) → her bulgu kataloğa atıflandı → 40 bulgu, 36 atıflı, 4 "katalogda-yok" aday — DÖRDÜ DE ders-kitabı aile formülü çıktı (C_n: V=E; P_n/yıldız: V=E+1; tekerlek: 2V=E+2). SONUÇ: hedefin kendisi AÇIK; katalogda-yok ≠ literatürde-yeni birebir kanıtlandı; gerçek yenilik v2 programına (dış-onaylı kanallar: OEIS/karşı-örnek/Lean) devredildi; ADR-D0059
-AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export  🟢 (rapor sözleşmesi + provenance uzun süredir tam; LEAN EXPORT artık VAR — lean_export.py 9 teorem, dış lake build beklemede; çapraz-referans v2C2/ADR-D0068)
+AE1 🟢 Bu alanda N/O/P/Q/R'yi somut örnekle (grafik nesneleri, kromatik/spektral invariant'lar, sınır konjektürleri)  ✅ v1C: N→O→P→Q→R zinciri TEK somut graf-akışında kanıtlı — üretim A000088-pinli (n=0..4: 1,1,2,4,11), C5 invariantları kesin (χ=3), örneklemden sınır-konjektürleri üretilir, çürütme tanığı motor-dışı yeniden hesaplanır, survivor asla proved değil + konstrüktif χ≤Δ+1 sertifikası bağımsız yeniden-kontrollü; kanıt: test_ae1_n_o_p_q_r_chain_is_concrete_in_the_graph_domain
+AE2 🟡 İLK HEDEF: bilinen bir sonuçtan literatürde OLMAYAN, doğru, ilginç ≥1 yeni lemma üret  🟢 DÜRÜST AV KURULDU ve ÇALIŞTIRILDI (candidate_hunt.py): geniş ağ (6 aile + tüm-graf örneklemi, tüm madenciler) → her bulgu kataloğa atıflandı → 40 bulgu, 36 atıflı, 4 "katalogda-yok" aday — DÖRDÜ DE ders-kitabı aile formülü çıktı (C_n: V=E; P_n/yıldız: V=E+1; tekerlek: 2V=E+2). SONUÇ: hedefin kendisi AÇIK; katalogda-yok ≠ literatürde-yeni birebir kanıtlandı; gerçek yenilik v2 programına (dış-onaylı kanallar: OEIS/karşı-örnek/Lean) devredildi; ADR-D0059; v1C: kapanamaz — hedefin kendisi ('literatürde OLMAYAN ≥1 doğru+ilginç lemma') ULAŞILMADI: dürüst av koşuldu ama 4 katalogda-yok adayın dördü de ders-kitabı formülü çıktı; yenilik yalnız dış-onay kanalıyla (OEIS hakem kabulü / Lean çekirdeği / kendini-doğrulayan karşı-örnek) iddia edilebilir ve o kanal dış/insan adımıdır (🟡 kalır)
+AE3 🟢 v0.1 çıktı sözleşmesi + provenance + Lean export  🟢 (rapor sözleşmesi + provenance uzun süredir tam; LEAN EXPORT artık VAR — lean_export.py 9 teorem, dış lake build beklemede; çapraz-referans v2C2/ADR-D0068)  ✅ v1C: export üretimi + pending-external dürüstlüğü kanıtla pinli — teorem sayısı birebir kernel-ispatlı bulgular + 2 kimlik, status='export_written_pending_external_check' ve 'TO VERIFY (external step, NOT yet run)' dosyada, hiçbir teorem Lean-doğrulı iddia edilmez, çift export bayt-özdeş, provenance sözleşmesi (16-hex hash + aksiyom listesi) bulgularda; kanıt: test_ae3_lean_export_is_written_deterministic_and_honestly_pending
 ```
 
 **Track AF — Değerlendirme, benchmark & provenance**

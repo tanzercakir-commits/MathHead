@@ -225,6 +225,7 @@ from .axiom_minimize import (
     candidate_proofs,
     minimal_axiom_proof,
     minimal_axioms_for,
+    proof_avoiding,
 )
 from .bijections import (
     BijectionCertificate,
@@ -381,6 +382,14 @@ from .feature_conjectures import (
     discover_inequalities,
     feature_table,
     surviving_inequalities,
+)
+from .formalize import (
+    CandidateFormalization,
+    candidate_formalizations,
+    differences as formalization_differences,
+    evaluate_candidate,
+    formalize,
+    probe as probe_formalization,
 )
 from .product import CheckResult, check
 from .program_search import (
@@ -590,6 +599,7 @@ __all__ = [
     "candidate_proofs",
     "minimal_axiom_proof",
     "minimal_axioms_for",
+    "proof_avoiding",
     "cross_check",
     "all_consistent",
     "CrossCheck",
@@ -761,6 +771,12 @@ __all__ = [
     "conjecture_and_prove",
     "CheckResult",
     "check",
+    "CandidateFormalization",
+    "candidate_formalizations",
+    "formalization_differences",
+    "evaluate_candidate",
+    "formalize",
+    "probe_formalization",
     "IntervalVerdict",
     "double_star_slack_interval",
     "cross_check_certifiers",

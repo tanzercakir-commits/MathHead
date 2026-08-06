@@ -7,6 +7,26 @@
 
 ---
 
+## 2026-08-06 — v1 CLOSURE SWEEP C ✅ — tracks V/Y/AB0/AD/AE: 11 closures, done 53→64/103
+
+The "finish v1" campaign opens (user directive). Of 14 candidates, ELEVEN closed with proof tests
+(test_discovery_closure_sweep_c.py): V0 recognize-or-refuse pins; V1 statement decomposition grown to
+all seven components (definitions import-verified; goal splits only when unambiguous); V2 NEW
+formalize.py — three candidate formalizations of a quantifier-ambiguous bound (A connected→OPEN,
+B all-graphs→REFUTED with witness, C fixed-n→DECIDED) with machine-readable assumption deltas; V3
+probe: known objects correctly refute/validate each reading; Y2 lessons pins; AB0 axiom-trail
+completeness + replay; AD0 control surface (axiom bans never fabricate proofs); AD1 auditable director
+rationale; AD2 render completeness; AE1 the N→O→P→Q→R chain concrete in graphs (witnesses re-computed
+in RAW Python); AE3 Lean export honest-pending. THREE honest reasons: V4 (no LLM in-container), AD3
+(needs real human experts), AE2 (goal NOT reached — 0 novel; stays open). The evaluator independently
+recounted A000088's 11 classes for n=4, verified the C-reading over all 64 labelled graphs, and RULED
+the fixed-n exhaustion proof mathematically correct — leading to a new honest tier
+`finite_domain_exhaustion` (an exhaustion proof, not a witness; unbounded universals can never carry
+it). Shared grammar/registry made structural (public helpers, no copy-paste drift). Full suite
+**1980 green**. v1: 64/103 phase-anchored.
+
+---
+
 ## 2026-08-06 — v4F7 ✅ FINAL AUDIT — the v4 sprint CLOSES 8/8, released as v1.2.0 🏁
 
 The competitor-plan discipline, delivered: an independent final-auditor agent re-audited EVERY DONE

@@ -61,3 +61,15 @@ def minimal_axioms_for(expr: str, m: int) -> AxiomProof | None:
         return minimal_axiom_proof(m, poly_from_sympy(expr))
     except KernelError:
         return None
+
+
+def proof_avoiding(m: int, poly: tuple, banned) -> AxiomProof | None:
+    """AD0 control surface — BAN an axiom: the cheapest kernel-checked proof of `m | p(n)` whose
+    axiom footprint avoids every banned axiom (names exactly as `axioms_used` spells them, e.g.
+    'CRT' or 'RESIDUE(m=6)'). Returns None honestly when every kernel-accepted proof touches a
+    banned axiom — a ban NEVER fabricates an alternative proof."""
+    banned = frozenset(banned)
+    for cand in sorted(candidate_proofs(m, poly), key=lambda p: (p.n_axioms, p.axioms)):
+        if not banned.intersection(cand.axioms):
+            return cand
+    return None

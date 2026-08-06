@@ -402,19 +402,33 @@ def _check_sum_inequality(stmt: str, f_expr: str, rel: str, g_expr: str) -> Chec
 _GRAPH_STMT = re.compile(r"^\s*(\w+)\s*(<=|>=|==|=)\s*(?:(\d+)\s*\*\s*)?(\w+)\s*(?:\+\s*(\d+))?\s*$")
 
 
-def _check_graph_bound(stmt: str, max_n: int) -> CheckResult | None:
+def graph_statement_grammar():
+    """The ONE compiled grammar of the graph-bound surface `invA <= / >= / == [k*]invB [+ c]`.
+    Every consumer (this route and formalize's candidate builder) matches against this same
+    object, so the two surfaces are structurally incapable of drifting apart."""
+    return _GRAPH_STMT
+
+
+def graph_invariant_registry() -> dict:
+    """The invariant registry the graph-bound route resolves names against (rich + classic +
+    the report extras) — shared with formalize so every candidate reading sees the SAME names."""
     from .conjecture_service import service_invariants
-    m = _GRAPH_STMT.match(stmt)
+    from .invariants import evaluate as _ev
+    invs = dict(service_invariants())
+    for extra in ("num_vertices", "num_triangles", "sum_degrees", "num_components"):
+        invs.setdefault(extra, lambda g, _x=extra: _ev(g, _x))
+    return invs
+
+
+def _check_graph_bound(stmt: str, max_n: int) -> CheckResult | None:
+    m = graph_statement_grammar().match(stmt)
     if not m:
         return None
     lhs, rel, k, rhs, c = (m.group(1), m.group(2), int(m.group(3) or 1),
                            m.group(4), int(m.group(5) or 0))
     rel = "==" if rel == "=" else rel
     structure = "graph_equality" if rel == "==" else "graph_inequality"
-    from .invariants import evaluate as _ev
-    invs = dict(service_invariants())
-    for extra in ("num_vertices", "num_triangles", "sum_degrees", "num_components"):
-        invs.setdefault(extra, lambda g, _x=extra: _ev(g, _x))
+    invs = graph_invariant_registry()
     if lhs not in invs or rhs not in invs:
         return None
     from .nauty_scale import geng_available, geng_graphs

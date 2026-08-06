@@ -7,6 +7,23 @@
 
 ---
 
+## 2026-08-06 — v4F7 ✅ FINAL AUDIT — the v4 sprint CLOSES 8/8, released as v1.2.0 🏁
+
+The competitor-plan discipline, delivered: an independent final-auditor agent re-audited EVERY DONE
+criterion of v4F0..F6 against evidence (ran the proof tests, spot-checked live verdicts, re-computed
+a refutation witness outside the engine, grep-swept for timeout→result leaks) → **7/7 CLOSED**, report
+at docs/discovery/V4-AUDIT.md. Honesty sweep: zero tier overstatement (new tiers byte-exact with the
+honesty table), zero timeout leaks (R(3,6) is only ever ">17"), dual-agent gate traces present for all
+7 phases — and the gate EARNED its cost: across the sprint it produced real findings (the fuzzer's 3rd
+real bug, two unsound legacy behaviours, a tier deflation, an AA4 tier confusion, a route-wide crash
+class). Version 1.2.0 shipped (pyproject/__init__/CITATION.cff/CHANGELOG). Sprint totals: suite
+1833 → **1969 green** (+136), done counter 41 → 53/103 phase-anchored, 6 new check() statement forms,
+3 new domains, RUP-certified UNSAT, R(3,6)>17 witnessed. Known honest walls carried forward:
+R(3,6)≤18 undecided_within_budget; Lean/PyPI/Pages human steps; ruff-0.16 lint debt (gate pinned
+0.15.11). **The v4 plan was designed to be finishable — and it finished.**
+
+---
+
 ## 2026-08-06 — v4F6 ✅ knowledge-graph depth — P2-fed edges, total proof-tree coverage, a deflation fix
 
 X0's reserved generalizes/specializes edges are now BORN automatically: from_report feeds the P2

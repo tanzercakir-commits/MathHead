@@ -4,6 +4,35 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-08-06
+
+The MAX-FUNCTIONALITY sprint (v4F0-F7): every phase gated by the dual-agent discipline
+(implementer agent → adversarial mentor/tester/evaluator agent; PASS required before commit).
+Final audit: docs/discovery/V4-AUDIT.md — 7/7 phases CLOSED against evidence.
+
+### Added
+- Independently RUP-checked UNSAT certificates for Ramsey verdicts (`rup_check.py`, pure-Python
+  two-watched-literal checker, no solver imports); new honest tiers
+  `independently_verified_unsat_proof` (+ `..._of_strengthened_formula` on lemma runs).
+- `check()` coverage waves: polynomial congruences `p(n) ≡ q(n) (mod m)`; graph `>=` mirror and
+  `==` equality claims; comparative sum-inequalities (kernel closed form + z3 NRA chain, integer
+  hints exactly re-verified); permutation bounds over full S_n; partition counting identities with
+  LIVE Glaisher bijection re-verification; composition identities with in-route cut-point checks.
+- Scale results: n=8 conjecture sweep (62 survivors, 14 witnessed refutations recorded
+  machine-readable in SCALE-RUNS.md); R(3,6) > 17 with an independently verified witness — n=18
+  honestly `undecided_within_budget`; Frankl 17-hunt portfolio, all honest walls.
+- Knowledge-graph generalizes/specializes edges fed by the P2 generalization (queryable, with an
+  epistemic clamp); total proof-tree coverage inventory (`PROOF_TREE_COVERAGE`).
+- 19 v1 phase closures with proof tests across two hardening sweeps (done counter now
+  phase-anchored: 53/103).
+
+### Fixed
+- Fuzzer's 3rd real bug: ill-typed logical connectives (`implies(0,0)`) crashed three core parsers.
+- Three unsound legacy behaviours in the single door (fake `proved` on `2 | n/2` and `0 | n`,
+  crash on `6 | x^3 - x`) — now honest `unsupported`; huge-constant/huge-modulus refusals.
+- Tier honesty both directions: AA4 bridge failure path no longer says `kernel_verified`;
+  proved sum identities were tier-DEFLATED to `solver_verified` — now `formal_proof`.
+
 ## [1.1.0] — 2026-07-30
 
 The product release: the discovery engine becomes a first-class surface.

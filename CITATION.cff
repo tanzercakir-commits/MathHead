@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Çakır"
     given-names: "Tanzer"
-version: 1.1.0
+version: 1.2.0
 date-released: 2026-07-30
 repository-code: "https://github.com/tanzercakir-commits/MathHead"
 abstract: >-

@@ -214,3 +214,13 @@
   yeniden-adlandırmayla geçerli (D,d1) case'ine iner, tüm kısıtlar korunur
   (`test_case_split_covering_chain_is_machine_checked_by_exhaustion_at_small_n`). Bu KÜÇÜK-n
   KALIP kontrolüdür: n=18'in kapsaması hâlâ yazılı argümandır, kademe DEĞİŞMEDİ.
+
+## Koşu 5 — R(3,7) SAT sondası @ n=22 (2026-08-06)
+
+Komut: `ramsey_decide(22, 3, 7, strengthen=True)` (Glucose3; türetilmiş lemmalar: kırmızı≤6 taban-türevi,
+mavi≤17 = R(3,6)−1 — motorun KENDİ yeni bracket'inden, öz-referanslı zincir 5. halkasını denedi).
+Sonuç: **SAT, 0.8 s** — 64 kırmızı kenarlı boyama, kaba-kuvvet bağımsız doğrulamadan geçti
+(kademe `independently_verified_witness`) ⟹ **R(3,7) > 22**.
+DÜRÜST SINIR: üst taraf (UNSAT @ n=23) DENENMEDİ — R(3,6)@18'in (5,5) case'i 167 s idi; n=23 case-split'i
+kestirilebilir biçimde çok daha ağır, ayrı bütçelenmiş bir saldırı ister (kayıtlı sonraki adım).
+R(3,7) motorda BRACKET DEĞİL (tek taraf); _OWN_BRACKETS'a GİRMEDİ.

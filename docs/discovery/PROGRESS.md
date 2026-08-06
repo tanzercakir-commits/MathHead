@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-08-06 — R(3,7) > 22 witnessed in 0.8s — the lemma chain's fifth link works
+
+A bounded SAT probe at n=22 with the derived lemmas (red ≤ 6 base-derived; blue ≤ 17 = R(3,6)−1,
+drawn from the engine's OWN new bracket) found a 64-red-edge colouring in 0.8s, independently
+brute-force verified: **R(3,7) > 22** [independently_verified_witness]. Honest limit recorded in
+SCALE-RUNS Run 5: the UNSAT side (n=23) was NOT attempted — predictably far heavier than
+R(3,6)@18's 167s case — so R(3,7) is NOT a bracket and did not enter _OWN_BRACKETS; the upper-side
+attack is the recorded next step.
+
+---
+
 ## 2026-08-06 — PRODUCT: readings wave 2 — ∀ or ∃? The second ambiguity family ⭐
 
 Divisibility and congruence statements now carry QUANTIFIER readings: `check("5 | n^3 - n")` answers

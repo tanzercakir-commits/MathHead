@@ -29,6 +29,14 @@ The tiers, strongest first:
 | `no_counterexample_within_bound` | survived exhaustive attack to the stated bound — honestly open |
 | `empirical` | held on the sample; a conjecture, nothing more |
 
+A fourth rule follows from the first three: **ambiguity is surfaced, not resolved silently.**
+A graph-bound text like `num_vertices <= num_edges + 1` does not say *which* quantifier domain it
+means, so every graph-bound verdict also carries `readings` — the three candidate readings
+(A connected graphs, `check()`'s own baseline / B all graphs including disconnected / C one fixed
+order, a complete finite domain), each with its own verdict at its own tier from the table above
+(no new tiers were invented for this). When the verdict changes with the reading, the note says
+so in as many words: the answer depends on which question the statement is asking.
+
 One consequence worth stating plainly: in a full self-audit the engine attributed **all** of its
 findings to known mathematics — `0 novel-to-literature established` — and says so in its own
 scorecard. A tool that would fake that number would fake anything.

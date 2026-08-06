@@ -24,7 +24,12 @@ Supported statement forms (the v4F2 product surface — parsed deterministically
                   an INTEGER z3 hint is re-verified by exact arithmetic and only then refutes)
   * graph bound:  "invA <= [k*]invB [+ c]", the mirrored ">=", and equalities "invA == [k*]invB [+ c]"
                   over the rich+classic invariants, checked counterexample-first on ALL connected
-                  graphs up to `max_n` (an equality that survives is OPEN, never proved)
+                  graphs up to `max_n` (an equality that survives is OPEN, never proved). The
+                  quantifier domain of such a claim is AMBIGUOUS, so the envelope additionally
+                  carries `readings`: formalize's three candidate readings (A connected — the main
+                  verdict itself / B all graphs incl. disconnected / C fixed order n = max_n), each
+                  with its own honest verdict and tier — the answer to "is it true?" can genuinely
+                  depend on which question the text is asking, and the envelope says so
   * permutation:  "all perms of n: invA <= invB" (also ">=" / "==") over inversions, descents,
                   major_index, fixed_points, cycles (alias num_cycles); the right side may instead
                   be an exact-rational
@@ -68,6 +73,11 @@ class CheckResult:
     proof_hash: str = ""
     instruments: tuple = ()
     notes: str = ""
+    # Quantifier-ambiguous graph bounds only: the THREE candidate readings (formalize's A/B/C —
+    # A connected / B all graphs / C fixed order n), each with its OWN honest verdict and tier.
+    # The main envelope above IS reading A (backward compatible: everything else is unchanged);
+    # readings is ADDITIONAL information. Empty tuple for every other structure.
+    readings: tuple = ()
 
 
 def _oversized_constant(*exprs) -> bool:
@@ -420,7 +430,79 @@ def graph_invariant_registry() -> dict:
     return invs
 
 
+def _reading_summary(r: CheckResult) -> str:
+    """One compact line of evidence for a reading: the witness values for a refutation (edges
+    elided — the count is enough at a glance; the full object rides `formalize()`), the stated
+    scan bound otherwise. Nothing is invented — every field comes off the reading's envelope."""
+    if r.witness:
+        vals = ", ".join(f"{k}={v}" for k, v in r.witness.items() if k != "edges")
+        edges = r.witness.get("edges")
+        out = (f"counterexample: {vals}"
+               + (f" ({len(edges)} edges)" if isinstance(edges, list) else ""))
+        # diameter/radius return the DOCUMENTED -1 sentinel on disconnected graphs (see
+        # rich_invariants) — a refutation riding that value is an artifact of the convention,
+        # not a fact about graphs, and the summary must say so.
+        if any(k not in ("n", "edges") and v == -1 for k, v in r.witness.items()):
+            out += (" — disconnected sentinel: the refutation is definitional "
+                    "(invariant = -1 on a disconnected graph), not graph-theoretic")
+        return out
+    return r.checked_up_to
+
+
+def _attach_readings(res: CheckResult, stmt: str, max_n: int) -> CheckResult:
+    """The quantifier ambiguity, surfaced ON the product envelope: attach formalize's three
+    candidate readings (A connected / B all graphs / C fixed order n = max_n), each evaluated
+    honestly through formalize's own path. Reading A is BY CONSTRUCTION the main envelope
+    (candidate A delegates to check()'s semantics), so it is reused, not recomputed — no extra
+    scan, no recursion. The main verdict/tier/witness stay exactly reading A; the tiers inside
+    readings are formalize's own honest tiers, never upgraded here."""
+    from .formalize import (_MAX_ORDER, candidate_formalizations, differences,
+                            evaluate_candidate)
+    if not 2 <= max_n <= _MAX_ORDER:
+        res.notes += (f"; quantifier readings not evaluated: max_n={max_n} is outside the "
+                      f"formalization wall 2 <= max_n <= {_MAX_ORDER}")
+        return res
+    cands = candidate_formalizations(stmt, max_n=max_n, fixed_n=max_n)
+    deltas = {d["pair"][1]: d for d in differences(cands) if d["pair"][0] == "A"}
+    readings, verdicts = [], []
+    for cand in cands:
+        r = res if cand.label == "A" else evaluate_candidate(cand)
+        if cand.label == "A":
+            delta = "check()'s own reading (baseline)"
+        else:
+            d, parts = deltas[cand.label], []
+            if d["only_first"]:
+                parts.append("drops [" + ", ".join(d["only_first"]) + "]")
+            if d["only_second"]:
+                parts.append("adds [" + ", ".join(d["only_second"]) + "]")
+            delta = "vs A: " + "; ".join(parts)
+        verdicts.append(r.verdict)
+        readings.append({
+            "label": cand.label,
+            "statement_formal": f"for all G in [{cand.domain}]: {cand.statement}",
+            "assumption_delta": delta,
+            "verdict": r.verdict,
+            "tier": r.tier,
+            "witness_summary": _reading_summary(r),
+        })
+    res.readings = tuple(readings)
+    if len(set(verdicts)) > 1:
+        split = ", ".join(f"{e['label']}: {e['verdict']}" for e in readings)
+        res.notes += (f"; quantifier ambiguity: the verdict CHANGES with the reading "
+                      f"({split}) — the answer depends on which question the statement is "
+                      "asking; see readings")
+    else:
+        res.notes += (f"; quantifier ambiguity: 3 readings evaluated — all agree "
+                      f"({verdicts[0]}); see readings")
+    return res
+
+
 def _check_graph_bound(stmt: str, max_n: int) -> CheckResult | None:
+    res = _graph_bound_verdict(stmt, max_n)
+    return res if res is None else _attach_readings(res, stmt, max_n)
+
+
+def _graph_bound_verdict(stmt: str, max_n: int) -> CheckResult | None:
     m = graph_statement_grammar().match(stmt)
     if not m:
         return None

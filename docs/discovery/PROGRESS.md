@@ -7,6 +7,25 @@
 
 ---
 
+## 2026-08-06 — PRODUCT: the THREE READINGS — check() surfaces quantifier ambiguity as the answer ⭐
+
+The product-differentiator move: on a quantifier-ambiguous graph statement, `check()` no longer
+silently picks one reading — `CheckResult.readings` now carries all three candidate formalizations
+with their OWN verdicts: [A] connected graphs (the baseline — identical to the main envelope, never
+recomputed), [B] all graphs, [C] the fixed-n finite domain. Flagship outputs: `num_vertices <=
+num_edges + 1` → A: open / B: REFUTED (n=2, no edges) / C: refuted — and the handshake equality →
+A: open / B: open / C: PROVED [finite_domain_exhaustion]. "The verdict changes with the reading" is
+now itself the product's honest answer. CLI prints a compact readings block AFTER the unchanged
+envelope (exit-code contract intact); --json carries the field; docs gained a "The three readings"
+section with verbatim-tested outputs; honesty.md rule 4: ambiguity is surfaced, not resolved
+silently. Backward compatibility proven the hard way: the evaluator stash-compared 13 representative
+calls field-by-field against HEAD — zero deviation; C-proved re-verified over all 32,768 labelled
+6-vertex graphs; tier sweep clean (proved only ever finite_domain_exhaustion, only in C).
+Disconnected-graph sentinel refutations (-1 invariants) are explicitly marked definitional. Cost:
+2 extra scans, 0.04-0.09s. Full suite **2007 green**.
+
+---
+
 ## 2026-08-06 — v1 CLOSURE SWEEP D ✅ + FINAL ADJUDICATION — v1 IS FINISHED (honest sense) 🏁
 
 Tracks AF/AG, same discipline: NINE closures (test_discovery_closure_sweep_d.py) — AF0 catch-rate

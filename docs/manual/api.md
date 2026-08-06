@@ -7,7 +7,11 @@ from mathhead.discovery import check
 check(statement: str, max_n: int = 7) -> CheckResult
 ```
 `CheckResult`: `verdict` (proved/refuted/open/unsupported) · `tier` · `witness` · `checked_up_to` ·
-`proof_hash` · `instruments` · `notes`.
+`proof_hash` · `instruments` · `notes` · `readings` — on graph bounds only, the three candidate
+quantifier readings (A connected — the main verdict itself / B all graphs / C fixed order
+`n = max_n`), each an entry `{label, statement_formal, assumption_delta, verdict, tier,
+witness_summary}` with formalize's own honest tier; empty for every other structure, and empty
+(with the note saying why) when `max_n` is outside the formalization wall `2..7`.
 
 Supported statement forms: `"m | poly(n)"` · `"p(n) ≡ q(n) (mod m)"` (ASCII: `"p(n) = q(n) mod m"`;
 integer coefficients only) · `"sum_(i=1..n) f(i) = g(n)"` · `"sum_(i=1..n) f(i) <= g(n)"` / `">="`

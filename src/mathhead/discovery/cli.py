@@ -43,6 +43,13 @@ def _print_check(r, as_json: bool) -> int:
         print(f"  proof     : kernel hash {r.proof_hash}")
     if r.notes:
         print(f"  note      : {r.notes}")
+    if getattr(r, "readings", ()):
+        # v1 readings feature: the SAME text under its 3 candidate quantifier readings, each with
+        # its own honest verdict. Appended AFTER the classic envelope — every line above and the
+        # exit-code contract are byte-identical to the pre-readings CLI.
+        print("  readings  : the same text under 3 candidate quantifier readings —")
+        for e in r.readings:
+            print(f"    [{e['label']}] {e['verdict']:<10} [{e['tier']}]  {e['assumption_delta']}")
     return code
 
 

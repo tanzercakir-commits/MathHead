@@ -4,6 +4,17 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+### Added
+- The three-readings envelope: on quantifier-ambiguous graph bounds `check()` now also returns
+  `readings` — formalize's three candidate readings (A connected / B all graphs / C fixed order
+  n = max_n), each with its own honest verdict and tier (no new tiers; A IS the main envelope,
+  so behaviour is backward compatible). CLI prints a compact readings block after the unchanged
+  classic envelope (`--json` carries the list); the note says in as many words when the verdict
+  changes with the reading. Docs: quickstart "The three readings", examples §7, honesty rule 4.
+- `formalize`'s all-graphs candidates (B/C) now prefer the cross-validated geng generator with
+  the pure-Python enumerator as fallback — the same preference the product door already uses
+  (without it the n=7 all-graphs scan sits behind the brute-force wall).
+
 ## [1.2.0] — 2026-08-06
 
 The MAX-FUNCTIONALITY sprint (v4F0-F7): every phase gated by the dual-agent discipline

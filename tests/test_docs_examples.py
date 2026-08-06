@@ -112,6 +112,35 @@ def test_example_11_composition_identity(capsys):                 # v4F2
     assert check("set_partitions(n) == bell(n)").verdict == "unsupported"   # docs say NOT covered
 
 
+def test_quickstart_three_readings_runs_exactly_as_documented(capsys):   # readings feature
+    # block 1 — the connectivity assumption is load-bearing: A open / B refuted / C refuted
+    assert main(["check", "num_vertices <= num_edges + 1", "--max-n", "6"]) == 0
+    out = capsys.readouterr().out
+    assert "VERDICT: open   [no_counterexample_within_bound]" in out
+    assert "quantifier ambiguity: the verdict CHANGES with the reading "\
+           "(A: open, B: refuted, C: refuted)" in out
+    assert "  readings  : the same text under 3 candidate quantifier readings —" in out
+    assert "[A] open       [no_counterexample_within_bound]  "\
+           "check()'s own reading (baseline)" in out
+    assert "[B] refuted    [exact_integer_certificate]  vs A: drops [connected]" in out
+    assert "[C] refuted    [exact_integer_certificate]  vs A: drops [connected, "\
+           "2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]" in out
+    # block 2 — the fixed-order reading is a genuine decision: A open / B open / C PROVED
+    assert main(["check", "sum_degrees == 2*num_edges", "--max-n", "6"]) == 0
+    out = capsys.readouterr().out
+    assert "[B] open       [no_counterexample_within_bound]  vs A: drops [connected]" in out
+    assert "[C] proved     [finite_domain_exhaustion]" in out
+    assert "(A: open, B: open, C: proved)" in out
+
+
+def test_example_7_readings_blocks_run_exactly_as_documented(capsys):    # readings feature
+    assert main(["check", "num_vertices == num_edges"]) == 0             # default max_n=7
+    out = capsys.readouterr().out
+    assert "quantifier ambiguity: 3 readings evaluated — all agree (refuted); see readings" in out
+    assert "[C] refuted    [exact_integer_certificate]  vs A: drops [connected, "\
+           "2 <= n <= 7 (bounded scan)]; adds [n == 7 (complete finite domain)]" in out
+
+
 def test_example_3_bracket_r33(capsys):
     assert main(["bracket", "3", "3", "--lo", "5", "--hi", "6"]) == 0
     assert "R(3,3) = 6" in capsys.readouterr().out
@@ -128,3 +157,5 @@ def test_honesty_page_lists_every_tier_the_engine_emits():
                  "numerical_conjecture", "empirical"):
         assert tier in text
     assert "0 novel-to-literature" in text                     # the scorecard truth, stated in docs
+    assert "ambiguity is surfaced, not resolved silently" in text     # the readings rule
+    assert "no new tiers were invented" in text

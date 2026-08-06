@@ -45,6 +45,42 @@ The chain is spelled out on the verdict: the closed form `n²/2 + n/2` is kernel
 proves the difference nonnegative for all *real* n ≥ 1 — which covers the integers (the sound
 direction of the relaxation).
 
+## The three readings
+
+A bare graph-bound text is *ambiguous* about its quantifier domain: connected graphs? all graphs?
+one fixed order? The engine no longer picks one silently — every graph-bound verdict also carries
+the three candidate readings, each with its own honest answer:
+
+```console
+$ mathhead-discover check "num_vertices <= num_edges + 1" --max-n 6
+VERDICT: open   [no_counterexample_within_bound]
+  statement : num_vertices <= num_edges + 1
+  checked   : ALL 142 connected graphs with 2 <= n <= 6
+  note      : survived exhaustive small-order attack; NOT proved — honestly open; quantifier ambiguity: the verdict CHANGES with the reading (A: open, B: refuted, C: refuted) — the answer depends on which question the statement is asking; see readings
+  readings  : the same text under 3 candidate quantifier readings —
+    [A] open       [no_counterexample_within_bound]  check()'s own reading (baseline)
+    [B] refuted    [exact_integer_certificate]  vs A: drops [connected]
+    [C] refuted    [exact_integer_certificate]  vs A: drops [connected, 2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]
+```
+On connected graphs `n ≤ m + 1` is a theorem (still honestly `open` — a finite scan proves
+nothing); drop connectivity and two isolated vertices refute it instantly. The connectivity
+assumption is load-bearing, and the answer *changes with the question* — so the product says so.
+The fixed-order reading C can even turn a scan into a **decision**:
+
+```console
+$ mathhead-discover check "sum_degrees == 2*num_edges" --max-n 6
+VERDICT: open   [no_counterexample_within_bound]
+  ...
+  readings  : the same text under 3 candidate quantifier readings —
+    [A] open       [no_counterexample_within_bound]  check()'s own reading (baseline)
+    [B] open       [no_counterexample_within_bound]  vs A: drops [connected]
+    [C] proved     [finite_domain_exhaustion]  vs A: drops [connected, 2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]
+```
+The handshake lemma stays `open` under both unbounded readings — but restricted to the *complete*
+finite domain of order 6 it is genuinely decided, and only there may the engine say `proved`.
+The main verdict is always reading A (nothing about the classic envelope changed); `readings` is
+extra information, also present as a list under `--json`.
+
 And a classic, bracketed before your coffee cools:
 
 ```console

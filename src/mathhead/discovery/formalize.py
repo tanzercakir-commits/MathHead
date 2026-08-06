@@ -177,22 +177,35 @@ def _scan(cand: CandidateFormalization, graphs, complete_domain: bool) -> CheckR
               "proves this reading — honestly open")
 
 
+def _graph_domain(n: int) -> list:
+    """All isomorphism classes of order n — geng first (cross-validated against the pure-Python
+    generator, see nauty_scale), pure-Python brute force as the fallback. EXACTLY the preference
+    the product door uses for its own connected scan; without it the all-graphs candidates would
+    hit the brute-force wall at n=7 (minutes) that geng crosses in milliseconds."""
+    from .nauty_scale import geng_available, geng_graphs
+    if geng_available():
+        return geng_graphs(n)
+    from .generate import generate_graphs
+    return generate_graphs(n)
+
+
 def evaluate_candidate(cand: CandidateFormalization) -> CheckResult:
     """Honest verdict envelope for one candidate. A is `check()`'s own semantics and is DELEGATED
     to the product door; B and C run their own exhaustive scans (same envelope, same tiers)."""
     if cand.label == "A":
         from .product import check
         return check(cand.statement, max_n=cand.max_n)
-    from .generate import generate_graphs
     if cand.label == "B":
-        graphs = [g for n in range(2, cand.max_n + 1) for g in generate_graphs(n)]
+        graphs = [g for n in range(2, cand.max_n + 1) for g in _graph_domain(n)]
         return _scan(cand, graphs, complete_domain=False)
-    return _scan(cand, generate_graphs(cand.fixed_n), complete_domain=True)
+    return _scan(cand, _graph_domain(cand.fixed_n), complete_domain=True)
 
 
 def formalize(statement: str, *, max_n: int = 6, fixed_n: int = 4) -> dict:
     """The V2 one-call surface: candidates + machine-readable differences + one honest verdict
-    per candidate."""
+    per candidate. Because candidate A's envelope is `check()`'s own, it additionally nests the
+    product's `readings` field (the three readings surfaced product-side, with fixed_n = max_n);
+    the B and C envelopes carry no readings of their own."""
     cands = candidate_formalizations(statement, max_n=max_n, fixed_n=fixed_n)
     return {
         "statement": statement.strip(),

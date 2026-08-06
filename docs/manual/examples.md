@@ -80,10 +80,17 @@ $ mathhead-discover check "sum_degrees == 2*num_edges" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
   statement : sum_degrees == 2*num_edges
   checked   : ALL 142 connected graphs with 2 <= n <= 6
-  note      : universal claim not proved; holds for all connected graphs up to n=6 — a finite scan NEVER proves an equality
+  note      : universal claim not proved; holds for all connected graphs up to n=6 — a finite scan NEVER proves an equality; quantifier ambiguity: the verdict CHANGES with the reading (A: open, B: open, C: proved) — the answer depends on which question the statement is asking; see readings
+  readings  : the same text under 3 candidate quantifier readings —
+    [A] open       [no_counterexample_within_bound]  check()'s own reading (baseline)
+    [B] open       [no_counterexample_within_bound]  vs A: drops [connected]
+    [C] proved     [finite_domain_exhaustion]  vs A: drops [connected, 2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]
 ```
-The handshake lemma is true for every graph — but the engine only *scanned*, so it says exactly
-that. A false equality is convicted in either direction, smallest witness first:
+The handshake lemma is true for every graph — but the engine only *scanned*, so the main verdict
+says exactly that. The `readings` block underneath is the quantifier ambiguity made explicit
+(see the quickstart's "The three readings"): the fixed-order reading C is a *complete* finite
+domain, so there — and only there — the scan is a genuine decision (`finite_domain_exhaustion`).
+A false equality is convicted in either direction, smallest witness first:
 
 ```console
 $ mathhead-discover check "num_vertices == num_edges"
@@ -91,7 +98,11 @@ VERDICT: refuted   [exact_integer_certificate]
   statement : num_vertices == num_edges
   witness   : {'n': 2, 'edges': [(0, 1)], 'num_vertices': 2, 'num_edges': 1}
   checked   : first counterexample among connected graphs, n=2
-  note      : smallest-order witness; values computed exactly (equality broken — either direction convicts)
+  note      : smallest-order witness; values computed exactly (equality broken — either direction convicts); quantifier ambiguity: 3 readings evaluated — all agree (refuted); see readings
+  readings  : the same text under 3 candidate quantifier readings —
+    [A] refuted    [exact_integer_certificate]  check()'s own reading (baseline)
+    [B] refuted    [exact_integer_certificate]  vs A: drops [connected]
+    [C] refuted    [exact_integer_certificate]  vs A: drops [connected, 2 <= n <= 7 (bounded scan)]; adds [n == 7 (complete finite domain)]
 ```
 The mirrored `>=` direction works the same way (`"num_edges >= num_triangles"` is refuted by the
 same n=6 graph as the `<=` classic).

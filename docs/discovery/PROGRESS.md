@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-08-06 — R(3,6) = 18 — the engine's FIRST 6-valued Ramsey bracket, by symmetry case-split 🎖️
+
+The wall from v4F5 (two 600s monolithic timeouts) FELL to a designed attack: ramsey_decide_case_split
+splits on D = max red degree (a theorem of the base formula gives D ≤ 5), fixes N_red(0) = {1..D},
+and adds a second level on d1 = red-degree(1) with N_red(1)\{0} pushed to {D+1..D+d1−1} by the
+red-triangle argument — a three-step renaming chain that PRESERVES satisfiability (any case SAT ⟹
+base SAT trivially; base model ⟹ lands in exactly one produced case). All 16 cases UNSAT with
+cadical in 239s total (heaviest: (5,5) 167s, 2.2M conflicts) ⟹ R(3,6) ≤ 18; with the previously
+witnessed SAT@17, **R(3,6) = 18 joins _OWN_BRACKETS** — and the self-referential chain now derives
+the t=7 blue lemma. HONESTY DESIGN, as demanded: a NEW tier `solver_verified_unsat_by_symmetry_case_split`
+(the `_with_rup_checked_cases` variant is EARNED at R(3,4)@9, 4/4 cases RUP-verified — but NOT at
+n=18: Glucose could not finish the heavy cases and cadical's DRAT output is outside rup_check's
+RUP-only soundness argument; the tier name carries the weak link). Any case timeout → the WHOLE
+verdict is undecided (partial UNSAT never leaks, tested). The evaluator re-derived the covering
+argument step by step, exhaustively machine-checked the renaming chain on ALL small-n base models
+(87/87 land in produced cases — now a PERMANENT test), re-ran all 16 cases bit-identically, and
+cross-validated that the split does not over-constrain (SAT@17 found through the split too).
+Degenerate d1 sub-cases pruned from production (every published constraint text literally true).
+Full suite **2015 green**.
+
+---
+
 ## 2026-08-06 — PRODUCT: the THREE READINGS — check() surfaces quantifier ambiguity as the answer ⭐
 
 The product-differentiator move: on a quantifier-ambiguous graph statement, `check()` no longer

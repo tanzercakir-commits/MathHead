@@ -21,6 +21,8 @@ The tiers, strongest first:
 | `independently_verified_witness` | solver output re-verified by brute force |
 | `independently_verified_unsat_proof` | the solver's DRUP refutation re-checked by a pure-Python RUP checker — no solver in the loop |
 | `independently_verified_unsat_proof_of_strengthened_formula` | RUP-checked refutation of the base formula PLUS derived lemmas — the proof is of the strengthened formula, not the bare encoding; the lemma list rides the verdict |
+| `solver_verified_unsat_by_symmetry_case_split_with_rup_checked_cases` | UNSAT reached through a max-red-degree case split: EVERY case formula's DRUP refutation is re-checked by the pure-Python RUP checker, but the covering argument — that every colouring relabels into some case — is documented prose, not machine-checked; that unchecked step is why the tier keeps its `solver_verified` head and is deliberately not any `independently_verified_*` tier |
+| `solver_verified_unsat_by_symmetry_case_split` | the same case split with at least one case resting on the solver's word (no RUP-checked proof for it); per-case status rides the verdict, and the covering argument is prose here too |
 | `solver_verified_with_derived_lemmas` | solver verdict; every added lemma listed on the verdict |
 | `solver_verified` | plain solver verdict — the fallback when a DRUP proof cannot be obtained or checked within budget, and the tier of a proof chain whose weakest link is a solver (e.g. a comparative sum bound: kernel-verified closed form, then the z3 NRA inequality step — the verdict names the chain) |
 | `constructive_bounded` | explicit checked witness over a stated sample — not a universal proof |

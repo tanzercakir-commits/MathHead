@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-06 · 85 modules · 680 discovery tests · 73/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-06 · 85 modules · 688 discovery tests · 73/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -179,8 +179,11 @@ loop (implementer agent → adversarial mentor/tester/evaluator agent → gate; 
 
 Status: **8/8 — SPRINT COMPLETE.** Final audit (independent auditor agent): 7/7 phase DONE
 criteria CLOSED against evidence — docs/discovery/V4-AUDIT.md. Released as v1.2.0. Known
-honest walls carried forward: R(3,6)<=18 undecided_within_budget; Lean lake build / PyPI /
-Pages remain human steps; ruff-0.16 lint debt noted (gate pinned at 0.15.11). (F6 knowledge-graph depth: P2-fed generalizes/specializes edges queryable+clamped; T3 proof-tree coverage inventory total; sum-identity tier deflation fixed to formal_proof) (F5 scale runs: n=8 sweep 62 survivors + 14 witnessed refutations; R(3,6)>17 witnessed, n=18 honestly undecided_within_budget; Frankl 17-hunt portfolio honest) (F4 hardening sweep B: 11 more closures — done counter 52/103 phase-anchored; 9 honest reasons, corpus/LLM/instrument-bound) (F3 hardening sweep A: 8 phase closures with proof tests — M0/M1/M2/M5/M7/S0/S2/S3; 6 honest one-line reasons; phase-anchored done counter, totalized KernelError contract) (wave 2: permutation bounds, partition counting identities with live Glaisher re-verification, composition identities with cut-point bijection — all through the single door; route-wide huge-constant guard). F0: RUP-checked UNSAT (independent pure-Python proof checker;
+honest walls carried forward: Lean lake build / PyPI / Pages remain human steps; ruff-0.16 lint
+debt noted (gate pinned at 0.15.11). UPDATE 2026-08-06: the R(3,6)<=18 wall FELL — symmetry
+case-split (16 cases, all UNSAT, cadical, 239s) under the honest tier
+solver_verified_unsat_by_symmetry_case_split; with the n=17 witness, R(3,6)=18 is now the
+engine's OWN bracket (weakest link named on the tier; covering argument machine-checked at small n). (F6 knowledge-graph depth: P2-fed generalizes/specializes edges queryable+clamped; T3 proof-tree coverage inventory total; sum-identity tier deflation fixed to formal_proof) (F5 scale runs: n=8 sweep 62 survivors + 14 witnessed refutations; R(3,6)>17 witnessed, n=18 honestly undecided_within_budget; Frankl 17-hunt portfolio honest) (F4 hardening sweep B: 11 more closures — done counter 52/103 phase-anchored; 9 honest reasons, corpus/LLM/instrument-bound) (F3 hardening sweep A: 8 phase closures with proof tests — M0/M1/M2/M5/M7/S0/S2/S3; 6 honest one-line reasons; phase-anchored done counter, totalized KernelError contract) (wave 2: permutation bounds, partition counting identities with live Glaisher re-verification, composition identities with cut-point bijection — all through the single door; route-wide huge-constant guard). F0: RUP-checked UNSAT (independent pure-Python proof checker;
 strengthened-formula honesty in the tier name; fuzzer's 3rd real bug fixed as a bonus). F1: check()
 coverage wave 1 — congruences p≡q (mod m) via the kernel gate, graph >=/== (never proved by finite
 scan), sum-inequalities via the kernel-closed-form + z3 NRA chain (integer-hint exact upgrade);

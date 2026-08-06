@@ -105,6 +105,8 @@
   Simetri-kırma klozları DENENMEDİ — bunlar türetilmiş (implied) lemma DEĞİLDİR, model-koruma
   yerine yalnız SAT-eşdeğerlik verir; eklenmesi ayrı bir dürüstlük-etiket tasarımı ister
   (gelecek faz adayı, kademe tasarımıyla birlikte).
+  **Güncelleme (2026-08-06):** o tasarım yapıldı ve n=18 çözüldü — bkz. Koşu 4 (bu kayıt
+  değiştirilmedi; 2b'nin `undecided_within_budget` sonucu MONOLİTİK formül için hâlâ doğrudur).
 - **Test pinleri (hızlı):** lemma metinleri + kloz-sayısı formülü (n başına iki seqcounter
   atmost bloğu) `test_r36_degree_lemmas_derive_the_right_bounds`; R(3,3)/R(3,4) çıpa
   regresyonu strengthen=True ile `test_r36_branch_leaves_small_anchors_untouched`
@@ -141,3 +143,74 @@
 - **Test pinleri (hızlı):** `guard_exhaustive(5)` reddi + örneklemeli guard'ın dürüst etiketi ve
   determinizmi (`test_exhaustive_guard_refuses_m5_*`, `test_sampled_guard_is_deterministic_*`,
   `tests/test_discovery_frankl.py`). 248 saniyelik portföy test paketinde DEĞİL.
+
+---
+
+## Koşu 4 — R(3,6) = 18: maks-kırmızı-derece SİMETRİ case-split'i n=18'i çözdü
+
+- **Tarih:** 2026-08-06 · **Çözücüler:** Cadical195 (sonuç koşusu; RUP YOK — aşağıda),
+  Glucose3 (probe'lar + hızlı-test çıpaları) · **Kod:** `ramsey_decide_case_split(n, s, t,
+  budget_per_case_s, certify, strengthen, fix_neighbourhood, second_level, solver_name)` —
+  yeni `CaseSplitVerdict`/`RamseyCase` (case başına D/d1/sonuç/süre/RUP-durumu kayıtlı).
+- **Tasarım (simetri, implied DEĞİL — Koşu 2b'nin istediği ayrı dürüstlük-etiketi):** case'ler
+  D = maks kırmızı-derece üzerinden (s=3'te D ∈ {0..t−1}: kırmızı-derece ≤ t−1 taban formülün
+  kendisinin sonucu); `fix_neighbourhood`: N_red(0) = {1..D} birim klozları; `second_level`
+  (s=3 + fix_neighbourhood şartlı): d1 = kırmızı-derece(1) ∈ {1..D} alt-case'leri,
+  N_red(1) = {0} ∪ {D+1..D+d1−1} birim klozları. Kapsama argümanı ÜÇ yeniden-adlandırma adımı
+  (maks-dereceli köşe → 0; N_red(0) → {1..D}; N_red(1)\{0} → {D+1..D+d1−1}), her adım K_n
+  otomorfizmi — taban klozları, per-köşe lemma ailesi ve önceki adımların kısıtları korunur.
+  HERHANGİ case SAT ⟹ taban SAT (case modeli taban modelidir — SAT yönü simetri istemez);
+  TÜM case'ler UNSAT ⟹ taban UNSAT ⟹ R(s,t) ≤ n. Argüman docstring + verdict notunda YAZILI
+  PROSE'dur, makine-kontrollü DEĞİLDİR — kademe adları bunu taşır (aşağıda). Lex-leader tam
+  kırma İDDİA EDİLMEZ; yalnız tatmin-edilebilirlik korunumu.
+
+### 4a — Probe'lar (dürüst ara kayıt: Glucose3 yetmedi, tasarım derinleşti)
+- Glucose3 weak split (kardinalite eşitliği), 30 s/case: D=0..3 UNSAT ~0.02 s (mavi-derece ≤ 13
+  lemması kırmızı-derece ≥ 4'ü zorluyor); **D=4 ve D=5 TIMEOUT** → `undecided_within_budget`.
+- Glucose3 + fix_neighbourhood, 120 s/case: **D=4, D=5 yine TIMEOUT**.
+- second_level probe'ları (tek-case script, dış `timeout 250`): Glucose3 (4,4) UNSAT **3.7 s**
+  ama (5,4)/(5,5) 250 s'de bitmedi; Cadical195 (4,4) **1.1 s**, (5,4) **76.3 s**,
+  (5,5) **169.0 s** — hepsi UNSAT. Ayrıca kayıt: pysat Cadical195 `interrupt()` koşan aramayı
+  DURDURAMIYOR (1 s'lik timer'a rağmen çözüm 30 s+ koştu, dıştan öldürüldü) — bu yüzden motorda
+  cadical bütçesi fork'lu child-process kill ile uygulanır.
+
+### 4b — SONUÇ KOŞUSU: iki-seviye case-split, Cadical195, 240 s/case
+- **Komut:** `ramsey_decide_case_split(18, 3, 6, budget_per_case_s=240, certify=False,
+  strengthen=True, fix_neighbourhood=True, second_level=True, solver_name="cadical195")`
+- **Süre:** toplam **239.0 s** — 16 case'in **HEPSİ UNSAT**, hiçbiri bütçeye çarpmadı:
+
+  ```text
+  (D=0,–): 0.06s   (D=1,1): 0.04s   (D=2,1): 0.04s   (D=2,2): 0.06s
+  (D=3,1): 0.04s   (D=3,2): 0.04s   (D=3,3): 0.04s
+  (D=4,1): 0.04s   (D=4,2): 0.04s   (D=4,3): 0.04s   (D=4,4): 1.25s
+  (D=5,1): 0.04s   (D=5,2): 0.04s   (D=5,3): 0.04s   (D=5,4): 70.12s  (D=5,5): 167.01s
+  ```
+
+  (Lemmalar her case formülünde: kırmızı-derece ≤ 5 + mavi-derece ≤ 13 = R(3,5)−1 — motorun
+  kendi bracket'i; D<4 ve d1<4 case'lerinin anında ölmesi bu iki sınırın kesişmesindendir.)
+- **Sonuç:** **R(3,6) ≤ 18.** Koşu 2a'nın n=17 bağımsız-doğrulanmış tanığıyla birlikte:
+  **R(3,6) = 18 — motorun KENDİ bracket'i** (`_OWN_BRACKETS`e işlendi; zincir:
+  R(3,3)/R(3,4) → R(3,5) → R(3,6), t=7'nin mavi lemması artık hazır).
+- **KADEME:** `solver_verified_unsat_by_symmetry_case_split` — sınırları aynen: (1) kapsama
+  argümanı yazılıdır, makine-kontrollü değildir; (2) Cadical UNSAT'ları çözücünün sözüdür — RUP
+  yok: Cadical DRAT-ailesi çıktı verir ve `rup_check`'in belgeli sağlamlık argümanı RUP-only
+  (trap marker), bu yüzden motor `certify=True` + cadical'ı `ValueError` ile REDDEDER (sessiz
+  düşürme yok); (3) RUP'lu kademe (`..._with_rup_checked_cases`) motorda vardır ve R(3,4)@9
+  çıpasında KAZANILIR (testli: 4 case'in 4'ü RUP-doğrulamalı) ama R(3,6)@18'de
+  KAZANILMAMIŞTIR — proof verebilen Glucose3, (5,4)/(5,5) case'lerini bütçede bitiremedi.
+  Bracket tablosundaki (3,6) girişi bu zayıf halkayı üstünde taşır; R(3,6)'yı ileride
+  alıntılayacak her lemma o kaydı miras alır.
+- **Test pinleri (hızlı, mekanizma):** RUP'lu kademe R(3,4)@9 (`test_case_split_r34_unsat_
+  earns_the_rup_checked_cases_tier`), SAT tanık yolu R(3,3)@5, second-level çıpaları + case
+  listesi, timeout→`undecided_within_budget` (n=18, 0.05 s bütçe — kısmî UNSAT asla sonuç
+  değil), guard `ValueError`ları, bracket girişinin SAT bacağı (n=17, ~0.1 s) ve t=7 zincir
+  lemma metni (`tests/test_discovery_ramsey_sat.py`). 239 s'lik koşu test paketinde DEĞİL.
+- **Mini kapanış (2026-08-06, evaluator PASS sonrası):** (1) dejenere alt-case'ler (d1 > n−D)
+  üretimden atlanır ve D-aralığı n−1'e kırpılır (`_case_split_ids` — her yayımlanan kısıt metni
+  her rejimde harfiyen doğru; n=18 listesi değişmedi: 16 case, test-pinli); (2) her `RamseyCase`
+  kendi kısıt metnini taşır (`constraint` alanı), verdict'teki `case_constraint` artık şemadır;
+  (3) kloz-üreticide iç guard (d1 ⟹ fix_neighbourhood, `ValueError`); (4) kapsama ZİNCİRİ küçük
+  n'de TÜKETİCİ makine-kontrollü — (3,3) n≤5 + (3,4) n≤4'ün 87 taban modelinin HEPSİ üç-adım
+  yeniden-adlandırmayla geçerli (D,d1) case'ine iner, tüm kısıtlar korunur
+  (`test_case_split_covering_chain_is_machine_checked_by_exhaustion_at_small_n`). Bu KÜÇÜK-n
+  KALIP kontrolüdür: n=18'in kapsaması hâlâ yazılı argümandır, kademe DEĞİŞMEDİ.

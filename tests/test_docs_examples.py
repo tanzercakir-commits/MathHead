@@ -153,6 +153,8 @@ def test_honesty_page_lists_every_tier_the_engine_emits():
                  "independently_verified_witness",
                  "independently_verified_unsat_proof",
                  "independently_verified_unsat_proof_of_strengthened_formula",
+                 "solver_verified_unsat_by_symmetry_case_split_with_rup_checked_cases",
+                 "solver_verified_unsat_by_symmetry_case_split",
                  "solver_verified_with_derived_lemmas", "no_counterexample_within_bound",
                  "numerical_conjecture", "empirical"):
         assert tier in text

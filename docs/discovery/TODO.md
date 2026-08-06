@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-06 · 82 modules · 626 discovery tests · 52/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-06 · 82 modules · 644 discovery tests · 53/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -168,7 +168,7 @@ because 12 phases are 🔴 open research. v4 is therefore built ONLY from in-con
 phases (each with a measurable DONE), ending in a FINAL AUDIT (v4F7). Discipline: the DUAL-AGENT
 loop (implementer agent → adversarial mentor/tester/evaluator agent → gate; see AGENT-PROTOCOL.md).
 
-Status: **6/8 — F0-F5 ✅** (F5 scale runs: n=8 sweep 62 survivors + 14 witnessed refutations; R(3,6)>17 witnessed, n=18 honestly undecided_within_budget; Frankl 17-hunt portfolio honest) (F4 hardening sweep B: 11 more closures — done counter 52/103 phase-anchored; 9 honest reasons, corpus/LLM/instrument-bound) (F3 hardening sweep A: 8 phase closures with proof tests — M0/M1/M2/M5/M7/S0/S2/S3; 6 honest one-line reasons; phase-anchored done counter, totalized KernelError contract) (wave 2: permutation bounds, partition counting identities with live Glaisher re-verification, composition identities with cut-point bijection — all through the single door; route-wide huge-constant guard). F0: RUP-checked UNSAT (independent pure-Python proof checker;
+Status: **7/8 — F0-F6 ✅** (F6 knowledge-graph depth: P2-fed generalizes/specializes edges queryable+clamped; T3 proof-tree coverage inventory total; sum-identity tier deflation fixed to formal_proof) (F5 scale runs: n=8 sweep 62 survivors + 14 witnessed refutations; R(3,6)>17 witnessed, n=18 honestly undecided_within_budget; Frankl 17-hunt portfolio honest) (F4 hardening sweep B: 11 more closures — done counter 52/103 phase-anchored; 9 honest reasons, corpus/LLM/instrument-bound) (F3 hardening sweep A: 8 phase closures with proof tests — M0/M1/M2/M5/M7/S0/S2/S3; 6 honest one-line reasons; phase-anchored done counter, totalized KernelError contract) (wave 2: permutation bounds, partition counting identities with live Glaisher re-verification, composition identities with cut-point bijection — all through the single door; route-wide huge-constant guard). F0: RUP-checked UNSAT (independent pure-Python proof checker;
 strengthened-formula honesty in the tier name; fuzzer's 3rd real bug fixed as a bonus). F1: check()
 coverage wave 1 — congruences p≡q (mod m) via the kernel gate, graph >=/== (never proved by finite
 scan), sum-inequalities via the kernel-closed-form + z3 NRA chain (integer-hint exact upgrade);

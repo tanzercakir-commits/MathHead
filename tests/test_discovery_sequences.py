@@ -22,9 +22,22 @@ def test_discovers_and_proves_the_classic_sums():
 
 
 def test_all_polynomial_sums_are_proved_by_mathhead():
+    # kernel-verified sum inductions are labeled formal_proof (v4F6 tier-deflation fix): the kernel
+    # SumInduction term re-derives the step itself — the step-checker's "solver_verified" understated
     for term in ("i", "i**2", "i**3", "2*i - 1"):
         finding = _by_term()[term]
-        assert finding.verdict == "proved" and finding.certainty == "solver_verified"
+        assert finding.verdict == "proved" and finding.certainty == "formal_proof"
+        assert finding.kernel_verified                # the label is backed by a kernel proof term
+
+
+def test_sum_certainty_stays_at_weakest_link_without_a_kernel_term(monkeypatch):
+    # if the kernel CANNOT mint the SumInduction term, the certainty must NOT be upgraded —
+    # it honestly stays at the judge's step-level label (no tier inflation in the other direction)
+    import mathhead.discovery.sequences as seq
+    monkeypatch.setattr(seq, "_kernel_check_sum", lambda ti, cf: (False, "", ()))
+    f = seq.discover_and_prove_sum("i", "n", lambda i: i)
+    assert f.verdict == "proved" and f.kernel_verified is False
+    assert f.certainty == "solver_verified"           # weakest link named, not dressed up
 
 
 def test_non_polynomial_sum_is_refuted_not_forced():

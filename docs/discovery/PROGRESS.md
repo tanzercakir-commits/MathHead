@@ -7,6 +7,24 @@
 
 ---
 
+## 2026-08-06 — v4F6 ✅ knowledge-graph depth — P2-fed edges, total proof-tree coverage, a deflation fix
+
+X0's reserved generalizes/specializes edges are now BORN automatically: from_report feeds the P2
+generalization (k! | k consecutive ints) into the knowledge graph — 5 generalizes + 5 specializes
+edges, law-node attributes kept honest (instances kernel_verified k=1..6; the ∀k universal step stays
+structural_argument, NEVER machine-proved — and an epistemic clamp raises ValueError on any inflated
+law), n⁵−n / n⁷−n honestly edgeless. Queryable via generalizations_of/specializations_of;
+generalization_impact answers "what if the law fell" FROM the graph (all 5 instances keep their own
+kernel proofs). T3 closes with a coverage inventory: every proved/certified tier the engine emits gets
+either a resolvable tree builder (modular, sum, kernel-identity, check-gate kernel) or an honest
+structural reason (bijection/solver/witness/interval certificates) — unknown tiers fail LOUD. The
+evaluator's audit surfaced a genuine tier DEFLATION: proved sum identities were emitted as
+solver_verified despite carrying kernel SumInduction proofs — now formal_proof (label fix only, no new
+proof claimed; honesty.md updated). Its sabotage attacks (fake generalization → clamp; kernel sabotage
+→ 0 edges) all held. Full suite **1969 green**. v4: 7/8.
+
+---
+
 ## 2026-08-06 — v4F5 ✅ scale runs — n=8 sweep, R(3,6)>17 witnessed, honest walls recorded
 
 Three scale runs, all recorded with honest tiers in the new docs/discovery/SCALE-RUNS.md. (1) geng

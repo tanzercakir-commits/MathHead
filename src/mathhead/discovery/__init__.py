@@ -312,7 +312,7 @@ from .hamiltonicity import (
     verify_hamiltonicity,
 )
 from .identities import IdentityFinding, discover_factorization, run_identity_discovery
-from .impact import impact_summary, load_bearing_axioms
+from .impact import generalization_impact, impact_summary, load_bearing_axioms
 from .interestingness import Interestingness
 from .interestingness import rank as rank_interestingness
 from .interestingness import score as score_interestingness
@@ -332,6 +332,7 @@ from .knowledge_graph import (
     KnowledgeGraph,
     Node,
 )
+from .knowledge_graph import add_p2_generalization_edges
 from .knowledge_graph import from_report as knowledge_graph_from_report
 from .known_results import CATALOG, KnownResult, attributed_findings, catalog_size
 from .lean_export import LeanExport, export_kernel_theorems
@@ -434,7 +435,17 @@ from .oeis_radar import (
     radar,
 )
 from .objects import Graph, MathObject
-from .proof_tree import ProofNode, proof_tree, render_tree, sum_proof_tree
+from .proof_tree import (
+    PROOF_TREE_COVERAGE,
+    ProofNode,
+    TreeCoverage,
+    coverage_for,
+    identity_proof_tree,
+    proof_tree,
+    render_tree,
+    sum_proof_tree,
+    tree_or_reason,
+)
 from .ramsey_sat import RamseyVerdict, bracket_ramsey, ramsey_cnf, ramsey_decide
 from .refute import RefutationResult, refute
 from .rup_check import RupCheckResult, check_drup_lines, check_drup_proof, parse_drup
@@ -631,7 +642,9 @@ __all__ = [
     "Node",
     "Edge",
     "knowledge_graph_from_report",
+    "add_p2_generalization_edges",
     "impact_summary",
+    "generalization_impact",
     "load_bearing_axioms",
     "GapMeasure",
     "measure_gap",
@@ -800,6 +813,11 @@ __all__ = [
     "ProofNode",
     "proof_tree",
     "sum_proof_tree",
+    "identity_proof_tree",
+    "TreeCoverage",
+    "PROOF_TREE_COVERAGE",
+    "coverage_for",
+    "tree_or_reason",
     "render_tree",
     "check_proof",
     "independently_verify",

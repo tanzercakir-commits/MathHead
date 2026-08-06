@@ -9,8 +9,17 @@ substrate impact analysis (X3) and novelty-vs-literature (W2/X1) will later run 
 
 `from_report` populates the graph from a DiscoveryReport, adding only edges the engine can assert
 WITHOUT guessing: structural `depends_on` from the kernel axiom lists, `refuted_by` from the
-counterexamples, and symmetric `related_to` from shared invariant tokens. It does not fabricate
-`generalizes`/`equivalent_to` links (those need real entailment checks — kept for a later, judged pass).
+counterexamples, and symmetric `related_to` from shared invariant tokens.
+
+`generalizes`/`specializes` (v4F6) are fed EXCLUSIVELY by the P2 generalization (`generalize.py`):
+when a proved divisibility `m | p(n)` is kernel-detected to be an instance of the consecutive-product
+law (p(n) is a product of k consecutive integers with m = k!, factorization kernel-certified, and the
+lifted instances k=1..K each kernel-proved), the graph gets ONE law node plus
+`law —generalizes→ theorem` and `theorem —specializes→ law` edges. A finding P2 honestly declines
+(e.g. 30 | n⁵−n — no consecutive-product structure) gets NO edge. Subclass scopes (trees ⊂ graphs)
+deliberately contribute nothing: the W0 filter drops restricted-universals, so the report never
+contains a subclass law together with the universal law it restricts — there is no certain
+scope-containment pair to assert. `equivalent_to`/`implies` stay reserved (no entailment checker).
 
 Deterministic: nodes and edges are built in a fixed order; exports sort.
 """
@@ -87,6 +96,22 @@ class KnowledgeGraph:
     def relations_of(self, id: str) -> list:
         return [e for e in self.edges if e.src == id or e.dst == id]
 
+    def generalizations_of(self, id: str) -> list:
+        """Node ids that GENERALIZE this node — outgoing `specializes` targets plus sources of
+        incoming `generalizes` edges (robust to a single-direction edge), first-seen order."""
+        out = [e.dst for e in self.edges if e.src == id and e.relation == "specializes"]
+        out += [e.src for e in self.edges
+                if e.dst == id and e.relation == "generalizes" and e.src not in out]
+        return out
+
+    def specializations_of(self, id: str) -> list:
+        """Node ids that SPECIALIZE this node (its instances) — outgoing `generalizes` targets plus
+        sources of incoming `specializes` edges, first-seen order."""
+        out = [e.dst for e in self.edges if e.src == id and e.relation == "generalizes"]
+        out += [e.src for e in self.edges
+                if e.dst == id and e.relation == "specializes" and e.src not in out]
+        return out
+
     def to_dict(self) -> dict:
         return {
             "nodes": [{"id": n.id, "kind": n.kind, "statement": n.statement, "attrs": n.attrs}
@@ -124,10 +149,55 @@ def _invariant_tokens(statement: str) -> set:
     return set(re.findall(r"[A-Za-z_][A-Za-z_0-9]+", str(statement))) & _KNOWN_INVARIANTS
 
 
+_MOD_CLAIM = re.compile(r"^\((?P<expr>.+)\) % (?P<m>\d+) == 0$")
+_P2_LAW_ID = "law:P2:consecutive-product-k!"
+
+
+def add_p2_generalization_edges(g: KnowledgeGraph, proved_theorems: list) -> list:
+    """Feed `generalizes`/`specializes` edges from the P2 generalization (the ONLY source, v4F6).
+
+    `proved_theorems` is a list of (theorem_node_id, proved_item_dict). For each proved modular
+    divisibility `(p(n)) % m == 0`, ask `generalize.generalize(p, m)`; ONLY if it returns a
+    kernel-backed lift (consecutive-run detected, m = k!, every tested instance kernel-proved) does
+    the graph get the shared parametric-law node plus `law —generalizes→ theorem` and
+    `theorem —specializes→ law`. An honest P2 decline (n⁵−n, n⁷−n) adds NOTHING — no guessed edges.
+    Returns the theorem node ids that were linked. Deterministic (P2 is)."""
+    from .generalize import generalize
+    linked = []
+    for tid, it in proved_theorems:
+        m = it.get("modulus")
+        match = _MOD_CLAIM.match(it.get("statement", "")) if m else None
+        if not match:
+            continue
+        gen = generalize(match.group("expr"), int(m))
+        if not gen.generalized:
+            continue                          # honest: no consecutive-product structure ⇒ no edge
+        if gen.universal_status != "structural_argument":
+            # epistemic clamp: the ∀k statement is a CITED classical argument, never machine-proved
+            # here — a P2 result claiming a machine tier for it is inflated and must fail loudly
+            # rather than silently seed the graph with an overclaimed law node.
+            raise ValueError(
+                f"P2 lift for {match.group('expr')!r} claims universal_status="
+                f"{gen.universal_status!r}; the ∀k law is not machine-proved — refusing to "
+                "build generalizes edges on an inflated tier")
+        lid = g.ensure_node(
+            _P2_LAW_ID, "law", gen.principle,
+            source="P2", parameter=gen.parameter,
+            instance_status=gen.instance_status,           # per-k: kernel_verified (universal in n)
+            universal_status=gen.universal_status,         # ∀k: structural_argument (cited, honest)
+            citation=gen.citation,
+            kernel_verified_k=[i.k for i in gen.instances if i.kernel_verified])
+        g.add_edge(lid, "generalizes", tid)
+        g.add_edge(tid, "specializes", lid)
+        linked.append(tid)
+    return linked
+
+
 def from_report(report) -> KnowledgeGraph:
     """Build the knowledge graph from a DiscoveryReport — asserting only structurally-certain edges."""
     g = KnowledgeGraph()
     tagged = []   # (node_id, statement) for related_to inference over laws/theorems/conjectures
+    arithmetic_proved = []   # (node_id, item) — candidates for P2 generalizes/specializes edges
 
     for it in report.proved:
         tid = g.add_node("theorem", it["statement"], certainty=it.get("certainty", ""),
@@ -136,6 +206,8 @@ def from_report(report) -> KnowledgeGraph:
             aid = g.ensure_node(f"axiom:{ax}", "axiom", ax)
             g.add_edge(tid, "depends_on", aid)                 # theorem rests on axiom (certain)
         tagged.append((tid, it["statement"]))
+        if it.get("modulus"):
+            arithmetic_proved.append((tid, it))
 
     for it in report.empirical_laws:
         lid = g.add_node("law", it["statement"], scope=it.get("scope", ""))
@@ -157,4 +229,7 @@ def from_report(report) -> KnowledgeGraph:
             (a_id, a_st), (b_id, b_st) = tagged[i], tagged[j]
             if _invariant_tokens(a_st) & _invariant_tokens(b_st):
                 g.add_edge(a_id, "related_to", b_id)
+
+    # generalizes/specializes fed ONLY by the P2 kernel-backed lift (v4F6) — never guessed
+    add_p2_generalization_edges(g, arithmetic_proved)
     return g

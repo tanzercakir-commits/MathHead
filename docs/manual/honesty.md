@@ -15,6 +15,7 @@ The tiers, strongest first:
 | tier | meaning |
 |---|---|
 | `kernel_verified` | universal machine proof in the LCF-style kernel, with a proof hash |
+| `formal_proof` | discovery-report certainty of a judge-proved induction (modular or sum); a kernel-verified sum identity carries this label — the kernel's SumInduction term re-derives the step with its own PolyIdentity rule, so the finding is not left at the step-checker's weaker `solver_verified` |
 | `exact_integer_certificate` | self-verifying witness, pure integer arithmetic |
 | `independently_verified_witness` | solver output re-verified by brute force |
 | `independently_verified_unsat_proof` | the solver's DRUP refutation re-checked by a pure-Python RUP checker — no solver in the loop |

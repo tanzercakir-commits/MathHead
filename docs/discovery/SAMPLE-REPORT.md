@@ -5,8 +5,9 @@ _kernel v1.0 · axioms: CRT, POLY_IDENTITY, RESIDUE(m=2), RESIDUE(m=3), RESIDUE(
 _trust base (M-floor): RESIDUE derived from the factor theorem (7/7), CRT from Bézout (7/7) — primitives are theorems, not axioms_
 _negative knowledge: 4 dead end(s) recorded_
 _corroboration (P5): 1 fact(s) found by >1 miner — e.g. `2*num_edges = sum_degrees` via linear, ratio (×2)_
-_knowledge graph: 65 nodes · 140 edges (axiom×8, conjecture×20, counterexample×4, law×16, theorem×17)_
+_knowledge graph: 66 nodes · 150 edges (axiom×8, conjecture×20, counterexample×4, law×17, theorem×17)_
 _impact: most load-bearing axiom `POLY_IDENTITY` supports 6 theorems_
+_generalization (P2→X0): `for every k ≥ 1, the product of k consecutive integers ∏_{i=0}^{k−1}(n+i) is divisible by k!` generalizes 5 proved instance(s); if it fell: all instances keep their own kernel proofs (independent depends_on support); only the common explanation is lost_
 _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=38 · FORMALLY_SPECIFIED=10 · FORMALLY_PROVED=17_
 
 ## MOST INTERESTING (heuristic ranking — Track W1, not a learned measure)
@@ -30,10 +31,10 @@ _solidity (AA3): DISCOVERED_HEURISTIC=0 · EMPIRICALLY_VALIDATED=38 · FORMALLY_
 - `n**3 - n**2 = n**2*(n - 1)` — kernel_identity  ⊢ kernel-verified [5b09e7084d283282]
 - `n**2 - 4 = (n - 2)*(n + 2)` — kernel_identity  ⊢ kernel-verified [47e9628f0c366714]
 - `n*(n+1)*(n+2) = n*(n + 1)*(n + 2)` — kernel_identity  ⊢ kernel-verified [7ba4b4b25fc89b37]
-- `sum_(i=1..n) i = n*(n + 1)/2` — solver_verified  ✓ independently verified  ⊢ kernel-verified [e33a456111de3dc1]
-- `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — solver_verified  ✓ independently verified  ⊢ kernel-verified [f94c5eb5111fd398]
-- `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — solver_verified  ✓ independently verified  ⊢ kernel-verified [7ccd1ca6fe63e8f0]
-- `sum_(i=1..n) 2*i - 1 = n**2` — solver_verified  ✓ independently verified  ⊢ kernel-verified [58f94e06710a1abd]
+- `sum_(i=1..n) i = n*(n + 1)/2` — formal_proof  ✓ independently verified  ⊢ kernel-verified [e33a456111de3dc1]
+- `sum_(i=1..n) i**2 = n*(2*n**2 + 3*n + 1)/6` — formal_proof  ✓ independently verified  ⊢ kernel-verified [f94c5eb5111fd398]
+- `sum_(i=1..n) i**3 = n**2*(n**2 + 2*n + 1)/4` — formal_proof  ✓ independently verified  ⊢ kernel-verified [7ccd1ca6fe63e8f0]
+- `sum_(i=1..n) 2*i - 1 = n**2` — formal_proof  ✓ independently verified  ⊢ kernel-verified [58f94e06710a1abd]
 
 ## REFUTED (killed, with a minimal counterexample) (4)
 - `num_triangles <= num_edges` — counterexample: {'num_triangles': 16, 'num_edges': 14, 'n': 6, 'edges': [(0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)]}

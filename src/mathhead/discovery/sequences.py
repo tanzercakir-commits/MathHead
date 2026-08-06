@@ -4,8 +4,11 @@ mathhead.discovery.sequences — a second arithmetic generator: discover-and-pro
 For a term f(i) the engine computes the partial sums S(n) = Σ_{i=1}^n f(i), FITS a closed-form
 polynomial g(n) (interpolation — the "guess the formula" step), REFUTES counterexample-first over
 a larger range, and PROVES the survivor by induction with MathHead: it checks the base case and
-lets MathHead verify the inductive step g(n) − g(n−1) = f(n) (`solver_verified`). Base + verified
-step ⇒ the identity holds for all n.
+lets MathHead verify the inductive step g(n) − g(n−1) = f(n). Base + verified step ⇒ the identity
+holds for all n. A proved survivor then gets a kernel SumInduction proof TERM (the kernel re-derives
+the step with its OWN PolyIdentity rule — no solver); a kernel-verified finding is labeled
+`formal_proof`, mirroring the modular induction findings. If the kernel cannot mint the term, the
+certainty honestly stays at the judge's weakest link (`solver_verified` step check).
 
 If the sequence is not polynomial (e.g. Σ 2^i), the fitted polynomial matches the fit points but
 DIVERGES beyond them, so the extended counterexample-first check refutes it — the engine does not
@@ -94,6 +97,13 @@ def discover_and_prove_sum(term_i: str, term_n: str, f, n_points: int = 8, check
         term_i, str(g), "no_counterexample_within_bound", verdict, step.certainty, check_upto, iv)
     if verdict == "proved":                               # also mint a kernel proof term (M1/M2)
         finding.kernel_verified, finding.proof_hash, finding.axioms = _kernel_check_sum(term_i, str(g))
+        if finding.kernel_verified:
+            # tier-DEFLATION fix (v4F6 evaluator finding): the kernel minted a SumInduction proof
+            # TERM (base evaluated + step via the kernel's own PolyIdentity rule, no solver), so
+            # labeling the finding with the judge's step-only "solver_verified" UNDERSTATED it.
+            # "formal_proof" mirrors the modular induction findings (same certainty + kernel flag
+            # pairing); without a kernel term the weakest-link solver label honestly stays.
+            finding.certainty = "formal_proof"
     return finding
 
 

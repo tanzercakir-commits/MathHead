@@ -389,6 +389,10 @@ def render(report: DiscoveryReport) -> str:
         lb = impact["load_bearing_axioms"][0]
         lines.append(f"_impact: most load-bearing axiom `{lb['axiom']}` supports {lb['supports']} "
                      f"theorems_")
+    if impact and impact.get("generalizations"):
+        gz = impact["generalizations"][0]
+        lines.append(f"_generalization (P2→X0): `{gz['law']}` generalizes {gz['instances']} proved "
+                     f"instance(s); if it fell: {gz['if_the_law_fell']}_")
     ladder = report.meta.get("ladder")
     if ladder:
         lines.append("_solidity (AA3): " + " · ".join(f"{k}={v}" for k, v in ladder.items()) + "_")

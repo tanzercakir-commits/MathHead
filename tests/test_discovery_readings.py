@@ -83,11 +83,11 @@ def test_main_envelope_is_reading_a_and_is_unchanged():
     assert "universal claim not proved; holds for all connected graphs up to n=5" in e.notes
 
 
-def test_readings_only_on_graph_bounds_every_other_structure_stays_empty():
-    for s in ("6 | n^3 - n",                                    # modular, proved
-              "5 | n^3 - n",                                    # modular, refuted
-              "n^2 ≡ n (mod 2)",                                # congruence
-              "sum_(i=1..n) i = n*(n+1)/2",                     # sum identity
+def test_readings_only_on_ambiguous_structures_every_other_stays_empty():
+    # Wave 2 moved modular/congruence statements OUT of this list: they now carry their own
+    # ∀/∃ readings (tests/test_discovery_readings_quantifier.py pins them). Everything below
+    # remains readings-free — the quantifier is unambiguous or the claim has no n at all.
+    for s in ("sum_(i=1..n) i = n*(n+1)/2",                     # sum identity
               "sum_(i=1..n) i <= n^2",                          # sum inequality
               "all perms of n: descents <= fixed_points",       # permutation
               "partitions(n, odd) == partitions(n, distinct)",  # partitions
@@ -173,6 +173,8 @@ def test_cli_json_carries_readings_and_the_exit_code_contract_is_untouched(capsy
     assert data["verdict"] == "unsupported" and data["readings"] == []
 
 
-def test_cli_non_graph_output_has_no_readings_block(capsys):
-    assert main(["check", "6 | n^3 - n"]) == 0
+def test_cli_unambiguous_output_has_no_readings_block(capsys):
+    # wave 2 gave "6 | n^3 - n" its own ∀/∃ readings, so the readings-free CLI pin moved to a
+    # structure that is genuinely quantifier-unambiguous: the sum identity binds its own n.
+    assert main(["check", "sum_(i=1..n) i = n*(n+1)/2"]) == 0
     assert "readings" not in capsys.readouterr().out

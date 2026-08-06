@@ -16,7 +16,7 @@ The tiers, strongest first:
 |---|---|
 | `kernel_verified` | universal machine proof in the LCF-style kernel, with a proof hash |
 | `formal_proof` | discovery-report certainty of a judge-proved induction (modular or sum); a kernel-verified sum identity carries this label — the kernel's SumInduction term re-derives the step with its own PolyIdentity rule, so the finding is not left at the step-checker's weaker `solver_verified` |
-| `exact_integer_certificate` | self-verifying witness, pure integer arithmetic |
+| `exact_integer_certificate` | self-verifying witness or finite certificate, pure integer arithmetic |
 | `finite_domain_exhaustion` | a FIXED-order claim decided by complete enumeration of its finite domain (one representative per isomorphism class; the invariants are isomorphism-invariant) — an exhaustion proof, not a witness; unbounded universal claims can never carry this tier |
 | `independently_verified_witness` | solver output re-verified by brute force |
 | `independently_verified_unsat_proof` | the solver's DRUP refutation re-checked by a pure-Python RUP checker — no solver in the loop |
@@ -36,8 +36,11 @@ A graph-bound text like `num_vertices <= num_edges + 1` does not say *which* qua
 means, so every graph-bound verdict also carries `readings` — the three candidate readings
 (A connected graphs, `check()`'s own baseline / B all graphs including disconnected / C one fixed
 order, a complete finite domain), each with its own verdict at its own tier from the table above
-(no new tiers were invented for this). When the verdict changes with the reading, the note says
-so in as many words: the answer depends on which question the statement is asking.
+(no new tiers were invented for this). Divisibility and congruence statements carry the same
+discipline as their own two readings — ∀ (the main envelope itself) and ∃, decided outright from
+the finite residue table with the witness and solution classes on the reading. When the verdict
+changes with the reading, the note says so in as many words: the answer depends on which
+question the statement is asking.
 
 One consequence worth stating plainly: in a full self-audit the engine attributed **all** of its
 findings to known mathematics — `0 novel-to-literature established` — and says so in its own

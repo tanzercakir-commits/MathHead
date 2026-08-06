@@ -5,6 +5,16 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 ## [Unreleased]
 
 ### Added
+- Readings wave 2 — the ∀/∃ quantifier ambiguity of modular/congruence statements: on
+  `m | p(n)` and `p(n) ≡ q(n) (mod m)` the envelope now also carries `readings` — the ∀ reading
+  (the main envelope itself, byte-identical to before) and the ∃ reading, DECIDED from the same
+  finite residue table (never `open`): a vanishing class proves ∃ with the smallest witness n
+  and the full solution set as residue classes (`n ≡ 0, ±1 (mod 5)`) at
+  `exact_integer_certificate`; no vanishing class refutes ∃ outright (all m residues scanned —
+  a finite decision). Same schema as the wave-1 graph readings, no new tiers, no extra scan
+  (the ∃ verdict reuses the table the ∀ path already computed). CLI readings block counts its
+  readings dynamically (graph output unchanged at 3); docs: quickstart "∀ or ∃?", examples §6,
+  honesty rule 4, api.md.
 - The three-readings envelope: on quantifier-ambiguous graph bounds `check()` now also returns
   `readings` — formalize's three candidate readings (A connected / B all graphs / C fixed order
   n = max_n), each with its own honest verdict and tier (no new tiers; A IS the main envelope,

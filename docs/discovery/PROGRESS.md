@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-08-06 — PRODUCT: readings wave 2 — ∀ or ∃? The second ambiguity family ⭐
+
+Divisibility and congruence statements now carry QUANTIFIER readings: `check("5 | n^3 - n")` answers
+[∀] refuted (n=2) AND [∃] proved — witness n=0 re-verified in place, plus the complete solution
+classes "n ≡ 0, ±1 (mod 5) — 3 of 5 residue classes". The ∃ reading is a DECISION (finite residue
+table, never open) at ZERO extra scans (the ∀ path's table is reused). Tier discipline held under
+adversarial review: ∃ never inflates to kernel_verified (the kernel proves ∀ only; the ∃ certificate
+is the self-verifying witness), and finite_domain_exhaustion was correctly REJECTED for ∃-refuted
+(logically an unbounded universal — the finiteness is representation-level, not domain-level).
+Constant polynomials exempt (no free n → no fake ambiguity). Evaluator: 12-call stash diff byte-exact
+incl. proof hashes, 400-case random sweep against brute force — verdicts, class lists, witnesses all
+exact; ∀⇒∃ logic holes: none. Docs "∀ or ∃?" section verbatim-tested. Full suite **2033 green**.
+
+---
+
 ## 2026-08-06 — R(3,6) = 18 — the engine's FIRST 6-valued Ramsey bracket, by symmetry case-split 🎖️
 
 The wall from v4F5 (two 600s monolithic timeouts) FELL to a designed attack: ramsey_decide_case_split

@@ -81,6 +81,31 @@ finite domain of order 6 it is genuinely decided, and only there may the engine 
 The main verdict is always reading A (nothing about the classic envelope changed); `readings` is
 extra information, also present as a list under `--json`.
 
+## ∀ or ∃?
+
+Divisibility and congruence statements hide the same kind of ambiguity: does `5 | n^3 - n` claim
+*every* n, or *some* n? The engine answers **both** questions — the main envelope is the ∀
+reading (unchanged), and the ∃ reading is *decided* from the same finite residue table (p(n) mod
+m depends only on n mod m, so the m-residue scan settles ∃ completely — it is never `open`):
+
+```console
+$ mathhead-discover check "5 | n^3 - n"
+VERDICT: refuted   [exact_integer_certificate]
+  statement : 5 | n^3 - n
+  witness   : {'n': 2, 'value_mod_m': 1}
+  checked   : decided exactly (finite residue table)
+  note      : residue n≡2 (mod 5) gives a nonzero value — the claim is false; quantifier ambiguity: the verdict CHANGES with the reading (∀: refuted, ∃: proved) — the answer depends on which question the statement is asking; see readings
+  readings  : the same text under 2 candidate quantifier readings —
+    [∀] refuted    [exact_integer_certificate]  check()'s own reading (baseline)
+    [∃] proved     [exact_integer_certificate]  vs ∀: 'for every integer n' weakened to 'for at least one integer n'
+```
+Under ∀ the claim is false (n=2 gives 6, and 5 ∤ 6); under ∃ it is true — the ∃ reading's
+`witness_summary` (in the API and `--json`) carries the witness n=0 *and* the full solution set
+as residue classes: `n ≡ 0, ±1 (mod 5)` — 3 of 5 residue classes. When no residue class works at
+all (`"2 | 2*n + 1"` — an odd number is never even), the ∃ reading is *refuted* outright: all m
+residues were scanned, a finite decision. Congruences `p(n) ≡ q(n) (mod m)` inherit the same two
+readings through the `m | (p − q)` reduction.
+
 And a classic, bracketed before your coffee cools:
 
 ```console

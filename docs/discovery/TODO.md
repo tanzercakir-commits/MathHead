@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-06 · 85 modules · 688 discovery tests · 73/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-06 · 85 modules · 704 discovery tests · 73/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 

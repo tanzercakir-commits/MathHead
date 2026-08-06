@@ -141,6 +141,39 @@ def test_example_7_readings_blocks_run_exactly_as_documented(capsys):    # readi
            "2 <= n <= 7 (bounded scan)]; adds [n == 7 (complete finite domain)]" in out
 
 
+def test_quickstart_forall_exists_runs_exactly_as_documented(capsys):    # readings wave 2
+    assert main(["check", "5 | n^3 - n"]) == 0
+    out = capsys.readouterr().out
+    assert "VERDICT: refuted   [exact_integer_certificate]" in out
+    assert "witness   : {'n': 2, 'value_mod_m': 1}" in out
+    assert "quantifier ambiguity: the verdict CHANGES with the reading "\
+           "(∀: refuted, ∃: proved)" in out
+    assert "  readings  : the same text under 2 candidate quantifier readings —" in out
+    assert "[∀] refuted    [exact_integer_certificate]  check()'s own reading (baseline)" in out
+    assert "[∃] proved     [exact_integer_certificate]  vs ∀: 'for every integer n' "\
+           "weakened to 'for at least one integer n'" in out
+    # the documented witness_summary facts: witness n=0 and the ± solution classes
+    r = check("5 | n^3 - n")
+    assert "witness n=0" in r.readings[1]["witness_summary"]
+    assert "n ≡ 0, ±1 (mod 5)" in r.readings[1]["witness_summary"]
+    assert "3 of 5 residue classes" in r.readings[1]["witness_summary"]
+    # and the ∃-refuted example from the same docs paragraph: an odd number is never even
+    both = check("2 | 2*n + 1")
+    assert [e["verdict"] for e in both.readings] == ["refuted", "refuted"]
+
+
+def test_example_6_readings_blocks_run_exactly_as_documented(capsys):    # readings wave 2
+    assert main(["check", "n^5 ≡ n (mod 30)"]) == 0
+    out = capsys.readouterr().out
+    assert "quantifier ambiguity: 2 readings evaluated — both agree (proved); see readings" in out
+    assert "[∀] proved     [kernel_verified]  check()'s own reading (baseline)" in out
+    assert main(["check", "n^2 ≡ n (mod 3)"]) == 0
+    out = capsys.readouterr().out
+    assert "(∀: refuted, ∃: proved)" in out
+    assert "[∃] proved     [exact_integer_certificate]" in out
+    assert "n ≡ 0, 1 (mod 3)" in check("n^2 ≡ n (mod 3)").readings[1]["witness_summary"]
+
+
 def test_example_3_bracket_r33(capsys):
     assert main(["bracket", "3", "3", "--lo", "5", "--hi", "6"]) == 0
     assert "R(3,3) = 6" in capsys.readouterr().out

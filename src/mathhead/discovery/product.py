@@ -17,6 +17,12 @@ Supported statement forms (the v4F2 product surface — parsed deterministically
   * modular:      "m | poly(n)"  or  "m divides poly(n)"
   * congruence:   "p(n) ≡ q(n) (mod m)"  or ASCII  "p(n) = q(n) mod m"   (reduced to m | (p−q);
                   integer-coefficient polynomials in n only — anything else is an honest refusal)
+                  Both modular forms are quantifier-AMBIGUOUS ("5 | n^3 - n": every n, or some n?),
+                  so every answered verdict additionally carries `readings` — the ∀ reading (the
+                  main envelope itself, unchanged) and the ∃ reading, DECIDED from the same finite
+                  residue table (p(n) mod m depends only on n mod m): a vanishing residue class
+                  proves ∃ with a witness and the full solution set 'n ≡ 0, ±1 (mod 5)'; no
+                  vanishing class refutes ∃ outright — the ∃ reading has no 'open' path
   * sum identity: "sum_(i=1..n) f(i) = g(n)"   (f in i, g in n; rational closed forms fine)
   * sum bound:    "sum_(i=1..n) f(i) <= g(n)"  or ">="  — smallest-n witness first; survivors get a
                   proof ATTEMPT: kernel-verified closed form, then the z3 real-relaxation (n ≥ 1 real
@@ -73,10 +79,14 @@ class CheckResult:
     proof_hash: str = ""
     instruments: tuple = ()
     notes: str = ""
-    # Quantifier-ambiguous graph bounds only: the THREE candidate readings (formalize's A/B/C —
-    # A connected / B all graphs / C fixed order n), each with its OWN honest verdict and tier.
-    # The main envelope above IS reading A (backward compatible: everything else is unchanged);
-    # readings is ADDITIONAL information. Empty tuple for every other structure.
+    # Quantifier-ambiguous structures only, each entry {label, statement_formal, assumption_delta,
+    # verdict, tier, witness_summary} with its OWN honest verdict and tier:
+    #   * graph bounds (wave 1) — formalize's THREE candidate domain readings (A connected /
+    #     B all graphs / C fixed order n); the main envelope IS reading A;
+    #   * modular divisibility / polynomial congruences (wave 2) — the TWO quantifier readings
+    #     over n (∀ every n / ∃ at least one n); the main envelope IS the ∀ reading, and ∃ is
+    #     decided from the same finite residue table (no extra scan, no 'open' path).
+    # Backward compatible: readings is ADDITIONAL information. Empty for every other structure.
     readings: tuple = ()
 
 
@@ -97,6 +107,104 @@ def _too_big(x) -> bool:
     except (TypeError, ValueError):
         return False
     return abs(r.p) >= _CONST_LIMIT or r.q >= _CONST_LIMIT
+
+
+# --- quantifier readings (wave 2): the ∀/∃ ambiguity of modular/congruence statements -----------
+
+_MAX_CLASS_TERMS = 12            # residue-class lists longer than this are truncated with an
+                                 # ellipsis — the EXACT class count is always stated alongside
+
+
+def _residue_class_summary(m: int, zeros) -> str:
+    """The solution set of p(n) ≡ 0 (mod m) as residue classes, in the ± form a mathematician
+    writes: zeros {0, 1, 4} mod 5 → 'n ≡ 0, ±1 (mod 5)'. The classes 0 and m/2 are their own
+    negatives and stand alone; r and m−r collapse to ±r. Deterministic; long lists truncate at
+    _MAX_CLASS_TERMS terms with the exact count stated by the caller — nothing is hidden."""
+    zs = set(zeros)
+    parts = []
+    for r in sorted(zs):
+        if r == 0 or 2 * r == m:
+            parts.append(str(r))                    # self-negative class
+        elif (m - r) in zs:
+            if r < m - r:
+                parts.append(f"±{r}")               # r and m−r collapse; the larger one is skipped
+        else:
+            parts.append(str(r))
+    shown = ", ".join(parts[:_MAX_CLASS_TERMS])
+    if len(parts) > _MAX_CLASS_TERMS:
+        shown += ", …"
+    return f"n ≡ {shown} (mod {m})"
+
+
+def _attach_quantifier_readings(res: CheckResult, m: int, poly: tuple,
+                                table: tuple | None = None) -> CheckResult:
+    """Readings wave 2 — the ∀/∃ quantifier ambiguity of 'm | p(n)' and 'p(n) ≡ q(n) (mod m)',
+    surfaced ON the product envelope exactly like the wave-1 graph readings (same schema, same
+    discipline). The ∀ reading IS the main envelope (reused, never recomputed — the classic
+    envelope is backward compatible by construction). The ∃ reading is DECIDED from the finite
+    residue table the route already stands on (p(n) mod m depends only on n mod m, so scanning
+    the m residues is a COMPLETE decision — the ∃ reading has no 'open' path):
+      * some residue class vanishes → ∃ proved, with the smallest witness n and the full solution
+        set as residue classes ('n ≡ 0, ±1 (mod 5)'); tier exact_integer_certificate — the
+        witness self-verifies by one exact evaluation, and no new tier is invented;
+      * no residue class vanishes → ∃ refuted at the same exact_integer_certificate tier the
+        route's ∀-refutations already carry — the whole m-entry table is the certificate
+        (finite decision, pure integer arithmetic).
+    `table` is the residue table the refuted path already computed (REUSED — no second scan);
+    None means the kernel PROVED the ∀ reading, so every residue class vanishes and no table is
+    needed — the ∃ witness n=0 is still re-verified by direct evaluation, and if that
+    re-verification ever failed the readings would be withheld, not fabricated.
+    Degree-0 statements (no free n after the reduction, e.g. '5 | 10' or 'n+1 ≡ n (mod 2)') are
+    EXEMPT: with nothing for a quantifier to bind, the two readings coincide trivially — the
+    engine refuses to fake an ambiguity where none exists, and the note says so."""
+    if len(poly) <= 1:                              # deg(p) = 0: constant polynomial, no free n
+        res.notes += ("; quantifier readings not attached: constant polynomial — no free n, so "
+                      "the ∀ and ∃ readings coincide trivially with the verdict above")
+        return res
+    congruence = res.structure == "polynomial_congruence"
+    zeros = None if table is None else [r for r, v in enumerate(table) if v == 0]
+    if table is None or zeros:
+        w = 0 if table is None else min(zeros)
+        val = 0
+        for c in reversed(poly):                    # p(w) mod m, exact — the witness reconvicts
+            val = (val * w + c) % m
+        if val != 0:                                # unreachable if kernel/table are consistent —
+            res.notes += ("; quantifier readings withheld: the ∃ witness failed its own exact "
+                          "re-verification — the inconsistency is reported, not papered over")
+            return res
+        agree = "the two sides agree" if congruence else "the value ≡ 0"
+        if table is None:
+            classes = (f"solutions: every residue class — all {m} of {m} vanish "
+                       "(the universal kernel proof covers each one)")
+        else:
+            classes = (f"solutions exactly {_residue_class_summary(m, zeros)} — "
+                       f"{len(zeros)} of {m} residue classes")
+        exi = ("proved", "exact_integer_certificate",
+               f"witness n={w}: {agree} (mod {m}), re-verified by direct evaluation; {classes}")
+    else:
+        never = "the two sides never agree" if congruence else "no value ≡ 0"
+        exi = ("refuted", "exact_integer_certificate",
+               f"all {m} residue classes scanned — {never} (mod {m}) for any of them; "
+               "a finite decision, exact integer arithmetic")
+    res.readings = (
+        {"label": "∀",
+         "statement_formal": f"for all integers n: {res.statement}",
+         "assumption_delta": "check()'s own reading (baseline)",
+         "verdict": res.verdict, "tier": res.tier,
+         "witness_summary": _reading_summary(res)},
+        {"label": "∃",
+         "statement_formal": f"there exists an integer n: {res.statement}",
+         "assumption_delta": "vs ∀: 'for every integer n' weakened to 'for at least one integer n'",
+         "verdict": exi[0], "tier": exi[1], "witness_summary": exi[2]},
+    )
+    if res.verdict != exi[0]:
+        res.notes += (f"; quantifier ambiguity: the verdict CHANGES with the reading "
+                      f"(∀: {res.verdict}, ∃: {exi[0]}) — the answer depends on which question "
+                      "the statement is asking; see readings")
+    else:
+        res.notes += (f"; quantifier ambiguity: 2 readings evaluated — both agree "
+                      f"({res.verdict}); see readings")
+    return res
 
 
 def _check_modular(stmt: str, m: int, expr: str) -> CheckResult:
@@ -130,19 +238,21 @@ def _check_modular(stmt: str, m: int, expr: str) -> CheckResult:
                                  f"polynomial in n ({exc}) — the engine refuses to guess")
     try:
         _thm, term = prove_divides(m, poly)
-        return CheckResult(stmt, "modular_divisibility", "proved", "kernel_verified",
-                           checked_up_to="all integers n (universal proof)", proof_hash=_hash(term),
-                           instruments=("kernel.prove_divides",),
-                           notes="proved by residue exhaustion/CRT in the LCF-style kernel")
+        res = CheckResult(stmt, "modular_divisibility", "proved", "kernel_verified",
+                          checked_up_to="all integers n (universal proof)", proof_hash=_hash(term),
+                          instruments=("kernel.prove_divides",),
+                          notes="proved by residue exhaustion/CRT in the LCF-style kernel")
+        return _attach_quantifier_readings(res, m, poly)
     except KernelError:
         from .nt_chain import walk_divisibility_chain
         walk = walk_divisibility_chain(m, poly, "forall")
         bad = next(r for r, v in enumerate(walk.residue_table) if v != 0)
-        return CheckResult(stmt, "modular_divisibility", "refuted", "exact_integer_certificate",
-                           witness={"n": bad, "value_mod_m": walk.residue_table[bad]},
-                           checked_up_to="decided exactly (finite residue table)",
-                           instruments=("nt_chain.walk_divisibility_chain",),
-                           notes=f"residue n≡{bad} (mod {m}) gives a nonzero value — the claim is false")
+        res = CheckResult(stmt, "modular_divisibility", "refuted", "exact_integer_certificate",
+                          witness={"n": bad, "value_mod_m": walk.residue_table[bad]},
+                          checked_up_to="decided exactly (finite residue table)",
+                          instruments=("nt_chain.walk_divisibility_chain",),
+                          notes=f"residue n≡{bad} (mod {m}) gives a nonzero value — the claim is false")
+        return _attach_quantifier_readings(res, m, poly, walk.residue_table)
 
 
 # --- polynomial congruence: p(n) ≡ q(n) (mod m)  /  ASCII: p(n) = q(n) mod m --------------------
@@ -196,24 +306,26 @@ def _check_congruence(stmt: str, lhs: str, rhs: str, m: int) -> CheckResult:
                                        f"polynomials in n ({exc})")
     try:
         _thm, term = prove_divides(m, d_poly)
-        return CheckResult(stmt, "polynomial_congruence", "proved", "kernel_verified",
-                           checked_up_to="all integers n (universal proof)", proof_hash=_hash(term),
-                           instruments=("kernel.prove_divides",),
-                           notes=f"reduced to {m} | (p − q), then proved by residue exhaustion/CRT "
-                                 "in the LCF-style kernel")
+        res = CheckResult(stmt, "polynomial_congruence", "proved", "kernel_verified",
+                          checked_up_to="all integers n (universal proof)", proof_hash=_hash(term),
+                          instruments=("kernel.prove_divides",),
+                          notes=f"reduced to {m} | (p − q), then proved by residue exhaustion/CRT "
+                                "in the LCF-style kernel")
+        return _attach_quantifier_readings(res, m, d_poly)
     except KernelError:
         from .nt_chain import walk_divisibility_chain
         walk = walk_divisibility_chain(m, d_poly, "forall")
         nsym = sympy.Symbol("n")
         bad = next(r for r, v in enumerate(walk.residue_table) if v != 0)
-        return CheckResult(stmt, "polynomial_congruence", "refuted", "exact_integer_certificate",
-                           witness={"n": bad, "lhs_mod_m": int(p.subs(nsym, bad)) % m,
-                                    "rhs_mod_m": int(q.subs(nsym, bad)) % m,
-                                    "difference_mod_m": walk.residue_table[bad]},
-                           checked_up_to="decided exactly (finite residue table)",
-                           instruments=("nt_chain.walk_divisibility_chain",),
-                           notes=f"residue n≡{bad} (mod {m}): the two sides differ mod {m} — "
-                                 "the claim is false")
+        res = CheckResult(stmt, "polynomial_congruence", "refuted", "exact_integer_certificate",
+                          witness={"n": bad, "lhs_mod_m": int(p.subs(nsym, bad)) % m,
+                                   "rhs_mod_m": int(q.subs(nsym, bad)) % m,
+                                   "difference_mod_m": walk.residue_table[bad]},
+                          checked_up_to="decided exactly (finite residue table)",
+                          instruments=("nt_chain.walk_divisibility_chain",),
+                          notes=f"residue n≡{bad} (mod {m}): the two sides differ mod {m} — "
+                                "the claim is false")
+        return _attach_quantifier_readings(res, m, d_poly, walk.residue_table)
 
 
 def _check_sum(stmt: str, f_expr: str, g_expr: str) -> CheckResult:

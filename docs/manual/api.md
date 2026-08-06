@@ -7,11 +7,15 @@ from mathhead.discovery import check
 check(statement: str, max_n: int = 7) -> CheckResult
 ```
 `CheckResult`: `verdict` (proved/refuted/open/unsupported) · `tier` · `witness` · `checked_up_to` ·
-`proof_hash` · `instruments` · `notes` · `readings` — on graph bounds only, the three candidate
-quantifier readings (A connected — the main verdict itself / B all graphs / C fixed order
-`n = max_n`), each an entry `{label, statement_formal, assumption_delta, verdict, tier,
-witness_summary}` with formalize's own honest tier; empty for every other structure, and empty
-(with the note saying why) when `max_n` is outside the formalization wall `2..7`.
+`proof_hash` · `instruments` · `notes` · `readings` — the candidate quantifier readings, each an
+entry `{label, statement_formal, assumption_delta, verdict, tier, witness_summary}`. On graph
+bounds: the three domain readings (A connected — the main verdict itself / B all graphs / C fixed
+order `n = max_n`) with formalize's own honest tiers; empty (with the note saying why) when
+`max_n` is outside the formalization wall `2..7`. On modular/congruence statements: the two
+quantifier readings (∀ every n — the main verdict itself / ∃ at least one n, decided from the
+same finite residue table — never `open`; an ∃-proof carries the witness n and the solution set
+as residue classes, e.g. `n ≡ 0, ±1 (mod 5)`, at `exact_integer_certificate`). Empty for every
+other structure.
 
 Supported statement forms: `"m | poly(n)"` · `"p(n) ≡ q(n) (mod m)"` (ASCII: `"p(n) = q(n) mod m"`;
 integer coefficients only) · `"sum_(i=1..n) f(i) = g(n)"` · `"sum_(i=1..n) f(i) <= g(n)"` / `">="`

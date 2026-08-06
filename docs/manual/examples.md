@@ -59,7 +59,10 @@ VERDICT: proved   [kernel_verified]
   statement : n^5 ≡ n (mod 30)
   checked   : all integers n (universal proof)
   proof     : kernel hash 750d8a0199ccf762
-  note      : reduced to 30 | (p − q), then proved by residue exhaustion/CRT in the LCF-style kernel
+  note      : reduced to 30 | (p − q), then proved by residue exhaustion/CRT in the LCF-style kernel; quantifier ambiguity: 2 readings evaluated — both agree (proved); see readings
+  readings  : the same text under 2 candidate quantifier readings —
+    [∀] proved     [kernel_verified]  check()'s own reading (baseline)
+    [∃] proved     [exact_integer_certificate]  vs ∀: 'for every integer n' weakened to 'for at least one integer n'
 ```
 
 ```console
@@ -68,10 +71,17 @@ VERDICT: refuted   [exact_integer_certificate]
   statement : n^2 ≡ n (mod 3)
   witness   : {'n': 2, 'lhs_mod_m': 1, 'rhs_mod_m': 2, 'difference_mod_m': 2}
   checked   : decided exactly (finite residue table)
-  note      : residue n≡2 (mod 3): the two sides differ mod 3 — the claim is false
+  note      : residue n≡2 (mod 3): the two sides differ mod 3 — the claim is false; quantifier ambiguity: the verdict CHANGES with the reading (∀: refuted, ∃: proved) — the answer depends on which question the statement is asking; see readings
+  readings  : the same text under 2 candidate quantifier readings —
+    [∀] refuted    [exact_integer_certificate]  check()'s own reading (baseline)
+    [∃] proved     [exact_integer_certificate]  vs ∀: 'for every integer n' weakened to 'for at least one integer n'
 ```
 The ASCII spelling `"n^2 = n mod 2"` is accepted too. Non-integer coefficients (`n/2 ≡ 0 (mod 2)`)
-are an honest `unsupported`, never a silent truncation.
+are an honest `unsupported`, never a silent truncation. The `readings` block is the modular
+surface's own quantifier ambiguity, made explicit (see the quickstart's "∀ or ∃?"): the main
+verdict is always the ∀ reading, and the ∃ reading is decided from the same finite residue table
+— here `n² ≡ n (mod 3)` fails *universally* but holds *existentially*, with the solution set
+`n ≡ 0, 1 (mod 3)` riding the ∃ reading's `witness_summary`.
 
 ## 7 · Graph equalities: a theorem the scan will NOT call proved (v4F1)
 

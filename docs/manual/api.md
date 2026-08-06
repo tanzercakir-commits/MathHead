@@ -34,6 +34,13 @@ mathhead-discover hunt frankl [--universe M] [--steps K] [--seed S]
 mathhead-discover report [--max-n N]
 ```
 
+`check` exit codes: **0** when the engine answered (`proved` / `refuted` / `open`), **3** when
+the verdict is `unsupported` — an honest refusal is non-zero so a script can never mistake it
+for an answer (usage errors exit 2, as usual for argparse). The printed envelope is the same
+either way. A global `--stats` flag prints a local JSON metrics block (durations, verdict
+distribution, solver-call counts) to **stderr**; stdout keeps its documented contract and no
+metrics ever leave the machine.
+
 ## The instrument map
 
 Problem structure → instruments (each pointer is import-tested against the codebase):

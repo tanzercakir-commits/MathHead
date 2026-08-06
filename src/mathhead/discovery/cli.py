@@ -8,6 +8,16 @@ mathhead-discover — the discovery engine's command line (v3P1).
     mathhead-discover report --max-n 5
 
 Every verdict prints its EPISTEMIC TIER — the product's honesty contract on the command line.
+
+Exit codes for `check`: 0 = the engine answered (proved / refuted / open); 3 = `unsupported`
+(an honest refusal — non-zero so scripts cannot mistake a refusal for an answer); argparse
+usage errors exit 2 as usual. The stdout envelope is identical in every case.
+
+`--stats` (AG5) additionally prints a local JSON metrics block (durations, verdict distribution,
+solver-call counts) to STDERR — stdout keeps its documented contract, and nothing leaves the
+machine (no external telemetry). The counters live on a PRIVATE Collector for the one
+invocation (printed in a try/finally epilogue, so even an exception cannot leak state or skip
+the block), never on the library-level default collector.
 """
 from __future__ import annotations
 
@@ -15,11 +25,14 @@ import argparse
 import json
 import sys
 
+_UNSUPPORTED_EXIT = 3     # honest refusal ≠ answer: scripts must be able to tell them apart
+
 
 def _print_check(r, as_json: bool) -> int:
+    code = _UNSUPPORTED_EXIT if r.verdict == "unsupported" else 0
     if as_json:
         print(json.dumps(r.__dict__, default=str, indent=2))
-        return 0
+        return code
     print(f"VERDICT: {r.verdict}   [{r.tier}]")
     print(f"  statement : {r.statement}")
     if r.witness:
@@ -30,7 +43,7 @@ def _print_check(r, as_json: bool) -> int:
         print(f"  proof     : kernel hash {r.proof_hash}")
     if r.notes:
         print(f"  note      : {r.notes}")
-    return 0
+    return code
 
 
 def main(argv=None) -> int:
@@ -39,6 +52,9 @@ def main(argv=None) -> int:
                                              "proved (with a kernel proof), or you learn exactly how far "
                                              "it survived. Every verdict carries its epistemic tier.")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--stats", action="store_true",
+                    help="print a local JSON metrics block (durations, verdict distribution, "
+                         "solver calls) to stderr — no external telemetry")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("check", help="check a statement (modular / congruence / sums / graph / "
@@ -65,14 +81,37 @@ def main(argv=None) -> int:
     p.add_argument("--max-n", type=int, default=5)
 
     args = ap.parse_args(argv)
+    # AG5: a PRIVATE Collector per invocation (enabled only under --stats). Not the module-level
+    # default — a CLI run can never reset or pollute a library user's counters. The epilogue sits
+    # in try/finally, so "never sticky" holds on the exception path too (the local collector dies
+    # with this call either way, and the stats block is still emitted for the work done so far).
+    from .instrumentation import Collector
+    stats = Collector(enabled=args.stats)
+    try:
+        return _dispatch(args, stats)
+    finally:
+        if args.stats:
+            print(stats.dump_json(), file=sys.stderr)   # stderr: stdout contract unchanged
 
+
+def _dispatch(args, ins) -> int:
+    """Route one parsed invocation; `ins` is the invocation's PRIVATE metrics Collector
+    (disabled ⇒ pure passthrough)."""
     if args.cmd == "check":
         from .product import check
-        return _print_check(check(args.statement, max_n=args.max_n), args.json)
+        r = ins.observe("check", check, args.statement, max_n=args.max_n,
+                        _outcome=lambda r: r.verdict,
+                        # the sum-inequality proof attempt is the one z3 route on this surface
+                        _solver_calls=lambda r: int(
+                            "core.inequality.prove_inequality" in r.instruments))
+        return _print_check(r, args.json)
 
     if args.cmd == "bracket":
         from .ramsey_sat import ramsey_decide
-        verdicts = [ramsey_decide(n, args.s, args.t, strengthen=args.strengthen)
+        verdicts = [ins.observe("bracket", ramsey_decide, n, args.s, args.t,
+                                strengthen=args.strengthen,
+                                _outcome=lambda v: "SAT" if v.satisfiable else "UNSAT",
+                                _solver_calls=lambda _v: 1)   # one SAT-solver call per instance
                     for n in range(args.lo, args.hi + 1)]
         value = None
         for prev, cur in zip(verdicts, verdicts[1:]):
@@ -92,7 +131,8 @@ def main(argv=None) -> int:
 
     if args.cmd == "hunt":
         from .frankl import hunt_frankl
-        h = hunt_frankl(m=args.universe, seed=args.seed, steps=args.steps)
+        h = ins.observe("hunt", hunt_frankl, m=args.universe, seed=args.seed, steps=args.steps,
+                        _outcome=lambda h: h.status)
         if args.json:
             print(json.dumps(h.__dict__, default=str, indent=2))
             return 0
@@ -103,7 +143,8 @@ def main(argv=None) -> int:
 
     if args.cmd == "report":
         from .report import render, run_report
-        print(render(run_report(max_n=args.max_n)))
+        print(ins.observe("report", lambda: render(run_report(max_n=args.max_n)),
+                          _outcome=lambda _t: "rendered"))
         return 0
     return 2
 

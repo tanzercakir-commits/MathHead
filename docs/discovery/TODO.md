@@ -9,7 +9,7 @@
 > (`DECISIONS.md` is a frozen ADR archive; `SAMPLE-REPORT.md` is generated engine output — neither is
 > a tracker.) This file is the short at-a-glance view: where we are, what's next, what we will NOT fake.
 
-_Last updated: 2026-08-06 · 83 modules · 655 discovery tests · 64/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
+_Last updated: 2026-08-06 · 85 modules · 668 discovery tests · 73/103 v1 phases ✅ (phase-anchored count) + 16 v2 (across 21 tracks)._
 
 ## Done — by cluster
 
@@ -88,6 +88,15 @@ Bookkeeping is automated at three levels (no longer a manual chore):
 - **test suite:** `tests/test_trackers.py` enforces the plan integrity + sample freshness in pytest.
 
 Manual escape hatch: `python scripts/gen_status.py` (refresh) / `--check` (verify).
+
+## v1 — ADJUDICATED COMPLETE (2026-08-06)
+
+**Every one of the 103 v1 phases now carries an explicit verdict — zero ambiguous lines:**
+73 CLOSED with proof tests (phase-anchored counter) · 12 open-research 🔴 (won't fake — the honest
+boundary: learned models, new-concept generation, independence analysis, repair inference) · 18 OPEN
+with a one-sentence honest reason on the line (LLM-periphery, needs-real-humans, external
+toolchain/corpus, separate instruments). "v1 finished" in the only honest sense available: the plan is
+fully adjudicated; what is closed is proof-tested, what is not carries its reason in writing.
 
 ## Progress toward the goal
 

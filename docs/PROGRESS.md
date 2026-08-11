@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Immutable legacy baseline captured and replayed cross-platform
+
+**Task.** MH-004 (`done`).
+
+**Changed.** Bound the accepted MH-C-BASELINE-001 contract to a fail-closed CLI; froze canonical source, package, dispatcher, 379-file inventory, 1546-test collection, CI, benchmark, failure, platform, and hot-spot evidence; and added offline replay plus negative validation.
+
+**Learned.** GitHub Project Status run 31483412187 replayed the exact artifact successfully on Ubuntu job 93753254827 and Windows job 93753254747; the separate product CI remains honestly red and is now a stable differential input for P1.
+
+**Contracts.** MH-C-BASELINE-001=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2 (docs/contracts/MH-C-BASELINE-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-bd34bb2fe0a3c260b26bc5a13a23d52e2a43c4cb426f6a16ec3052cc5b326ace; reconstruction-plan=passed/exit-0/output-f7eab44091d6f4b79273cfd70add6f5ed9b59084c2eb1c399b10b29b0843ad8e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-4fb9820a078e9340227e1a992fd47253b9bc874f4780d9846b76c460c44cbbbe; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-c93c2c2c0c09e3fed366c80a9af7724993ad35dea57898f56755bc33acc5a946; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2
+
+**Evidence.** docs/contracts/MH-C-BASELINE-001.json=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2; docs/reconstruction/legacy-baseline-v1.json=b93f71ce676380574235ca422e8a23a8f4871ee45b2973195575ea397cefe19a; docs/reconstruction/legacy-observations-v1.json=69c90d4e71a9955c4211b5939be75bdde19a2d05457b1d272d900b74b11aa903; tools/capture_legacy_baseline.py=0d20bff37ddd0f3f2d005419c144d5869d3bd7dee4cd6fa363a149336f221d3a; tools/validate_legacy_baseline.py=0717538244bfa4b9a3084c1fab1c37170fef4857360209853bf17f36dec7dea9; tests/baseline/test_capture_legacy_baseline.py=12731cb597c14171aec841465f14e39d056f78cd98f7c328085b9e5ec3322e67
+
+**Limitations.** The artifact is an immutable oracle input, not a claim that the legacy product suite is green; graph enumeration, test reporting, and solver executable detection failures remain assigned to P1.
+
+**Next.** Activate MH-010, MH-011, and MH-012 and restore the portable legacy product baseline without changing the frozen oracle.
+
+---
+
 ## 2026-08-11 - Accepted baseline capture awaiting independent CI
 
 **Task.** MH-004 (`partial`).

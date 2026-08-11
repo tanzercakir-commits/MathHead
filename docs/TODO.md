@@ -5,30 +5,6 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-004 - Capture the immutable legacy baseline
-
-**Goal:** freeze the exact pre-migration product state as a canonical,
-machine-readable differential oracle without rewriting legacy records.
-
-**Scope:** committed source and package identities, test collection and outcome
-categories, immutable CI locators, benchmark observations, known platform
-failures, performance hot spots, canonical serialization, and offline replay.
-
-**Contracts:** `MH-C-BASELINE-001`, `MH-C-WORKFLOW-001`.
-
-**Validators:** baseline schema, negative capture tests, source-derived replay,
-exact-case/hash checks, and `status` must pass.
-
-**Done when:** the accepted contract is implementation-bound; the baseline
-artifact replays against its exact source commit; red, unsupported, and not-run
-evidence remain explicit; and independent CI validates the artifact.
-
-**Dependencies:** `MH-003` (done); explicit owner acceptance received.
-
-**Next handoff:** `MH-010`, `MH-011`, and `MH-012`.
-
-## Next
-
 ### MH-010 - Correct optional dependency test contracts
 
 Make core and optional solver profiles self-consistent without deleting
@@ -43,6 +19,8 @@ Add explicit budget semantics and safe fallback limits. Dependencies: `MH-003`,
 
 Cover Windows locale, redirected output, JSON, and human-readable output.
 Dependencies: `MH-003`, `MH-004`.
+
+## Next
 
 ## Later
 

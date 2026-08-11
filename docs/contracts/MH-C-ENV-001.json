@@ -1,0 +1,71 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-ENV-001",
+  "target": "tools.dev:main",
+  "signature": "main(argv: Sequence[str] | None = None) -> int",
+  "requires": [
+    "Python is one of the explicitly supported CPython versions.",
+    "The command is executed from, or can discover, the repository root.",
+    "The selected profile is one of status, runtime, core, solver, docs, or release.",
+    "Network access is required only by bootstrap and clean-install operations."
+  ],
+  "ensures": [
+    "Local and CI callers dispatch through the same repository-owned Python entry point.",
+    "Every profile has an explicit dependency set, command set, platform policy, and timeout budget.",
+    "The status profile uses only the Python standard library and never installs dependencies.",
+    "The runtime profile installs the base wheel or editable package without development dependencies.",
+    "The core profile installs base plus dev dependencies and never imports python-sat.",
+    "The solver profile installs base, dev, and solvers and is supported only where compatible wheels exist.",
+    "The docs profile includes the pinned documentation toolchain.",
+    "The release profile builds artifacts, installs the wheel into a clean environment, and runs smoke checks.",
+    "A missing, incompatible, skipped, timed-out, or failing required command returns a nonzero exit status.",
+    "Human and JSON summaries identify the profile, commands, results, platform, and interpreter without claiming unrun checks."
+  ],
+  "raises": [
+    "No Python exception crosses the CLI boundary for an expected validation failure.",
+    "Programmer defects may produce a diagnostic traceback only in explicit debug mode."
+  ],
+  "effects": {
+    "filesystem": "bootstrap may create or modify only the selected environment and standard build/test artifacts; check operations are read-only except tool-owned caches",
+    "process": "may execute Python, pip, build, ruff, pytest, twine, and documented smoke subprocesses with bounded timeouts",
+    "network": "bootstrap may contact configured package indexes; check operations do not require network",
+    "repository": "never edits PLAN, TODO, PROGRESS, accepted contracts, or product source"
+  },
+  "determinism": {
+    "dependency_resolution": "constraints.txt and explicitly pinned toolchain requirements define the tested set",
+    "command_order": "stable and profile-defined",
+    "output": "UTF-8 with stable reason codes; elapsed time and absolute paths are noncanonical diagnostics",
+    "platform_variation": "unsupported optional backends are explicit profile refusals, not silent skips"
+  },
+  "budget": {
+    "status_seconds": 180,
+    "core_seconds": 900,
+    "solver_seconds": 1200,
+    "docs_seconds": 300,
+    "release_seconds": 900,
+    "cancellation": "terminate the active child process and return a distinct interrupted result"
+  },
+  "epistemics": {
+    "passed": "every required command in the selected profile returned success",
+    "failed": "at least one required command returned nonzero",
+    "unsupported": "the selected profile is incompatible with the current platform or interpreter",
+    "timed_out": "a required command exceeded its declared budget",
+    "not_run": "the profile was described but not executed; never equivalent to passed"
+  },
+  "invariants": [
+    "Profile names and meanings are stable within contract v1.",
+    "CI workflow commands call tools/dev.py rather than duplicating profile semantics.",
+    "The same constraints and profile definitions are used on Windows and Linux.",
+    "Core success never implies solver, docs, full-product, or release success.",
+    "No profile reports overall green while one of its required commands is red."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-ENV-001.json",
+    "python -m unittest discover -s tests/devtool -v",
+    "python tools/dev.py check --profile status",
+    "python tools/dev.py check --profile core",
+    "python tools/dev.py clean-smoke --profile runtime",
+    "python tools/dev.py clean-smoke --profile release"
+  ],
+  "supersedes": null
+}

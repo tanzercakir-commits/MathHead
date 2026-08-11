@@ -8,9 +8,9 @@ state = "accepted"
 
 [[contracts]]
 id = "MH-C-ENV-001"
-path = "docs/contracts/proposed/MH-C-ENV-001.json"
+path = "docs/contracts/MH-C-ENV-001.json"
 sha256 = "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87"
-state = "proposed"
+state = "accepted"
 
 [[contracts]]
 id = "MH-C-WORKFLOW-001"

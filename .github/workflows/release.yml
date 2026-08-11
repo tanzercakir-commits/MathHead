@@ -18,21 +18,12 @@ jobs:
     name: build + validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Build wheel + sdist
-        run: |
-          python -m pip install --upgrade pip build twine
-          python -m build
-          twine check dist/*
-      - name: Smoke-test the built wheel
-        run: |
-          python -m venv /tmp/rel
-          /tmp/rel/bin/pip install dist/*.whl
-          /tmp/rel/bin/mathhead --version
-          /tmp/rel/bin/mathhead entail -p "p" -p "implies(p, q)" -c "q"
+      - name: Build, validate, smoke, and export release artifacts
+        run: python tools/dev.py clean-smoke --profile release --artifact-dir dist
       - uses: actions/upload-artifact@v4
         with:
           name: dist

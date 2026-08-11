@@ -12,16 +12,14 @@ jobs:
     name: tracker integrity (plan preserved + sample fresh)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install (core + dev)
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Bootstrap core profile
+        run: python tools/dev.py bootstrap --profile core --current
       - name: Check trackers (plan not shrunk; sample fresh)
-        run: python scripts/gen_status.py --check
+        run: python tools/dev.py run --profile core --command tracker-integrity
 
   # Cross-platform / cross-Python matrix — CORE + dev only (no optional solvers,
   # which have no Windows/macOS wheels). Proves the engine installs and passes
@@ -35,18 +33,16 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - name: Install (core + dev)
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Lint (ruff)
-        run: ruff check .
-      - name: Test
-        run: pytest -q
+      - name: Bootstrap core profile
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Check portable core profile
+        run: python tools/dev.py check --profile core
+      - name: Run the explicitly auxiliary legacy full suite
+        run: python tools/dev.py run --profile core --command legacy-full
 
   # Linux job WITH the optional high-performance backend — exercises the J3 pysat
   # path (skipped elsewhere) and enforces the coverage gate on the full surface.
@@ -54,52 +50,39 @@ jobs:
     name: test + optional solvers + coverage (ubuntu · py3.11)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install (dev + solvers)
-        run: |
-          sudo apt-get update && sudo apt-get install -y nauty   # v2A4 scale generator (geng)
-          python -m pip install --upgrade pip
-          pip install -e ".[dev,solvers]"
-      - name: Test with coverage gate
-        run: pytest -q --cov=mathhead --cov-report=term-missing
+      - name: Install the system scale generator
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap solver profile
+        run: python tools/dev.py bootstrap --profile solver --current
+      - name: Test solver profile with coverage gate
+        run: python tools/dev.py check --profile solver
 
   # Reproducibility check — install the exact tested backend set (constraints.txt).
   reproducible:
     name: reproducible install (constraints.txt)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install pinned + test
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev,solvers]" -c constraints.txt
-          pytest -q
+      - name: Bootstrap the constrained core profile
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Run the constrained legacy full suite
+        run: python tools/dev.py run --profile core --command legacy-full
 
   # Package build + install-from-wheel + CLI/MCP smoke (the real product surface).
   build:
     name: build + install-from-wheel + smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Build wheel + sdist and validate metadata
-        run: |
-          python -m pip install --upgrade pip build twine
-          python -m build
-          twine check dist/*
-      - name: Install from the built wheel (clean venv) + smoke
-        run: |
-          python -m venv /tmp/smoke
-          /tmp/smoke/bin/pip install --upgrade pip
-          /tmp/smoke/bin/pip install dist/*.whl
-          /tmp/smoke/bin/mathhead --version
-          /tmp/smoke/bin/mathhead entail -p "p" -p "implies(p, q)" -c "q"
-          /tmp/smoke/bin/python -c "import asyncio; from mathhead.server.mcp_server import mcp; n=len(asyncio.run(mcp.list_tools())); print('MCP tools:', n); assert n >= 160"
+      - name: Build, validate, install, and smoke the wheel
+        run: python tools/dev.py clean-smoke --profile release

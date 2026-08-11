@@ -98,12 +98,24 @@ Once on PyPI: `pip install mathhead` (see `RELEASING.md`). For now, from source:
 
 ```bash
 git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-
-mathhead-server        # start the MCP server over stdio
-pytest -q              # all tests green
+python tools/dev.py bootstrap --profile core --venv .venv
+.venv/bin/python tools/dev.py check --profile core
+.venv/bin/mathhead-server        # start the MCP server over stdio
 ```
+
+On Windows PowerShell, the equivalent governed commands are:
+
+```powershell
+py tools/dev.py bootstrap --profile core --venv .venv
+.venv\Scripts\python.exe tools/dev.py check --profile core
+.venv\Scripts\mathhead-server.exe
+```
+
+`status`, `runtime`, `core`, `solver`, `docs`, and `release` are explicit
+profiles in `tools/dev_profiles.json`. `describe` reports a profile without
+claiming it passed; `check` is offline; only `bootstrap` and `clean-smoke` may
+use the network. The Linux-only `solver` profile refuses unsupported platforms
+instead of silently skipping its required backend.
 
 ## Three scenarios — why it exists
 

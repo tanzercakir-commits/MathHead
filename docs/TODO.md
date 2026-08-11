@@ -5,6 +5,28 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
+### MH-003 - Define one reproducible developer environment
+
+**Goal:** implement the accepted portable environment contract through one
+repository-owned dispatcher used by developers and CI.
+
+**Scope:** accepted-contract binding, pinned profile dependencies, Windows and
+Linux policy, UTF-8 subprocess behavior, bounded execution, clean-install
+smokes, tests, and setup documentation; no product algorithm changes.
+
+**Contracts:** `MH-C-ENV-001`, `MH-C-WORKFLOW-001`.
+
+**Validators:** `fast`; the accepted hash, callable signature, profile manifest,
+negative process outcomes, status/core checks, and runtime/release clean smokes
+must pass.
+
+**Done when:** local validators and remote Ubuntu/Windows environment checks are
+green without weakening any product or governance gate.
+
+**Dependencies:** explicit owner acceptance received; `MH-002`, `MH-006`.
+
+**Next handoff:** `MH-004`.
+
 ## Next
 
 ### MH-004 - Capture the immutable legacy baseline
@@ -39,12 +61,3 @@ Dependencies: `MH-003`, `MH-004`.
 - `MH-110` through `MH-123`: validation, release, and sustainable extension.
 
 ## Blocked
-
-### MH-003 - Define one reproducible developer environment
-
-**External dependency:** explicit project-owner acceptance of proposed contract
-`MH-C-ENV-001` at SHA-256
-`63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87`.
-
-**Resume condition:** move the unchanged accepted artifact into the accepted
-contract set, update its manifest state, and return this task to `Now`.

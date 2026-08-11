@@ -53,3 +53,10 @@ command = "python tools/validate_contract_manifest.py"
 profiles = ["status"]
 tasks = ["MH-000", "MH-002"]
 timeout_seconds = 30
+
+[[checks]]
+name = "dev-environment-contract"
+command = "python tools/validate_dev_environment.py"
+profiles = ["status", "fast"]
+tasks = ["MH-003"]
+timeout_seconds = 180

@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Reproducible environment implemented locally
+
+**Task.** MH-003 (`partial`).
+
+**Changed.** Accepted MH-C-ENV-001 at the owner-approved hash; implemented the contract-bound dispatcher, six pinned profiles, Python 3.10 TOML compatibility, UTF-8 and bounded subprocess handling, clean runtime/release smokes, governed developer documentation, and dispatcher-owned CI workflows.
+
+**Learned.** Python 3.14 exposed an unescaped argparse percent sign, and an unpinned build backend produced Core Metadata 2.5 that Twine 6.2 rejected; escaping the help literal and pinning Hatchling 1.32.0 with Twine 7.0.0 restored portable CLI and release validation without weakening gates.
+
+**Contracts.** MH-C-ENV-001=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87 (docs/contracts/MH-C-ENV-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6
+
+**Evidence.** docs/contracts/MH-C-ENV-001.json=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87; tools/dev.py=1daccf5b3a823924edcba392646f96930e3929b001300e0ff3df1bbe485d7efa; tools/dev_profiles.json=dc1cc8c8bcd4d2e3d9f2e30be7d48348f7874a8eaff3d1275908af4cf07bcd3d; tools/validate_dev_environment.py=ff224d991a8f6202641a7848fbde05bfb2a51f7f40cb82cbb3a6fbe0617f43d2; tests/devtool/test_dev.py=8a4ddd708203cf4e3d7611d63110775bf0486e476dcf7faae90c8fa4b0bae4fa; constraints.txt=9460693124a486cca758ddaba84bf71956ca76e4c91d448b97a69a8c1055c29f; pyproject.toml=f79758b92e6ea7f8f08d69917f6be6582f446e1d8f1ff27a2a8756e9981efcdd; .github/workflows/environment-contract.yml=0134e18f06c23e11e2d4dea5c86d7b478422eff368572666c9272d4d3ba0c93f
+
+**Limitations.** Local status, core, docs, runtime clean-smoke, and release clean-smoke validators pass on Linux CPython 3.14.3; independent Ubuntu and Windows matrix evidence for this commit is still pending.
+
+**Next.** Commit and push the MH-003 checkpoint, require the draft PR environment workflow to pass on Ubuntu and Windows, then record MH-003 done and activate MH-004.
+
+---
+
 ## 2026-08-11 - Reconstruction architecture decisions frozen
 
 **Task.** MH-006 (`done`).

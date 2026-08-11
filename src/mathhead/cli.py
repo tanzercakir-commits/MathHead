@@ -169,7 +169,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("constraints", nargs="+", metavar="CONSTRAINT")
 
     p = sub.add_parser("induction", help="prove ∀n≥start. P(n) by mathematical induction")
-    p.add_argument("claim", metavar="CLAIM", help="e.g. '(n*(n+1)) % 2 == 0'")
+    p.add_argument("claim", metavar="CLAIM", help="e.g. '(n*(n+1)) %% 2 == 0'")
     p.add_argument("--var", default="n", help="induction variable (default n)")
     p.add_argument("--start", type=int, default=0, help="base value (default 0)")
 

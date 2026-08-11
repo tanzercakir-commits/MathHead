@@ -9,9 +9,12 @@ before the critical implementation that they govern.
   transitions, and their validators.
 - `PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md` governs how critical Python function
   contracts are proposed, accepted, attached to code, and verified.
+- `MH-C-ENV-001.json` governs the repository-owned development dispatcher,
+  dependency profiles, platform policy, time budgets, and clean-install smoke
+  checks. It was explicitly accepted by the project owner at SHA-256
+  `63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87`.
 
 ## Contract rule
 
 An implementation may not edit the contract that authorized it. A behavioral
 change requires a new contract version, a migration note, and fresh acceptance.
-

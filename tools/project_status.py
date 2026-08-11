@@ -12,7 +12,10 @@ import re
 import subprocess
 import sys
 import tempfile
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 compatibility in the pinned core profile.
+    import tomli as tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable

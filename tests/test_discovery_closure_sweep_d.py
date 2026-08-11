@@ -18,7 +18,10 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 uses the pinned compatibility package.
+    import tomli as tomllib
 from importlib import util as importlib_util
 from pathlib import Path
 
@@ -313,17 +316,18 @@ def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
         assert f"\n  {job}" in ci, f"CI job missing: {job}"
     assert "os: [ubuntu-latest, macos-latest, windows-latest]" in ci     # 3-OS matrix
     assert 'python: ["3.10", "3.11", "3.12"]' in ci                      # 3-Python matrix
-    assert "ruff check ." in ci and "--cov=mathhead" in ci               # lint + coverage gate
-    assert "python -m build" in ci and "twine check dist/*" in ci        # wheel build validated
-    assert 'pip install -e ".[dev]"' in ci and 'pip install -e ".[dev,solvers]"' in ci
-    assert "-c constraints.txt" in ci                                    # reproducible install
-    assert "gen_status.py --check" in ci                                 # tracker integrity job
+    assert "check --profile core" in ci and "check --profile solver" in ci
+    assert "clean-smoke --profile release" in ci                         # wheel build validated
+    assert "bootstrap --profile core" in ci and "bootstrap --profile solver" in ci
+    assert "run --profile core --command legacy-full" in ci              # full legacy gate retained
+    assert "run --profile core --command tracker-integrity" in ci        # tracker integrity job
+    assert "pip install" not in ci and "pytest " not in ci               # no CI-only semantics
 
     rel = (_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     assert 'tags: [ "v*" ]' in rel and "pypa/gh-action-pypi-publish" in rel
-    assert "id-token: write" in rel and "twine check dist/*" in rel      # trusted publishing
+    assert "id-token: write" in rel and "--artifact-dir dist" in rel     # trusted publishing
     docs = (_ROOT / ".github" / "workflows" / "docs.yml").read_text(encoding="utf-8")
-    assert "mkdocs gh-deploy" in docs and "mkdocs-material" in docs
+    assert "mkdocs gh-deploy" in docs and "bootstrap --profile docs" in docs
 
     # packaging: every declared console script resolves to a real callable, versions cohere
     import importlib
@@ -338,6 +342,7 @@ def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
     assert proj["project"]["version"] == mathhead.__version__
     assert proj["project"]["requires-python"] == ">=3.10"                # matches the matrix floor
     assert proj["build-system"]["build-backend"] == "hatchling.build"
+    assert proj["build-system"]["requires"] == ["hatchling==1.32.0"]
 
     # the in-process equivalent of the wheel-smoke the build job runs on every push
     from mathhead import cli as core_cli

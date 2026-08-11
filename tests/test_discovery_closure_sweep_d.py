@@ -347,7 +347,12 @@ def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
     for target in scripts.values():
         mod, attr = target.split(":")
         assert callable(getattr(importlib.import_module(mod), attr)), target
-    assert proj["project"]["version"] == mathhead.__version__
+    assert "version" not in proj["project"] and "version" in proj["project"]["dynamic"]
+    version_path = proj["tool"]["hatch"]["version"]["path"]
+    assert version_path == "src/mathhead/_version.py"
+    namespace = {}
+    exec((_ROOT / version_path).read_text(encoding="utf-8"), namespace)
+    assert namespace["__version__"] == mathhead.__version__
     assert proj["project"]["requires-python"] == ">=3.10"                # matches the matrix floor
     assert proj["build-system"]["build-backend"] == "hatchling.build"
     assert proj["build-system"]["requires"] == ["hatchling==1.32.0"]

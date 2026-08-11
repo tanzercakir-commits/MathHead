@@ -67,3 +67,10 @@ command = "python tools/validate_legacy_baseline.py"
 profiles = ["status", "fast"]
 tasks = ["MH-004"]
 timeout_seconds = 300
+
+[[checks]]
+name = "optional-dependency-contract"
+command = "python tools/validate_optional_dependencies.py --profile core"
+profiles = ["status", "fast"]
+tasks = ["MH-010"]
+timeout_seconds = 60

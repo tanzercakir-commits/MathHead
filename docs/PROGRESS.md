@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Optional dependency boundary fixed pending solver CI
+
+**Task.** MH-010 (`partial`).
+
+**Changed.** Added explicit core/solver dependency validation, a requires_solver test capability marker, fail-closed Python-SAT and nauty preflight, and portable nauty-geng-or-geng executable resolution under the accepted environment contract.
+
+**Learned.** Ubuntu installs the nauty generator as nauty-geng while the previous dispatcher required only geng; core remains Python-SAT-free and now proves that boundary across 113 product modules and 10 marker contracts.
+
+**Contracts.** MH-C-ENV-001=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87 (docs/contracts/MH-C-ENV-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-c4b78f92453a473ecbe5b88e4261c2ce8562c9cfe6d4a90ad375fee17baef074; reconstruction-plan=passed/exit-0/output-3d95cb5b504df6fad0bba4fe2ef2beea63a5748081806758f904cc980ea2a837; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-ff0ac8c1501466f6a1c6b4a1e6ef05382486bbe570b5d267bbf910e5dc5d13b8; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-c93c2c2c0c09e3fed366c80a9af7724993ad35dea57898f56755bc33acc5a946; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-a2b56fcfbb06e2c76085ea5a82dd74bdaad1e231a37521584d1503c6a11ac84f
+
+**Evidence.** tools/dev.py=70b03cb64b6aa9b9e3ab04bd37acfa95169cf5381bc3c6a7a92fd8969d8fbee8; tools/dev_profiles.json=ec0aa7b9dfc7bcf4d90d795699c148ce6adfa5e33ae144cfa37ab419c8274ae9; tools/validate_optional_dependencies.py=08d8295bb90cf14987a37284d88caad4dd0012a0edbaf75d1d5970df335f8c80; tests/devtool/test_optional_dependencies.py=1d1fe5ec5eeb23580ac1ba478c05399afc780450a5813f961c0cc637ad274d48; pyproject.toml=f1f7e1d795c3412f8e17fbf9b4a3d5ab7d4da0fdbed71d58c97a75b6a2456189; README.md=c6a527eb6641b3493304377200b9864826b8d43d378e0b2840179db0a8e2308e
+
+**Limitations.** Local core without python-sat passes 314 tests and all 10 status checks; the pushed Ubuntu solver bootstrap and capability preflight have not yet been observed.
+
+**Next.** Commit and push MH-010, verify the Ubuntu solver job crosses bootstrap and preflight, then record DONE without conflating later product failures.
+
+---
+
 ## 2026-08-11 - Immutable legacy baseline captured and replayed cross-platform
 
 **Task.** MH-004 (`done`).

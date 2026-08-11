@@ -81,6 +81,9 @@ packages = ["src/mathhead"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 30            # no test may exceed 30 s (non-determinism/hang guardrail)
+markers = [
+    "requires_solver: requires the solvers extra and, where applicable, nauty/geng",
+]
 
 [tool.coverage.run]
 source = ["src/mathhead"]

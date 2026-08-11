@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -120,8 +121,14 @@ def _validate_profile(name: str, profile: Any) -> None:
         raise DevEnvironmentError(f"profile-timeout-invalid:{name}")
     if not all(isinstance(item, str) and item for item in profile["install"]):
         raise DevEnvironmentError(f"profile-install-invalid:{name}")
-    if not all(isinstance(item, str) and item for item in profile["required_executables"]):
-        raise DevEnvironmentError(f"profile-executable-invalid:{name}")
+    for requirement in profile["required_executables"]:
+        if not isinstance(requirement, str) or not requirement:
+            raise DevEnvironmentError(f"profile-executable-invalid:{name}")
+        alternatives = requirement.split("|")
+        if any(not item or not re.fullmatch(r"[A-Za-z0-9_.+-]+", item) for item in alternatives):
+            raise DevEnvironmentError(f"profile-executable-invalid:{name}")
+        if len(alternatives) != len(set(alternatives)):
+            raise DevEnvironmentError(f"profile-executable-invalid:{name}")
     if not profile["commands"]:
         raise DevEnvironmentError(f"profile-command-set-empty:{name}")
     seen: set[str] = set()
@@ -153,7 +160,11 @@ def _profile_support(profile: dict[str, Any]) -> tuple[bool, str]:
         return False, f"unsupported-platform:{current_platform}"
     if current_python not in profile["python"]:
         return False, f"unsupported-python:{current_python}"
-    missing = [item for item in profile["required_executables"] if shutil.which(item) is None]
+    missing = [
+        requirement
+        for requirement in profile["required_executables"]
+        if not any(shutil.which(item) is not None for item in requirement.split("|"))
+    ]
     if missing:
         return False, "missing-system-executable:" + ",".join(missing)
     return True, "supported"

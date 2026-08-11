@@ -68,11 +68,13 @@ def test_bad_max_conflicts_rejected():
 _pysat = pytest.mark.skipif(not pysat_available(), reason="python-sat not installed")
 
 
+@pytest.mark.requires_solver
 @_pysat
 def test_pysat_bad_solver_name_rejected():
     assert solve_cnf([[1]], solver="kissat").reason_code == "GUARDRAIL_VIOLATION"
 
 
+@pytest.mark.requires_solver
 @_pysat
 def test_pysat_sat_model_independently_verified():
     cnf = [[1, 2], [-1, 3], [-3]]
@@ -82,11 +84,13 @@ def test_pysat_sat_model_independently_verified():
     assert _satisfies(cnf, r.witness["model"])
 
 
+@pytest.mark.requires_solver
 @_pysat
 def test_pysat_unsat():
     assert solve_cnf([[1], [-1]], backend="pysat").status == "unsat"
 
 
+@pytest.mark.requires_solver
 @_pysat
 def test_pysat_scale_sat_verified():
     # a moderately large SAT instance the HP backend dispatches quickly; model verified
@@ -109,6 +113,7 @@ def test_pysat_scale_sat_verified():
     assert r.meta["variables"] == n * n and _satisfies(cnf, r.witness["model"])
 
 
+@pytest.mark.requires_solver
 @_pysat
 def test_pysat_bounded_search_is_unknown_not_a_hang():
     # a hard instance under a tiny conflict budget → honest unknown (bounded, no hang)

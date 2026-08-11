@@ -238,6 +238,7 @@ def test_ag1_parallel_sweep_equals_serial_and_the_disk_cache_never_changes_an_an
     assert list((tmp_path / "c").glob("*.json")) == []
 
 
+@pytest.mark.requires_solver
 def test_ag1_parallel_ramsey_decisions_merge_deterministically():
     pytest.importorskip("pysat.solvers", reason="pysat not installed")
     from mathhead.discovery.parallel_search import sweep_ramsey

@@ -76,6 +76,12 @@
           "argv": ["{python}", "-c", "import mathhead, sys; assert not any(name == 'pysat' or name.startswith('pysat.') for name in sys.modules); print(mathhead.__version__)"]
         },
         {
+          "id": "optional-dependency-contract",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "core"]
+        },
+        {
           "id": "tracker-integrity",
           "required": false,
           "timeout_seconds": 120,
@@ -95,8 +101,14 @@
       "platforms": ["linux"],
       "timeout_seconds": 1200,
       "install": [".[dev,solvers]"],
-      "required_executables": ["geng"],
+      "required_executables": ["nauty-geng|geng"],
       "commands": [
+        {
+          "id": "solver-capabilities",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "solver"]
+        },
         {
           "id": "solver-full-coverage",
           "required": true,

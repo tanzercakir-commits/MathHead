@@ -65,6 +65,7 @@ def test_checker_never_certifies_a_satisfiable_formula(clauses):
 
 
 # ===================== J2 ⋈ J3 — independent-solver agreement =============== #
+@pytest.mark.requires_solver
 @_pysat
 @given(clauses=_cnf())
 @settings(max_examples=120, deadline=None)

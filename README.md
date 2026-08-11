@@ -115,7 +115,11 @@ py tools/dev.py bootstrap --profile core --venv .venv
 profiles in `tools/dev_profiles.json`. `describe` reports a profile without
 claiming it passed; `check` is offline; only `bootstrap` and `clean-smoke` may
 use the network. The Linux-only `solver` profile refuses unsupported platforms
-instead of silently skipping its required backend.
+instead of silently skipping its required backend. Tests that require
+`python-sat` or nauty are labeled `requires_solver`; the core profile neither
+installs nor imports `python-sat`. Linux distributions may expose nauty's
+generator as either `nauty-geng` or `geng`, and the solver profile accepts only
+those explicit alternatives.
 
 ## Three scenarios — why it exists
 

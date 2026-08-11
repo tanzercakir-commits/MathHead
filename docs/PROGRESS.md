@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Reconstruction architecture decisions frozen
+
+**Task.** MH-006 (`done`).
+
+**Changed.** Accepted five reconstruction ADRs for boundary, package ownership, vertical-slice migration, compatibility, and trust language; added an immutable hash index, fail-closed validator, negative tests, and repository authority links.
+
+**Learned.** Local validation passed 42 tests and 7 checks, exact Ruff 0.15.11 passed, and GitHub governance run 31477390994 passed on Ubuntu and Windows for commit c820346.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-a037876519b91c465b05085fa1e4cb090072290ce33c93d108f3d63e6956c595; reconstruction-plan=passed/exit-0/output-75c65a1fa12bc546468c81af15c4ac60bad8054087dd868b43d029b52846adc6; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-9ddf515e2c3f01528d8384aff65f23bf73af741a83b280407a3573e23f098ef5; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** docs/reconstruction/adrs/INDEX.toml=413fd65b396bacaa72b40778397721c2e2116230b8fdb3e3c1002f614a25fdc5; docs/reconstruction/adrs/README.md=e75635f7c7eef5fd09af111b2227a01d5a9f152705eac5892c852d94994c9b2c; tools/validate_reconstruction_adrs.py=f58e8bb797aefe71e8ad781dcb414c77508f4452f09baaecc3ca1d713eb4dc8a; tests/project_status/test_reconstruction_adrs.py=de7d08b1f3bb2a4ee2e9f82ae852cee4be00e6ed0b1a62ac63b5c93630c0b323; docs/reconstruction/README.md=895d209dbfa24c92768a8030bca1922bd9410d956a16e6fbbb62ac4da6a6760a
+
+**Limitations.** The product CI baseline remains red in legacy discovery and reproducibility paths; environment contract MH-C-ENV-001 is still proposed, so dependency and product CI changes remain gated.
+
+**Next.** Obtain explicit acceptance of MH-C-ENV-001, then execute MH-003 and capture the immutable machine-readable legacy baseline in MH-004.
+
+---
+
 ## 2026-08-11 - PR lint gate restored
 
 **Task.** MH-006 (`partial`).

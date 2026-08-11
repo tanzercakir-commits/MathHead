@@ -45,6 +45,12 @@ before the critical implementation that they govern.
   monotonic revisions, bounded consistency claims, and immutable identity. It
   binds `schemas/theory-context-v1.schema.json` and is accepted at SHA-256
   `d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d`.
+- `MH-C-RESOURCE-BUDGET-001.json` governs canonical resource ledgers,
+  compositional child reservations and reconciliation, monotonic wall, memory,
+  and nesting observations, exact cumulative accounting, and explicit
+  cancellation, exhaustion, and truncation outcomes. It binds
+  `schemas/resource-budget-v1.schema.json` and is accepted at SHA-256
+  `eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045`.
 
 ## Repository command
 

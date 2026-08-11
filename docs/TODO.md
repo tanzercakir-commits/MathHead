@@ -20,8 +20,9 @@ platform-independent units, serialization, validation errors, and hard
 resource ceilings.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
-`MH-C-PROBLEM-IR-002`, and `MH-C-THEORY-CONTEXT-001`; this task will propose
-and accept a new versioned Budget artifact before implementation.
+`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`, and accepted
+`MH-C-RESOURCE-BUDGET-001` at SHA-256
+`eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045`.
 
 **Validators:** closed schema and tagged-union checks; exact nonnegative integer
 units; canonical ordering, serialization, and identity; dimension and limit

@@ -1,0 +1,446 @@
+{
+  "$id": "https://mathhead.dev/schemas/resource-budget-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "budget_id": {"$ref": "#/$defs/id"},
+    "events": {"items": {"$ref": "#/$defs/event"}, "maxItems": 100000, "type": "array"},
+    "extensions": {"$ref": "#/$defs/extensions"},
+    "limits": {"$ref": "#/$defs/limit_vector"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "outcome": {"$ref": "#/$defs/outcome"},
+    "policy": {"$ref": "#/$defs/policy"},
+    "schema": {"const": "mathhead.resource-budget.v1"}
+  },
+  "required": [
+    "schema",
+    "budget_id",
+    "lineage",
+    "policy",
+    "limits",
+    "events",
+    "outcome",
+    "extensions"
+  ],
+  "title": "MathHead ResourceBudget v1",
+  "type": "object",
+  "$defs": {
+    "cancel_event": {
+      "additionalProperties": false,
+      "properties": {
+        "cancellation_id": {"$ref": "#/$defs/id"},
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "cancel"},
+        "observed_wall_time_us": {"$ref": "#/$defs/quantity"},
+        "reason": {"$ref": "#/$defs/reason"},
+        "sequence": {"$ref": "#/$defs/quantity"},
+        "source": {"enum": ["user", "parent", "supervisor"]}
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "kind",
+        "cancellation_id",
+        "source",
+        "observed_wall_time_us",
+        "reason",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"$ref": "#/$defs/integer"},
+        {"type": "string"},
+        {"items": {"$ref": "#/$defs/canonical_value"}, "maxItems": 100000, "type": "array"},
+        {
+          "additionalProperties": {"$ref": "#/$defs/canonical_value"},
+          "propertyNames": {"maxLength": 128, "pattern": "^[a-z][a-z0-9_]*$"},
+          "type": "object"
+        }
+      ]
+    },
+    "charge_event": {
+      "additionalProperties": false,
+      "properties": {
+        "delta": {"$ref": "#/$defs/cumulative_vector"},
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "charge"},
+        "sequence": {"$ref": "#/$defs/quantity"}
+      },
+      "required": ["event_id", "sequence", "kind", "delta", "extensions"],
+      "type": "object"
+    },
+    "child_lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "allocation_sha256": {"$ref": "#/$defs/sha256"},
+        "kind": {"const": "child"},
+        "parent_budget_id": {"$ref": "#/$defs/id"},
+        "parent_lease_id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["kind", "parent_budget_id", "parent_lease_id", "allocation_sha256"],
+      "type": "object"
+    },
+    "cumulative_vector": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_time_us": {"$ref": "#/$defs/quantity"},
+        "diagnostic_bytes": {"$ref": "#/$defs/quantity"},
+        "evidence_bytes": {"$ref": "#/$defs/quantity"},
+        "generated_objects": {"$ref": "#/$defs/quantity"},
+        "output_bytes": {"$ref": "#/$defs/quantity"},
+        "proof_bytes": {"$ref": "#/$defs/quantity"},
+        "solver_calls": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "cpu_time_us",
+        "solver_calls",
+        "generated_objects",
+        "proof_bytes",
+        "evidence_bytes",
+        "output_bytes",
+        "diagnostic_bytes"
+      ],
+      "type": "object"
+    },
+    "event": {
+      "oneOf": [
+        {"$ref": "#/$defs/charge_event"},
+        {"$ref": "#/$defs/sample_event"},
+        {"$ref": "#/$defs/reserve_event"},
+        {"$ref": "#/$defs/reconcile_event"},
+        {"$ref": "#/$defs/cancel_event"},
+        {"$ref": "#/$defs/exhaust_event"},
+        {"$ref": "#/$defs/truncate_event"}
+      ]
+    },
+    "exhaust_event": {
+      "additionalProperties": false,
+      "properties": {
+        "dimensions": {
+          "items": {"$ref": "#/$defs/dimension"},
+          "maxItems": 10,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "event_id": {"$ref": "#/$defs/id"},
+        "exhaustion_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "exhaust"},
+        "reason": {"$ref": "#/$defs/reason"},
+        "requested": {"$ref": "#/$defs/limit_vector"},
+        "sequence": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "kind",
+        "exhaustion_id",
+        "dimensions",
+        "requested",
+        "reason",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "extensions": {
+      "additionalProperties": {"$ref": "#/$defs/canonical_value"},
+      "propertyNames": {"$ref": "#/$defs/namespaced"},
+      "type": "object"
+    },
+    "id": {"maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$", "type": "string"},
+    "integer": {
+      "maximum": 9007199254740991,
+      "minimum": -9007199254740991,
+      "type": "integer"
+    },
+    "dimension": {
+      "enum": [
+        "cpu_time_us",
+        "diagnostic_bytes",
+        "evidence_bytes",
+        "generated_objects",
+        "memory_bytes",
+        "nesting_depth",
+        "output_bytes",
+        "proof_bytes",
+        "solver_calls",
+        "wall_time_us"
+      ]
+    },
+    "limit_vector": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_time_us": {"$ref": "#/$defs/quantity"},
+        "diagnostic_bytes": {"$ref": "#/$defs/quantity"},
+        "evidence_bytes": {"$ref": "#/$defs/quantity"},
+        "generated_objects": {"$ref": "#/$defs/quantity"},
+        "memory_bytes": {"$ref": "#/$defs/quantity"},
+        "nesting_depth": {"$ref": "#/$defs/quantity"},
+        "output_bytes": {"$ref": "#/$defs/quantity"},
+        "proof_bytes": {"$ref": "#/$defs/quantity"},
+        "solver_calls": {"$ref": "#/$defs/quantity"},
+        "wall_time_us": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "wall_time_us",
+        "cpu_time_us",
+        "memory_bytes",
+        "solver_calls",
+        "generated_objects",
+        "proof_bytes",
+        "evidence_bytes",
+        "output_bytes",
+        "diagnostic_bytes",
+        "nesting_depth"
+      ],
+      "type": "object"
+    },
+    "lineage": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"kind": {"const": "root"}},
+          "required": ["kind"],
+          "type": "object"
+        },
+        {"$ref": "#/$defs/child_lineage"}
+      ]
+    },
+    "namespaced": {
+      "maxLength": 255,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+      "type": "string"
+    },
+    "observation": {
+      "additionalProperties": false,
+      "properties": {
+        "memory_peak_bytes": {"$ref": "#/$defs/quantity"},
+        "memory_retained_bytes": {"$ref": "#/$defs/quantity"},
+        "nesting_current": {"$ref": "#/$defs/quantity"},
+        "nesting_peak": {"$ref": "#/$defs/quantity"},
+        "wall_time_us": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "wall_time_us",
+        "memory_retained_bytes",
+        "memory_peak_bytes",
+        "nesting_current",
+        "nesting_peak"
+      ],
+      "type": "object"
+    },
+    "outcome": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"status": {"const": "open"}},
+          "required": ["status"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"status": {"const": "completed"}},
+          "required": ["status"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "cancellation_id": {"$ref": "#/$defs/id"},
+            "status": {"const": "cancelled"}
+          },
+          "required": ["status", "cancellation_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "exhaustion_id": {"$ref": "#/$defs/id"},
+            "status": {"const": "exhausted"}
+          },
+          "required": ["status", "exhaustion_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "status": {"const": "truncated"},
+            "truncation_ids": {
+              "items": {"$ref": "#/$defs/id"},
+              "maxItems": 100000,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            }
+          },
+          "required": ["status", "truncation_ids"],
+          "type": "object"
+        }
+      ]
+    },
+    "policy": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_accounting": {"const": "exclusive_budget_scope_us"},
+        "deadline": {"const": "relative_to_start"},
+        "integer_rounding": {"const": "ceil"},
+        "memory_accounting": {"const": "inclusive_active_process_tree_bytes"},
+        "reservation": {"const": "conservative_all_dimensions"},
+        "wall_clock": {"const": "monotonic_elapsed_us"}
+      },
+      "required": [
+        "wall_clock",
+        "deadline",
+        "cpu_accounting",
+        "memory_accounting",
+        "integer_rounding",
+        "reservation"
+      ],
+      "type": "object"
+    },
+    "quantity": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"},
+    "reason": {"maxLength": 4096, "minLength": 1, "type": "string"},
+    "reconcile_event": {
+      "additionalProperties": false,
+      "properties": {
+        "child_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "child_outcome": {"enum": ["completed", "cancelled", "exhausted", "truncated"]},
+        "child_usage": {"$ref": "#/$defs/usage"},
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "reconcile"},
+        "lease_id": {"$ref": "#/$defs/id"},
+        "overrun": {"$ref": "#/$defs/limit_vector"},
+        "refund": {"$ref": "#/$defs/limit_vector"},
+        "sequence": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "kind",
+        "lease_id",
+        "child_budget_sha256",
+        "child_outcome",
+        "child_usage",
+        "refund",
+        "overrun",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "reserve_event": {
+      "additionalProperties": false,
+      "properties": {
+        "allocation": {"$ref": "#/$defs/limit_vector"},
+        "allocation_sha256": {"$ref": "#/$defs/sha256"},
+        "child_budget_id": {"$ref": "#/$defs/id"},
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "reserve"},
+        "lease_id": {"$ref": "#/$defs/id"},
+        "sequence": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "kind",
+        "lease_id",
+        "child_budget_id",
+        "allocation",
+        "allocation_sha256",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "sample_event": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "sample"},
+        "observation": {"$ref": "#/$defs/observation"},
+        "sequence": {"$ref": "#/$defs/quantity"}
+      },
+      "required": ["event_id", "sequence", "kind", "observation", "extensions"],
+      "type": "object"
+    },
+    "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+    "truncate_event": {
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "enum": [
+            "diagnostic_bytes",
+            "evidence_bytes",
+            "generated_objects",
+            "output_bytes",
+            "proof_bytes"
+          ]
+        },
+        "event_id": {"$ref": "#/$defs/id"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "kind": {"const": "truncate"},
+        "omitted": {"$ref": "#/$defs/quantity"},
+        "original": {"$ref": "#/$defs/quantity"},
+        "retained": {"$ref": "#/$defs/quantity"},
+        "retained_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "sequence": {"$ref": "#/$defs/quantity"},
+        "strategy": {"enum": ["prefix", "suffix", "sample", "refuse"]},
+        "subject_id": {"$ref": "#/$defs/id"},
+        "truncation_id": {"$ref": "#/$defs/id"}
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "kind",
+        "truncation_id",
+        "dimension",
+        "subject_id",
+        "strategy",
+        "original",
+        "retained",
+        "omitted",
+        "retained_sha256",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "usage": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_time_us": {"$ref": "#/$defs/quantity"},
+        "diagnostic_bytes": {"$ref": "#/$defs/quantity"},
+        "evidence_bytes": {"$ref": "#/$defs/quantity"},
+        "generated_objects": {"$ref": "#/$defs/quantity"},
+        "memory_peak_bytes": {"$ref": "#/$defs/quantity"},
+        "memory_retained_bytes": {"$ref": "#/$defs/quantity"},
+        "nesting_peak": {"$ref": "#/$defs/quantity"},
+        "output_bytes": {"$ref": "#/$defs/quantity"},
+        "proof_bytes": {"$ref": "#/$defs/quantity"},
+        "solver_calls": {"$ref": "#/$defs/quantity"},
+        "wall_time_us": {"$ref": "#/$defs/quantity"}
+      },
+      "required": [
+        "wall_time_us",
+        "cpu_time_us",
+        "memory_peak_bytes",
+        "memory_retained_bytes",
+        "solver_calls",
+        "generated_objects",
+        "proof_bytes",
+        "evidence_bytes",
+        "output_bytes",
+        "diagnostic_bytes",
+        "nesting_peak"
+      ],
+      "type": "object"
+    }
+  }
+}

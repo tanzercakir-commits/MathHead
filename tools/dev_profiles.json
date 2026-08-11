@@ -110,6 +110,12 @@
           "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "solver"]
         },
         {
+          "id": "graph-budget-fast-backend",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "-m", "pytest", "-q", "tests/graph_budget/test_fast_backend.py"]
+        },
+        {
           "id": "solver-full-coverage",
           "required": true,
           "timeout_seconds": 1200,

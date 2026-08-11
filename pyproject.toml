@@ -83,6 +83,7 @@ testpaths = ["tests"]
 timeout = 30            # no test may exceed 30 s (non-determinism/hang guardrail)
 markers = [
     "requires_solver: requires the solvers extra and, where applicable, nauty/geng",
+    "live_mcp: starts the installed MathHead MCP server over real subprocess stdio",
 ]
 
 [tool.coverage.run]

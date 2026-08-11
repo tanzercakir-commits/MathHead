@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Accepted live MCP semantics implemented pending supported CI
+
+**Task.** MH-013 (`partial`).
+
+**Changed.** Accepted MH-C-LIVE-MCP-001 byte-identically; added a frozen independent stdio capability probe with an allow-listed unsupported boundary, bounded terminate-kill-wait cleanup, strict live-test selection, a live_mcp marker, deterministic EOF cleanup, and a dependency-free validator.
+
+**Learned.** The managed local Python 3.14 environment can complete the independent fixed-child stdio probe and start the MathHead server, but MCP 1.x then stalls during handshake; the accepted semantics correctly classify this as an application or SDK compatibility failure rather than a pipe-capability skip.
+
+**Contracts.** MH-C-LIVE-MCP-001=3d43a67a5d7732eca8aab19e4326abed42e12c4836942d2301e24e4ae2f65143 (docs/contracts/MH-C-LIVE-MCP-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-7b3a3c7be87541f4cc598dcd2c5987799b258a37bec02f641d42557ea29e2e55; reconstruction-plan=passed/exit-0/output-3d49650537d551b9ee8a5c7d59991b71238d12aab5e316a78eac065a8452112f; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-353cae0d901addfc670a73216f8c3b4a07cc617d7ee4b5c58b6d573e730efef1; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-55b5802b273d56ed40f6f3f890e9e7f948f859c1e42897e2be4ee823516ba779; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-51f85123db48543345fbdac4843f2cc4d991172277b12aa8d709c144559d613c; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312
+
+**Evidence.** docs/contracts/MH-C-LIVE-MCP-001.json=3d43a67a5d7732eca8aab19e4326abed42e12c4836942d2301e24e4ae2f65143; src/mathhead/server/live.py=983cd93b2917bb5b6b17828ce90dc735914583d24a339eb8c63e84772dd73168; tests/live_mcp/test_live_mcp_contract.py=d554bc42fd6a727aa7fb0e7650beb5928c0151aca9396dda2fd0eba44aebb44a; tests/test_mcp_live.py=2492cdeebedb9afb8e137b5017e464fb566728477f8ccab52e6781ddfacceea0; tools/validate_live_mcp.py=c827a339cddd88dd2d66d651a13a9cde590de532dc850de6339c0ece481775c9; docs/mcp-api.md=1516b078e7cac530dc805c36f94e8eaef3723f18647dbab21635a8d0196e938b
+
+**Limitations.** Nine contract tests, Ruff, the dependency-free live-MCP validator, and all 13 status checks pass. The exact real MCP tests cannot pass on the only local CPython 3.14 interpreter and must be observed on the project-supported GitHub Python 3.10-3.12 matrix before DONE.
+
+**Next.** Commit and push, require the new Windows/Linux/macOS jobs to execute rather than skip every live MCP assertion, and record MH-013 DONE only after those supported-platform logs are clean.
+
+---
+
 ## 2026-08-11 - Command surfaces made encoding-safe
 
 **Task.** MH-012 (`done`).

@@ -35,3 +35,9 @@ id = "MH-C-ENCODING-001"
 path = "docs/contracts/MH-C-ENCODING-001.json"
 sha256 = "b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-LIVE-MCP-001"
+path = "docs/contracts/MH-C-LIVE-MCP-001.json"
+sha256 = "3d43a67a5d7732eca8aab19e4326abed42e12c4836942d2301e24e4ae2f65143"
+state = "accepted"

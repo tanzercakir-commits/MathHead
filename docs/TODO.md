@@ -23,6 +23,27 @@ larger requests require a declared fast capability or return an honest result.
 **Dependencies:** `MH-003` (done), `MH-004` (done); graph-budget contract
 accepted under the project owner's programme-wide acceptance authority.
 
+### MH-013 - Define portable live MCP test semantics
+
+**Goal:** separate real MCP application defects from independently proven host
+stdio-pipe restrictions without weakening the live integration gate.
+
+**Scope:** dependency-independent capability probing, strict skip
+classification, real stdio handshake/tool assertions, bounded deadlines, and
+deterministic subprocess/stream cleanup.
+
+**Contracts:** `MH-C-LIVE-MCP-001`, `MH-C-WORKFLOW-001`.
+
+**Validators:** live-MCP contract unit, negative classification, timeout,
+cleanup, real stdio integration, Windows/Linux/macOS, and status checks.
+
+**Done when:** only an allow-listed failure of the independent pipe probe can
+skip live MCP tests; application and cleanup defects fail closed, all children
+are reaped, and supported CI hosts execute the real assertions.
+
+**Dependencies:** `MH-003` (done), `MH-010` (done), `MH-012` (done); live-MCP
+contract accepted under the project owner's programme-wide acceptance authority.
+
 ## Next
 
 ## Later

@@ -58,6 +58,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nauty
       - name: Bootstrap solver profile
         run: python tools/dev.py bootstrap --profile solver --current
+      - name: Check the bounded graph fast backend
+        run: python tools/dev.py run --profile solver --command graph-budget-fast-backend
       - name: Test solver profile with coverage gate
         run: python tools/dev.py check --profile solver
 

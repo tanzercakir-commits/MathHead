@@ -1,0 +1,70 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-LIVE-MCP-001",
+  "target": "mathhead.server.live:probe_stdio_capability",
+  "signature": "probe_stdio_capability(timeout_seconds: float = 5.0) -> StdioCapability",
+  "requires": [
+    "timeout_seconds is an int or float but not bool, is finite, and is greater than zero.",
+    "The probe runs before a live MCP test decides whether the host can create and operate subprocess stdio pipes.",
+    "The fixed probe child is independent of MathHead server startup and MCP protocol behavior."
+  ],
+  "ensures": [
+    "The returned frozen StdioCapability has exactly one status from supported, unsupported, timed_out, or failed and a stable reason code.",
+    "supported is returned only after a fixed child process receives a sentinel on stdin, reproduces it on stdout, writes a distinct stderr sentinel, and exits zero.",
+    "unsupported is returned only for an allow-listed operating-system capability denial while creating or operating the fixed probe pipes; an MCP handshake, tool, schema, server-startup, or assertion defect is never classified unsupported.",
+    "timed_out is returned only when the fixed probe exceeds its explicit deadline and the child is reaped.",
+    "failed is returned for unexpected exceptions, nonzero exits, malformed probe output, or cleanup failure without hiding the stable failure category.",
+    "Live MCP tests skip only on unsupported; timed_out and failed remain test failures.",
+    "Every started child follows close, terminate, kill, wait, and stream-close cleanup as applicable, and no child is left running after return."
+  ],
+  "raises": [
+    "Invalid timeout types or values raise TypeError or ValueError before a child process is started.",
+    "KeyboardInterrupt and SystemExit are not converted to capability results and cleanup still runs before propagation.",
+    "No expected capability denial, timeout, child failure, or cleanup failure leaks an unclassified traceback through the test selection boundary."
+  ],
+  "effects": {
+    "filesystem": "none",
+    "process": "starts at most one fixed current-interpreter probe child and always reaps it",
+    "network": "none",
+    "environment": "reads the current interpreter and operating-system error information but does not mutate environment variables, locale, or global event-loop policy",
+    "repository": "never edits source, contracts, PLAN, TODO, PROGRESS, caches, or test artifacts"
+  },
+  "determinism": {
+    "probe": "the child program and sentinels are fixed constants and contain no clock, random, machine, checkout, or user data",
+    "classification": "the same observable pipe outcome maps to the same status and reason code",
+    "diagnostics": "reason codes exclude exception prose, absolute paths, process identifiers, and elapsed timings",
+    "skip": "only the unsupported status is a capability skip; all other non-supported outcomes fail closed"
+  },
+  "budget": {
+    "default_seconds": 5.0,
+    "minimum_exclusive_seconds": 0.0,
+    "children": 1,
+    "terminate_grace_seconds": 2.0,
+    "kill_grace_seconds": 2.0,
+    "live_test_seconds": 60,
+    "cancellation": "cancellation closes stdin, terminates then kills if necessary, waits, closes remaining streams, and never returns supported"
+  },
+  "epistemics": {
+    "supported": "the independent fixed child completed the exact bidirectional stdio-pipe probe",
+    "unsupported": "an allow-listed host capability denial prevented the independent fixed pipe probe",
+    "timed_out": "the independent fixed pipe probe exceeded its deadline and was reaped",
+    "failed": "the probe result or cleanup was inconsistent, unexpected, or nonzero, so no capability claim is made",
+    "application_test": "once the independent probe is supported, every MCP startup, handshake, schema, tool-call, stdout-integrity, and shutdown defect remains a failing application test"
+  },
+  "invariants": [
+    "A MathHead server or MCP protocol failure can never cause an unsupported result or skip.",
+    "A supported result requires exact stdin, stdout, stderr, and zero-exit evidence from the fixed child.",
+    "No result is returned while a probe child remains running or unreaped.",
+    "Unsupported reason codes come only from an explicit operating-system denial allow-list.",
+    "Timeout and cleanup defects fail closed and are never relabeled unsupported or supported.",
+    "Supported GitHub Windows, Linux, and macOS jobs execute live MCP assertions rather than skipping them."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-LIVE-MCP-001.json",
+    "python -m unittest discover -s tests/live_mcp -v",
+    "python tools/validate_live_mcp.py",
+    "python -m pytest -q tests/test_mcp_live.py",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

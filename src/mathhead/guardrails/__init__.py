@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import ast
 
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
+
 MAX_STATEMENTS: int = 256          # max number of statements per request
 MAX_EXPRESSION_CHARS: int = 4_000  # single-expression length limit
 MAX_AST_DEPTH: int = 64            # nesting depth limit
@@ -54,9 +56,9 @@ def validate_input(statements: list[str]) -> None:
                 f"[{i}] statement too long (>{MAX_EXPRESSION_CHARS} characters)"
             )
         try:
-            tree = ast.parse(s, mode="eval")
-        except SyntaxError as exc:
-            raise GuardrailError(f"[{i}] syntax error: {exc.msg}") from exc
+            tree = parse_expression(s)
+        except ExpressionSyntaxError as exc:
+            raise GuardrailError(f"[{i}] syntax error: {exc}") from exc
         if _depth(tree) > MAX_AST_DEPTH:
             raise GuardrailError(f"[{i}] expression too deep (>{MAX_AST_DEPTH} levels)")
 

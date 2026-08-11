@@ -36,6 +36,8 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from typing import Any
 
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
+
 __all__ = ["CertificateResult", "check_certificate"]
 
 _TOL = 1e-9
@@ -119,7 +121,10 @@ def _eval(node: ast.AST, env: dict[str, Any]) -> Any:
 
 
 def _evaluate(expression: str, env: dict[str, Any]) -> Any:
-    tree = ast.parse(str(expression).strip(), mode="eval")
+    try:
+        tree = parse_expression(str(expression).strip())
+    except ExpressionSyntaxError as exc:
+        raise _CertError(f"syntax error: {exc}") from exc
     return _eval(tree.body, env)
 
 

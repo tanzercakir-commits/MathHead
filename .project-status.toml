@@ -102,3 +102,10 @@ command = "python tools/validate_project_metadata.py"
 profiles = ["status", "fast"]
 tasks = ["MH-015"]
 timeout_seconds = 30
+
+[[checks]]
+name = "ast-parse-contract"
+command = "python tools/validate_ast_parse.py"
+profiles = ["status", "fast"]
+tasks = ["MH-016"]
+timeout_seconds = 60

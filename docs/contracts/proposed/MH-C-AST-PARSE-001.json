@@ -1,0 +1,59 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-AST-PARSE-001",
+  "target": "mathhead.parsing:parse_expression",
+  "signature": "parse_expression(source: str) -> ast.Expression",
+  "requires": [
+    "source is supplied at an untrusted expression boundary and is expected to be a Python expression string rather than a statement suite.",
+    "Caller-specific length, count, grammar-node, and semantic restrictions remain the responsibility of the caller."
+  ],
+  "ensures": [
+    "A valid source returns exactly one ast.Expression produced in eval mode without evaluating, importing, compiling for execution, or rewriting the source.",
+    "Embedded NUL, malformed syntax, non-string input at runtime, and parser argument rejection are normalized to ExpressionSyntaxError on every supported Python version.",
+    "The normalized exception message is deterministic for an embedded NUL and never contains a traceback, memory address, checkout path, or interpreter-specific source location.",
+    "Guardrail, compute, logic translation, induction, SMT, modal, inequality, and certificate expression boundaries either consume this function or independently prove that no raw parser exception can cross their public result boundary."
+  ],
+  "raises": [
+    "ExpressionSyntaxError for embedded NUL, malformed expression syntax, a runtime non-string value, or another documented ast.parse input rejection.",
+    "MemoryError, KeyboardInterrupt, SystemExit, and interpreter defects are not converted into ordinary malformed-input outcomes."
+  ],
+  "effects": {
+    "filesystem": "none",
+    "process": "none",
+    "network": "none",
+    "cache": "none",
+    "mutation": "does not mutate source, returned AST after construction, global parser settings, locale, or interpreter state"
+  },
+  "determinism": {
+    "mode": "always ast.parse eval mode",
+    "nul": "reject before ast.parse with the exact message expression contains NUL",
+    "syntax": "use SyntaxError.msg without source line, offset, filename, or rendered traceback",
+    "runtime_type": "reject with the exact message expression must be a string"
+  },
+  "budget": {
+    "time": "linear parser work in the supplied source length; caller-owned maximum lengths apply before this boundary where required",
+    "memory": "one CPython AST plus parser working memory; no unbounded collection or retry",
+    "cancellation": "KeyboardInterrupt is never swallowed"
+  },
+  "epistemics": {
+    "parsed": "CPython accepted the source as an expression AST; this does not establish allowed grammar, type correctness, mathematical truth, safety, or satisfiability",
+    "rejected": "the source cannot enter downstream semantic translation through this boundary",
+    "unsupported": "not emitted by this function; callers may classify valid but unsupported AST nodes"
+  },
+  "invariants": [
+    "No raw SyntaxError, ValueError, or TypeError caused by untrusted parser input crosses this boundary.",
+    "Embedded NUL is rejected identically on Python 3.10 through 3.14.",
+    "The function never evaluates source and never broadens an existing caller grammar.",
+    "Existing caller-specific error types, status values, reason codes, and malformed-input rejection remain stable.",
+    "Accepted contracts and frozen legacy evidence remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-AST-PARSE-001.json",
+    "python tools/validate_ast_parse.py",
+    "python -m pytest -q tests/parsing",
+    "python -m pytest -q tests/test_fuzz.py tests/test_properties.py tests/test_numerical_hardening.py",
+    "python tools/dev.py check --profile core",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

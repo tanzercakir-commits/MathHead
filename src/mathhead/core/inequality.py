@@ -30,6 +30,7 @@ from mathhead.core.logic import (
     _py_value,
 )
 from mathhead.guardrails import solver_config
+from mathhead.parsing import parse_expression
 
 __all__ = ["find_real_solution", "prove_inequality", "prove_nonnegative"]
 
@@ -118,7 +119,7 @@ def _node(node: ast.AST, rvars: dict[str, Any]) -> Any:
 
 
 def _translate(expr: str, rvars: dict[str, Any]) -> Any:
-    return _node(ast.parse(str(expr).strip(), mode="eval").body, rvars)
+    return _node(parse_expression(str(expr).strip()).body, rvars)
 
 
 def _real_witness(model: z3.ModelRef, rvars: dict[str, Any]) -> dict[str, Any]:

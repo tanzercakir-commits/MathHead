@@ -5,29 +5,29 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-015 - Remove version and documentation drift
+### MH-016 - Make the full supported CI matrix green
 
-**Goal:** replace hand-maintained package, test, tool, profile, and executable
-example claims with a single generated and fail-closed project-facts boundary.
+**Goal:** make every required ENV-002 CI job pass on its declared operating
+systems and Python versions without deleting coverage or weakening rejection.
 
-**Scope:** single-source package SemVer, dynamic build metadata, canonical live
-project facts, generator-owned README claims, strict example manifest and source
-directives, declared profile ownership, and exact pytest validator node IDs.
+**Scope:** normalize Python-version-dependent `ast.parse` failures at one
+content-addressed expression-parser boundary, route all user expression parsers
+through it, preserve caller-specific error envelopes, and repair any remaining
+supported-matrix failures exposed by the full workflow.
 
-**Contracts:** `MH-C-PROJECT-FACTS-001`, `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-AST-PARSE-001`, `MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
 
-**Validators:** accepted contract hash/signature, package/wheel/CLI/changelog
-version agreement, live pytest and MCP enumeration, canonical facts and README
-regeneration, example schema/coverage/selection, docs profile, release smoke,
-Ruff, and project status.
+**Validators:** accepted contract hash/signature, deterministic malformed-input
+and NUL rejection, direct and routed Hypothesis properties, core/discovery/docs/
+solver/live/slow/release profiles, required coverage at 85 percent or higher,
+all supported OS/Python jobs, Ruff, and project status.
 
-**Done when:** one editable version literal drives source and package metadata;
-test/tool/profile claims regenerate from live sources; every published
-executable result example has one profile and a passing exact validator; all
-other command snippets are explicitly classified with a reason.
+**Done when:** all required jobs in a clean GitHub Actions run conclude success;
+no supported Python leaks `SyntaxError`, `ValueError`, or `TypeError` from the
+shared expression boundary; no test, matrix cell, or coverage gate is removed.
 
-**Dependencies:** `MH-014` (done); project-facts contract accepted under the
-project owner's programme-wide acceptance authority.
+**Dependencies:** `MH-015` (done); parser normalization contract accepted under
+the project owner's programme-wide acceptance authority.
 
 ## Next
 

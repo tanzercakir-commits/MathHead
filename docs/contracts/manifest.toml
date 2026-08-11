@@ -53,3 +53,9 @@ id = "MH-C-PROJECT-FACTS-001"
 path = "docs/contracts/MH-C-PROJECT-FACTS-001.json"
 sha256 = "701a5f99a41f3f2226859fac98c5a8050915d88fb83111a53e5172a2b2760aad"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-AST-PARSE-001"
+path = "docs/contracts/MH-C-AST-PARSE-001.json"
+sha256 = "69884d482ed38e34ea0b1cd1c6d3349d2dca389704ddbd385d8e493b30886965"
+state = "accepted"

@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Generated project facts and executable docs ownership
+
+**Task.** MH-015 (`done`).
+
+**Changed.** Moved package SemVer to one source, bound Hatch dynamically, generated canonical live facts and README claims, classified 45 published snippets, and attached exact validator nodes to governed profiles.
+
+**Learned.** A legacy discovery packaging test still assumed static project.version; GitHub caught it and the test now verifies dynamic Hatch metadata. The current generated boundary resolves package 1.2.0, 171 MCP tools, 2115 collected tests, and all nine ENV-002 profiles.
+
+**Contracts.** MH-C-PROJECT-FACTS-001=701a5f99a41f3f2226859fac98c5a8050915d88fb83111a53e5172a2b2760aad (docs/contracts/MH-C-PROJECT-FACTS-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-4570c9d4eb4bd3cd2232aa97513c55bfbcb1e30b2b992265c1ff844bc4311134; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0
+
+**Evidence.** docs/contracts/MH-C-PROJECT-FACTS-001.json=701a5f99a41f3f2226859fac98c5a8050915d88fb83111a53e5172a2b2760aad; src/mathhead/_version.py=23474a0d501f6e7f041e155baa1edad622b90e0018a741ff4cbf6332c0294e8b; tools/project_facts.py=3b0ffe3ce75a7d920eb8b5b2e03ccb6159badf8c9137e2d2942f277c34855879; tools/validate_project_metadata.py=93e43add58d99b58b6d7af692f8de108d3e370692e2d832798cd07b494f24eb1; docs/examples.toml=bcbb6afb3889dad63455f9bff4fbdfbe98bb08ec2bec123b857203d9e7705a5f; docs/project-facts.json=390c3f0219a44af45f0ab257d3ae2baccc5d9592f2e9838f6d79d5cdf20972d4; README.md=238555c7be34d0f087fd56a9a46a5145788e30ac611a3a0ec3676021b372a96c; tests/project_metadata/test_project_metadata.py=cdf2125777b77fb5cabb5d96505f3c85683fb653ad2f152b0731f4259265c0c3
+
+**Limitations.** Frozen legacy status records retain historical numeric claims by design; current README claims are generator-owned. Python 3.10 arbitrary-NUL fuzz failures are outside this task and remain assigned to MH-016.
+
+**Next.** Activate MH-016 and normalize portable parser exceptions without weakening malformed-input rejection.
+
+---
+
 ## 2026-08-11 - Governed test profiles split and verified
 
 **Task.** MH-014 (`done`).

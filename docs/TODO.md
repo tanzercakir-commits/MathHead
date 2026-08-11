@@ -5,27 +5,29 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-014 - Split test profiles
+### MH-015 - Remove version and documentation drift
 
-**Goal:** replace the monolithic test command with explicit, bounded ownership
-for every supported product and governance gate.
+**Goal:** replace hand-maintained package, test, tool, profile, and executable
+example claims with a single generated and fail-closed project-facts boundary.
 
-**Scope:** status/runtime helpers plus core, solver, discovery, docs, live-mcp,
-slow, and release profiles; dependencies, markers, platform/Python support,
-timeouts, coverage preservation, CI routing, and full-history baseline replay.
+**Scope:** single-source package SemVer, dynamic build metadata, canonical live
+project facts, generator-owned README claims, strict example manifest and source
+directives, declared profile ownership, and exact pytest validator node IDs.
 
-**Contracts:** `MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-PROJECT-FACTS-001`, `MH-C-WORKFLOW-001`.
 
-**Validators:** profile schema and ownership, dependency isolation, negative
-marker selection, per-profile budgets, unchanged coverage floor, full-history
-baseline replay, CI dispatcher ownership, and supported-platform checks.
+**Validators:** accepted contract hash/signature, package/wheel/CLI/changelog
+version agreement, live pytest and MCP enumeration, canonical facts and README
+regeneration, example schema/coverage/selection, docs profile, release smoke,
+Ruff, and project status.
 
-**Done when:** every test belongs to an explicit profile, fast jobs no longer
-run an auxiliary monolithic full suite, solver/live/slow work is isolated, and
-coverage remains a required bounded CI gate at 85 percent or higher.
+**Done when:** one editable version literal drives source and package metadata;
+test/tool/profile claims regenerate from live sources; every published
+executable result example has one profile and a passing exact validator; all
+other command snippets are explicitly classified with a reason.
 
-**Dependencies:** `MH-003` (done), `MH-010` through `MH-013` (done); environment
-v2 accepted under the project owner's programme-wide acceptance authority.
+**Dependencies:** `MH-014` (done); project-facts contract accepted under the
+project owner's programme-wide acceptance authority.
 
 ## Next
 

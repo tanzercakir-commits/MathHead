@@ -15,7 +15,8 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
         parts = path.parts
         if name.startswith("test_discovery_") or "graph_budget" in parts:
             item.add_marker(pytest.mark.discovery)
-        if name in {"test_api_reference.py", "test_docs_examples.py"}:
+        if name in {"test_api_reference.py", "test_docs_examples.py"} or \
+                "project_metadata" in parts:
             item.add_marker(pytest.mark.docs)
         if name == "test_mcp_live.py" or "live_mcp" in parts:
             item.add_marker(pytest.mark.live_mcp)

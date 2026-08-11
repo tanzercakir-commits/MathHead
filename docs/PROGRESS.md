@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Governed test profiles split and verified
+
+**Task.** MH-014 (`done`).
+
+**Changed.** Bound all 2,108 collected tests to disjoint core, solver, discovery, docs, live-MCP, or explicit slow ownership; removed auxiliary monolithic commands; routed CI through bounded profile gates with full-history baseline checkout and retained the explicit coverage gate.
+
+**Learned.** GitHub run 31491575410 proved the separated slow, solver, discovery, docs, live-MCP, core 3.11/3.12, build, tracker, and reproducibility work independently; coverage job 93779084468 passed 2,073 selected tests at 87.65 percent in 268.45 seconds, while Python 3.10 consistently exposed the pre-existing NUL parser defect assigned to MH-016.
+
+**Contracts.** MH-C-ENV-002=aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d (docs/contracts/MH-C-ENV-002.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-26517e19fadb8780a96151632a25c7026ca11f064cceec96d9e319e440330112; reconstruction-plan=passed/exit-0/output-33d28b548fc5dc6ec67f83247ce1954ae62de6a2d106a0461bd0737f15928981; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-78474777d43a75e8915d7f07da2d995d075a90bc6a947821f0e1d3bec64eb087; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-f84e4ac87ba5e41a9545a9a3a962007e06b4731eec24383ccdf24759e4feebbd; dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-51f85123db48543345fbdac4843f2cc4d991172277b12aa8d709c144559d613c; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312
+
+**Evidence.** docs/contracts/MH-C-ENV-002.json=aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d; tools/dev_profiles.json=dde1cf64f0419a27a93cd8e96d993d4ec53f3b45be9b3b0d48d45b4b05e39026; tools/validate_dev_environment.py=91c3de90650e7269414d29548a25f54234e325af35187f9b6c020b4fb08e8966; tests/conftest.py=8ce9fa538cc600f6509b8e85de8301a9d0104edb23693c118c898dd646bff8a7; .github/workflows/ci.yml=1ba54d9d4847b7566b1058a0cc88bf9c4ffe5d98dc4a9d1ce0318859f0c58b02; pyproject.toml=8ad7a34a14634a68d7309dfb2faa99e87c6fa2cb96d05c260e07f5217ba7f811
+
+**Limitations.** The CI run remains red only on the three Python 3.10 core jobs because four arbitrary-NUL fuzz paths leak ValueError; this is product compatibility work for MH-016, not a profile ownership, timeout, coverage-floor, or workflow-routing failure.
+
+**Next.** Activate MH-015, centralize version and generated project facts, and bind every published executable example to a declared profile.
+
+---
+
 ## 2026-08-11 - Portable live MCP semantics verified across supported hosts
 
 **Task.** MH-013 (`done`).

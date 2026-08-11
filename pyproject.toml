@@ -1,6 +1,6 @@
 [project]
 name = "mathhead"
-version = "1.2.0"
+dynamic = ["version"]
 description = "A deterministic, first-order-logic-based math reasoning and proof engine that AI can use over MCP."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -77,6 +77,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mathhead"]
+
+[tool.hatch.version]
+path = "src/mathhead/_version.py"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,0 +1,376 @@
+schema = 1
+contract_id = "MH-C-PROJECT-FACTS-001"
+sources = [
+  "README.md",
+  "docs/manual/quickstart.md",
+  "docs/manual/examples.md",
+  "docs/manual/api.md",
+]
+
+[[examples]]
+id = "readme-overview-install"
+source = "README.md"
+language = "console"
+mode = "non-executable"
+reason = "requires network and optional system package installation"
+
+[[examples]]
+id = "readme-overview-divisibility"
+source = "README.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_trio_runs_exactly_as_documented"]
+
+[[examples]]
+id = "readme-overview-graph-refutation"
+source = "README.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_trio_runs_exactly_as_documented"]
+
+[[examples]]
+id = "readme-overview-r35"
+source = "README.md"
+language = "console"
+mode = "executable"
+profile = "slow"
+validators = ["tests/test_discovery_ramsey_sat.py::test_r35_and_r44_bracketed_with_engine_derived_lemmas"]
+
+[[examples]]
+id = "readme-posix-setup"
+source = "README.md"
+language = "bash"
+mode = "non-executable"
+reason = "platform-specific setup and long-running server launch"
+
+[[examples]]
+id = "readme-windows-setup"
+source = "README.md"
+language = "powershell"
+mode = "non-executable"
+reason = "platform-specific setup and long-running server launch"
+
+[[examples]]
+id = "readme-domain-trap"
+source = "README.md"
+language = "python"
+mode = "executable"
+profile = "core"
+validators = ["tests/test_verify.py::test_equality_domain_trap"]
+
+[[examples]]
+id = "readme-incomplete-solution"
+source = "README.md"
+language = "python"
+mode = "executable"
+profile = "core"
+validators = [
+  "tests/test_verify.py::test_solution_incomplete_catches_missing",
+  "tests/test_verify.py::test_solution_correct_and_complete",
+]
+
+[[examples]]
+id = "readme-independent-certificate"
+source = "README.md"
+language = "python"
+mode = "executable"
+profile = "core"
+validators = [
+  "tests/test_certificate.py::test_end_to_end_subset_sum_then_independent_check",
+  "tests/test_certificate.py::test_solution_exact_verified_and_refuted",
+]
+
+[[examples]]
+id = "readme-external-client"
+source = "README.md"
+language = "bash"
+mode = "non-executable"
+reason = "requires the external Claude client"
+
+[[examples]]
+id = "readme-cli-catalog"
+source = "README.md"
+language = "bash"
+mode = "executable"
+profile = "core"
+validators = [
+  "tests/test_cli.py::test_entail_valid",
+  "tests/test_cli.py::test_syllogism_via_cli",
+  "tests/test_cli.py::test_solve_json_output",
+  "tests/test_verify_calculus.py::test_limit_correct",
+  "tests/test_matrix.py::test_det_numeric_2x2",
+  "tests/test_matrix.py::test_eigenvalues_diagonal",
+  "tests/test_cli.py::test_pigeonhole_via_cli",
+  "tests/test_frontier.py::test_graph_coloring_triangle_3colorable",
+  "tests/test_frontier.py::test_subset_sum_found_and_verified",
+  "tests/test_logic.py::test_consistent_set_is_sat_with_model",
+]
+
+[[examples]]
+id = "readme-server-launch"
+source = "README.md"
+language = "bash"
+mode = "non-executable"
+reason = "long-running server process"
+
+[[examples]]
+id = "readme-repository-tree"
+source = "README.md"
+language = ""
+mode = "non-executable"
+reason = "illustrative repository layout rather than executable code"
+
+[[examples]]
+id = "quickstart-install"
+source = "docs/manual/quickstart.md"
+language = "bash"
+mode = "non-executable"
+reason = "requires network access and optional system package installation"
+
+[[examples]]
+id = "quickstart-divisibility"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_trio_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-graph-refutation"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_trio_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-graph-open"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_trio_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-congruence-ascii"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_wave1_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-handshake-open"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_wave1_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-sum-inequality"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_wave1_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-graph-readings"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_three_readings_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-fixed-order-reading"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_three_readings_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-quantifier-readings"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_forall_exists_runs_exactly_as_documented"]
+
+[[examples]]
+id = "quickstart-r33-bracket"
+source = "docs/manual/quickstart.md"
+language = "console"
+mode = "executable"
+profile = "solver"
+validators = ["tests/test_docs_examples.py::test_example_3_bracket_r33"]
+
+[[examples]]
+id = "quickstart-python-sum"
+source = "docs/manual/quickstart.md"
+language = "python"
+mode = "executable"
+profile = "discovery"
+validators = ["tests/test_discovery_product.py::test_sum_identity_proof_and_refutation"]
+
+[[examples]]
+id = "example-modular-proof"
+source = "docs/manual/examples.md"
+language = "python"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_1_modular_proof"]
+
+[[examples]]
+id = "example-graph-witness"
+source = "docs/manual/examples.md"
+language = "python"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_2_refutation_witness"]
+
+[[examples]]
+id = "example-r35-bracket"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "slow"
+validators = ["tests/test_discovery_ramsey_sat.py::test_r35_and_r44_bracketed_with_engine_derived_lemmas"]
+
+[[examples]]
+id = "example-frankl-hunt"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "discovery"
+validators = ["tests/test_discovery_frankl.py::test_live_hunt_reports_honestly"]
+
+[[examples]]
+id = "example-deterministic-report"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "discovery"
+validators = ["tests/test_discovery_report.py::test_report_is_deterministic"]
+
+[[examples]]
+id = "example-congruence-proof"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_6_readings_blocks_run_exactly_as_documented"]
+
+[[examples]]
+id = "example-congruence-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_6_readings_blocks_run_exactly_as_documented"]
+
+[[examples]]
+id = "example-handshake-reading"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_quickstart_three_readings_runs_exactly_as_documented"]
+
+[[examples]]
+id = "example-graph-equality-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_7_readings_blocks_run_exactly_as_documented"]
+
+[[examples]]
+id = "example-sum-proof-chain"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_8_sum_inequality_chain_and_the_sound_direction"]
+
+[[examples]]
+id = "example-sum-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_8_sum_inequality_chain_and_the_sound_direction"]
+
+[[examples]]
+id = "example-permutation-open"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_9_permutation_bounds"]
+
+[[examples]]
+id = "example-permutation-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_9_permutation_bounds"]
+
+[[examples]]
+id = "example-partition-open"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_10_partition_identity"]
+
+[[examples]]
+id = "example-partition-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_10_partition_identity"]
+
+[[examples]]
+id = "example-composition-open"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_11_composition_identity"]
+
+[[examples]]
+id = "example-composition-refutation"
+source = "docs/manual/examples.md"
+language = "console"
+mode = "executable"
+profile = "docs"
+validators = ["tests/test_docs_examples.py::test_example_11_composition_identity"]
+
+[[examples]]
+id = "api-single-door"
+source = "docs/manual/api.md"
+language = "python"
+mode = "non-executable"
+reason = "typed API signature synopsis rather than executable Python"
+
+[[examples]]
+id = "api-cli-grammar"
+source = "docs/manual/api.md"
+language = "text"
+mode = "non-executable"
+reason = "command grammar synopsis rather than a runnable invocation"
+
+[[examples]]
+id = "api-technique-map"
+source = "docs/manual/api.md"
+language = "python"
+mode = "executable"
+profile = "discovery"
+validators = ["tests/test_discovery_technique_map.py::test_suggestions_carry_verdict_tiers"]

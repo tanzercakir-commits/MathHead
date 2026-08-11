@@ -1,5 +1,6 @@
 # Quickstart
 
+<!-- mathhead-non-executable: quickstart-install | requires network access and optional system package installation -->
 ```bash
 pip install "mathhead[solvers] @ git+https://github.com/tanzercakir-commits/MathHead"
 # optional, for graph generation at scale:
@@ -8,16 +9,19 @@ sudo apt-get install nauty
 
 Three checks, three kinds of honest answer.
 
+<!-- mathhead-example: quickstart-divisibility -->
 ```console
 $ mathhead-discover check "6 | n^3 - n"
 VERDICT: proved   [kernel_verified]
 ```
 
+<!-- mathhead-example: quickstart-graph-refutation -->
 ```console
 $ mathhead-discover check "num_triangles <= num_edges" --max-n 6
 VERDICT: refuted   [exact_integer_certificate]
 ```
 
+<!-- mathhead-example: quickstart-graph-open -->
 ```console
 $ mathhead-discover check "clique_number <= chromatic_number" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
@@ -25,11 +29,13 @@ VERDICT: open   [no_counterexample_within_bound]
 
 Coverage wave 1 (v4F1) — three more forms through the same door:
 
+<!-- mathhead-example: quickstart-congruence-ascii -->
 ```console
 $ mathhead-discover check "n^2 = n mod 2"
 VERDICT: proved   [kernel_verified]
 ```
 
+<!-- mathhead-example: quickstart-handshake-open -->
 ```console
 $ mathhead-discover check "sum_degrees == 2*num_edges" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
@@ -37,6 +43,7 @@ VERDICT: open   [no_counterexample_within_bound]
 The handshake lemma is a *theorem* — but a finite scan cannot know that, so the engine refuses to
 say "proved" and tells you exactly how far the equality held.
 
+<!-- mathhead-example: quickstart-sum-inequality -->
 ```console
 $ mathhead-discover check "sum_(i=1..n) i <= n^2"
 VERDICT: proved   [solver_verified]
@@ -51,6 +58,7 @@ A bare graph-bound text is *ambiguous* about its quantifier domain: connected gr
 one fixed order? The engine no longer picks one silently — every graph-bound verdict also carries
 the three candidate readings, each with its own honest answer:
 
+<!-- mathhead-example: quickstart-graph-readings -->
 ```console
 $ mathhead-discover check "num_vertices <= num_edges + 1" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
@@ -67,6 +75,7 @@ nothing); drop connectivity and two isolated vertices refute it instantly. The c
 assumption is load-bearing, and the answer *changes with the question* — so the product says so.
 The fixed-order reading C can even turn a scan into a **decision**:
 
+<!-- mathhead-example: quickstart-fixed-order-reading -->
 ```console
 $ mathhead-discover check "sum_degrees == 2*num_edges" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
@@ -88,6 +97,7 @@ Divisibility and congruence statements hide the same kind of ambiguity: does `5 
 reading (unchanged), and the ∃ reading is *decided* from the same finite residue table (p(n) mod
 m depends only on n mod m, so the m-residue scan settles ∃ completely — it is never `open`):
 
+<!-- mathhead-example: quickstart-quantifier-readings -->
 ```console
 $ mathhead-discover check "5 | n^3 - n"
 VERDICT: refuted   [exact_integer_certificate]
@@ -108,6 +118,7 @@ readings through the `m | (p − q)` reduction.
 
 And a classic, bracketed before your coffee cools:
 
+<!-- mathhead-example: quickstart-r33-bracket -->
 ```console
 $ mathhead-discover bracket 3 3 --lo 5 --hi 6
 R(3,3) = 6
@@ -115,6 +126,7 @@ R(3,3) = 6
 
 From Python:
 
+<!-- mathhead-example: quickstart-python-sum -->
 ```python
 from mathhead.discovery import check
 r = check("sum_(i=1..n) i = n*(n+1)/2")

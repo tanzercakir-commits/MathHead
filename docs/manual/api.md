@@ -2,6 +2,7 @@
 
 ## The single door
 
+<!-- mathhead-non-executable: api-single-door | typed API signature synopsis rather than executable Python -->
 ```python
 from mathhead.discovery import check
 check(statement: str, max_n: int = 6) -> CheckResult
@@ -39,6 +40,7 @@ counts are not yet in the surface — `unsupported` says so. Route-wide guard: a
 
 ## CLI
 
+<!-- mathhead-non-executable: api-cli-grammar | command grammar synopsis rather than a runnable invocation -->
 ```text
 mathhead-discover check STATEMENT [--max-n N] [--json]
 mathhead-discover bracket S T --lo N --hi M [--strengthen]
@@ -57,6 +59,7 @@ metrics ever leave the machine.
 
 Problem structure → instruments (each pointer is import-tested against the codebase):
 
+<!-- mathhead-example: api-technique-map -->
 ```python
 from mathhead.discovery import suggest_techniques
 suggest_techniques("6 divides n^3 - n")

@@ -6,18 +6,28 @@
 or tells you exactly how far it survived.** A deterministic mathematics engine with an honesty
 contract: **every verdict carries its epistemic tier.**
 
+<!-- mathhead-non-executable: readme-overview-install | requires network and optional system package installation -->
 ```console
 $ pip install "mathhead[solvers] @ git+https://github.com/tanzercakir-commits/MathHead"
 $ # (PyPI release pending — until then, install from git.)  + `apt install nauty` for scale
+```
 
+<!-- mathhead-example: readme-overview-divisibility -->
+```console
 $ mathhead-discover check "6 | n^3 - n"
 VERDICT: proved   [kernel_verified]
   proof     : kernel hash 7b24fe07c5c0df35
+```
 
+<!-- mathhead-example: readme-overview-graph-refutation -->
+```console
 $ mathhead-discover check "num_triangles <= num_edges" --max-n 6
 VERDICT: refuted   [exact_integer_certificate]
   witness   : n=6 graph with num_triangles=16 > num_edges=14
+```
 
+<!-- mathhead-example: readme-overview-r35 -->
+```console
 $ mathhead-discover bracket 3 5 --lo 13 --hi 14 --strengthen
 n=13: SAT   [independently_verified_witness]  → R(3,5) > 13
 n=14: UNSAT [independently_verified_unsat_proof_of_strengthened_formula]  → R(3,5) <= 14
@@ -64,7 +74,7 @@ callable by an AI (e.g. Claude) over **MCP**.
 
 ## Status
 
-**v1.0.x — the MCP contract is frozen; maturity is Beta.** MathHead is a **deterministic
+The MCP contract is frozen at compatibility level `1`; package maturity is Beta. MathHead is a **deterministic
 verification engine for AI-generated mathematics**: given a claim an AI produced, it checks
 it deterministically and returns a *counterexample* or an *independently-checkable
 certificate* when it can — and an honest `unknown` when it can't.
@@ -75,15 +85,21 @@ certificate* when it can — and an honest `unknown` when it can't.
   observability. Useful and tested, but the surface may still change (per-tool stability is
   being made explicit).
 
-**171 MCP tools** (curated down to a ~20-tool `core` profile by default — see *Tool profiles*),
-a CLI, **1261 tests green** — deterministic verdicts, honest walls. Not yet published to PyPI;
-install from source (below). Full history in `CHANGELOG.md`, plan in `ROADMAP.md`.
+<!-- BEGIN MATHHEAD PROJECT FACTS -->
+**Package `1.2.0` · 171 MCP tools · 2115 collected tests.**  
+Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
+Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
+<!-- END MATHHEAD PROJECT FACTS -->
+
+The full MCP catalog is curated down to a small `core` profile by default (see *Tool profiles*).
+The project also ships a CLI. It is not yet published to PyPI; install from source (below).
+Full history is in `CHANGELOG.md`; reconstruction governance is in `docs/PLAN.md`.
 
 ### Version vocabulary (separate on purpose)
 
 | What | Version |
 |---|---|
-| Package (SemVer) | `1.0.x` |
+| Package (SemVer) | generated above from the package source |
 | MCP contract (the supported surface) | `1` |
 | Input grammar (logic kernel) | `1.2` |
 | Extended tool packs | experimental |
@@ -96,6 +112,7 @@ are convenience/internal — not covered by the package's SemVer promise (see
 
 Once on PyPI: `pip install mathhead` (see `RELEASING.md`). For now, from source:
 
+<!-- mathhead-non-executable: readme-posix-setup | platform-specific setup and long-running server launch -->
 ```bash
 git clone https://github.com/tanzercakir-commits/MathHead && cd MathHead
 python tools/dev.py bootstrap --profile core --venv .venv
@@ -105,6 +122,7 @@ python tools/dev.py bootstrap --profile core --venv .venv
 
 On Windows PowerShell, the equivalent governed commands are:
 
+<!-- mathhead-non-executable: readme-windows-setup | platform-specific setup and long-running server launch -->
 ```powershell
 py tools/dev.py bootstrap --profile core --venv .venv
 .venv\Scripts\python.exe tools/dev.py check --profile core
@@ -129,6 +147,7 @@ Shown via the Python convenience API for readability; the same checks are the MC
 
 **1. The domain trap — "simplify" that quietly changes the function.**
 
+<!-- mathhead-example: readme-domain-trap -->
 ```python
 from mathhead.core.verify import verify_equality
 verify_equality("(x**2-1)/(x-1)", "x+1")
@@ -138,6 +157,7 @@ verify_equality("(x**2-1)/(x-1)", "x+1")
 
 **2. The incomplete solution — a right answer that isn't the whole answer.**
 
+<!-- mathhead-example: readme-incomplete-solution -->
 ```python
 from mathhead.core.verify import verify_solution
 verify_solution("x**2==4", "x", ["2"])          # -> invalid: INCOMPLETE (root -2 is missing)
@@ -146,6 +166,7 @@ verify_solution("x**2==4", "x", ["2", "-2"])    # -> valid: correct AND complete
 
 **3. The independent certificate — a checker with no Z3 and no SymPy.**
 
+<!-- mathhead-example: readme-independent-certificate -->
 ```python
 from mathhead.certificate import check_certificate   # stdlib only — a second, disjoint witness
 check_certificate({"kind": "subset_sum", "numbers": [3,4,2], "target": 9, "indices": [0,1,2]})  # verified
@@ -165,6 +186,7 @@ are hidden behind the default profile; see below.
 
 To connect it to an MCP client (e.g. Claude Code):
 
+<!-- mathhead-non-executable: readme-external-client | requires the external Claude client -->
 ```bash
 claude mcp add mathhead -- mathhead-server
 ```
@@ -173,6 +195,7 @@ Input language (grammar) and tool contract: `docs/mcp-api.md`.
 
 From the terminal (CLI):
 
+<!-- mathhead-example: readme-cli-catalog -->
 ```bash
 mathhead entail -p "p" -p "implies(p, q)" -c "q"          # -> valid
 mathhead entail -p "forall(x, implies(Man(x), Mortal(x)))" \
@@ -191,9 +214,9 @@ mathhead subset-sum 3 34 4 12 5 2 --target 9              # -> sat: {3,4,2}
 mathhead --json consistent "x > 2" "x < 5"                # raw JSON
 ```
 
-## Tool profiles — a small default, not a wall of 171
+## Tool profiles — a small default, not the full catalog
 
-171 tools is too many for an AI to choose from well, so the server exposes a **profile** set
+The full catalog is too broad for reliable tool selection, so the server exposes a **profile** set
 by the `MATHHEAD_PROFILE` environment variable. The default is **`core`**: the ~20-tool
 verification surface, plus three always-present *triage* tools so an AI can still discover and
 enable the rest.
@@ -201,9 +224,10 @@ enable the rest.
 | `MATHHEAD_PROFILE` | Exposes |
 |---|---|
 | *(unset)* / `core` | Verification core: `verify_*`, `cross_check`, entailment/consistency/model, `prove_unsat`/`check_unsat_proof`, certificates — **the default**. |
-| `full` / `all` | Every one of the 171 tools. |
+| `full` / `all` | Every tool in the generated current catalog. |
 | e.g. `core,symbolic` | The core plus named packs: `logic`, `symbolic`, `numerical`, `frontier`, `observability`. |
 
+<!-- mathhead-non-executable: readme-server-launch | long-running server process -->
 ```bash
 MATHHEAD_PROFILE=full mathhead-server        # expose the whole catalog
 ```
@@ -240,12 +264,13 @@ Honest limits, stated plainly:
 
 ## Structure
 
+<!-- mathhead-non-executable: readme-repository-tree | illustrative repository layout rather than executable code -->
 ```
 mathhead/
 ├── README.md            · this file
-├── Plan.md              · target architecture + roadmap (change-resistant)
-├── Todo.md              · current work + priorities (changes often)
-├── Progress.md          · what we did / when (append-only log)
+├── docs/PLAN.md         · target architecture + roadmap (change-resistant)
+├── docs/TODO.md         · current work + priorities (automated)
+├── docs/PROGRESS.md     · append-only execution evidence (automated)
 ├── PRINCIPLES.md        · immutable project rules (fence philosophy)
 ├── DECISIONS.md         · decision log (ADR) — so decisions aren't lost
 ├── SECURITY.md          · security policy + reporting + honest limits
@@ -265,7 +290,7 @@ mathhead/
 │   ├── router/          · routing
 │   ├── guardrails/      · fence: validation, timeout, determinism
 │   ├── profiles.py     · capability packs + triage (MATHHEAD_PROFILE)
-│   └── server/          · MCP server (FastMCP, 171 tools; default `core` profile)
+│   └── server/          · MCP server (FastMCP; generated full count, default `core` profile)
 ├── scripts/             · gen_api_reference.py + gen_contract.py (code=docs generators)
 ├── benchmarks/          · LLM-trap catch-rate (23 errors, 100%) + tool-selection accuracy harness
 └── tests/               · comprehensive test suite + fixtures/golden.json (regression fence)
@@ -273,8 +298,8 @@ mathhead/
 
 ## Where should I start reading?
 
-`Plan.md` (big picture) → `docs/architecture.md` (layers) →
-`docs/mcp-api.md` (contract) → `Todo.md` (next work item).
+`docs/PLAN.md` (big picture) → `docs/architecture.md` (layers) →
+`docs/mcp-api.md` (contract) → `docs/TODO.md` (next work item).
 
 ## License
 

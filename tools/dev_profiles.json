@@ -148,6 +148,18 @@
       "required_executables": [],
       "commands": [
         {
+          "id": "project-metadata-contract",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_project_metadata.py"]
+        },
+        {
+          "id": "project-facts-check",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "tools/project_facts.py", "--check"]
+        },
+        {
           "id": "docs-examples",
           "required": true,
           "timeout_seconds": 180,

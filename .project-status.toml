@@ -95,3 +95,10 @@ command = "python tools/validate_live_mcp.py"
 profiles = ["status", "fast"]
 tasks = ["MH-013"]
 timeout_seconds = 60
+
+[[checks]]
+name = "project-metadata-contract"
+command = "python tools/validate_project_metadata.py"
+profiles = ["status", "fast"]
+tasks = ["MH-015"]
+timeout_seconds = 30

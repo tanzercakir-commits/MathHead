@@ -1,0 +1,72 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-PROJECT-FACTS-001",
+  "target": "tools.project_facts:main",
+  "signature": "main(argv: Sequence[str] | None = None) -> int",
+  "requires": [
+    "The repository root contains pyproject.toml, the MathHead package, the accepted environment profile manifest, pytest tests, MCP registration, and the declared documentation example manifest.",
+    "Dynamic collection runs only in a bootstrapped development or documentation profile with the pinned pytest and product dependencies available.",
+    "Every published executable result example has a unique repository-stable example ID, an exact source locator, one declared ENV-002 profile, and at least one exact pytest node ID."
+  ],
+  "ensures": [
+    "src/mathhead/_version.py contains the sole editable package SemVer literal; mathhead.__version__, build metadata, installed metadata, CLI version output, changelog validation, and generated facts resolve from it.",
+    "pyproject.toml declares dynamic version loading through the pinned Hatch build backend and contains no second package version literal.",
+    "The generated project-facts artifact reports the exact package version, full MCP tool count, pytest collection count, profile order, product Python matrix, and generation schema from live repository sources.",
+    "Check mode compares regenerated canonical UTF-8 content with committed artifacts and returns nonzero on any version, test-count, tool-count, profile, README, or example-manifest drift.",
+    "README numeric package-version, collected-test, MCP-tool, and governed-profile claims occur only in generator-owned regions or are derived from the generated artifact.",
+    "Every executable example validator is selected by its declared profile and runs the exact published command or API behavior; missing, deselected, skipped, failed, or timed-out validators cannot make the examples gate green.",
+    "Setup-only, external-client, publication, and long-running server snippets are not mislabeled executable examples and require an explicit non-executable classification and reason.",
+    "Generated output is deterministic, sorted, path-relative, and contains no clock, checkout path, runner identity, random value, or elapsed timing."
+  ],
+  "raises": [
+    "No Python exception crosses the CLI boundary for malformed metadata, missing files, collection failure, MCP registration failure, stale output, or example ownership drift.",
+    "Unknown manifest fields, duplicate example IDs or locators, unsupported profiles, missing validator node IDs, ambiguous version literals, and unclassified executable fences fail closed.",
+    "Programmer defects may produce a traceback only in explicit debug mode."
+  ],
+  "effects": {
+    "filesystem": "check mode is read-only except tool-owned caches; update mode may replace only docs/project-facts.json and explicitly delimited generator-owned README regions",
+    "process": "may run bounded pytest collection, exact example validators, MCP tool enumeration, build metadata checks, and installed CLI version smoke commands",
+    "network": "none after the selected ENV-002 profile has been bootstrapped",
+    "repository": "never edits PLAN, TODO, PROGRESS, accepted contracts, frozen baseline evidence, source examples, or files outside declared generated outputs"
+  },
+  "determinism": {
+    "version": "one literal in src/mathhead/_version.py is parsed without importing build tooling",
+    "tests": "pytest node IDs are collected under the pinned docs profile, sorted, and counted after profile ownership hooks run",
+    "tools": "the full unfiltered MCP registry is enumerated and tool names are sorted before counting or serialization",
+    "examples": "strict TOML entries and source directives are sorted by stable example ID and use repository-relative paths",
+    "serialization": "canonical JSON uses UTF-8, sorted keys, stable separators, and a trailing newline"
+  },
+  "budget": {
+    "total_seconds": 180,
+    "pytest_collection_seconds": 90,
+    "mcp_enumeration_seconds": 30,
+    "static_validation_seconds": 30,
+    "example_validator_seconds": "the declared ENV-002 profile and global 30-second per-test limit apply",
+    "cancellation": "terminate then kill the active child, wait for reaping, and return a distinct nonzero result"
+  },
+  "epistemics": {
+    "current": "all generated facts equal live sources and every declared executable example validator passed in its selected profile",
+    "stale": "a generated claim differs from its live source or an executable example changed without regeneration",
+    "invalid": "metadata or example ownership is malformed, incomplete, ambiguous, or outside the accepted schema",
+    "not_run": "facts were read or described without live regeneration; never equivalent to current"
+  },
+  "invariants": [
+    "There is exactly one editable package SemVer literal in the repository metadata boundary.",
+    "Package import, wheel metadata, installed metadata, CLI output, changelog entry, and generated facts agree on the same SemVer.",
+    "Tool and test counts are outputs of live enumeration, never hand-maintained constants used as current-status claims.",
+    "The frozen v1 MCP minimum remains a compatibility floor and is not confused with the generated current full-tool count.",
+    "Every published executable result example belongs to exactly one declared profile and every manifest validator node ID exists.",
+    "No generated claim reports a red, skipped, missing, unsupported, or timed-out validator as green.",
+    "Immutable accepted contracts and legacy baseline evidence remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-PROJECT-FACTS-001.json",
+    "python tools/validate_project_metadata.py",
+    "python tools/project_facts.py --check",
+    "python -m pytest -q tests/project_metadata",
+    "python tools/dev.py check --profile docs",
+    "python tools/dev.py clean-smoke --profile release",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

@@ -1,7 +1,7 @@
 """
 v1.0 release freeze (ROADMAP K4). A full contract / API-stability check:
 
-  * the version is 1.0.0 and is CONSISTENT across pyproject.toml and __init__.py;
+  * the version is CONSISTENT across the sole source and dynamic build metadata;
   * the CHANGELOG has a 1.0.0 release entry;
   * every registered MCP tool has a non-empty description and a valid input schema
     (the frozen external contract, ADR-0004), and the surface is at its v1.0 size.
@@ -27,9 +27,14 @@ def test_version_is_stable_v1():
     assert __version__.split(".")[0] == "1"
 
 
-def test_pyproject_version_matches_package():
+def test_pyproject_version_is_dynamic_and_matches_package():
     data = tomllib.loads((_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert data["project"]["version"] == __version__
+    assert "version" not in data["project"]
+    assert "version" in data["project"]["dynamic"]
+    assert data["tool"]["hatch"]["version"]["path"] == "src/mathhead/_version.py"
+    namespace = {}
+    exec((_ROOT / "src/mathhead/_version.py").read_text(encoding="utf-8"), namespace)
+    assert namespace["__version__"] == __version__
 
 
 def test_changelog_records_the_release():

@@ -4,6 +4,7 @@ Eleven real sessions — outputs are verbatim engine output, locked by CI (`test
 
 ## 1 · A modular proof, universally
 
+<!-- mathhead-example: example-modular-proof -->
 ```python
 from mathhead.discovery import check
 r = check("30 | n^5 - n")
@@ -14,6 +15,7 @@ kernel (derived from the factor theorem), not an axiom.
 
 ## 2 · A refutation with the witness in hand
 
+<!-- mathhead-example: example-graph-witness -->
 ```python
 r = check("num_triangles <= num_edges", max_n=6)
 # r.verdict == "refuted"; r.witness carries the n=6 graph with 16 triangles and 14 edges
@@ -21,6 +23,7 @@ r = check("num_triangles <= num_edges", max_n=6)
 
 ## 3 · Bracketing R(3,5)
 
+<!-- mathhead-example: example-r35-bracket -->
 ```console
 $ mathhead-discover bracket 3 5 --lo 13 --hi 14 --strengthen
 n=13: SAT  [independently_verified_witness]  → R(3,5) > 13
@@ -34,6 +37,7 @@ verdict. Self-referential, and labelled.
 
 ## 4 · A live hunt that honestly fails
 
+<!-- mathhead-example: example-frankl-hunt -->
 ```console
 $ mathhead-discover hunt frankl --universe 8 --steps 2000
 STATUS: not_found_within_budget  best_score=1
@@ -43,6 +47,7 @@ hold the line. The engine reports the measurement, not a wish.
 
 ## 5 · The full deterministic report
 
+<!-- mathhead-example: example-deterministic-report -->
 ```console
 $ mathhead-discover report --max-n 5
 ```
@@ -53,6 +58,7 @@ base, the knowledge graph, the honest scorecard. Same input → byte-identical o
 
 `p(n) ≡ q(n) (mod m)` reduces to `m | (p − q)` — the same kernel door, the same tiers:
 
+<!-- mathhead-example: example-congruence-proof -->
 ```console
 $ mathhead-discover check "n^5 ≡ n (mod 30)"
 VERDICT: proved   [kernel_verified]
@@ -65,6 +71,7 @@ VERDICT: proved   [kernel_verified]
     [∃] proved     [exact_integer_certificate]  vs ∀: 'for every integer n' weakened to 'for at least one integer n'
 ```
 
+<!-- mathhead-example: example-congruence-refutation -->
 ```console
 $ mathhead-discover check "n^2 ≡ n (mod 3)"
 VERDICT: refuted   [exact_integer_certificate]
@@ -85,6 +92,7 @@ verdict is always the ∀ reading, and the ∃ reading is decided from the same 
 
 ## 7 · Graph equalities: a theorem the scan will NOT call proved (v4F1)
 
+<!-- mathhead-example: example-handshake-reading -->
 ```console
 $ mathhead-discover check "sum_degrees == 2*num_edges" --max-n 6
 VERDICT: open   [no_counterexample_within_bound]
@@ -102,6 +110,7 @@ says exactly that. The `readings` block underneath is the quantifier ambiguity m
 domain, so there — and only there — the scan is a genuine decision (`finite_domain_exhaustion`).
 A false equality is convicted in either direction, smallest witness first:
 
+<!-- mathhead-example: example-graph-equality-refutation -->
 ```console
 $ mathhead-discover check "num_vertices == num_edges"
 VERDICT: refuted   [exact_integer_certificate]
@@ -119,6 +128,7 @@ same n=6 graph as the `<=` classic).
 
 ## 8 · Comparative sum inequalities: a two-instrument proof chain (v4F1)
 
+<!-- mathhead-example: example-sum-proof-chain -->
 ```console
 $ mathhead-discover check "sum_(i=1..n) i <= n^2"
 VERDICT: proved   [solver_verified]
@@ -132,6 +142,7 @@ sound direction only: a real counterexample is never a refutation by itself — 
 the hint lands on an integer, the engine re-verifies it by exact arithmetic with no solver in the
 loop, and only then convicts:
 
+<!-- mathhead-example: example-sum-refutation -->
 ```console
 $ mathhead-discover check "sum_(i=1..n) i <= n^2/2 + 100"
 VERDICT: refuted   [exact_integer_certificate]
@@ -153,6 +164,7 @@ holds at every integer but fails between 1 and 2 over the reals — the engine k
 exact-rational `g(n)` on the right. Every permutation of every `n` up to the honest n! wall
 (`min(max_n, 7)`) is scanned:
 
+<!-- mathhead-example: example-permutation-open -->
 ```console
 $ mathhead-discover check "all perms of n: inversions <= n*(n-1)/2" --max-n 7
 VERDICT: open   [no_counterexample_within_bound]
@@ -164,6 +176,7 @@ VERDICT: open   [no_counterexample_within_bound]
 The bound is a true theorem (the reversal attains it) — and the verdict still says `open`, because a
 finite scan proves nothing universal. A false bound is convicted with the permutation in hand:
 
+<!-- mathhead-example: example-permutation-refutation -->
 ```console
 $ mathhead-discover check "all perms of n: descents <= fixed_points"
 VERDICT: refuted   [exact_integer_certificate]
@@ -175,6 +188,7 @@ VERDICT: refuted   [exact_integer_certificate]
 
 ## 10 · Partition counting identities: Euler's theorem, Glaisher verified per n — still OPEN (v4F2)
 
+<!-- mathhead-example: example-partition-open -->
 ```console
 $ mathhead-discover check "partitions(n, odd) == partitions(n, distinct)"
 VERDICT: open   [no_counterexample_within_bound]
@@ -188,6 +202,7 @@ Euler's theorem is classical, and the engine even re-verifies Glaisher's explici
 stays `no_counterexample_within_bound`. A false counting identity is refuted at the smallest n, both
 counts in hand:
 
+<!-- mathhead-example: example-partition-refutation -->
 ```console
 $ mathhead-discover check "partitions(n, all) == partitions(n, distinct)"
 VERDICT: refuted   [exact_integer_certificate]
@@ -199,6 +214,7 @@ VERDICT: refuted   [exact_integer_certificate]
 
 ## 11 · The composition identity: a per-n constructive bijection that still says OPEN (v4F2)
 
+<!-- mathhead-example: example-composition-open -->
 ```console
 $ mathhead-discover check "compositions(n) == 2^(n-1)"
 VERDICT: open   [no_counterexample_within_bound]
@@ -207,6 +223,7 @@ VERDICT: open   [no_counterexample_within_bound]
   note      : the exact count matches the formula for every n <= 12 — NOT proved, honestly open; constructive bijection (cut-point) verified for every n <= 12 — classical theorem, universal step not machine-checked here
 ```
 
+<!-- mathhead-example: example-composition-refutation -->
 ```console
 $ mathhead-discover check "compositions(n) == n^2"
 VERDICT: refuted   [exact_integer_certificate]

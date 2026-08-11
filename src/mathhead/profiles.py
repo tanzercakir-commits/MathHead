@@ -1,7 +1,7 @@
 """
 mathhead.profiles — Capability packs + tool triage (ROADMAP L3).
 
-168 tools is a large surface for an LLM to choose from (the external review's #3): it
+The full catalog is a large surface for an LLM to choose from (the external review's #3): it
 hurts tool-selection accuracy and inflates context. This module:
 
   * groups every tool into a **capability pack** (core / logic / symbolic / numerical /
@@ -147,7 +147,7 @@ def _meta(t0: float) -> dict[str, Any]:
 
 
 def list_capabilities() -> CapabilitiesResult:
-    """The capability packs, each with its tool count and a sample — how to navigate 168 tools."""
+    """Return capability packs with live counts and samples for catalog navigation."""
     t0 = time.perf_counter()
     _ensure_catalog()
     by_pack: dict[str, list[str]] = {}

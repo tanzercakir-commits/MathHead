@@ -18,4 +18,6 @@ Layers (see docs/architecture.md):
     guardrails/ -> the fence: input validation, timeouts, determinism settings
 """
 
-__version__ = "1.2.0"
+from ._version import __version__
+
+__all__ = ["__version__"]

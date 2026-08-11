@@ -101,6 +101,22 @@ filesystem update, or an ambiguous active target fails without advancing the
 manifest. If a process is interrupted after the transaction journal is
 prepared, run `python tools/contract_artifacts.py recover` before retrying.
 
+## Foundation conformance
+
+The active P2 closure is checked as one unit by
+`tools/validate_contract_conformance.py`; see
+`FOUNDATION_CONFORMANCE_V1.md` for the inventory, failure classes, future
+implementation binding rule, and authority boundary. Refresh and verify its
+deterministic report with:
+
+```bash
+python tools/validate_contract_conformance.py \
+  --report docs/contracts/reports/foundation-conformance-v1.json
+python tools/validate_contract_conformance.py \
+  --check-report docs/contracts/reports/foundation-conformance-v1.json
+python -m unittest discover -s tests/contract_conformance -v
+```
+
 ## Proposed contracts
 
 - Accepted proposal source files remain under `proposed/` as immutable review

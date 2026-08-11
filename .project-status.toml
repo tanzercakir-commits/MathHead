@@ -179,3 +179,17 @@ command = "python tools/validate_theory_plugin_contract.py"
 profiles = ["status", "fast"]
 tasks = ["MH-026"]
 timeout_seconds = 60
+
+[[checks]]
+name = "foundation-conformance-tests"
+command = "python -m unittest discover -s tests/contract_conformance -v"
+profiles = ["status", "fast"]
+tasks = ["MH-027"]
+timeout_seconds = 120
+
+[[checks]]
+name = "foundation-conformance-report"
+command = "python tools/validate_contract_conformance.py --check-report docs/contracts/reports/foundation-conformance-v1.json"
+profiles = ["status", "fast"]
+tasks = ["MH-027"]
+timeout_seconds = 120

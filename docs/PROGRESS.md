@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Transactional contract artifact workflow implemented
+
+**Task.** MH-020 (`done`).
+
+**Changed.** Implemented one repository-owned propose, prescreen, accept, verify, and recover command with closed schemas, canonical identities, exact proposal separation, atomic rollback, supersession, AST signature/hash binding, bounded validators, deterministic reports, documentation, and fail-closed status ownership.
+
+**Learned.** The first accepted tool contract exposed a validator that depended on the invoking Python environment; immutable MH-C-CONTRACT-ARTIFACTS-001 was therefore preserved and superseded by portable 002. GitHub runs 31502788917, 31502788907, and 31502790393 passed 26/26 CI jobs, 9/9 reproducibility jobs, and 2/2 governance jobs.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md); MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md); MH-C-ENV-002=aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d (docs/contracts/MH-C-ENV-002.json)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f; contract-artifact-tests=passed/exit-0/output-d66a2549cc20e08070fabe5500fcb30853ac7cede4ea849031911aea2e6d1676; contract-artifact-workflow=passed/exit-0/output-b0ca27108a6d7ed70aaeccfb40c1aebe9fa13fe23fd94172fecda53e51b09c19
+
+**Evidence.** tools/contract_artifacts.py=7d455490a0ea272a115456aaaba4e330fbb0add150e25d6ee565d2215f596a28; tests/contract_artifacts/test_contract_artifacts.py=af9701819124d64cc82385a1cdc5403848a33470ccdc02248c13a1cf6aa1364e; docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json=602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750; docs/contracts/reports/verification-v1.json=2e4f7e4fcf80dcfacf70b6e03efd2395e823565e990297dbcb45a46b349e8b3d; .project-status.toml=eaa3db133322972d9f62743a145fa16681a4798f95055fbea94485e85a336dc1; docs/project-facts.json=50acfcef47ff985b95546aeec78a7c8fc4705e6f2410747654ce0efb322785b5
+
+**Limitations.** The consistency pre-screen proves only deliberately decidable syntactic contradictions; semantic intent still depends on the named acceptance authority. Static binding covers top-level Python callables and constructors, while deeper Protocol, dataclass, enum, and Literal conformance remains assigned to MH-021 through MH-027.
+
+**Next.** Activate MH-021 and accept the canonical ProblemIR contract for typed variables, domains, quantifiers, expressions, relations, definitions, goals, source spans, ambiguity, and serialization.
+
+---
+
 ## 2026-08-11 - Legacy compatibility corpus frozen with three clean G2 runs
 
 **Task.** MH-017 (`done`).

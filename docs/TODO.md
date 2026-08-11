@@ -5,33 +5,35 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-020 - Implement Python contract artifact tooling
+### MH-021 - Accept the ProblemIR contract
 
-**Goal:** turn the accepted Python contract-first workflow into one strict,
-transactional repository tool for proposal, pre-screen, acceptance, binding,
-and deterministic verification reports.
+**Goal:** freeze one canonical, typed, ambiguity-preserving problem
+representation before any new parser, planner, theory plugin, or proof engine
+depends on it.
 
-**Scope:** versioned contract schema validation, canonical JSON and SHA-256
-identity, exact proposal/accepted separation, deterministic pre-screen reports,
-atomic manifest acceptance, callable signature/type binding, validator
-existence and execution state, supersession rules, and fail-closed CLI exits.
+**Scope:** variables and stable IDs; finite, numeric, symbolic, and structured
+domains; quantifiers and binders; typed expressions and relations; definitions,
+hypotheses, and ordered goals; source spans and source-document identity;
+alternative readings and unresolved ambiguity; extension namespaces; schema
+versioning; canonical serialization and content identity; validation errors and
+resource limits.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-STATUS-001`, and `MH-C-ENV-002`.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`, and the new
+`MH-C-PROBLEM-IR-001` artifact.
 
-**Validators:** strict unknown/missing/type rejection, canonical serialization,
-proposal immutability, pre-screen non-acceptance, atomic acceptance rollback,
-hash and signature drift, missing/ambiguous validators, supersession errors,
-deterministic report identity, mutation/negative tests, dependency-free status
-execution, Ruff, and project status.
+**Validators:** closed schema and enum checks, unique IDs, reference integrity,
+scope and binder checks, source-span bounds, ambiguity preservation, canonical
+ordering/serialization/hash rules, unknown-field and malformed-union rejection,
+round-trip examples, deterministic pre-screen/acceptance evidence, Ruff, and
+project status.
 
-**Done when:** one repository-owned command can pre-screen a proposal without
-granting acceptance, accept only an exact successfully pre-screened artifact,
-bind an implementation to its accepted identity, and reproduce a canonical
-verification report; every partial, stale, ambiguous, or tampered transition
-fails closed without corrupting the manifest or contract artifacts.
+**Done when:** the ProblemIR schema and lifecycle semantics are explicit enough
+for independent implementations to serialize the same mathematical problem to
+identical bytes; the proposal is accepted under its exact SHA-256 and all
+semantic contract validators fail closed on representative mutations.
 
-**Dependencies:** `MH-017` (done); `MH-C-WORKFLOW-001` and the project status
-contract are already accepted programme authorities.
+**Dependencies:** `MH-020` (done); implementation and cross-layer fixtures
+remain assigned to MH-027, MH-028, and later engine tasks.
 
 ## Next
 

@@ -137,3 +137,10 @@ command = "python tools/contract_artifacts.py verify --all --check-report docs/c
 profiles = ["status", "fast"]
 tasks = ["MH-020"]
 timeout_seconds = 60
+
+[[checks]]
+name = "problem-ir-contract"
+command = "python tools/validate_problem_ir_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-021"]
+timeout_seconds = 60

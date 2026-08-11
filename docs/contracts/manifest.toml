@@ -89,3 +89,9 @@ id = "MH-C-CONTRACT-ARTIFACTS-002"
 path = "docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json"
 sha256 = "602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROBLEM-IR-001"
+path = "docs/contracts/MH-C-PROBLEM-IR-001.json"
+sha256 = "d705d82fcb6b7ac3b2f411f5a6d2cf01f80e4e8ebe71116ea8db9b91b639287b"
+state = "accepted"

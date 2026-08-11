@@ -1,0 +1,302 @@
+{
+  "$id": "https://mathhead.dev/schemas/problem-ir-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "ambiguity": {"$ref": "#/$defs/ambiguity"},
+    "assumptions": {"items": {"$ref": "#/$defs/assumption"}, "maxItems": 100000, "type": "array"},
+    "definitions": {"items": {"$ref": "#/$defs/definition"}, "maxItems": 100000, "type": "array"},
+    "domains": {"items": {"$ref": "#/$defs/domain"}, "maxItems": 100000, "type": "array"},
+    "expressions": {"items": {"$ref": "#/$defs/expression"}, "maxItems": 100000, "type": "array"},
+    "extensions": {"$ref": "#/$defs/extensions"},
+    "goals": {"items": {"$ref": "#/$defs/goal"}, "maxItems": 100000, "type": "array"},
+    "readings": {"items": {"$ref": "#/$defs/reading"}, "maxItems": 100000, "minItems": 1, "type": "array"},
+    "relations": {"items": {"$ref": "#/$defs/relation"}, "maxItems": 100000, "type": "array"},
+    "schema": {"const": "mathhead.problem-ir.v1"},
+    "source_documents": {"items": {"$ref": "#/$defs/source_document"}, "maxItems": 100000, "type": "array"},
+    "source_spans": {"items": {"$ref": "#/$defs/source_span"}, "maxItems": 100000, "type": "array"},
+    "statements": {"items": {"$ref": "#/$defs/statement"}, "maxItems": 100000, "type": "array"},
+    "variables": {"items": {"$ref": "#/$defs/variable"}, "maxItems": 100000, "type": "array"}
+  },
+  "required": [
+    "schema",
+    "source_documents",
+    "source_spans",
+    "domains",
+    "variables",
+    "expressions",
+    "relations",
+    "statements",
+    "definitions",
+    "assumptions",
+    "goals",
+    "readings",
+    "ambiguity",
+    "extensions"
+  ],
+  "title": "MathHead ProblemIR v1",
+  "type": "object",
+  "$defs": {
+    "ambiguity": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_reading_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true},
+        "required_choice": {"type": ["string", "null"]},
+        "selected_reading_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "status": {"enum": ["unambiguous", "unresolved", "resolved"]}
+      },
+      "required": ["status", "candidate_reading_ids", "selected_reading_id", "required_choice"],
+      "type": "object"
+    },
+    "assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "role": {"enum": ["given", "domain_constraint", "side_condition"]},
+        "span_ids": {"$ref": "#/$defs/span_ids"},
+        "statement_id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["id", "statement_id", "role", "span_ids"],
+      "type": "object"
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"type": "integer"},
+        {"type": "string"},
+        {"items": {"$ref": "#/$defs/canonical_value"}, "maxItems": 100000, "type": "array"},
+        {"additionalProperties": {"$ref": "#/$defs/canonical_value"}, "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"}, "type": "object"}
+      ]
+    },
+    "definition": {
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "oneOf": [
+            {"additionalProperties": false, "properties": {"expression_id": {"$ref": "#/$defs/id"}, "kind": {"const": "expression"}}, "required": ["kind", "expression_id"], "type": "object"},
+            {"additionalProperties": false, "properties": {"kind": {"const": "statement"}, "statement_id": {"$ref": "#/$defs/id"}}, "required": ["kind", "statement_id"], "type": "object"}
+          ]
+        },
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"maxLength": 1024, "minLength": 1, "type": "string"},
+        "parameter_variable_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+        "recursive": {"type": "boolean"},
+        "result_domain_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "span_ids": {"$ref": "#/$defs/span_ids"}
+      },
+      "required": ["id", "name", "parameter_variable_ids", "result_domain_id", "body", "recursive", "span_ids"],
+      "type": "object"
+    },
+    "difference": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true},
+        "kind": {"enum": ["domain", "quantifier", "scope", "notation", "parse", "reference", "other"]},
+        "span_ids": {"$ref": "#/$defs/span_ids"},
+        "summary": {"maxLength": 4096, "minLength": 1, "type": "string"}
+      },
+      "required": ["kind", "summary", "affected_ids", "span_ids"],
+      "type": "object"
+    },
+    "domain": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "builtin"}, "name": {"enum": ["boolean", "natural", "integer", "rational", "real", "complex"]}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "name", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"cardinality": {"maximum": 100000, "minimum": 1, "type": "integer"}, "element_domain_id": {"$ref": "#/$defs/id"}, "element_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "finite"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "element_domain_id", "element_expr_ids", "cardinality", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"base": {"enum": ["integer", "rational", "real"]}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "interval"}, "lower_closed": {"type": "boolean"}, "lower_expr_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}, "span_ids": {"$ref": "#/$defs/span_ids"}, "upper_closed": {"type": "boolean"}, "upper_expr_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}},
+          "required": ["id", "kind", "base", "lower_expr_id", "lower_closed", "upper_expr_id", "upper_closed", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "modular"}, "modulus_expr_id": {"$ref": "#/$defs/id"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "modulus_expr_id", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"collection": {"enum": ["set", "sequence", "multiset"]}, "element_domain_id": {"$ref": "#/$defs/id"}, "finiteness": {"enum": ["finite", "infinite", "unknown"]}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "collection"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "collection", "element_domain_id", "finiteness", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"factor_domain_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "product"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "factor_domain_ids", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "function"}, "parameter_domain_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "result_domain_id": {"$ref": "#/$defs/id"}, "span_ids": {"$ref": "#/$defs/span_ids"}, "total": {"type": "boolean"}},
+          "required": ["id", "kind", "parameter_domain_ids", "result_domain_id", "total", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "structure"}, "parameter_domain_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "parameter_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "span_ids": {"$ref": "#/$defs/span_ids"}, "theory_id": {"$ref": "#/$defs/namespaced"}},
+          "required": ["id", "kind", "theory_id", "parameter_domain_ids", "parameter_expr_ids", "span_ids"],
+          "type": "object"
+        }
+      ]
+    },
+    "expression": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"domain_id": {"$ref": "#/$defs/id"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "literal"}, "literal_type": {"enum": ["boolean", "integer", "rational", "string"]}, "span_ids": {"$ref": "#/$defs/span_ids"}, "value": {"maxLength": 1048576, "type": "string"}},
+          "required": ["id", "kind", "domain_id", "literal_type", "value", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"domain_id": {"$ref": "#/$defs/id"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "variable"}, "span_ids": {"$ref": "#/$defs/span_ids"}, "variable_id": {"$ref": "#/$defs/id"}},
+          "required": ["id", "kind", "domain_id", "variable_id", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"argument_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "attributes": {"$ref": "#/$defs/canonical_value"}, "domain_id": {"$ref": "#/$defs/id"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "apply"}, "operator": {"$ref": "#/$defs/namespaced"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "domain_id", "operator", "argument_expr_ids", "attributes", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"domain_id": {"$ref": "#/$defs/id"}, "element_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["tuple", "collection"]}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "domain_id", "element_expr_ids", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"condition_statement_id": {"$ref": "#/$defs/id"}, "domain_id": {"$ref": "#/$defs/id"}, "else_expr_id": {"$ref": "#/$defs/id"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "conditional"}, "span_ids": {"$ref": "#/$defs/span_ids"}, "then_expr_id": {"$ref": "#/$defs/id"}},
+          "required": ["id", "kind", "domain_id", "condition_statement_id", "then_expr_id", "else_expr_id", "span_ids"],
+          "type": "object"
+        }
+      ]
+    },
+    "extensions": {
+      "additionalProperties": {"$ref": "#/$defs/canonical_value"},
+      "propertyNames": {"pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"},
+      "type": "object"
+    },
+    "goal": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "mode": {"enum": ["prove", "refute", "find_witness", "compute", "classify", "optimize"]},
+        "span_ids": {"$ref": "#/$defs/span_ids"},
+        "statement_id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["id", "statement_id", "mode", "span_ids"],
+      "type": "object"
+    },
+    "id": {"maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$", "type": "string"},
+    "namespaced": {"maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$", "type": "string"},
+    "reading": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+        "definition_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+        "difference_from": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "differences": {"items": {"$ref": "#/$defs/difference"}, "maxItems": 100000, "type": "array"},
+        "goal_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true},
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"maxLength": 4096, "minLength": 1, "type": "string"},
+        "span_ids": {"$ref": "#/$defs/span_ids"}
+      },
+      "required": ["id", "label", "definition_ids", "assumption_ids", "goal_ids", "difference_from", "differences", "span_ids"],
+      "type": "object"
+    },
+    "relation": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["equal", "not_equal", "less", "less_equal", "greater", "greater_equal", "member", "not_member", "divides", "congruent"]}, "operand_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 2, "type": "array"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "operand_expr_ids", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "predicate"}, "operand_expr_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array"}, "predicate": {"$ref": "#/$defs/namespaced"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "predicate", "operand_expr_ids", "span_ids"],
+          "type": "object"
+        }
+      ]
+    },
+    "source_document": {
+      "additionalProperties": false,
+      "properties": {
+        "byte_length": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"},
+        "id": {"$ref": "#/$defs/id"},
+        "language": {"maxLength": 128, "minLength": 1, "type": "string"},
+        "media_type": {"enum": ["text/plain", "text/markdown", "application/x-latex", "application/mathml+xml", "application/json"]},
+        "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+      },
+      "required": ["id", "media_type", "language", "sha256", "byte_length"],
+      "type": "object"
+    },
+    "source_span": {
+      "additionalProperties": false,
+      "properties": {
+        "end_byte": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"},
+        "id": {"$ref": "#/$defs/id"},
+        "source_id": {"$ref": "#/$defs/id"},
+        "start_byte": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"}
+      },
+      "required": ["id", "source_id", "start_byte", "end_byte"],
+      "type": "object"
+    },
+    "span_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+    "statement": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "truth"}, "span_ids": {"$ref": "#/$defs/span_ids"}, "value": {"type": "boolean"}},
+          "required": ["id", "kind", "value", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "relation"}, "relation_id": {"$ref": "#/$defs/id"}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "relation_id", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "logical"}, "operand_statement_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array"}, "operator": {"enum": ["not", "and", "or", "implies", "iff"]}, "span_ids": {"$ref": "#/$defs/span_ids"}},
+          "required": ["id", "kind", "operator", "operand_statement_ids", "span_ids"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"body_statement_id": {"$ref": "#/$defs/id"}, "id": {"$ref": "#/$defs/id"}, "kind": {"const": "quantified"}, "quantifier": {"enum": ["forall", "exists", "exists_unique"]}, "span_ids": {"$ref": "#/$defs/span_ids"}, "variable_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true}},
+          "required": ["id", "kind", "quantifier", "variable_ids", "body_statement_id", "span_ids"],
+          "type": "object"
+        }
+      ]
+    },
+    "variable": {
+      "additionalProperties": false,
+      "properties": {
+        "domain_id": {"$ref": "#/$defs/id"},
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"maxLength": 1024, "minLength": 1, "type": "string"},
+        "role": {"enum": ["free", "parameter", "bound", "witness", "index"]},
+        "span_ids": {"$ref": "#/$defs/span_ids"}
+      },
+      "required": ["id", "name", "domain_id", "role", "span_ids"],
+      "type": "object"
+    }
+  }
+}

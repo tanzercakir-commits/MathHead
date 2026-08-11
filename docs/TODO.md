@@ -5,48 +5,49 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-028 - Freeze cross-layer reference fixtures
+### MH-030 - Inventory and minimize the trust base
 
-**Goal:** finish P2 by freezing a minimal, canonical, content-addressed fixture
-bundle that demonstrates how ProblemIR, TheoryContext, ResourceBudget,
-TheoryPlugin, EngineResult, Evidence, and Certificate bytes compose across
-success and failure boundaries without importing legacy solver behavior.
+**Goal:** open P3 with one complete, machine-readable trusted-computing-base
+inventory that makes every current and intended authority claim explicit,
+assigns it to the smallest replayable boundary, and fails closed when a new
+trust-bearing primitive or dependency appears without review.
 
-**Scope:** exact scenario IDs, source-independent canonical inputs, dependency
-hashes, plugin routing, budget outcomes, engine execution and mathematical
-verdicts, evidence payloads, certificate observations, trust dependencies,
-diagnostics, replay identity, and bundle manifest ordering for proof,
-refutation, ambiguity, unsupported input, timeout, backend disagreement,
-invalid certificate, and replay mismatch. Fixtures must distinguish absent
-artifacts from empty artifacts and must not promote producer output, timeout,
-disagreement, invalidity, or replay failure to verified truth.
+**Scope:** repository entry points and transitive imports for parsing,
+canonical JSON and Unicode handling, hashing, integer and rational arithmetic,
+certificate and DRUP/DRAT checking, Z3, SymPy and other producer backends,
+external processes, the Python runtime and standard library, operating-system
+and platform assumptions, package and environment resolution, and the future
+Lean boundary. For each surface record owner, role, authority tier, exact
+dependency or primitive, trusted bytes and provenance, attack and failure
+modes, required-versus-excluded status, current-versus-target state, and the
+task that removes or narrows it.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
-`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
-`MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`,
-`MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`, and
-`MH-C-THEORY-PLUGIN-001`. The MH-027 conformance report is the required
-structural closure; accepted contract, proposal, schema, and report bytes stay
-immutable.
+**Contracts:** `MH-C-WORKFLOW-001`, the accepted P2 contract set, the MH-027
+conformance report, and the MH-028 reference bundle with stable identity
+`4132b29b69600f8ff48477515853f66bb748c7337735c00db8e634987f70ddca`.
+This task classifies existing authority; it must not silently widen any public
+contract or promote producer output to mathematical truth.
 
-**Validators:** a closed canonical fixture-manifest schema, repository-owned
-cross-layer validator, and focused tests; exact eight-scenario inventory;
-per-artifact schema and semantic validation; content-addressed references and
-acyclic dependency closure; deterministic regeneration and relocated-copy
-replay; negative mutations for byte/hash/schema/order/dependency/verdict,
-authority, trust, budget, disagreement, invalid-certificate, and replay drift;
-Ruff, project status, core, docs, release, and clean install gates.
+**Validators:** a closed canonical inventory schema, deterministic repository
+report and repository-owned validator; exact owner, role, tier, boundary,
+dependency, import, primitive, provenance, risk, migration, and exclusion
+inventories; static import-graph and isolated subprocess probes; dependency-
+minimal and full-environment agreement; negative mutations for unknown,
+missing, duplicate, stale, cyclic, unauthorised, or authority-escalating
+entries; Ruff, project status, core, docs, release, and clean-install gates.
 
-**Done when:** every golden scenario validates from independently loaded bytes,
-the bundle regenerates byte-identically in a relocated checkout, all required
-failure states remain explicit and non-promoting, corrupting any artifact or
-binding fails closed, and the complete bundle has one stable SHA-256 identity
-usable by later kernel, planner, worker, plugin, API, and evaluation tasks.
+**Done when:** every trust-bearing surface reachable from supported entry
+points is classified, every claim maps to an explicit current owner and a
+minimal target owner, parser/serializer/hash/arithmetic/runtime/solver/proof-
+assistant boundaries are named precisely, the future checker kernel has a
+closed allowlist and denylist with a reproducible import budget, and any
+undocumented primitive or dependency that could grant authority fails closed.
 
-**Dependencies:** MH-020 through MH-027 are done. Production foundation types,
-trusted kernels, worker isolation, planners, and theory implementations remain
-assigned to P3 through P6; fixtures define their shared byte boundary without
-claiming those implementations already exist.
+**Dependencies:** MH-020 through MH-028 are done. Immutable proof terms,
+dependency-minimal checkers, internal arithmetic evidence, hardened SAT/UNSAT
+replay, provenance implementation, Lean replay, and the trust-tier red team
+remain assigned to MH-031 through MH-037; this inventory assigns those
+migrations without claiming their implementations already exist.
 
 ## Next
 

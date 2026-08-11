@@ -1,0 +1,67 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-BASELINE-001",
+  "target": "tools.capture_legacy_baseline:main",
+  "signature": "main(argv: Sequence[str] | None = None) -> int",
+  "requires": [
+    "The source reference resolves to a committed revision in the current repository.",
+    "MH-C-ENV-001 is accepted and its dispatcher can describe every recorded profile.",
+    "Every supplied local or CI observation identifies its command, profile, platform, interpreter, status, and immutable output identity.",
+    "The destination is a repository-relative path that does not already exist."
+  ],
+  "ensures": [
+    "The output is one canonical UTF-8 JSON artifact using schema mathhead.legacy-baseline.v1.",
+    "The artifact records source commit and tree identities, package and build metadata, tracked-source inventory, test collection, profile results, failure categories, CI run links, benchmark observations, known platform failures, and performance hot spots.",
+    "Every result distinguishes observed passed, failed, timed_out, unsupported, and not_run states without converting missing evidence into success.",
+    "Every external observation carries a stable provenance locator and every local file observation carries SHA-256 evidence.",
+    "Replay recomputes all source-derived fields and fails on source drift, malformed evidence, omitted required sections, unstable ordering, or hash mismatch.",
+    "Capture and replay leave product source, accepted contracts, PLAN, TODO, and existing PROGRESS history unchanged."
+  ],
+  "raises": [
+    "Expected repository, schema, source-reference, evidence, subprocess, timeout, or destination failures return a nonzero status with a stable reason code.",
+    "No Python exception crosses the CLI boundary for an expected validation failure.",
+    "Programmer defects may produce a traceback only in explicit debug mode."
+  ],
+  "effects": {
+    "filesystem": "capture creates exactly one previously absent baseline artifact and tool-owned temporary files; replay is read-only except tool-owned caches",
+    "process": "may execute bounded git, package-metadata, dispatcher, test-collection, and benchmark inspection subprocesses",
+    "network": "none; remote CI evidence is supplied as immutable identifiers and links rather than fetched during capture or replay",
+    "repository": "never modifies product source, accepted contracts, PLAN, TODO, existing PROGRESS history, or the referenced source commit"
+  },
+  "determinism": {
+    "serialization": "UTF-8 JSON with sorted keys, stable separators, LF termination, and no absolute checkout paths",
+    "ordering": "paths, tests, profiles, failures, CI observations, benchmarks, and hot spots use documented stable sort keys",
+    "time": "wall-clock timestamps and raw durations are excluded from canonical identity; bounded performance observations use declared environment and threshold fields",
+    "source": "all source-derived values are computed from the explicit committed source reference, never an implicit moving branch"
+  },
+  "budget": {
+    "capture_seconds": 900,
+    "replay_seconds": 300,
+    "child_timeout": "each subprocess has an explicit timeout no greater than the remaining operation budget",
+    "cancellation": "terminate the active child process and return a distinct interrupted result"
+  },
+  "epistemics": {
+    "observed": "the named command actually ran in the declared environment and its exit status plus output identity are present",
+    "source_derived": "the field is reproducibly computed from the committed source tree",
+    "reported_external": "the field cites an immutable CI run or job locator but is not re-executed by capture",
+    "not_run": "no qualifying observation was supplied; never equivalent to passed",
+    "replayed": "all source-derived fields and artifact invariants were recomputed successfully against the exact source reference"
+  },
+  "invariants": [
+    "The baseline schema and required section names are stable within contract v1.",
+    "The baseline source commit is an ancestor of the capture commit and is never the mutable working-tree state.",
+    "Known failures and unsupported platforms remain first-class evidence and cannot be omitted to make the baseline green.",
+    "Test collection identities are unique and sorted; aggregate counts equal the categorized observations.",
+    "Every recorded path is repository-relative, exact-case, and free of parent traversal.",
+    "Replay never executes the legacy product test suite and therefore cannot silently replace captured outcomes with a later environment.",
+    "A baseline is not compatibility authority; it is an immutable differential oracle input governed by reconstruction ADRs."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-BASELINE-001.json",
+    "python -m unittest discover -s tests/baseline -v",
+    "python tools/capture_legacy_baseline.py replay --artifact docs/reconstruction/legacy-baseline-v1.json",
+    "python tools/validate_legacy_baseline.py",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

@@ -73,7 +73,7 @@ class ContractManifestTests(unittest.TestCase):
     def test_repository_manifest_is_valid(self) -> None:
         result = self.run_validator(ROOT)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("3 contracts", result.stdout)
+        self.assertRegex(result.stdout, r"^contract-manifest: PASS \([1-9]\d* contracts\)$")
 
     def test_hash_drift_fails(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

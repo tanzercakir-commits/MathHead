@@ -5,34 +5,30 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-003 - Define one reproducible developer environment
-
-**Goal:** implement the accepted portable environment contract through one
-repository-owned dispatcher used by developers and CI.
-
-**Scope:** accepted-contract binding, pinned profile dependencies, Windows and
-Linux policy, UTF-8 subprocess behavior, bounded execution, clean-install
-smokes, tests, and setup documentation; no product algorithm changes.
-
-**Contracts:** `MH-C-ENV-001`, `MH-C-WORKFLOW-001`.
-
-**Validators:** `fast`; the accepted hash, callable signature, profile manifest,
-negative process outcomes, status/core checks, and runtime/release clean smokes
-must pass.
-
-**Done when:** local validators and remote Ubuntu/Windows environment checks are
-green without weakening any product or governance gate.
-
-**Dependencies:** explicit owner acceptance received; `MH-002`, `MH-006`.
-
-**Next handoff:** `MH-004`.
-
-## Next
-
 ### MH-004 - Capture the immutable legacy baseline
 
-Create the machine-readable source/test/CI/benchmark/performance baseline used
-for differential migration. Dependencies: `MH-003`.
+**Goal:** freeze the exact pre-migration product state as a canonical,
+machine-readable differential oracle without rewriting legacy records.
+
+**Scope:** committed source and package identities, test collection and outcome
+categories, immutable CI locators, benchmark observations, known platform
+failures, performance hot spots, canonical serialization, and offline replay.
+
+**Contracts:** `MH-C-BASELINE-001` (proposed), `MH-C-WORKFLOW-001`.
+
+**Validators:** baseline schema, negative capture tests, source-derived replay,
+exact-case/hash checks, and `status` must pass.
+
+**Done when:** the accepted contract is implementation-bound; the baseline
+artifact replays against its exact source commit; red, unsupported, and not-run
+evidence remain explicit; and independent CI validates the artifact.
+
+**Dependencies:** `MH-003` (done); explicit owner acceptance of the proposed
+baseline contract.
+
+**Next handoff:** `MH-010`, `MH-011`, and `MH-012`.
+
+## Next
 
 ### MH-010 - Correct optional dependency test contracts
 

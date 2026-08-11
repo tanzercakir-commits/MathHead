@@ -5,6 +5,50 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Legacy baseline contract proposed
+
+**Task.** MH-004 (`partial`).
+
+**Changed.** Moved MH-004 into TODO Now and created the strict MH-C-BASELINE-001 proposal for canonical, fail-closed capture and offline replay of the pre-migration legacy source, package, tests, CI, benchmark, platform-failure, and hot-spot evidence.
+
+**Learned.** The baseline is a persistent serialization and differential-oracle boundary, so MH-C-WORKFLOW-001 requires a content-addressed owner acceptance before capture tooling or the artifact itself may be implemented.
+
+**Contracts.** MH-C-BASELINE-001=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2 (docs/contracts/proposed/MH-C-BASELINE-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-43f225e0f334602c5bf03da44a30396264ec6cadbab19134c6a1a55c867d4698; reconstruction-plan=passed/exit-0/output-f7eab44091d6f4b79273cfd70add6f5ed9b59084c2eb1c399b10b29b0843ad8e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-cbac67ce69d4963cdf28df5eaa7d9214b50edb7ce3c7295a48492666b527d041; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-c93c2c2c0c09e3fed366c80a9af7724993ad35dea57898f56755bc33acc5a946; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6
+
+**Evidence.** docs/contracts/proposed/MH-C-BASELINE-001.json=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2; docs/contracts/manifest.toml=7e24f94b614b5f510ed818bcd653af53df7433c8523cdb2fc9dcad2a07acb04a; docs/TODO.md=81f6de7d76944383737b09b22bb2a817d04ca029802c3fc28e62f02aa3824e70
+
+**Limitations.** Pre-screen and all status validators pass, but the proposal is not accepted and therefore authorizes no MH-004 implementation.
+
+**Next.** Obtain explicit project-owner acceptance of MH-C-BASELINE-001 at SHA-256 3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2, then implement capture, replay, schema validation, and the immutable artifact.
+
+---
+
+## 2026-08-11 - Reproducible environment contract completed
+
+**Task.** MH-003 (`done`).
+
+**Changed.** Completed the accepted environment boundary: one contract-bound dispatcher now owns status, runtime, core, solver, docs, and release profiles; local and CI install, check, build, and smoke behavior use the same pinned definitions on Windows and Linux.
+
+**Learned.** Independent GitHub Actions run 31480711266 passed every environment job, including Ubuntu and Windows CPython 3.10 through 3.12, dependency-free status, clean runtime installs, and the clean release wheel smoke; governance run 31480711277 also passed on both operating systems.
+
+**Contracts.** MH-C-ENV-001=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87 (docs/contracts/MH-C-ENV-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6
+
+**Evidence.** docs/contracts/MH-C-ENV-001.json=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87; tools/dev.py=1daccf5b3a823924edcba392646f96930e3929b001300e0ff3df1bbe485d7efa; tools/dev_profiles.json=dc1cc8c8bcd4d2e3d9f2e30be7d48348f7874a8eaff3d1275908af4cf07bcd3d; tools/validate_dev_environment.py=ff224d991a8f6202641a7848fbde05bfb2a51f7f40cb82cbb3a6fbe0617f43d2; tests/devtool/test_dev.py=3f4f4f7b13d2c391d081226cd3476e5dfc94e9f49b584126c9ea8b2a61c68a07; constraints.txt=9460693124a486cca758ddaba84bf71956ca76e4c91d448b97a69a8c1055c29f; pyproject.toml=f79758b92e6ea7f8f08d69917f6be6582f446e1d8f1ff27a2a8756e9981efcdd; .github/workflows/environment-contract.yml=0134e18f06c23e11e2d4dea5c86d7b478422eff368572666c9272d4d3ba0c93f
+
+**Limitations.** The environment contract is green; the intentionally separate legacy full-product graph-enumeration failures remain assigned to P1 tasks and are not represented as MH-003 success.
+
+**Next.** Activate MH-004 and capture the immutable machine-readable legacy baseline before changing legacy algorithms.
+
+---
+
 ## 2026-08-11 - Python 3.10 profile-policy test corrected
 
 **Task.** MH-003 (`partial`).

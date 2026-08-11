@@ -14,6 +14,12 @@ before the critical implementation that they govern.
   checks. It was explicitly accepted by the project owner at SHA-256
   `63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87`.
 
+## Proposed contracts
+
+- `proposed/MH-C-BASELINE-001.json` defines canonical capture and offline replay
+  of the immutable pre-migration legacy baseline. Pre-screen success is not
+  owner acceptance and does not authorize implementation.
+
 ## Contract rule
 
 An implementation may not edit the contract that authorized it. A behavioral

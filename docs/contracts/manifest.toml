@@ -17,3 +17,9 @@ id = "MH-C-WORKFLOW-001"
 path = "docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md"
 sha256 = "99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-BASELINE-001"
+path = "docs/contracts/proposed/MH-C-BASELINE-001.json"
+sha256 = "3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2"
+state = "proposed"

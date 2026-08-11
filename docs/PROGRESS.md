@@ -5,6 +5,94 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Immutable legacy reconstruction index
+
+**Task.** MH-005 (`done`).
+
+**Changed.** Classified 14 root and discovery status/architecture records by authority, historical role, conflicts, and reconstruction phase while freezing each source path and SHA-256 without rewriting legacy content.
+
+**Learned.** The legacy trackers contain valuable evidence but conflicting completion authority; the reconstruction index preserves them as searchable inputs rather than live project state.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-fda7348ea11a5a61672aa7491955acac4c72a1ccb5b9a0432a79c20e8be81beb; reconstruction-plan=passed/exit-0/output-11fd6818a1811a1f8b824a5b74248838d4d78d3fc3f38ebe777d9f55f2aed851; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-9e8ca261526bdf785b1d140f768b77054083ebb49068c084ccd6ff082b6ae61c; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** docs/reconstruction/LEGACY_INDEX.toml=dc624b79b9ed4adc63cd6b0a71cbe45423ebbc578673b748b5c612bea7b40a56; docs/reconstruction/README.md=77b4bd94adbf2dfc8c2973ccf2122b8bc11d69428c5090abdd7af768a2f4d67f; tools/validate_legacy_index.py=85035f5d414c9ba5ce4a3ea4c6cd3211e84b87d7ca9c9fa349e0c0f11ef11c44; tests/project_status/test_legacy_index.py=625b2b34adc4623b8efaf23eb9918a5321a9b0683a8654cb97e24a873a11b9cc
+
+**Limitations.** The index classifies governance and architecture records; the full machine-readable source/test/benchmark baseline remains MH-004 after environment acceptance.
+
+**Next.** Activate MH-006 ADR work while MH-003 waits for explicit environment-contract acceptance.
+
+---
+
+## 2026-08-11 - Repository-owned status automation
+
+**Task.** MH-001 (`done`).
+
+**Changed.** Installed and validated the vendored status CLI, black-box and integration tests, pre-commit hook, cross-platform governance workflow, exact-case configuration, init/adopt/upgrade paths, and idempotent adoption behavior without rewriting legacy trackers.
+
+**Learned.** Dry-run adoption selects only docs/PLAN.md, docs/TODO.md, and docs/PROGRESS.md and proposes no changes after installation; GitHub run 31475928877 confirms Linux and Windows behavior.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-107f20936cdf5a505e184d25be8e1991d6bec71427e7af277f3f624109e98ccc; reconstruction-plan=passed/exit-0/output-fffc2b11c3663db55769ce20991c78c87848105d50c8f963fa40ea54a6b80f82; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-5874290e4e0dca19bae29244722c1a8ca31d07d993ade05416e4c45bbcf7cd07; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** tools/project_status.py=d9076683d2ec544a2438004cbbac42abbc91d76dabe74b21e81b39bdbca72787; tests/project_status/test_project_status.py=1eb12b373b272fed43239a79709ddd358a2e7d864378f5c2f1b8b302a0085a99; tests/project_status/test_status_integration.py=06b80bf9fc253d960a3bbf127f2e038b3c735699616e914d95f123b6d068f53a; .githooks/pre-commit=58868a286322182887fc0d72a405d5b5a0a7d7bc685ad9df08c7da8587341b78; .github/workflows/project-status.yml=1535aab4adad7e26b8b00623f317f079fe704aa3a2c28b016e2badcd1707659b
+
+**Limitations.** Repository-local hook enforcement depends on core.hooksPath being enabled in each clone; CI provides the shared enforcement path.
+
+**Next.** Finish immutable legacy indexing, then activate the next eligible P0 work.
+
+---
+
+## 2026-08-11 - Governed reconstruction baseline
+
+**Task.** MH-000 (`done`).
+
+**Changed.** Established the authoritative 93-task reconstruction plan, bounded live TODO, append-only PROGRESS ledger, frozen status and workflow contracts, exact-case repository configuration, and transactional status integration.
+
+**Learned.** The governed baseline is reproducible and idempotent locally and in independent GitHub Actions run 31475928877 on Ubuntu and Windows.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-b3af949207831c0432e05883c196c07968318db1f59af57ced210b0573866dce; reconstruction-plan=passed/exit-0/output-cd01d12fc7d306b387d8b1c4f2208f55e31b1993927aa828d50f6c74464dc13d; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-d001c27b10264e368e6411e571e5fa629933864b910a8fd6a32978666eca9636; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** docs/PLAN.md=1835e86700fbc70de10f033c965fcffaba7420d85d52aa5eb13c5b061924d375; docs/TODO.md=fabd0cb801d70b201a7b0611a88a0fd7aa7be62085a2f8d6681aa636d267b9e7; docs/PROGRESS.md=b035d8cff28ba0c4c5c6b964f4349bd29987f43de727d859f9696c3402a11941; .project-status.toml=a86a8208a3e7847e149fa51091aa145a610e9e4ad33fe23c2c627755c30d34a1; docs/contracts/manifest.toml=5bdf4a74cc09af362d660c24aad37255257015ee85864612fc4234ce893b8e3a
+
+**Limitations.** This baseline governs execution and evidence; it does not itself make legacy product tests green.
+
+**Next.** Complete repository-owned adoption evidence and immutable legacy indexing.
+
+---
+
+## 2026-08-11 - Task-aware fail-closed transitions
+
+**Task.** MH-002 (`done`).
+
+**Changed.** Implemented Now-only atomic status transitions with accepted-contract verification, task-specific validator requirements, evidence hashing, timeout and missing/skipped/inconclusive rejection, append-only PROGRESS enforcement, cross-platform LF evidence, branch-creation baseline handling, and isolated CI validator contexts.
+
+**Learned.** Independent GitHub Actions run 31475928877 passed on Ubuntu and Windows after earlier runs 31475257794 and 31475680721 exposed and bound the platform assumptions.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-c36d491e161254bb6b8ad76ffdcdfea0dfbb55a9f5c1f89d88cd462e0f2ea6a8; reconstruction-plan=passed/exit-0/output-e253c14ecac60a1b06293261654eafe7638b2845336bd5b9fb38ae6cae358c6e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-1e195daf25cbc843351b09b1c7ab97a2781bacd4022b3cb6f543fe4e07d45a65; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** tools/project_status.py=d9076683d2ec544a2438004cbbac42abbc91d76dabe74b21e81b39bdbca72787; tests/project_status/test_task_aware_status.py=09ef2203cb7aff56f7d2edfef3c69647d5237a53b5e1ee8bd29e66b441079f4a; .github/workflows/project-status.yml=1535aab4adad7e26b8b00623f317f079fe704aa3a2c28b016e2badcd1707659b; docs/contracts/manifest.toml=5bdf4a74cc09af362d660c24aad37255257015ee85864612fc4234ce893b8e3a
+
+**Limitations.** This proves the governance/status control plane only; it does not claim product-health or environment-profile completion.
+
+**Next.** Close the governed baseline, adoption, and legacy-index tasks, then proceed to the separately accepted environment contract.
+
+---
+
 ## 2026-08-11 - CI validator environment isolation
 
 **Task.** MH-002 (`partial`).

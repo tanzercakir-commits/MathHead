@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Cross-platform CI failure closed locally
+
+**Task.** MH-002 (`partial`).
+
+**Changed.** Handled zero-SHA branch creation without weakening append-only history checks, enforced LF checkout bytes across platforms, propagated the policy through init/adopt templates, and added positive and negative regression tests.
+
+**Learned.** GitHub Actions run 31475257794 exposed two independent assumptions: initial push before-SHA may be all zeroes, and Windows checkout conversion changes byte hashes unless EOL is repository-controlled.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-8694cf72c09ea4e7cd7b8d46a43a2257932454da26dff6d20aec24bb2efc1ac9; reconstruction-plan=passed/exit-0/output-e253c14ecac60a1b06293261654eafe7638b2845336bd5b9fb38ae6cae358c6e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-a92f5f35690de7aa3c463b6b3d3906ed60bdeb1770b25b5b5a649322e878432c; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** .gitattributes=ebae14b52c7a72ca06bd62baa0679741a94a6ffed051449e595f342b6f1d8ce7; tools/project_status.py=820c525205d756b20212c759f821ac5d1c18bdee35d48c9da65bb8390557d242; tests/project_status/test_task_aware_status.py=c576fba9f7e7f48d7bbf47ffc2b731bdbfbf6fb7ad93c77c442e5c5870b9cda4; tests/project_status/test_status_integration.py=e1750df3d908f52ef5e32fb656056ae6a72169623152b889f34814942a811860
+
+**Limitations.** Local 38-test status suite is green; independent Linux and Windows rerun is still required before MH-002 can be done.
+
+**Next.** Commit and push the CI hardening, then require both GitHub matrix jobs to pass.
+
+---
+
 ## 2026-08-11 - Frozen Markdown whitespace policy
 
 **Task.** MH-002 (`partial`).

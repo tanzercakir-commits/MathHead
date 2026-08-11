@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 import sys
 import tempfile
@@ -20,12 +21,18 @@ class TaskAwareStatusTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
-    def run_tool(self, *args: str) -> subprocess.CompletedProcess[str]:
+    def run_tool(
+        self, *args: str, project_status_base: str | None = None
+    ) -> subprocess.CompletedProcess[str]:
+        env = os.environ.copy()
+        if project_status_base is not None:
+            env["PROJECT_STATUS_BASE"] = project_status_base
         return subprocess.run(
             [sys.executable, str(TOOL), "--root", str(self.root), *args],
             text=True,
             capture_output=True,
             encoding="utf-8",
+            env=env,
         )
 
     def write_fixture(
@@ -293,6 +300,76 @@ class TaskAwareStatusTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         progress = (self.root / "PROGRESS.md").read_text(encoding="utf-8")
         self.assertTrue(progress.endswith("## 2026-01-01 - old\n\nKept.\n"))
+
+    def test_zero_event_base_accepts_initial_progress_introduction(self) -> None:
+        self.write_fixture()
+        progress = self.root / "PROGRESS.md"
+        progress_bytes = progress.read_bytes()
+        progress.unlink()
+        subprocess.run(["git", "init"], cwd=self.root, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "status@example.invalid"],
+            cwd=self.root,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Status Test"], cwd=self.root, check=True
+        )
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "baseline"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+        )
+        progress.write_bytes(progress_bytes)
+        subprocess.run(["git", "add", "PROGRESS.md"], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "introduce progress"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+        )
+
+        result = self.run_tool("check", project_status_base="0" * 40)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_zero_event_base_cannot_bypass_existing_progress_history(self) -> None:
+        self.write_fixture()
+        subprocess.run(["git", "init"], cwd=self.root, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "status@example.invalid"],
+            cwd=self.root,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Status Test"], cwd=self.root, check=True
+        )
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "baseline"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+        )
+        progress = self.root / "PROGRESS.md"
+        progress.write_text(
+            progress.read_text(encoding="utf-8").replace("Kept.", "Changed."),
+            encoding="utf-8",
+        )
+        subprocess.run(["git", "add", "PROGRESS.md"], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "rewrite history"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+        )
+
+        result = self.run_tool("check", project_status_base="0" * 40)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("historical bytes changed", result.stderr)
 
 
 if __name__ == "__main__":

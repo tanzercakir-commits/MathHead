@@ -227,8 +227,10 @@ class ProjectStatusTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         workflow = (self.root / ".github" / "workflows" / "project-status.yml")
         hook = self.root / ".githooks" / "pre-commit"
+        attributes = self.root / ".gitattributes"
         self.assertIn("fetch-depth: 0", workflow.read_text(encoding="utf-8"))
         self.assertIn("printf '%s\\n'", hook.read_text(encoding="utf-8"))
+        self.assertIn("* text=auto eol=lf", attributes.read_text(encoding="utf-8"))
 
     def test_cli_is_clean_with_python_warnings_as_errors(self) -> None:
         result = subprocess.run(

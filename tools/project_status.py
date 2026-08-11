@@ -108,6 +108,13 @@ GENERIC_TODO = """# TODO
 ## Blocked
 """
 
+ATTRIBUTES_TEMPLATE = """# Keep repository evidence byte-stable across Linux and Windows checkouts.
+* text=auto eol=lf
+
+# Markdown uses two trailing spaces for intentional hard line breaks.
+*.md text eol=lf whitespace=-trailing-space
+"""
+
 HOOK_TEMPLATE = r"""#!/bin/sh
 set -eu
 
@@ -352,15 +359,46 @@ def _validate_progress_append_only(config: Config) -> None:
     explicit_base = os.environ.get("PROJECT_STATUS_BASE", "").strip()
     if explicit_base:
         base = explicit_base
+        if re.fullmatch(r"0{40}|0{64}", base):
+            head = _git_output(
+                config.root, "rev-list", "--parents", "-n", "1", "HEAD"
+            )
+            if head.returncode:
+                message = head.stderr.decode("utf-8", errors="replace").strip()
+                raise StatusError(f"cannot resolve zero PROGRESS baseline: {message}")
+            revisions = head.stdout.decode("ascii", errors="strict").split()
+            if len(revisions) == 1:
+                return
+            base = revisions[1]
     else:
         dirty = _git_output(config.root, "diff", "--quiet", "HEAD", "--", relative)
         base = "HEAD" if dirty.returncode else "HEAD^"
     previous = _git_output(config.root, "show", f"{base}:{relative}")
     if previous.returncode:
         if explicit_base:
-            message = previous.stderr.decode("utf-8", errors="replace").strip()
-            raise StatusError(f"cannot read PROGRESS baseline {base}: {message}")
-        return
+            valid_base = _git_output(
+                config.root, "rev-parse", "--verify", f"{base}^{{commit}}"
+            )
+            history = _git_output(
+                config.root,
+                "rev-list",
+                "--reverse",
+                f"{base}..HEAD",
+                "--",
+                relative,
+            )
+            revisions = history.stdout.decode("ascii", errors="strict").split()
+            introduced = (
+                _git_output(config.root, "show", f"{revisions[0]}:{relative}")
+                if valid_base.returncode == 0 and history.returncode == 0 and revisions
+                else None
+            )
+            if introduced is None or introduced.returncode:
+                message = previous.stderr.decode("utf-8", errors="replace").strip()
+                raise StatusError(f"cannot read PROGRESS baseline {base}: {message}")
+            previous = introduced
+        else:
+            return
     current = config.progress.read_bytes()
     old_header, old_history = _progress_parts(previous.stdout, f"{base}:{relative}")
     new_header, new_history = _progress_parts(current, relative)
@@ -542,6 +580,7 @@ def _write_new(path: Path, content: str, dry_run: bool) -> None:
 
 def _integration_templates(root: Path) -> tuple[tuple[Path, str], ...]:
     return (
+        (root / ".gitattributes", ATTRIBUTES_TEMPLATE),
         (root / "AGENTS.md", GENERIC_AGENTS),
         (root / ".githooks" / "pre-commit", HOOK_TEMPLATE),
         (root / ".github" / "workflows" / "project-status.yml", WORKFLOW_TEMPLATE),

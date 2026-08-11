@@ -62,9 +62,16 @@ def test_committed_corpus_replays_all_legacy_cases() -> None:
     assert compat.main(["--check"]) == 0
 
 
-def test_capture_is_deterministic_without_rewriting_source() -> None:
-    rebuilt = compat._build_corpus()
-    assert _canonical(rebuilt) == CORPUS_PATH.read_bytes()
+def test_capture_is_deterministic_or_refuses_post_baseline_source() -> None:
+    corpus = _corpus()
+    frozen_tree = corpus["provenance"]["source_tree"]["sha256"]
+    current_tree = compat._source_tree_sha256("HEAD")
+    if current_tree == frozen_tree:
+        rebuilt = compat._build_corpus()
+        assert _canonical(rebuilt) == CORPUS_PATH.read_bytes()
+        return
+    with pytest.raises(compat.LegacyCompatError, match="differs from the MH-016 source commit"):
+        compat._build_corpus()
 
 
 def test_normalization_is_typed_path_specific_and_preserves_fields() -> None:

@@ -51,6 +51,12 @@ before the critical implementation that they govern.
   cancellation, exhaustion, and truncation outcomes. It binds
   `schemas/resource-budget-v1.schema.json` and is accepted at SHA-256
   `eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045`.
+- `MH-C-ENGINE-RESULT-001.json` governs canonical solver-neutral result
+  envelopes, separate execution and mathematical verdict states, independent
+  trust attestation, partial outcomes, bounds, artifacts, provenance,
+  diagnostics, resource snapshots, and replay identity. It binds
+  `schemas/engine-result-v1.schema.json` and is accepted at SHA-256
+  `6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370`.
 
 ## Repository command
 

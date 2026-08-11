@@ -158,3 +158,10 @@ command = "python tools/validate_resource_budget_contract.py"
 profiles = ["status", "fast"]
 tasks = ["MH-023"]
 timeout_seconds = 60
+
+[[checks]]
+name = "engine-result-contract"
+command = "python tools/validate_engine_result_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-024"]
+timeout_seconds = 60

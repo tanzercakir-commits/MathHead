@@ -22,8 +22,9 @@ states; canonical ordering, serialization, extensions, and hard ceilings.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
 `MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`, and
-`MH-C-RESOURCE-BUDGET-001`; this task will propose and accept a new versioned
-EngineResult artifact before implementation.
+`MH-C-RESOURCE-BUDGET-001`; accepted `MH-C-ENGINE-RESULT-001` is bound at
+SHA-256
+`6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370`.
 
 **Validators:** closed schema and tagged-union checks; exact canonical identity
 and cross-artifact hash bindings; verdict, execution, epistemic, reading,

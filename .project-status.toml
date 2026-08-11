@@ -60,3 +60,10 @@ command = "python tools/validate_dev_environment.py"
 profiles = ["status", "fast"]
 tasks = ["MH-003"]
 timeout_seconds = 180
+
+[[checks]]
+name = "legacy-baseline"
+command = "python tools/validate_legacy_baseline.py"
+profiles = ["status", "fast"]
+tasks = ["MH-004"]
+timeout_seconds = 300

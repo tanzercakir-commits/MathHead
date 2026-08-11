@@ -20,6 +20,6 @@ state = "accepted"
 
 [[contracts]]
 id = "MH-C-BASELINE-001"
-path = "docs/contracts/proposed/MH-C-BASELINE-001.json"
+path = "docs/contracts/MH-C-BASELINE-001.json"
 sha256 = "3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2"
-state = "proposed"
+state = "accepted"

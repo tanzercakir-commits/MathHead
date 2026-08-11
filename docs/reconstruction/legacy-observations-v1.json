@@ -1,0 +1,310 @@
+{
+  "schema": "mathhead.legacy-observations.v1",
+  "source_commit": "3fc1d00efbecad4f18a401db28e350f2b495c6a5",
+  "profile_results": [
+    {
+      "id": "ci-core-linux-py311-passed",
+      "command": "python tools/dev.py check --profile core",
+      "profile": "core",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693437:step:5",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693437"
+      },
+      "test_counts": {"failed": 0, "passed": 310, "skipped": 0, "total": 310}
+    },
+    {
+      "id": "ci-core-windows-py312-passed",
+      "command": "python tools/dev.py check --profile core",
+      "profile": "core",
+      "platform": "windows-latest",
+      "interpreter": "CPython 3.12.10",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693377:step:5",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+      },
+      "test_counts": {"failed": 0, "passed": 310, "skipped": 0, "total": 310}
+    },
+    {
+      "id": "ci-docs-not-run",
+      "command": "python tools/dev.py check --profile docs",
+      "profile": "docs",
+      "platform": "not-observed",
+      "interpreter": "not-observed",
+      "status": "not_run",
+      "exit_code": null,
+      "output_identity": "not-run:docs-profile",
+      "provenance": {
+        "kind": "github-run",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-legacy-linux-py311-failed",
+      "command": "python tools/dev.py run --profile core --command legacy-full",
+      "profile": "core",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "failed",
+      "exit_code": 3,
+      "output_identity": "github-job:93746693437:step:6",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693437"
+      },
+      "test_counts": {"failed": 3, "passed": 1186, "skipped": 11, "total": 1200}
+    },
+    {
+      "id": "ci-legacy-windows-py312-timeout",
+      "command": "python tools/dev.py run --profile core --command legacy-full",
+      "profile": "core",
+      "platform": "windows-latest",
+      "interpreter": "CPython 3.12.10",
+      "status": "timed_out",
+      "exit_code": 1,
+      "output_identity": "github-job:93746693377:step:6",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-release-linux-py311-passed",
+      "command": "python tools/dev.py clean-smoke --profile release",
+      "profile": "release",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693283:step:4",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325098/job/93746693283"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-runtime-linux-py311-passed",
+      "command": "python tools/dev.py clean-smoke --profile runtime",
+      "profile": "runtime",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693457:step:6",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325098/job/93746693457"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-runtime-windows-py311-passed",
+      "command": "python tools/dev.py clean-smoke --profile runtime",
+      "profile": "runtime",
+      "platform": "windows-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693415:step:6",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325098/job/93746693415"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-solver-linux-py311-unsupported",
+      "command": "python tools/dev.py bootstrap --profile solver --current",
+      "profile": "solver",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "unsupported",
+      "exit_code": 2,
+      "output_identity": "github-job:93746693300:step:5",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693300"
+      },
+      "test_counts": {"failed": 0, "passed": 0, "skipped": 0, "total": 0}
+    },
+    {
+      "id": "ci-status-linux-py311-passed",
+      "command": "python tools/dev.py check --profile status",
+      "profile": "status",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693442:step:4",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325143/job/93746693442"
+      },
+      "test_counts": {"failed": 0, "passed": 42, "skipped": 0, "total": 42}
+    },
+    {
+      "id": "ci-status-windows-py311-passed",
+      "command": "python tools/dev.py check --profile status",
+      "profile": "status",
+      "platform": "windows-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "passed",
+      "exit_code": 0,
+      "output_identity": "github-job:93746693370:step:4",
+      "provenance": {
+        "kind": "github-job",
+        "locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325143/job/93746693370"
+      },
+      "test_counts": {"failed": 0, "passed": 42, "skipped": 0, "total": 42}
+    }
+  ],
+  "ci_runs": [
+    {
+      "run_id": 31481325082,
+      "name": "CI",
+      "workflow": ".github/workflows/ci.yml",
+      "head_sha": "3fc1d00efbecad4f18a401db28e350f2b495c6a5",
+      "status": "failed",
+      "conclusion": "failure",
+      "url": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082"
+    },
+    {
+      "run_id": 31481325098,
+      "name": "Reproducible environment contract",
+      "workflow": ".github/workflows/environment.yml",
+      "head_sha": "3fc1d00efbecad4f18a401db28e350f2b495c6a5",
+      "status": "passed",
+      "conclusion": "success",
+      "url": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325098"
+    },
+    {
+      "run_id": 31481325143,
+      "name": "Project Status (governance only, not product health)",
+      "workflow": ".github/workflows/project-status.yml",
+      "head_sha": "3fc1d00efbecad4f18a401db28e350f2b495c6a5",
+      "status": "passed",
+      "conclusion": "success",
+      "url": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325143"
+    }
+  ],
+  "benchmarks": [
+    {
+      "id": "llm-trap-benchmark-source",
+      "command": "python benchmarks/run.py --json",
+      "profile": "core",
+      "platform": "not-observed",
+      "interpreter": "not-observed",
+      "status": "not_run",
+      "exit_code": null,
+      "output_identity": "sha256:c137b6f5eb13712bdafd6715cc7884345d2c4a0f706a0afaf1e0ce4d31f015d3",
+      "source_path": "benchmarks/llm_traps.json",
+      "source_sha256": "c137b6f5eb13712bdafd6715cc7884345d2c4a0f706a0afaf1e0ce4d31f015d3",
+      "metrics": {"reported_catch_rate": 1.0, "reported_caught": 14, "reported_total": 14}
+    },
+    {
+      "id": "tool-selection-benchmark-source",
+      "command": "python benchmarks/run_tool_selection.py --json",
+      "profile": "core",
+      "platform": "not-observed",
+      "interpreter": "not-observed",
+      "status": "not_run",
+      "exit_code": null,
+      "output_identity": "sha256:dc83d8be5a6dea73f086e6f35846e2cb75fa0390e07bc76c55f067a4b34d805f",
+      "source_path": "benchmarks/tool_selection.json",
+      "source_sha256": "dc83d8be5a6dea73f086e6f35846e2cb75fa0390e07bc76c55f067a4b34d805f",
+      "metrics": {"reported_execution": "not_run"}
+    }
+  ],
+  "failure_categories": [
+    {
+      "id": "ci-geng-path",
+      "category": "environment-detection",
+      "status": "unsupported",
+      "summary": "Ubuntu nauty installation completed but the solver dispatcher could not resolve the geng executable.",
+      "profiles": ["solver"],
+      "evidence_locators": [
+        "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693300"
+      ]
+    },
+    {
+      "id": "graph-enumeration-timeout",
+      "category": "unbounded-enumeration",
+      "status": "timed_out",
+      "summary": "Legacy graph-bound discovery materializes generated graphs and times out while canonicalizing them.",
+      "profiles": ["core"],
+      "evidence_locators": [
+        "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+      ]
+    },
+    {
+      "id": "pytest-hypothesis-reporting",
+      "category": "test-reporting",
+      "status": "failed",
+      "summary": "After product failures, pytest and the Hypothesis plugin raise an internal traceback while formatting an exception with a missing line number.",
+      "profiles": ["core"],
+      "evidence_locators": [
+        "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693382",
+        "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693437"
+      ]
+    }
+  ],
+  "platform_failures": [
+    {
+      "id": "linux-py311-legacy-full",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "failed",
+      "category": "test-reporting",
+      "summary": "Legacy full suite ended with 3 failed, 1186 passed, and 11 skipped before pytest returned exit 3.",
+      "evidence_locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693437"
+    },
+    {
+      "id": "linux-py311-solver",
+      "platform": "ubuntu-latest",
+      "interpreter": "CPython 3.11.15",
+      "status": "unsupported",
+      "category": "environment-detection",
+      "summary": "Solver bootstrap returned unsupported because geng was not found after the nauty package installation.",
+      "evidence_locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693300"
+    },
+    {
+      "id": "windows-py312-legacy-full",
+      "platform": "windows-latest",
+      "interpreter": "CPython 3.12.10",
+      "status": "timed_out",
+      "category": "unbounded-enumeration",
+      "summary": "Legacy full suite hit the 30-second per-test timeout in graph generation and returned exit 1.",
+      "evidence_locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+    }
+  ],
+  "performance_hotspots": [
+    {
+      "id": "generate-graphs-canonicalization",
+      "path": "src/mathhead/discovery/generate.py",
+      "symbol": "generate_graphs",
+      "status": "timed_out",
+      "category": "canonicalization-cost",
+      "summary": "Graph generation repeatedly computes canonical keys in the observed timeout stack.",
+      "evidence_locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+    },
+    {
+      "id": "graph-bound-materialization",
+      "path": "src/mathhead/discovery/product.py",
+      "symbol": "_graph_bound_verdict",
+      "status": "timed_out",
+      "category": "unbounded-materialization",
+      "summary": "Graph-bound evaluation materializes every generated graph for sizes two through the requested bound.",
+      "evidence_locator": "https://github.com/tanzercakir-commits/MathHead/actions/runs/31481325082/job/93746693377"
+    }
+  ]
+}

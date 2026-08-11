@@ -13,12 +13,14 @@ before the critical implementation that they govern.
   dependency profiles, platform policy, time budgets, and clean-install smoke
   checks. It was explicitly accepted by the project owner at SHA-256
   `63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87`.
+- `MH-C-BASELINE-001.json` governs canonical legacy-baseline capture and
+  offline replay. It was explicitly accepted by the project owner at SHA-256
+  `3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2`.
 
 ## Proposed contracts
 
-- `proposed/MH-C-BASELINE-001.json` defines canonical capture and offline replay
-  of the immutable pre-migration legacy baseline. Pre-screen success is not
-  owner acceptance and does not authorize implementation.
+- Accepted proposal source files remain under `proposed/` as immutable review
+  evidence; their presence does not make them the active manifest target.
 
 ## Contract rule
 

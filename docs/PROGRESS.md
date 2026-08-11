@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Accepted baseline capture awaiting independent CI
+
+**Task.** MH-004 (`partial`).
+
+**Changed.** Accepted MH-C-BASELINE-001 and implemented canonical source capture, strict observation normalization, offline replay, frozen artifact validation, negative tests, and status-owned cross-platform CI execution.
+
+**Learned.** The immutable pre-migration source has 379 tracked files and 1546 unique static test identities; environment and governance runs are green while legacy product evidence remains explicitly failed, timed_out, unsupported, and not_run where applicable.
+
+**Contracts.** MH-C-BASELINE-001=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2 (docs/contracts/MH-C-BASELINE-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-b7baf5627450d638c4462dabb5f0ffbf2f81d5fd0e880f3fb710d5f92fb4c1b0; reconstruction-plan=passed/exit-0/output-f7eab44091d6f4b79273cfd70add6f5ed9b59084c2eb1c399b10b29b0843ad8e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-f13850431fa7fb34c4b6aab3e3173c61b6e926ab71720b1f08bc1e0d54a1bfaa; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-c93c2c2c0c09e3fed366c80a9af7724993ad35dea57898f56755bc33acc5a946; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2
+
+**Evidence.** docs/contracts/MH-C-BASELINE-001.json=3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2; docs/reconstruction/legacy-baseline-v1.json=b93f71ce676380574235ca422e8a23a8f4871ee45b2973195575ea397cefe19a; docs/reconstruction/legacy-observations-v1.json=69c90d4e71a9955c4211b5939be75bdde19a2d05457b1d272d900b74b11aa903; tools/capture_legacy_baseline.py=0d20bff37ddd0f3f2d005419c144d5869d3bd7dee4cd6fa363a149336f221d3a; tools/validate_legacy_baseline.py=0717538244bfa4b9a3084c1fab1c37170fef4857360209853bf17f36dec7dea9; tests/baseline/test_capture_legacy_baseline.py=12731cb597c14171aec841465f14e39d056f78cd98f7c328085b9e5ec3322e67
+
+**Limitations.** Local schema, replay, negative, lint, and nine status checks pass; Ubuntu and Windows replay on the pushed commit is still pending, so MH-004 remains in TODO Now.
+
+**Next.** Commit and push the baseline checkpoint, require the independent Project Status matrix to pass on Ubuntu and Windows, then record MH-004 DONE automatically.
+
+---
+
 ## 2026-08-11 - Legacy baseline contract proposed
 
 **Task.** MH-004 (`partial`).

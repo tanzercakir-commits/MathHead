@@ -165,3 +165,10 @@ command = "python tools/validate_engine_result_contract.py"
 profiles = ["status", "fast"]
 tasks = ["MH-024"]
 timeout_seconds = 60
+
+[[checks]]
+name = "evidence-certificate-contracts"
+command = "python tools/validate_evidence_certificate_contracts.py"
+profiles = ["status", "fast"]
+tasks = ["MH-025"]
+timeout_seconds = 60

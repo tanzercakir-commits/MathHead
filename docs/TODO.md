@@ -22,9 +22,11 @@ hard resource ceilings.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
 `MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
-`MH-C-RESOURCE-BUDGET-001`, and `MH-C-ENGINE-RESULT-001`. This task will
-propose and accept the canonical Evidence and Certificate contracts without
-changing any accepted dependency bytes.
+`MH-C-RESOURCE-BUDGET-001`, and `MH-C-ENGINE-RESULT-001`; accepted
+`MH-C-EVIDENCE-001` is bound at SHA-256
+`c68c20ca599cfdd7aabe9b85f2817c6c3f1a121289334136ff048768ee20c3b3` and
+accepted `MH-C-CERTIFICATE-001` is bound at SHA-256
+`0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740`.
 
 **Validators:** closed Draft 2020-12 schemas plus independent semantic
 validators; exact canonical identities and cross-envelope hash bindings;

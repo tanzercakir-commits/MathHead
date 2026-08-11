@@ -119,3 +119,15 @@ id = "MH-C-ENGINE-RESULT-001"
 path = "docs/contracts/MH-C-ENGINE-RESULT-001.json"
 sha256 = "6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-EVIDENCE-001"
+path = "docs/contracts/MH-C-EVIDENCE-001.json"
+sha256 = "c68c20ca599cfdd7aabe9b85f2817c6c3f1a121289334136ff048768ee20c3b3"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-CERTIFICATE-001"
+path = "docs/contracts/MH-C-CERTIFICATE-001.json"
+sha256 = "0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740"
+state = "accepted"

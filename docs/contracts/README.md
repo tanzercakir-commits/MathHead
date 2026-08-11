@@ -57,6 +57,19 @@ before the critical implementation that they govern.
   diagnostics, resource snapshots, and replay identity. It binds
   `schemas/engine-result-v1.schema.json` and is accepted at SHA-256
   `6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370`.
+- `MH-C-EVIDENCE-001.json` governs versioned, canonical, content-addressed
+  producer artifacts, subject and provenance bindings, acyclic dependency
+  closure, generation replay, resource outcomes, and the prohibition on
+  producer self-attestation. It binds `schemas/evidence-v1.schema.json` and is
+  accepted at SHA-256
+  `c68c20ca599cfdd7aabe9b85f2817c6c3f1a121289334136ff048768ee20c3b3`.
+- `MH-C-CERTIFICATE-001.json` governs independent checker observations,
+  exact Evidence byte and header bindings, version compatibility, replay
+  outcomes, verification artifacts, complete trust dependencies, and
+  fail-closed verification verdicts. It binds
+  `schemas/certificate-v1.schema.json`, depends on the accepted Evidence
+  contract hash, and is accepted at SHA-256
+  `0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740`.
 
 ## Repository command
 

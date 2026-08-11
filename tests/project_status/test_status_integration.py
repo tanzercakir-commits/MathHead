@@ -63,6 +63,8 @@ class StatusIntegrationTests(unittest.TestCase):
         self.assertIn("PROJECT_STATUS_BASE", text)
         self.assertIn("not product health", text)
         self.assertIn("fetch-depth: 0", text)
+        self.assertIn("actions/checkout@v7", text)
+        self.assertIn("actions/setup-python@v7", text)
 
     def test_repository_text_evidence_is_lf_on_every_platform(self) -> None:
         text = ATTRIBUTES.read_text(encoding="utf-8")

@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - CI validator environment isolation
+
+**Task.** MH-002 (`partial`).
+
+**Changed.** Removed inherited PROJECT_STATUS_BASE from temporary-repository test subprocesses, retained explicit baseline injection for dedicated cases, and upgraded governance workflow templates to the current Node 24 action majors.
+
+**Learned.** GitHub Actions run 31475680721 proved that validators launched under the status check inherit its environment unless tests explicitly isolate repository-scoped variables.
+
+**Contracts.** MH-C-STATUS-001=b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d (docs/contracts/PROJECT_STATUS_CONTRACT_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-0819f0e628f2b84605b37dea008749c84515f36ba133d282009f4c036eaec752; reconstruction-plan=passed/exit-0/output-e253c14ecac60a1b06293261654eafe7638b2845336bd5b9fb38ae6cae358c6e; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-cbb8c7f4d1a96b9b592b0e7a0786b33d17a65bd4285d6b8a274c37cefffa169f; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** tests/project_status/test_task_aware_status.py=09ef2203cb7aff56f7d2edfef3c69647d5237a53b5e1ee8bd29e66b441079f4a; .github/workflows/project-status.yml=1535aab4adad7e26b8b00623f317f079fe704aa3a2c28b016e2badcd1707659b; tools/project_status.py=d9076683d2ec544a2438004cbbac42abbc91d76dabe74b21e81b39bdbca72787
+
+**Limitations.** The exact CI baseline scenario passes locally; a third independent Linux and Windows run remains required.
+
+**Next.** Commit, push, and require run 3 to be green before recording MH-002 done.
+
+---
+
 ## 2026-08-11 - Cross-platform CI failure closed locally
 
 **Task.** MH-002 (`partial`).

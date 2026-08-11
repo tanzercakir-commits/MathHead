@@ -25,6 +25,7 @@ class TaskAwareStatusTests(unittest.TestCase):
         self, *args: str, project_status_base: str | None = None
     ) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()
+        env.pop("PROJECT_STATUS_BASE", None)
         if project_status_base is not None:
             env["PROJECT_STATUS_BASE"] = project_status_base
         return subprocess.run(

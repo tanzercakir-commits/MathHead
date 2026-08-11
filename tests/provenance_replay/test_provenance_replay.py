@@ -526,6 +526,8 @@ class ProvenanceReplayTests(unittest.TestCase):
             else:
                 with self.assertRaises(ProvenanceStoreError):
                     persist_replay_bundle(link, manifest, objects)
+                nested_identity = persist_replay_bundle(link / "store", manifest, objects)
+                self.assertEqual(nested_identity, _sha(manifest))
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "store"
             identity = persist_replay_bundle(root, manifest, objects)

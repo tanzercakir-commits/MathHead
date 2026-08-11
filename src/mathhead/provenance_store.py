@@ -85,6 +85,19 @@ def _prepare_root(root: Path, *, create: bool) -> Path:
         _fail("path", "store root must be a non-root absolute path")
     if root != Path(os.path.normpath(str(root))):
         _fail("path", "store root must not contain parent traversal")
+    try:
+        root_info = root.lstat()
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        _fail("io", f"cannot inspect store root: {exc.__class__.__name__}")
+    else:
+        if _is_link_like(root_info):
+            _fail("path", "store root must not be a link or reparse point")
+    try:
+        root = root.resolve(strict=False)
+    except OSError as exc:
+        _fail("io", f"cannot canonicalize store root: {exc.__class__.__name__}")
     if not create and not root.exists():
         _fail("missing", "store root does not exist")
     missing: list[Path] = []

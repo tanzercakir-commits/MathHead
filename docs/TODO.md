@@ -5,33 +5,33 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-017 - Freeze the legacy compatibility corpus
+### MH-020 - Implement Python contract artifact tooling
 
-**Goal:** preserve representative legacy result semantics as deterministic,
-machine-checkable fixtures before the architecture is replaced.
+**Goal:** turn the accepted Python contract-first workflow into one strict,
+transactional repository tool for proposal, pre-screen, acceptance, binding,
+and deterministic verification reports.
 
-**Scope:** inventory public result envelopes and choose successful, refuted,
-unsupported, timeout, and error cases; capture canonical outputs from the
-legacy implementation; normalize only explicitly unstable metadata; add
-differential replay, mutation, schema, and provenance validation.
+**Scope:** versioned contract schema validation, canonical JSON and SHA-256
+identity, exact proposal/accepted separation, deterministic pre-screen reports,
+atomic manifest acceptance, callable signature/type binding, validator
+existence and execution state, supersession rules, and fail-closed CLI exits.
 
-**Contracts:** propose and accept `MH-C-LEGACY-COMPAT-001` before corpus
-implementation; retain `MH-C-ENV-002` and `MH-C-WORKFLOW-001` as governing
-environment and contract-workflow boundaries.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-STATUS-001`, and `MH-C-ENV-002`.
 
-**Validators:** accepted contract hash/signature, complete outcome-category
-coverage, exact source/provenance binding, allowlisted normalization only,
-deterministic replay on all supported Python/OS jobs, mutation rejection,
-unchanged 85 percent coverage floor, three consecutive clean G2 runs, Ruff,
-and project status.
+**Validators:** strict unknown/missing/type rejection, canonical serialization,
+proposal immutability, pre-screen non-acceptance, atomic acceptance rollback,
+hash and signature drift, missing/ambiguous validators, supersession errors,
+deterministic report identity, mutation/negative tests, dependency-free status
+execution, Ruff, and project status.
 
-**Done when:** the committed corpus replays against the legacy architecture
-without semantic drift on every supported environment; changing a stable
-field, case input, provenance binding, or normalization rule fails closed; G2
-has passed from clean commits three consecutive times.
+**Done when:** one repository-owned command can pre-screen a proposal without
+granting acceptance, accept only an exact successfully pre-screened artifact,
+bind an implementation to its accepted identity, and reproduce a canonical
+verification report; every partial, stale, ambiguous, or tampered transition
+fails closed without corrupting the manifest or contract artifacts.
 
-**Dependencies:** `MH-016` (done); compatibility contract acceptance is covered
-by the project owner's programme-wide acceptance authority.
+**Dependencies:** `MH-017` (done); `MH-C-WORKFLOW-001` and the project status
+contract are already accepted programme authorities.
 
 ## Next
 

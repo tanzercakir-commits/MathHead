@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Legacy compatibility corpus frozen with three clean G2 runs
+
+**Task.** MH-017 (`done`).
+
+**Changed.** Accepted MH-C-LEGACY-COMPAT-001 and froze ten source-bound differential cases across success, refuted, unsupported, solver-timeout, and error outcomes; added typed allowlist-only normalization, isolated replay watchdogs, independent mutation validation, and required core/status profile ownership.
+
+**Learned.** The corpus replays unchanged on Linux, macOS, and Windows across Python 3.10 through 3.12 in GitHub. Consecutive clean checkpoints afd31de, 614d495, and 4d7a32e each passed CI, reproducibility, and governance; final runs 31499429684, 31499429739, and 31499429692 were green, with 87.69 percent coverage over 2120 selected tests.
+
+**Contracts.** MH-C-LEGACY-COMPAT-001=53a9e09b58738ccdbb596ec28fa15d989d4cba66cecd46c5c97ca8d1da1f9412 (docs/contracts/MH-C-LEGACY-COMPAT-001.json); MH-C-ENV-002=aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d (docs/contracts/MH-C-ENV-002.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f
+
+**Evidence.** docs/contracts/MH-C-LEGACY-COMPAT-001.json=53a9e09b58738ccdbb596ec28fa15d989d4cba66cecd46c5c97ca8d1da1f9412; docs/reconstruction/legacy-compat-v1.json=b2110dd16283da5c121991c327d7e3d873d75b6708c792bb3dd95610f63f5896; tools/legacy_compat.py=eb052270ac7e08d9e9b0abfe12dcc8cd2bb06255182fdfe414566ed7679b5891; tools/validate_legacy_compat.py=b8125cf5a7a547133a9d5db2eb1d85398db2cbe6c531095eeb237dccf2882f03; tests/compatibility/test_legacy_compat.py=554a9560fb0b757c89d74438e479b1c144c19f76475611d92d0e014c1be472cb; tools/dev_profiles.json=57d268df3358d37598e7a008d8ae9f2bd22bf189dde5c59a74343601a2fc7a42; .github/workflows/ci.yml=1ba54d9d4847b7566b1058a0cc88bf9c4ffe5d98dc4a9d1ce0318859f0c58b02; docs/project-facts.json=7869ac7ad62254b3e64ea54ff421f966f74a3dcbc4b592a77e165a337a172e23
+
+**Limitations.** The corpus is deliberately representative rather than exhaustive, and MH-ADR-0004 continues to exclude backend versions, raw timing, explanations, witnesses, and incidental ordering from compatibility unless a case explicitly freezes them. Direct legacy internal imports remain outside the SemVer surface.
+
+**Next.** Activate MH-020 and implement strict contract artifact proposal, pre-screen, acceptance, hash, signature-binding, and deterministic-report tooling under MH-C-WORKFLOW-001.
+
+---
+
 ## 2026-08-11 - Full supported CI matrix made portable and green
 
 **Task.** MH-016 (`done`).

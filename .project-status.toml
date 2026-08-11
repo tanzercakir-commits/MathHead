@@ -123,3 +123,17 @@ command = "python tools/validate_legacy_compat.py"
 profiles = ["status", "fast"]
 tasks = ["MH-017"]
 timeout_seconds = 60
+
+[[checks]]
+name = "contract-artifact-tests"
+command = "python -m unittest discover -s tests/contract_artifacts -v"
+profiles = ["status", "fast"]
+tasks = ["MH-020"]
+timeout_seconds = 120
+
+[[checks]]
+name = "contract-artifact-workflow"
+command = "python tools/contract_artifacts.py verify --all --check-report docs/contracts/reports/verification-v1.json"
+profiles = ["status", "fast"]
+tasks = ["MH-020"]
+timeout_seconds = 60

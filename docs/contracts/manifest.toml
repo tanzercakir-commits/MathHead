@@ -77,3 +77,15 @@ id = "MH-C-LEGACY-COMPAT-001"
 path = "docs/contracts/MH-C-LEGACY-COMPAT-001.json"
 sha256 = "53a9e09b58738ccdbb596ec28fa15d989d4cba66cecd46c5c97ca8d1da1f9412"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-CONTRACT-ARTIFACTS-001"
+path = "docs/contracts/MH-C-CONTRACT-ARTIFACTS-001.json"
+sha256 = "c7ff9d447d6c8166c2f78c78da79a7b6ada9717eccb2bda5c3b633ca01b61989"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-CONTRACT-ARTIFACTS-002"
+path = "docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json"
+sha256 = "602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750"
+state = "accepted"

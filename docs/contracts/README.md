@@ -34,10 +34,12 @@ before the critical implementation that they govern.
   command itself. It supersedes the mechanically valid but operationally
   unportable `001` validator set and is accepted at SHA-256
   `602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750`.
-- `MH-C-PROBLEM-IR-001.json` governs the solver-neutral, typed ProblemIR graph,
-  source provenance, complete alternative readings, and canonical identity. It
-  binds `schemas/problem-ir-v1.schema.json` and is accepted at SHA-256
-  `d705d82fcb6b7ac3b2f411f5a6d2cf01f80e4e8ebe71116ea8db9b91b639287b`.
+- `MH-C-PROBLEM-IR-002.json` governs the solver-neutral, typed ProblemIR graph,
+  source provenance, complete alternative readings, canonical identity, and
+  enforceable structural budgets. It supersedes `001`, whose numeric-literal
+  and nesting limits were not fully enforceable, binds
+  `schemas/problem-ir-v1.schema.json`, and is accepted at SHA-256
+  `6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286`.
 
 ## Repository command
 

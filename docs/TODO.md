@@ -19,7 +19,7 @@ versioning; canonical serialization and content identity; validation errors and
 resource limits.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`, and the new
-`MH-C-PROBLEM-IR-001` artifact.
+`MH-C-PROBLEM-IR-002` artifact.
 
 **Validators:** closed schema and enum checks, unique IDs, reference integrity,
 scope and binder checks, source-span bounds, ambiguity preservation, canonical

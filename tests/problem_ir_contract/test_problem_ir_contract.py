@@ -142,6 +142,54 @@ class ProblemIRContractTests(unittest.TestCase):
         floating["extensions"] = {"org.mathhead.test": {"score": 0.5}}
         self.assert_invalid(floating, "schema")
 
+    def test_numeric_extension_and_graph_budgets_fail_closed(self) -> None:
+        numeric = self.valid()
+        numeric["expressions"][0] = {
+            "id": "expression_x",
+            "kind": "literal",
+            "domain_id": "domain_integer",
+            "literal_type": "integer",
+            "value": "1" * (problem_ir.MAX_NUMERIC_LITERAL_DIGITS + 1),
+            "span_ids": [],
+        }
+        self.assert_invalid(numeric, "budget")
+
+        integer = self.valid()
+        integer["extensions"] = {
+            "org.mathhead.test": {"count": problem_ir.MAX_JSON_INTEGER + 1}
+        }
+        self.assert_invalid(integer, "budget")
+
+        nested: object = None
+        for _ in range(problem_ir.MAX_EXTENSION_NESTING + 1):
+            nested = [nested]
+        extension = self.valid()
+        extension["extensions"] = {"org.mathhead.test": nested}
+        self.assert_invalid(extension, "budget")
+
+        graph = self.valid()
+        chain = []
+        for index in range(problem_ir.MAX_GRAPH_NESTING + 2):
+            statement_id = f"statement_chain_{index:04d}"
+            child = f"statement_chain_{index + 1:04d}"
+            chain.append(
+                {
+                    "id": statement_id,
+                    "kind": "logical",
+                    "operator": "not",
+                    "operand_statement_ids": [
+                        child
+                        if index < problem_ir.MAX_GRAPH_NESTING + 1
+                        else "statement_body"
+                    ],
+                    "span_ids": [],
+                }
+            )
+        graph["statements"].extend(chain)
+        graph["statements"].sort(key=lambda item: item["id"])
+        graph["goals"][0]["statement_id"] = "statement_chain_0000"
+        self.assert_invalid(graph, "budget")
+
     def test_exact_literal_canonicalization_rejects_equivalent_spellings(self) -> None:
         integer = self.valid()
         integer["expressions"][0] = {

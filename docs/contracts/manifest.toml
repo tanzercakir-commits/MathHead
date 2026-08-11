@@ -95,3 +95,9 @@ id = "MH-C-PROBLEM-IR-001"
 path = "docs/contracts/MH-C-PROBLEM-IR-001.json"
 sha256 = "d705d82fcb6b7ac3b2f411f5a6d2cf01f80e4e8ebe71116ea8db9b91b639287b"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROBLEM-IR-002"
+path = "docs/contracts/MH-C-PROBLEM-IR-002.json"
+sha256 = "6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286"
+state = "accepted"

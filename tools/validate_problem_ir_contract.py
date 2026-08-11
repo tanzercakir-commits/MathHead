@@ -10,6 +10,7 @@ import math
 from pathlib import Path
 import re
 import sys
+import time
 import unicodedata
 from typing import Any, NoReturn, Sequence
 
@@ -20,8 +21,8 @@ except ModuleNotFoundError:  # Python 3.10 core profile.
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT_ID = "MH-C-PROBLEM-IR-001"
-EXPECTED_CONTRACT_SHA256 = "d705d82fcb6b7ac3b2f411f5a6d2cf01f80e4e8ebe71116ea8db9b91b639287b"
+CONTRACT_ID = "MH-C-PROBLEM-IR-002"
+EXPECTED_CONTRACT_SHA256 = "6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286"
 SCHEMA_PATH = Path("docs/contracts/schemas/problem-ir-v1.schema.json")
 EXPECTED_SCHEMA_SHA256 = "dcf871f15ebbae06b0eca285a115f2545defc00cb0befc23e3cc574d8523df2c"
 ROOT_FIELDS = {
@@ -53,6 +54,12 @@ REGISTRIES = (
     "goals",
     "readings",
 )
+MAX_VALIDATION_SECONDS = 30.0
+MAX_EXTENSION_NESTING = 64
+MAX_GRAPH_NESTING = 512
+MAX_STRING_CODEPOINTS = 1_048_576
+MAX_JSON_INTEGER = 9_007_199_254_740_991
+MAX_NUMERIC_LITERAL_DIGITS = 4096
 
 
 class ProblemIRValidationError(RuntimeError):
@@ -237,6 +244,35 @@ def _walk_strings(value: Any, path: str = "$"):
         for key, item in value.items():
             yield from _walk_strings(key, f"{path}.<key>")
             yield from _walk_strings(item, f"{path}.{key}")
+
+
+def _shape_budget(value: Any, started: float) -> None:
+    stack = [(value, 0, "$")]
+    visited = 0
+    while stack:
+        item, depth, path = stack.pop()
+        visited += 1
+        if visited % 1024 == 0 and time.monotonic() - started > MAX_VALIDATION_SECONDS:
+            _fail("budget", path, "validation exceeded 30 seconds")
+        if depth > MAX_EXTENSION_NESTING:
+            _fail("budget", path, "canonical value nesting exceeds 64")
+        if isinstance(item, str) and len(item) > MAX_STRING_CODEPOINTS:
+            _fail("budget", path, "string exceeds 1048576 code points")
+        if (
+            isinstance(item, int)
+            and not isinstance(item, bool)
+            and abs(item) > MAX_JSON_INTEGER
+        ):
+            _fail("budget", path, "JSON integer exceeds the portable exact range")
+        if isinstance(item, list):
+            stack.extend(
+                (child, depth + 1, f"{path}[{index}]")
+                for index, child in enumerate(item)
+            )
+        elif isinstance(item, dict):
+            stack.extend(
+                (child, depth + 1, f"{path}.{key}") for key, child in item.items()
+            )
 
 
 def _index_registries(value: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
@@ -502,6 +538,10 @@ def _literal(expression: dict[str, Any], domains: dict[str, dict[str, Any]], pat
         _fail("literal", path, "literal type is incompatible with its domain")
     if kind == "string" and domain.get("kind") != "structure":
         _fail("literal", path, "string literal requires a named structure domain")
+    if kind in {"integer", "rational"}:
+        components = value.removeprefix("-").split("/")
+        if any(len(component) > MAX_NUMERIC_LITERAL_DIGITS for component in components):
+            _fail("budget", path, "numeric literal component exceeds 4096 digits")
     if kind == "boolean" and value not in {"true", "false"}:
         _fail("literal", path, "boolean literal must be true or false")
     if kind == "integer" and re.fullmatch(r"0|-?[1-9][0-9]*", value) is None:
@@ -579,19 +619,21 @@ def _acyclic(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> None:
     visiting: set[str] = set()
     visited: set[str] = set()
 
-    def visit(node: str) -> None:
+    def visit(node: str, depth: int) -> None:
+        if depth > MAX_GRAPH_NESTING:
+            _fail("budget", "$", "ProblemIR dependency nesting exceeds 512")
         if node in visiting:
             _fail("cycle", "$", f"cyclic ProblemIR graph at {node}")
         if node in visited:
             return
         visiting.add(node)
         for dependency in graph.get(node, []):
-            visit(dependency)
+            visit(dependency, depth + 1)
         visiting.remove(node)
         visited.add(node)
 
     for node in graph:
-        visit(node)
+        visit(node, 0)
 
 
 def _scope(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> None:
@@ -625,7 +667,14 @@ def _scope(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> None:
         if variable["role"] == "parameter" and variable["id"] not in parameter_owner:
             _fail("scope", f"$.variables.{variable['id']}", "parameter has no definition")
 
-    def expression_scope(expression_id: str, allowed: frozenset[str], trail: frozenset[str]) -> None:
+    def expression_scope(
+        expression_id: str,
+        allowed: frozenset[str],
+        trail: frozenset[str],
+        depth: int,
+    ) -> None:
+        if depth > MAX_GRAPH_NESTING:
+            _fail("budget", "$.expressions", "scope nesting exceeds 512")
         if expression_id in trail:
             return
         expression = expressions[expression_id]
@@ -636,43 +685,55 @@ def _scope(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> None:
                 _fail("scope", f"$.expressions.{expression_id}", "variable escapes its scope")
         elif kind == "apply":
             for child in expression["argument_expr_ids"]:
-                expression_scope(child, allowed, trail | {expression_id})
+                expression_scope(child, allowed, trail | {expression_id}, depth + 1)
         elif kind in {"tuple", "collection"}:
             for child in expression["element_expr_ids"]:
-                expression_scope(child, allowed, trail | {expression_id})
+                expression_scope(child, allowed, trail | {expression_id}, depth + 1)
         elif kind == "conditional":
-            statement_scope(expression["condition_statement_id"], allowed, frozenset())
-            expression_scope(expression["then_expr_id"], allowed, trail | {expression_id})
-            expression_scope(expression["else_expr_id"], allowed, trail | {expression_id})
+            statement_scope(expression["condition_statement_id"], allowed, frozenset(), depth + 1)
+            expression_scope(
+                expression["then_expr_id"], allowed, trail | {expression_id}, depth + 1
+            )
+            expression_scope(
+                expression["else_expr_id"], allowed, trail | {expression_id}, depth + 1
+            )
 
-    def statement_scope(statement_id: str, allowed: frozenset[str], trail: frozenset[str]) -> None:
+    def statement_scope(
+        statement_id: str,
+        allowed: frozenset[str],
+        trail: frozenset[str],
+        depth: int,
+    ) -> None:
+        if depth > MAX_GRAPH_NESTING:
+            _fail("budget", "$.statements", "scope nesting exceeds 512")
         if statement_id in trail:
             return
         statement = statements[statement_id]
         kind = statement["kind"]
         if kind == "relation":
             for expression_id in relations[statement["relation_id"]]["operand_expr_ids"]:
-                expression_scope(expression_id, allowed, frozenset())
+                expression_scope(expression_id, allowed, frozenset(), depth + 1)
         elif kind == "logical":
             for child in statement["operand_statement_ids"]:
-                statement_scope(child, allowed, trail | {statement_id})
+                statement_scope(child, allowed, trail | {statement_id}, depth + 1)
         elif kind == "quantified":
             statement_scope(
                 statement["body_statement_id"],
                 allowed | frozenset(statement["variable_ids"]),
                 trail | {statement_id},
+                depth + 1,
             )
 
     for assumption in value["assumptions"]:
-        statement_scope(assumption["statement_id"], frozenset(), frozenset())
+        statement_scope(assumption["statement_id"], frozenset(), frozenset(), 0)
     for goal in value["goals"]:
-        statement_scope(goal["statement_id"], frozenset(), frozenset())
+        statement_scope(goal["statement_id"], frozenset(), frozenset(), 0)
     for definition in value["definitions"]:
         allowed = frozenset(definition["parameter_variable_ids"])
         if definition["body"]["kind"] == "expression":
-            expression_scope(definition["body"]["expression_id"], allowed, frozenset())
+            expression_scope(definition["body"]["expression_id"], allowed, frozenset(), 0)
         else:
-            statement_scope(definition["body"]["statement_id"], allowed, frozenset())
+            statement_scope(definition["body"]["statement_id"], allowed, frozenset(), 0)
 
 
 def _ambiguity(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> None:
@@ -704,6 +765,8 @@ def _ambiguity(value: dict[str, Any], indexes: dict[str, dict[str, Any]]) -> Non
 
 
 def validate_problem_ir(value: dict[str, Any], schema: dict[str, Any]) -> None:
+    started = time.monotonic()
+    _shape_budget(value, started)
     _schema_validate(value, schema, schema)
     if set(value) != ROOT_FIELDS:
         _fail("schema", "$", "root field set drift")
@@ -718,6 +781,8 @@ def validate_problem_ir(value: dict[str, Any], schema: dict[str, Any]) -> None:
     _scope(value, indexes)
     _ambiguity(value, indexes)
     canonical_bytes(value)
+    if time.monotonic() - started > MAX_VALIDATION_SECONDS:
+        _fail("budget", "$", "validation exceeded 30 seconds")
 
 
 def minimal_problem_ir() -> dict[str, Any]:

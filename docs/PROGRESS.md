@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Command surfaces made encoding-safe
+
+**Task.** MH-012 (`done`).
+
+**Changed.** Bound every command-facing renderer to accepted MH-C-ENCODING-001; added deterministic safe_text and safe_print behavior, canonical ASCII-safe JSON, and non-UTF/redirected-stream coverage for CLI, discovery, MCP diagnostics, and developer commands.
+
+**Learned.** GitHub run 31486792484 completed the encoding contract suite inside legacy-full on Windows 3.10, 3.11, and 3.12 and on Linux/macOS without an encoding failure; run 31486792597 independently passed the command-encoding status validator on Ubuntu and Windows.
+
+**Contracts.** MH-C-ENCODING-001=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210 (docs/contracts/MH-C-ENCODING-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-51aaf59a88555fc59f4afba8f2f0fa280feb423d15a7dedde5e973faa7f2321e; reconstruction-plan=passed/exit-0/output-3d49650537d551b9ee8a5c7d59991b71238d12aab5e316a78eac065a8452112f; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-5f31e7ee396f537eb635e742dd78f79bb851da09d4760ece7c998e8e40794dca; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-db72c3d44d0d9925a07e3f4ce554f231a8867c8ed3d6d0a955b547ad57f18e07; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7
+
+**Evidence.** docs/contracts/MH-C-ENCODING-001.json=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210; src/mathhead/output.py=c6d4dd4c2ffe276041cfacd69caa3fc76c495be1d2de4406def3327f7bce63f9; src/mathhead/cli.py=67c84affb6c5c8810f1d3ccac18233f3a8f77f93c0f5bc4f8163e06844fed07e; src/mathhead/discovery/cli.py=9e2b0bd008b885160f468bebd99c2341659546a8b46afb716fed20c1db6489ed; src/mathhead/server/mcp_server.py=593755c168b66fb3816a8a565a3ec05a5a6b8a927ccd2c79df27bce0126aa56a; tools/dev.py=0c532acff4c9567cfa5c1615171ca1be98531b2f06f2a49caf9ff05971c01d1d; tools/validate_command_encoding.py=847dc71453c55599c5eec70e3210d8350d591ff064346839c7e7d40f6b11dcec; tests/encoding/test_command_encoding.py=45422843d2619f2d1c56027603d564820a63ba13ccacd5858b2232530d3c3233
+
+**Limitations.** The overall legacy-full jobs remain red for separately classified shallow-checkout baseline replay, Python 3.10 arbitrary-null parser hardening, and environment-sensitive discovery sample isolation; no observed failure is in the accepted encoding boundary.
+
+**Next.** Complete MH-011 with the solver backend result, then activate MH-013 through MH-015 and isolate live-MCP, test-profile, and version/documentation drift.
+
+---
+
 ## 2026-08-11 - Accepted encoding boundary implemented pending platform CI
 
 **Task.** MH-012 (`partial`).

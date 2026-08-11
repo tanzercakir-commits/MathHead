@@ -5,48 +5,48 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-027 - Build contract conformance tests
+### MH-028 - Freeze cross-layer reference fixtures
 
-**Goal:** prove that every P2 foundation contract has one executable,
-cross-contract conformance boundary that detects schema, artifact, validator,
-semantic, and future implementation drift before runtime code can claim
-compatibility.
+**Goal:** finish P2 by freezing a minimal, canonical, content-addressed fixture
+bundle that demonstrates how ProblemIR, TheoryContext, ResourceBudget,
+TheoryPlugin, EngineResult, Evidence, and Certificate bytes compose across
+success and failure boundaries without importing legacy solver behavior.
 
-**Scope:** enumerate the active accepted P2 contract closure; validate exact
-manifest IDs, states, paths, hashes, proposal bytes, canonical encoding,
-normative schema identities, Draft 2020-12 closure, declared validator
-commands, dependency hashes, supersession, and target bindings; exercise
-unknown and missing fields, malformed values, duplicate keys, signature and
-hash drift, absent or failing validators, contradictory requirements, budget
-and authority confusion, and synthetic implementation-side changes without
-editing immutable accepted artifacts.
+**Scope:** exact scenario IDs, source-independent canonical inputs, dependency
+hashes, plugin routing, budget outcomes, engine execution and mathematical
+verdicts, evidence payloads, certificate observations, trust dependencies,
+diagnostics, replay identity, and bundle manifest ordering for proof,
+refutation, ambiguity, unsupported input, timeout, backend disagreement,
+invalid certificate, and replay mismatch. Fixtures must distinguish absent
+artifacts from empty artifacts and must not promote producer output, timeout,
+disagreement, invalidity, or replay failure to verified truth.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
 `MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
 `MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`,
 `MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`, and
-`MH-C-THEORY-PLUGIN-001`. Accepted contract and proposal bytes remain
-immutable; conformance mutations operate only on isolated copies.
+`MH-C-THEORY-PLUGIN-001`. The MH-027 conformance report is the required
+structural closure; accepted contract, proposal, schema, and report bytes stay
+immutable.
 
-**Validators:** a dependency-minimal repository conformance command and
-focused unittest suite; exact active-contract inventory and dependency DAG;
-schema meta-validation and representative positive instances; canonical byte,
-manifest, proposal, validator-reference, target-binding, supersession, and
-semantic-contradiction checks; adversarial isolated-copy mutations for every
-required failure class; Ruff, project status, core, docs, release, and clean
-install gates.
+**Validators:** a closed canonical fixture-manifest schema, repository-owned
+cross-layer validator, and focused tests; exact eight-scenario inventory;
+per-artifact schema and semantic validation; content-addressed references and
+acyclic dependency closure; deterministic regeneration and relocated-copy
+replay; negative mutations for byte/hash/schema/order/dependency/verdict,
+authority, trust, budget, disagreement, invalid-certificate, and replay drift;
+Ruff, project status, core, docs, release, and clean install gates.
 
-**Done when:** the accepted P2 closure passes as one deterministic report;
-each required negative class is proven to fail closed without mutating source
-artifacts; a synthetic implemented target can pass only with its exact
-signature and source hash while implementation-side signature, source,
-validator, schema, contract, or dependency drift is rejected; conformance
-validity grants no mathematical authority.
+**Done when:** every golden scenario validates from independently loaded bytes,
+the bundle regenerates byte-identically in a relocated checkout, all required
+failure states remain explicit and non-promoting, corrupting any artifact or
+binding fails closed, and the complete bundle has one stable SHA-256 identity
+usable by later kernel, planner, worker, plugin, API, and evaluation tasks.
 
-**Dependencies:** MH-020 through MH-026 are done. Golden cross-layer task
-fixtures remain assigned to MH-028; production dataclasses, protocols,
-registries, workers, kernels, and theory implementations remain in later
-phases.
+**Dependencies:** MH-020 through MH-027 are done. Production foundation types,
+trusted kernels, worker isolation, planners, and theory implementations remain
+assigned to P3 through P6; fixtures define their shared byte boundary without
+claiming those implementations already exist.
 
 ## Next
 

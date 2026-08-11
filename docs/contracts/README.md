@@ -117,6 +117,23 @@ python tools/validate_contract_conformance.py \
 python -m unittest discover -s tests/contract_conformance -v
 ```
 
+## Foundation reference fixtures
+
+The MH-028 golden cross-layer bundle is under `docs/fixtures/foundation-v1/`.
+It composes independently loaded ProblemIR, TheoryContext, ResourceBudget,
+TheoryPlugin, Evidence, Certificate, and EngineResult bytes for eight exact
+success and failure scenarios. Its content-addressed payloads, checker results,
+replay logs, dependency graph, absence variants, and authority boundary are
+validated with:
+
+```bash
+python tools/validate_reference_fixtures.py
+python -m unittest discover -s tests/reference_fixtures -v
+```
+
+See `docs/fixtures/README.md` for the stable bundle identity, regeneration
+command, object-store layout, and non-promotion rules.
+
 ## Proposed contracts
 
 - Accepted proposal source files remain under `proposed/` as immutable review

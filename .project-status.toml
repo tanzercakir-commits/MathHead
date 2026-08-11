@@ -193,3 +193,17 @@ command = "python tools/validate_contract_conformance.py --check-report docs/con
 profiles = ["status", "fast"]
 tasks = ["MH-027"]
 timeout_seconds = 120
+
+[[checks]]
+name = "foundation-reference-fixture-tests"
+command = "python -m unittest discover -s tests/reference_fixtures -v"
+profiles = ["status", "fast"]
+tasks = ["MH-028"]
+timeout_seconds = 180
+
+[[checks]]
+name = "foundation-reference-fixtures"
+command = "python tools/validate_reference_fixtures.py"
+profiles = ["status", "fast"]
+tasks = ["MH-028"]
+timeout_seconds = 120

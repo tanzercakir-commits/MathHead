@@ -22,6 +22,11 @@ import traceback
 from typing import Any
 import venv
 
+_SOURCE_ROOT = Path(__file__).resolve().parents[1] / "src"
+if str(_SOURCE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SOURCE_ROOT))
+from mathhead.output import safe_print as print  # noqa: E402
+
 
 CONTRACT_ID = "MH-C-ENV-001"
 CONTRACT_SHA256 = "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87"
@@ -316,7 +321,7 @@ def _summary(
 
 def _emit(summary: dict[str, Any], *, json_output: bool, diagnostics: list[str]) -> None:
     if json_output:
-        print(json.dumps(summary, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+        print(json.dumps(summary, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
         return
     print(
         f"dev: profile={summary['profile']} status={summary['status']} "
@@ -663,7 +668,7 @@ def _describe(manifest: dict[str, Any], profile_name: str, *, json_output: bool)
         "definition": profile,
     }
     if json_output:
-        print(json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+        print(json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
     else:
         print(
             f"dev: profile={profile_name} status=not_run support={payload['support']} "

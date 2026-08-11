@@ -112,7 +112,7 @@ VERDICT: refuted   [exact_integer_certificate]
   readings  : the same text under 3 candidate quantifier readings —
     [A] refuted    [exact_integer_certificate]  check()'s own reading (baseline)
     [B] refuted    [exact_integer_certificate]  vs A: drops [connected]
-    [C] refuted    [exact_integer_certificate]  vs A: drops [connected, 2 <= n <= 7 (bounded scan)]; adds [n == 7 (complete finite domain)]
+    [C] refuted    [exact_integer_certificate]  vs A: drops [connected, 2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]
 ```
 The mirrored `>=` direction works the same way (`"num_edges >= num_triangles"` is refuted by the
 same n=6 graph as the `<=` classic).
@@ -154,7 +154,7 @@ exact-rational `g(n)` on the right. Every permutation of every `n` up to the hon
 (`min(max_n, 7)`) is scanned:
 
 ```console
-$ mathhead-discover check "all perms of n: inversions <= n*(n-1)/2"
+$ mathhead-discover check "all perms of n: inversions <= n*(n-1)/2" --max-n 7
 VERDICT: open   [no_counterexample_within_bound]
   statement : all perms of n: inversions <= n*(n-1)/2
   checked   : ALL 5913 permutations over every n <= 7

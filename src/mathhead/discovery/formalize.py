@@ -39,7 +39,7 @@ from dataclasses import dataclass
 
 from .product import CheckResult, graph_invariant_registry, graph_statement_grammar
 
-_MAX_ORDER = 7          # generate.generate_graphs' honest brute-force wall
+_MAX_ORDER = 8          # accepted nauty wall; dependency-minimal execution refuses above order 6
 
 
 @dataclass(frozen=True)
@@ -63,9 +63,9 @@ def candidate_formalizations(statement: str, *, max_n: int = 6,
     """The three candidate readings of `invA <= / >= / == [k*]invB [+ c]` (V2). Deterministic;
     a statement outside the graph-bound grammar or with unknown invariants raises ValueError —
     the module refuses to guess, exactly like the product door."""
-    if not 2 <= max_n <= _MAX_ORDER or not 1 <= fixed_n <= _MAX_ORDER:
+    if not 2 <= max_n <= _MAX_ORDER or not 2 <= fixed_n <= _MAX_ORDER:
         raise ValueError(f"bounds must satisfy 2 <= max_n <= {_MAX_ORDER} and "
-                         f"1 <= fixed_n <= {_MAX_ORDER} (the honest generation wall)")
+                         f"2 <= fixed_n <= {_MAX_ORDER} (the accepted generation wall)")
     m = graph_statement_grammar().match(statement.strip())
     if not m:
         raise ValueError(f"not a graph-bound statement ({statement!r}) — the candidate surface is "
@@ -177,28 +177,32 @@ def _scan(cand: CandidateFormalization, graphs, complete_domain: bool) -> CheckR
               "proves this reading — honestly open")
 
 
-def _graph_domain(n: int) -> list:
-    """All isomorphism classes of order n — geng first (cross-validated against the pure-Python
-    generator, see nauty_scale), pure-Python brute force as the fallback. EXACTLY the preference
-    the product door uses for its own connected scan; without it the all-graphs candidates would
-    hit the brute-force wall at n=7 (minutes) that geng crosses in milliseconds."""
-    from .nauty_scale import geng_available, geng_graphs
-    if geng_available():
-        return geng_graphs(n)
-    from .generate import generate_graphs
-    return generate_graphs(n)
-
-
 def evaluate_candidate(cand: CandidateFormalization) -> CheckResult:
     """Honest verdict envelope for one candidate. A is `check()`'s own semantics and is DELEGATED
     to the product door; B and C run their own exhaustive scans (same envelope, same tiers)."""
     if cand.label == "A":
         from .product import check
         return check(cand.statement, max_n=cand.max_n)
-    if cand.label == "B":
-        graphs = [g for n in range(2, cand.max_n + 1) for g in _graph_domain(n)]
-        return _scan(cand, graphs, complete_domain=False)
-    return _scan(cand, _graph_domain(cand.fixed_n), complete_domain=True)
+    from .nauty_scale import geng_available
+    from .product import (_GraphSearchFailure, _graph_failure_result,
+                          _graph_refusal_result, _iter_planned_graphs,
+                          graph_search_plan)
+    requested = cand.max_n if cand.label == "B" else cand.fixed_n
+    plan = graph_search_plan(requested, fast_backend_available=geng_available())
+    structure = ("graph_bound_fixed_order" if cand.label == "C"
+                 else "graph_bound_all_graphs")
+    if not plan.supported:
+        return _graph_refusal_result(cand.statement, structure, plan)
+    min_n = 2 if cand.label == "B" else cand.fixed_n
+    try:
+        graphs = _iter_planned_graphs(plan, min_n=min_n, connected=False)
+        return _scan(cand, graphs, complete_domain=cand.label == "C")
+    except _GraphSearchFailure as exc:
+        return _graph_failure_result(cand.statement, structure, plan, str(exc))
+    except (ArithmeticError, LookupError, TypeError, ValueError):
+        return _graph_failure_result(
+            cand.statement, structure, plan, "invariant-evaluation-failed"
+        )
 
 
 def formalize(statement: str, *, max_n: int = 6, fixed_n: int = 4) -> dict:

@@ -15,7 +15,7 @@ class OptionalDependencyContractTests(unittest.TestCase):
     def test_repository_core_boundary_is_complete(self) -> None:
         sources, markers = optional.validate(ROOT, "core")
         self.assertGreater(sources, 100)
-        self.assertEqual(markers, 10)
+        self.assertEqual(markers, 12)
 
     def test_executable_alternatives_accept_either_packaging_name(self) -> None:
         profile = {"platforms": ["linux"], "python": [dev._python_version()],
@@ -47,7 +47,7 @@ class OptionalDependencyContractTests(unittest.TestCase):
             with mock.patch.object(optional, "_which_any", return_value="/usr/bin/nauty-geng"):
                 sources, markers = optional.validate(ROOT, "solver")
         self.assertGreater(sources, 100)
-        self.assertEqual(markers, 10)
+        self.assertEqual(markers, 12)
 
 
 if __name__ == "__main__":

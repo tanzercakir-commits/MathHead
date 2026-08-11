@@ -490,7 +490,7 @@ def test_ag5_cli_stats_epilogue_survives_exceptions_and_never_leaks(capsys, monk
     ins.reset()
     ins.disable()
 
-    def boom(statement, max_n=7):
+    def boom(statement, max_n=6):
         raise RuntimeError("engine exploded mid-call")
     monkeypatch.setattr(product, "check", boom)
 

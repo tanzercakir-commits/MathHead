@@ -23,8 +23,14 @@ MODULE_MARKERS = (
     "tests/test_discovery_rup_check.py",
 )
 FUNCTION_MARKERS = {
+    "tests/test_discovery_cli.py": {
+        "test_bracket_command",
+    },
     "tests/test_discovery_closure_sweep_d.py": {
         "test_ag1_parallel_ramsey_decisions_merge_deterministically",
+    },
+    "tests/test_docs_examples.py": {
+        "test_example_3_bracket_r33",
     },
     "tests/test_hpsolver.py": {
         "test_pysat_bad_solver_name_rejected",

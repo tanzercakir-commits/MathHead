@@ -74,3 +74,17 @@ command = "python tools/validate_optional_dependencies.py --profile core"
 profiles = ["status", "fast"]
 tasks = ["MH-010"]
 timeout_seconds = 60
+
+[[checks]]
+name = "graph-budget-contract"
+command = "python tools/validate_graph_budget.py"
+profiles = ["status", "fast"]
+tasks = ["MH-011"]
+timeout_seconds = 60
+
+[[checks]]
+name = "command-encoding-contract"
+command = "python tools/validate_command_encoding.py"
+profiles = ["status", "fast"]
+tasks = ["MH-012"]
+timeout_seconds = 60

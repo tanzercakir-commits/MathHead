@@ -101,8 +101,10 @@ def test_readings_only_on_ambiguous_structures_every_other_stays_empty():
 def test_outside_the_formalization_wall_readings_absent_and_the_note_says_why():
     r = check("num_vertices <= num_edges + 1", max_n=1)
     assert r.readings == ()
-    assert "quantifier readings not evaluated: max_n=1" in r.notes
-    assert "2 <= max_n <= 7" in r.notes
+    assert (r.verdict, r.tier) == ("unsupported", "none")
+    assert "reason=order-below-minimum" in r.notes
+    assert "requested max_n=1" in r.notes
+    assert "no graph was checked or silently clamped" in r.notes
 
 
 def test_readings_shape_tiers_and_determinism():

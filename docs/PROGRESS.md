@@ -5,6 +5,50 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Accepted encoding boundary implemented pending platform CI
+
+**Task.** MH-012 (`partial`).
+
+**Changed.** Accepted MH-C-ENCODING-001 byte-identically; added contract-bound safe_text and safe_print, routed main CLI, discovery CLI, MCP startup stderr, and the developer dispatcher through it, and made command JSON explicitly ASCII-safe.
+
+**Learned.** cp1254 preserves Turkish and its representable punctuation exactly while arrows, mathematical minus signs, Greek letters, and emoji fall back to deterministic backslash escapes; replacing only unencodable code points keeps human output readable and JSON data-equivalent.
+
+**Contracts.** MH-C-ENCODING-001=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210 (docs/contracts/MH-C-ENCODING-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-82639b5edf9919d7aab91c4359ad17d328ffc0c0f23d8b74629b61db1e59dfe6; reconstruction-plan=passed/exit-0/output-3d49650537d551b9ee8a5c7d59991b71238d12aab5e316a78eac065a8452112f; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-d93d32daab77026629a1e41c2822e6ee96deaa59e11ee9efad696d0772c4c66f; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-db72c3d44d0d9925a07e3f4ce554f231a8867c8ed3d6d0a955b547ad57f18e07; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7
+
+**Evidence.** docs/contracts/MH-C-ENCODING-001.json=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210; src/mathhead/output.py=c6d4dd4c2ffe276041cfacd69caa3fc76c495be1d2de4406def3327f7bce63f9; src/mathhead/cli.py=67c84affb6c5c8810f1d3ccac18233f3a8f77f93c0f5bc4f8163e06844fed07e; src/mathhead/discovery/cli.py=9e2b0bd008b885160f468bebd99c2341659546a8b46afb716fed20c1db6489ed; src/mathhead/server/mcp_server.py=593755c168b66fb3816a8a565a3ec05a5a6b8a927ccd2c79df27bce0126aa56a; tools/dev.py=0c532acff4c9567cfa5c1615171ca1be98531b2f06f2a49caf9ff05971c01d1d; tools/validate_command_encoding.py=847dc71453c55599c5eec70e3210d8350d591ff064346839c7e7d40f6b11dcec; tests/encoding/test_command_encoding.py=45422843d2619f2d1c56027603d564820a63ba13ccacd5858b2232530d3c3233
+
+**Limitations.** Twelve encoding contract tests, 229 focused CLI/MCP/dev tests, Ruff, and all 12 status checks pass. Live MCP subprocess tests are blocked only in this managed sandbox by the known pipe restriction assigned to MH-013; independent Windows/Linux CI has not yet been observed.
+
+**Next.** Commit and push, require Windows and Linux command/JSON/MCP checks to cross the former locale boundary, then record MH-012 DONE without relabeling MH-013 pipe restrictions.
+
+---
+
+## 2026-08-11 - Accepted graph budget implemented pending independent CI
+
+**Task.** MH-011 (`partial`).
+
+**Changed.** Accepted MH-C-GRAPH-BUDGET-001 byte-identically; added the contract-bound GraphSearchPlan, pure 6/2000 and nauty 8/20000 limits, pre-enumeration refusal, bounded subprocesses, incremental order consumption, first-counterexample stopping, and graph/formalization regression tests.
+
+**Learned.** The dependency-minimal full legacy run now completes instead of timing out: 2059 passed and 18 skipped in 340.35 seconds; its seven residual failures are two solver-capability selections, one managed multiprocessing socket restriction, and five live-MCP pipe restrictions, with no graph timeout.
+
+**Contracts.** MH-C-GRAPH-BUDGET-001=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794 (docs/contracts/MH-C-GRAPH-BUDGET-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-c2355937df92d84abea3111b963b41544accf92fb1bef8aed0d3d6ec57e5a974; reconstruction-plan=passed/exit-0/output-3d49650537d551b9ee8a5c7d59991b71238d12aab5e316a78eac065a8452112f; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-eda54bb6ba7902582146537aac304c6a27e72be608c77236f40e940d13a225fd; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-db72c3d44d0d9925a07e3f4ce554f231a8867c8ed3d6d0a955b547ad57f18e07; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7
+
+**Evidence.** docs/contracts/MH-C-GRAPH-BUDGET-001.json=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794; src/mathhead/discovery/product.py=d9098f1082af22f1d65e2e440aa2c815c3daad8003c4bcfad74f98532bfc911a; src/mathhead/discovery/formalize.py=033ae47cc116a83dc2baaf03090bf6b61947b5e5926e1da3422919758f0f4aac; src/mathhead/discovery/nauty_scale.py=988c6030ae525608bcff2388d6954d3e4194a1a8acacc548ea44e9e11abf6c3f; src/mathhead/discovery/cli.py=9e2b0bd008b885160f468bebd99c2341659546a8b46afb716fed20c1db6489ed; tools/validate_graph_budget.py=3d77f7f3333905c838630555415f3573246aeafc30139f7b0a27f3a3c03b9f7e; tests/graph_budget/test_graph_budget.py=3fbc911028bffe564805c87ace8a29cbeb26fda545537b44a10e1f0a49992ba5; docs/manual/api.md=27550b57916e879f4b888bd62b8afa841b578e912e34a9e3e646a4432400c81b
+
+**Limitations.** Local graph contract, 11 negative/budget tests, 125 related legacy tests, Ruff, and all 12 status checks pass; independent Windows/Linux CI on the pushed implementation has not yet been observed.
+
+**Next.** Commit and push the accepted implementation, then require GitHub core and solver jobs to cross the former graph timeout before recording MH-011 DONE.
+
+---
+
 ## 2026-08-11 - Optional dependency test contracts corrected
 
 **Task.** MH-010 (`done`).

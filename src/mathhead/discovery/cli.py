@@ -25,13 +25,16 @@ import argparse
 import json
 import sys
 
+from mathhead.output import safe_print as print
+
 _UNSUPPORTED_EXIT = 3     # honest refusal ≠ answer: scripts must be able to tell them apart
 
 
 def _print_check(r, as_json: bool) -> int:
-    code = _UNSUPPORTED_EXIT if r.verdict == "unsupported" else 0
+    code = (1 if r.verdict == "error" else
+            _UNSUPPORTED_EXIT if r.verdict == "unsupported" else 0)
     if as_json:
-        print(json.dumps(r.__dict__, default=str, indent=2))
+        print(json.dumps(r.__dict__, default=str, ensure_ascii=True, indent=2))
         return code
     print(f"VERDICT: {r.verdict}   [{r.tier}]")
     print(f"  statement : {r.statement}")
@@ -68,8 +71,8 @@ def main(argv=None) -> int:
     p = sub.add_parser("check", help="check a statement (modular / congruence / sums / graph / "
                                      "permutations / partitions / compositions)")
     p.add_argument("statement")
-    p.add_argument("--max-n", type=int, default=7,
-                   help="scan bound (connected graphs; permutation scans cap honestly at 7)")
+    p.add_argument("--max-n", type=int, default=6,
+                   help="scan bound (graphs: pure <=6, nauty <=8; permutations cap at 7)")
 
     p = sub.add_parser("bracket", help="bracket a Ramsey number R(s,t) by SAT")
     p.add_argument("s", type=int)
@@ -127,7 +130,8 @@ def _dispatch(args, ins) -> int:
                 value = cur.n
         if args.json:
             print(json.dumps({"value": value,
-                              "verdicts": [v.__dict__ for v in verdicts]}, default=str, indent=2))
+                              "verdicts": [v.__dict__ for v in verdicts]}, default=str,
+                             ensure_ascii=True, indent=2))
             return 0
         for v in verdicts:
             print(f"n={v.n}: {'SAT' if v.satisfiable else 'UNSAT'}  [{v.certainty}]  → {v.meaning}")
@@ -142,7 +146,7 @@ def _dispatch(args, ins) -> int:
         h = ins.observe("hunt", hunt_frankl, m=args.universe, seed=args.seed, steps=args.steps,
                         _outcome=lambda h: h.status)
         if args.json:
-            print(json.dumps(h.__dict__, default=str, indent=2))
+            print(json.dumps(h.__dict__, default=str, ensure_ascii=True, indent=2))
             return 0
         print(f"target=frankl universe={h.universe} seed={h.seed} steps={h.steps}")
         print(f"STATUS: {h.status}  best_score={h.best_score}  (score <= -1 would be a witness; "

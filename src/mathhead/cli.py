@@ -35,6 +35,7 @@ from dataclasses import asdict
 from typing import Any
 
 from mathhead import __version__
+from mathhead.output import safe_print as print
 from mathhead.router import route
 
 
@@ -42,7 +43,7 @@ def _emit(result: Any, as_json: bool) -> int:
     data = asdict(result)
     status = data.get("status")
     if as_json:
-        print(json.dumps(data, ensure_ascii=False, indent=2))
+        print(json.dumps(data, ensure_ascii=True, indent=2))
     else:
         print(f"status        : {status}")
         if data.get("reason_code"):

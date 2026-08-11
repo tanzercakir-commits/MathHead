@@ -1,5 +1,8 @@
 """v3P1 — the mathhead-discover CLI (product surface, CI-locked)."""
+import importlib.util
 import json
+
+import pytest
 
 from mathhead.discovery.cli import main
 
@@ -16,6 +19,9 @@ def test_check_refutation_with_witness(capsys):
     assert "refuted" in out and "exact_integer_certificate" in out and "'n': 6" in out
 
 
+@pytest.mark.requires_solver
+@pytest.mark.skipif(importlib.util.find_spec("pysat") is None,
+                    reason="python-sat not installed")
 def test_bracket_command(capsys):
     assert main(["bracket", "3", "3", "--lo", "5", "--hi", "6"]) == 0
     out = capsys.readouterr().out

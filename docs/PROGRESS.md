@@ -5,6 +5,50 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - PR lint gate restored
+
+**Task.** MH-006 (`partial`).
+
+**Changed.** Removed the stale unused os import reported by PR CI and completed the immutable reconstruction ADR index, validator, tests, and authority links.
+
+**Learned.** PR CI run 31476398634 proved the governance control plane was green cross-platform while the product matrix stopped first at Ruff F401; exact Ruff 0.15.11 now passes locally.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-8f7694606fb0a253ccaef39850965c26b80a4ee994589293d387006b908522d3; reconstruction-plan=passed/exit-0/output-75c65a1fa12bc546468c81af15c4ac60bad8054087dd868b43d029b52846adc6; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-2dd76f884d4d894434a2ace72ff68529d3bdefebd6ae041df6d64e95315e9ba8; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** tests/project_status/test_project_status.py=f9aa34891acfd2c3f101c6b5705493d3f1a1acf6c68ffb7f6ab184f46fcee084; docs/reconstruction/adrs/INDEX.toml=413fd65b396bacaa72b40778397721c2e2116230b8fdb3e3c1002f614a25fdc5; tools/validate_reconstruction_adrs.py=f58e8bb797aefe71e8ad781dcb414c77508f4452f09baaecc3ca1d713eb4dc8a; tests/project_status/test_reconstruction_adrs.py=de7d08b1f3bb2a4ee2e9f82ae852cee4be00e6ed0b1a62ac63b5c93630c0b323
+
+**Limitations.** Full product CI still has known legacy test and reproducibility failures; the proposed environment contract is not accepted, so no product dependency, profile, timeout, or CI-runtime changes were made.
+
+**Next.** Commit and push the ADR freeze checkpoint, then require Ubuntu and Windows governance validation before closing MH-006.
+
+---
+
+## 2026-08-11 - Reconstruction ADR set frozen locally
+
+**Task.** MH-006 (`partial`).
+
+**Changed.** Accepted five immutable reconstruction ADRs for preserve/rebuild boundaries, target package ownership, verified vertical-slice migration, compatibility, and trust terminology; added a complete hash-stable machine index and negative validators.
+
+**Learned.** The legacy decisions contain useful domain choices, but the reconstruction needs a separate authority that constrains ownership and epistemic claims without rewriting that history.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-71cdee1f7daa5f171e924cd84b599cc3f5c78857beed39c9c42b659f65dc5ceb; reconstruction-plan=passed/exit-0/output-75c65a1fa12bc546468c81af15c4ac60bad8054087dd868b43d029b52846adc6; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-4dbb2728ad122e52048dac11edf07b5bffb1f373b75b2d8a2c53a8305e3fc395; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-70ee30d12006a0d9172abe4bb68e8de1e0a1b94ce9cc6b372bd6810e234cbb02
+
+**Evidence.** docs/reconstruction/adrs/INDEX.toml=413fd65b396bacaa72b40778397721c2e2116230b8fdb3e3c1002f614a25fdc5; docs/reconstruction/adrs/README.md=e75635f7c7eef5fd09af111b2227a01d5a9f152705eac5892c852d94994c9b2c; tools/validate_reconstruction_adrs.py=f58e8bb797aefe71e8ad781dcb414c77508f4452f09baaecc3ca1d713eb4dc8a; tests/project_status/test_reconstruction_adrs.py=de7d08b1f3bb2a4ee2e9f82ae852cee4be00e6ed0b1a62ac63b5c93630c0b323
+
+**Limitations.** All 42 local status tests and 7 checks pass; independent Linux and Windows validation of the new ADR check is still pending.
+
+**Next.** Commit and push the ADR checkpoint, then require cross-platform governance CI before recording MH-006 done.
+
+---
+
 ## 2026-08-11 - Immutable legacy reconstruction index
 
 **Task.** MH-005 (`done`).

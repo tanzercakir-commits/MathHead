@@ -5,18 +5,31 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
+### MH-006 - Freeze reconstruction ADRs
+
+**Goal:** freeze the decisions that constrain every reconstruction phase.
+
+**Scope:** preserve/rebuild boundaries, target package ownership, migration,
+compatibility, and trust-base vocabulary; no product implementation.
+
+**Contracts:** `MH-C-WORKFLOW-001`.
+
+**Validators:** `status`; the ADR index must be complete, unique, hash-stable,
+and cover every required decision topic.
+
+**Done when:** accepted ADRs and their machine-readable index pass positive and
+negative validation and are linked from the reconstruction record.
+
+**Dependencies:** `MH-005`.
+
+**Next handoff:** `MH-003` and `MH-004`.
+
 ## Next
 
 ### MH-004 - Capture the immutable legacy baseline
 
 Create the machine-readable source/test/CI/benchmark/performance baseline used
 for differential migration. Dependencies: `MH-003`.
-
-### MH-006 - Freeze reconstruction ADRs
-
-Record preserve/rebuild boundaries, package ownership, migration strategy,
-compatibility policy, and trust-base terminology in new append-only ADRs.
-Dependencies: `MH-005`.
 
 ### MH-010 - Correct optional dependency test contracts
 

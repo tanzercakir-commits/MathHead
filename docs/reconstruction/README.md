@@ -14,3 +14,8 @@ the immutable legacy trackers and architecture records.
 An immutable entry carries the SHA-256 of the audited `6927033` source tree.
 The validator fails if such a source is edited, removed, duplicated, or reached
 through a case-insensitive alias.
+
+Accepted reconstruction decisions live under `adrs/` and are indexed by
+`adrs/INDEX.toml`. They supersede conflicting legacy architecture claims only
+through an explicit new ADR; the legacy decision ledgers remain unchanged as
+historical evidence.

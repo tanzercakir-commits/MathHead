@@ -41,6 +41,13 @@ tasks = ["MH-005"]
 timeout_seconds = 30
 
 [[checks]]
+name = "reconstruction-adrs"
+command = "python tools/validate_reconstruction_adrs.py"
+profiles = ["status"]
+tasks = ["MH-006"]
+timeout_seconds = 30
+
+[[checks]]
 name = "contract-manifest"
 command = "python tools/validate_contract_manifest.py"
 profiles = ["status"]

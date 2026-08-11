@@ -1,0 +1,65 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-ENCODING-001",
+  "target": "mathhead.output:safe_text",
+  "signature": "safe_text(text: str, encoding: str | None) -> str",
+  "requires": [
+    "text is str and encoding is either None or a Python codec name supplied by the destination text stream.",
+    "Machine-readable callers serialize structured values before passing text to this boundary.",
+    "Callers retain stdout for protocol/output data and stderr for diagnostics."
+  ],
+  "ensures": [
+    "If text is encodable by the declared encoding, the exact Unicode text is returned unchanged.",
+    "If one or more code points are not encodable, only those code points are replaced by deterministic ASCII backslash escapes and the returned text is encodable by the declared codec.",
+    "If encoding is None, UTF-8, UTF-16, or UTF-32, Unicode text is preserved unchanged.",
+    "JSON command surfaces emit valid ASCII-safe JSON with ensure_ascii enabled, stable key ordering where the surface is canonical, and no locale-dependent replacement characters.",
+    "Human command surfaces preserve Turkish text on capable streams and expose unsupported glyphs as reversible backslash escapes on constrained streams.",
+    "CLI, discovery CLI, MCP startup diagnostics, dispatcher diagnostics, and redirected output use the same boundary rather than changing global process encodings.",
+    "The function is idempotent for a fixed encoding."
+  ],
+  "raises": [
+    "Non-string text or non-string/non-null encoding is rejected as a programmer error.",
+    "An unknown codec name raises LookupError and is not guessed from locale.",
+    "Filesystem, broken-pipe, closed-stream, and other non-encoding I/O errors remain visible to the owning command boundary."
+  ],
+  "effects": {
+    "filesystem": "none",
+    "process": "none; never reconfigures sys.stdout, sys.stderr, locale, PYTHONIOENCODING, or global codec handlers",
+    "network": "none",
+    "repository": "never edits source, contracts, PLAN, TODO, or PROGRESS"
+  },
+  "determinism": {
+    "escaping": "Python backslashreplace semantics with lowercase hexadecimal escapes define unsupported code points",
+    "locale": "only the explicit stream encoding affects the returned text",
+    "json": "machine output never depends on terminal glyph support",
+    "paths": "no absolute checkout path is introduced"
+  },
+  "budget": {
+    "time": "linear in the number of Unicode code points plus codec conversion cost",
+    "memory": "at most one encoded byte representation and one decoded fallback string",
+    "output_growth": "each unsupported code point expands only to its standard backslash escape",
+    "cancellation": "no child process exists"
+  },
+  "epistemics": {
+    "exact": "the destination codec represents every code point and the returned string is unchanged",
+    "escaped": "unsupported code points are visibly and reversibly escaped without changing surrounding representable text",
+    "machine_readable": "JSON parses to the same data regardless of console encoding",
+    "error": "an invalid codec or non-encoding I/O failure is not hidden"
+  },
+  "invariants": [
+    "Encoding fallback never drops text, substitutes an ambiguous question mark, or emits an unencodable result.",
+    "Representable Turkish characters are preserved under cp1254.",
+    "ASCII, cp1252, cp1254, UTF-8, and encoding-less redirected streams are covered by tests.",
+    "JSON stdout remains parseable and MCP stdout remains free of diagnostics.",
+    "No command mutates global locale or standard-stream configuration.",
+    "Successful UTF-8 output remains byte-compatible with the frozen legacy corpus unless a separate bug fix is documented."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-ENCODING-001.json",
+    "python -m unittest discover -s tests/encoding -v",
+    "python tools/validate_command_encoding.py",
+    "python -m pytest -q tests/test_cli.py tests/test_discovery_cli.py tests/test_mcp_live.py",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

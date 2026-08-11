@@ -21,6 +21,10 @@ before the critical implementation that they govern.
 
 - Accepted proposal source files remain under `proposed/` as immutable review
   evidence; their presence does not make them the active manifest target.
+- `proposed/MH-C-GRAPH-BUDGET-001.json` defines bounded graph search planning,
+  fail-closed backend selection, and honest refusal semantics for MH-011.
+- `proposed/MH-C-ENCODING-001.json` defines deterministic locale-safe human and
+  machine output for MH-012.
 
 ## Contract rule
 

@@ -5,6 +5,72 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Optional dependency test contracts corrected
+
+**Task.** MH-010 (`done`).
+
+**Changed.** Separated core and solver extras, added fail-closed capability markers and validation, accepted both nauty-geng and geng executable names, and placed the solver capability preflight before full coverage.
+
+**Learned.** GitHub CI run 31484119142 solver job 93755486401 completed system nauty installation and solver bootstrap; the ordered 30-second capability preflight necessarily completed before the job continued into the long solver-full-coverage command. Core independently passes 314 tests without Python-SAT.
+
+**Contracts.** MH-C-ENV-001=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87 (docs/contracts/MH-C-ENV-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-3aa8dda973dcde29856dbc5f96268a7b96b2aced758d5127514aa193aeba3a2d; reconstruction-plan=passed/exit-0/output-3d95cb5b504df6fad0bba4fe2ef2beea63a5748081806758f904cc980ea2a837; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-137ef8eb66ff29e4f0692377158e99052e6b7add2aab2f18763638b53ea3bbef; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-a2b56fcfbb06e2c76085ea5a82dd74bdaad1e231a37521584d1503c6a11ac84f
+
+**Evidence.** tools/dev.py=70b03cb64b6aa9b9e3ab04bd37acfa95169cf5381bc3c6a7a92fd8969d8fbee8; tools/dev_profiles.json=ec0aa7b9dfc7bcf4d90d795699c148ce6adfa5e33ae144cfa37ab419c8274ae9; tools/validate_optional_dependencies.py=08d8295bb90cf14987a37284d88caad4dd0012a0edbaf75d1d5970df335f8c80; tests/devtool/test_optional_dependencies.py=1d1fe5ec5eeb23580ac1ba478c05399afc780450a5813f961c0cc637ad274d48; pyproject.toml=f1f7e1d795c3412f8e17fbf9b4a3d5ab7d4da0fdbed71d58c97a75b6a2456189; README.md=c6a527eb6641b3493304377200b9864826b8d43d378e0b2840179db0a8e2308e
+
+**Limitations.** The same solver job remains inside the legacy full-coverage product command because unsafe graph enumeration is still open as MH-011; that product failure is not an optional-dependency selection failure.
+
+**Next.** Obtain exact owner acceptance of the proposed MH-011 and MH-012 contracts, then implement their bounded graph and encoding-safe behavior.
+
+---
+
+## 2026-08-11 - Command encoding contract proposed
+
+**Task.** MH-012 (`partial`).
+
+**Changed.** Defined a content-addressed safe-text boundary for exact Unicode preservation, deterministic reversible escaping, ASCII-safe JSON, redirected streams, and stdout/stderr protocol separation without changing product output code.
+
+**Learned.** The main CLI emits Unicode JSON with ensure_ascii disabled, the discovery CLI prints arrows and long dashes directly, and MCP startup diagnostics also contain an arrow; constrained Windows streams therefore need one shared non-global boundary.
+
+**Contracts.** MH-C-ENCODING-001=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210 (docs/contracts/proposed/MH-C-ENCODING-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-2fea89b346393f29f6a056b4bf80cd6e6f15122d52d1cda67d89e5eb22432e77; reconstruction-plan=passed/exit-0/output-3d95cb5b504df6fad0bba4fe2ef2beea63a5748081806758f904cc980ea2a837; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-47583c5aa2699a1cce44d8feaaa4b6017654a016303bb60a0790f2eb9ef973d8; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-a2b56fcfbb06e2c76085ea5a82dd74bdaad1e231a37521584d1503c6a11ac84f
+
+**Evidence.** docs/contracts/proposed/MH-C-ENCODING-001.json=b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210; docs/contracts/manifest.toml=87e2ce953d42e1b5d45c271e15f3719b19ad175f537a61e1984ff2a9422e1ce3; docs/TODO.md=d78d82e535d20475bb6741c38dbc63d232daebf9461c929058d38c94751042ef
+
+**Limitations.** Pre-screen and all status checks pass, but MH-C-ENCODING-001 is proposed rather than owner-accepted; no command output implementation is authorized to change.
+
+**Next.** Obtain explicit owner acceptance at SHA-256 b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210 before implementing MH-012.
+
+---
+
+## 2026-08-11 - Graph budget contract proposed
+
+**Task.** MH-011 (`partial`).
+
+**Changed.** Defined a content-addressed graph search policy for pure and nauty backends, explicit generated-object limits, safe max_n=6 defaults, deterministic streaming, and honest refusal without touching product behavior.
+
+**Learned.** The frozen failure is caused by the dependency-minimal max_n=7 path reaching pure-Python labeled graph generation and canonicalization; order 6 remains inside the observed test budget while larger orders require an explicit fast capability.
+
+**Contracts.** MH-C-GRAPH-BUDGET-001=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794 (docs/contracts/proposed/MH-C-GRAPH-BUDGET-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-43bc0e91f3c0cead9aa05179a06f8c5c3aef70132baa619e9de9f27d387bf8f6; reconstruction-plan=passed/exit-0/output-3d95cb5b504df6fad0bba4fe2ef2beea63a5748081806758f904cc980ea2a837; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-a48dd392b12d155fef87becce7f7a13acd654d1ad77299759ed25032122bec84; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-841cc3b0118eab212055b25ce1ba7ee1d684e67eb1f6108d735401ff6ebd585c; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-a2b56fcfbb06e2c76085ea5a82dd74bdaad1e231a37521584d1503c6a11ac84f
+
+**Evidence.** docs/contracts/proposed/MH-C-GRAPH-BUDGET-001.json=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794; docs/contracts/manifest.toml=87e2ce953d42e1b5d45c271e15f3719b19ad175f537a61e1984ff2a9422e1ce3; docs/TODO.md=d78d82e535d20475bb6741c38dbc63d232daebf9461c929058d38c94751042ef
+
+**Limitations.** Pre-screen and all status checks pass, but MH-C-GRAPH-BUDGET-001 is proposed rather than owner-accepted; no graph product code is authorized to change.
+
+**Next.** Obtain explicit owner acceptance at SHA-256 3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794 before implementing MH-011.
+
+---
+
 ## 2026-08-11 - Optional dependency boundary fixed pending solver CI
 
 **Task.** MH-010 (`partial`).

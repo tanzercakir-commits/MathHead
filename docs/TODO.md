@@ -5,49 +5,54 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-030 - Inventory and minimize the trust base
+### MH-031 - Define immutable proof-term types
 
-**Goal:** open P3 with one complete, machine-readable trusted-computing-base
-inventory that makes every current and intended authority claim explicit,
-assigns it to the smallest replayable boundary, and fails closed when a new
-trust-bearing primitive or dependency appears without review.
+**Goal:** replace forgeable legacy theorem objects at the new trusted boundary
+with one frozen, typed, canonical proof-term algebra. Normal public APIs must
+not be able to create, mutate, deserialize, copy, or promote a theorem claim
+without structural validation and a later checker decision.
 
-**Scope:** repository entry points and transitive imports for parsing,
-canonical JSON and Unicode handling, hashing, integer and rational arithmetic,
-certificate and DRUP/DRAT checking, Z3, SymPy and other producer backends,
-external processes, the Python runtime and standard library, operating-system
-and platform assumptions, package and environment resolution, and the future
-Lean boundary. For each surface record owner, role, authority tier, exact
-dependency or primitive, trusted bytes and provenance, attack and failure
-modes, required-versus-excluded status, current-versus-target state, and the
-task that removes or narrows it.
+**Scope:** define exact tagged nodes for the supported P3 kernel fragment,
+including residue, CRT, finite-sum induction, and polynomial-identity evidence;
+separate untrusted proof terms from checker-issued theorem results; control all
+public construction and parsing paths; deeply freeze collections and values;
+bind canonical JSON bytes and content identity; enforce cycle, depth, node,
+integer-size, and payload budgets; provide a stable error taxonomy; make rule
+dispatch exhaustive; and keep any legacy adapter explicitly non-authoritative.
+The design must leave room for later rule registration without allowing an
+unknown tag, unknown field, subclass, mutable alias, or implementation detail
+to acquire authority.
 
-**Contracts:** `MH-C-WORKFLOW-001`, the accepted P2 contract set, the MH-027
-conformance report, and the MH-028 reference bundle with stable identity
-`4132b29b69600f8ff48477515853f66bb748c7337735c00db8e634987f70ddca`.
-This task classifies existing authority; it must not silently widen any public
-contract or promote producer output to mathematical truth.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, and the accepted P2
+ProblemIR, TheoryContext, ResourceBudget, EngineResult, Evidence, Certificate,
+and TheoryPlugin boundaries. Before implementation, propose, pre-screen, and
+accept a closed proof-term contract that fixes constructors, wire form,
+canonical identity, budgets, error classes, trust semantics, and the exact
+implementation binding. Proof-term validity is structural only; mathematical
+authority remains exclusively assigned to the dependency-minimal checker in
+MH-032.
 
-**Validators:** a closed canonical inventory schema, deterministic repository
-report and repository-owned validator; exact owner, role, tier, boundary,
-dependency, import, primitive, provenance, risk, migration, and exclusion
-inventories; static import-graph and isolated subprocess probes; dependency-
-minimal and full-environment agreement; negative mutations for unknown,
-missing, duplicate, stale, cyclic, unauthorised, or authority-escalating
-entries; Ruff, project status, core, docs, release, and clean-install gates.
+**Validators:** closed Draft 2020-12 schema and repository-owned validator;
+dependency-minimal and full-environment byte agreement; canonical round trips;
+positive fixtures for every rule; and adversarial tests for direct constructor
+calls, `object.__new__`, dataclass replacement, pickle, copy and deepcopy,
+mutable aliases, subclassing, invalid tags and fields, duplicate JSON keys,
+non-canonical encodings, cycles, excess depth, excess nodes, oversized
+integers, stale hashes, and forged theorem promotion. Add source and import-
+boundary checks, exact implementation binding, Ruff, project status, core,
+docs, release, clean-install, and same-head GitHub gates.
 
-**Done when:** every trust-bearing surface reachable from supported entry
-points is classified, every claim maps to an explicit current owner and a
-minimal target owner, parser/serializer/hash/arithmetic/runtime/solver/proof-
-assistant boundaries are named precisely, the future checker kernel has a
-closed allowlist and denylist with a reproducible import budget, and any
-undocumented primitive or dependency that could grant authority fails closed.
+**Done when:** public proof-term values are deeply immutable and either valid
+by controlled construction or rejected during canonical parsing; all forged
+or mutated values fail closed at the checker boundary; no public constructor
+can mint checker authority; every supported node has one canonical encoding
+and bounded validation path; the implementation stays inside the MH-030 target
+dependency budget; and all local and same-head remote gates pass.
 
-**Dependencies:** MH-020 through MH-028 are done. Immutable proof terms,
-dependency-minimal checkers, internal arithmetic evidence, hardened SAT/UNSAT
-replay, provenance implementation, Lean replay, and the trust-tier red team
-remain assigned to MH-031 through MH-037; this inventory assigns those
-migrations without claiming their implementations already exist.
+**Dependencies:** MH-030 is done and supplies the closed trust inventory and
+migration ownership. Checker evaluation and theorem issuance remain MH-032;
+internal arithmetic evidence remains MH-033; SAT replay, provenance, Lean, and
+trust-tier red-team work remain MH-034 through MH-037.
 
 ## Next
 

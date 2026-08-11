@@ -5,81 +5,73 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-034 - Harden SAT and UNSAT certificate replay
+### MH-035 - Make provenance content-addressed and replayable
 
-**Goal:** replace the two divergent legacy RUP/DRUP checkers with one
-versioned, dependency-minimal replay boundary that can independently attest a
-SAT witness or a supported UNSAT proof while treating every solver, encoder,
-transport, legacy result, and unversioned proof stream as untrusted producer
-input.
+**Goal:** replace truncated, representation-dependent provenance with one
+versioned run-bundle boundary whose identity and replay verdict bind the exact
+canonical ProblemIR, TheoryContext, TheoryPlugin descriptor/version,
+ResourceBudget, Evidence, Certificate, and CheckerResult bytes. A bundle is an
+audit object, never authority by itself; only a fresh independent checker replay
+may recover the authority already permitted by its accepted checker contract.
 
-**Scope:** introduce a closed canonical CNF representation, a versioned SAT
-assignment certificate, an explicitly RUP-only DRUP proof format with addition
-and deletion records, and one immutable replay-result algebra under
-`mathhead.kernel.sat`. Bind exact CNF bytes, certificate format and bytes,
-complete SHA-256 identities, checker and contract identity, deterministic
-resource accounting, verdict, reason, diagnostics, authority, and replay
-statistics. Check SAT by evaluating every literal and clause against the exact
-assignment. Check UNSAT by bounded reverse unit propagation with deterministic
-watched-literal state, exact deletion semantics, incremental line processing,
-and empty-clause or final-conflict closure. Name DRUP and DRAT separately:
-accept only the contracted RUP fragment, classify genuine RAT steps and unknown
-formats as unsupported, and never route them through deletion fallback. Keep
-PySAT, DPLL, Ramsey encoding, timers, files, processes, discovery, routing,
-MCP, and all producers outside the checker closure. Replace
-`mathhead.drat:check_unsat_proof` and
-`mathhead.discovery.rup_check:check_drup_proof` with non-authoritative
-compatibility adapters to the new checker without silently changing their
-documented legacy shapes.
+**Scope:** add a dependency-minimal `mathhead.kernel.provenance` verifier for a
+canonical manifest plus immutable content-addressed objects. Require complete
+SHA-256 digests, byte lengths, media/schema identifiers, one occurrence of each
+required semantic role, explicit optional-role policy, deterministic ordering,
+and exact cross-links between the run identity, producer report, evidence,
+certificate, checker request, checker result, contract, implementation,
+configuration, resource budget, and trust dependencies. Recompute every object
+identity before interpretation; dispatch only allowlisted, versioned kernel
+replayers; recompute and compare the checker result; fail closed on missing,
+extra, duplicate, stale, aliased, noncanonical, unsupported, mismatched, or
+over-budget content. Add a non-authoritative filesystem adapter that writes
+validated objects and manifests atomically into a fan-out SHA-256 store,
+refuses traversal, links, mutation, collisions, and partial commits, and can
+reload a large bundle without trusting filenames or directory state. Retire the
+legacy 16-hex proof hash as an authority claim while retaining a clearly named
+compatibility adapter.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
-`MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`, and
-`MH-C-KERNEL-CHECKER-002`. Before implementation, propose, prescreen, and
-accept a new `MH-C-SAT-REPLAY-001` contract and closed result schema fixing the
-exact CNF, SAT-witness, DRUP-stream, result, compatibility, authority,
-canonicalization, identity, format-version, and implementation bindings. The
-contract must distinguish supported DRUP from unsupported DRAT/RAT and bind
-finite limits for input and output bytes, variables, clauses, literals, clause
-width, proof records, record width, literal magnitude, watch occurrences,
-deletions, visits, propagation assignments, and logical steps. No new SAT
-checker implementation or legacy authority upgrade may precede acceptance of
-those exact bytes.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, the accepted
+ProblemIR, TheoryContext, ResourceBudget, EngineResult, Evidence, Certificate,
+TheoryPlugin, proof-term, checker, and SAT-replay contracts. Before runtime
+implementation, propose, prescreen, and accept one new
+`MH-C-PROVENANCE-REPLAY-001` contract with a closed run-manifest schema. The
+contract must freeze the pure verifier API, canonical JSON and binary-object
+rules, required and optional roles, replay dispatch, authority lattice,
+full-digest identities, atomic store layout, status/reason algebra, and finite
+limits for manifest/object/aggregate bytes, entries, nesting, strings, replay
+steps, diagnostics, and filesystem components. No new replay or persistence
+implementation may precede acceptance of those exact bytes.
 
-**Validators:** canonical round trips for CNF, SAT witness, DRUP stream, and
-all replay outcomes; exact SAT-clause evaluation; hand-built and solver-emitted
-UNSAT proofs; cross-check against exhaustive truth tables on bounded CNFs and
-against both legacy checkers on their valid common fragment; deterministic
-replay across Python 3.10 through 3.14 and Linux, macOS, and Windows; byte-chunk
-boundary equivalence without whole-proof line-list materialization, plus
-explicit CRLF rejection at the canonical boundary and adapter normalization;
-stable invalid, unsupported, refuted, and exhausted outcomes.
-Adversarially cover booleans and non-integers, zero and oversized literals,
-empty/missing/duplicate/tautological clauses, repeated and nonexistent
-deletions, unknown operations and versions, genuine RAT-only steps, missing or
-embedded terminators, huge lines, excessive variables/clauses/width/records,
-truncation, reordering, proof-for-wrong-CNF substitution, forged hashes,
-noncanonical bytes, mutation, aliasing, `object.__new__`, copying, pickling,
-subclassing, producer labels, visit exhaustion, and malformed watch state.
-Measure the complete source/import closure; prove zero PySAT, Z3, SymPy,
-solver, clock, filesystem, process, network, dynamic-import, and transport
-dependencies; run Ruff, compileall, project status, core, solver, discovery,
-slow, docs, release, clean-wheel smoke, coverage, and exact same-head GitHub
-gates.
+**Validators:** canonical round trips and identity stability across processes,
+Python 3.10 through 3.14, and Linux/macOS/Windows; complete proof-term and SAT
+happy-path replay; producer-only and unsupported-format outcomes; store/reload
+equivalence for multi-megabyte streamed objects; crash-before-rename recovery;
+and deterministic diagnostics. Adversarially cover truncation, bit flips,
+reordering, substitution across runs, forged hashes and lengths, wrong schemas
+or media types, missing/extra/duplicate roles, dangling or cyclic references,
+mixed checker contracts/implementations/configurations, stale contexts or
+budgets, result self-attestation, noncanonical manifests, Unicode/NUL/path
+attacks, symlinks, hard links, collisions, concurrent writes, short reads,
+oversized objects/manifests/collections, mutation, aliasing, copying, pickling,
+subclassing, and replay exhaustion. Measure the import/source closure and prove
+that the pure verifier has no solver, CAS, clock, filesystem, process, network,
+dynamic-import, transport, or discovery dependency. Run Ruff, compileall,
+project status, core, solver, discovery, slow, docs, release, clean-wheel
+smoke, coverage, and exact same-head GitHub gates.
 
-**Done when:** one accepted and bound checker independently replays every SAT or
-supported DRUP claim that can reach a checker-attested tier; the exact CNF and
-certificate bytes are necessary to reproduce that authority; malformed,
-unsupported, RAT-only, false, incomplete, mismatched, stale, and over-budget
-inputs cannot verify or retain partial authority; both legacy checker entry
-points delegate without preserving their former hidden trust; PySAT and all
-other producers remain producer-only; the measured closure stays inside the
-MH-030 kernel budget; and all local and same-head remote gates pass.
+**Done when:** one accepted boundary makes every supported checker-attested run
+independently reproducible from exact bytes alone; any partial or mismatched
+bundle deterministically loses authority; persisted bundles are immutable,
+atomic, content-addressed, and independently reloadable; legacy provenance can
+no longer be mistaken for full replay evidence; the measured kernel closure
+remains within the MH-030 budget; and every local and same-head remote gate
+passes.
 
-**Dependencies:** MH-030 through MH-033 are done and provide the frozen trust
-inventory, immutable proof/evidence boundary, and current dependency-minimal
-checker. MH-035 will bind complete run provenance and large persisted replay
-bundles, MH-036 will add external Lean authority, and MH-037 will red-team all
-remaining tier transitions.
+**Dependencies:** MH-030 through MH-034 are done and provide the frozen trust
+inventory, immutable proof/evidence formats, dependency-minimal checkers, and
+SAT replay. MH-036 will bind external Lean execution into the same provenance
+model, and MH-037 will red-team all remaining trust-tier transitions.
 
 ## Next
 

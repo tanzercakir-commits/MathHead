@@ -167,3 +167,9 @@ id = "MH-C-SAT-REPLAY-001"
 path = "docs/contracts/MH-C-SAT-REPLAY-001.json"
 sha256 = "0bf4edbba9285070ef525ae584124ae4fab2762ce83a42f2434c18c8db6f2b50"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROVENANCE-REPLAY-001"
+path = "docs/contracts/MH-C-PROVENANCE-REPLAY-001.json"
+sha256 = "31a664252096b47a10dfe14d999a5fe7bf278612fdebd003c3982123a0bcdb67"
+state = "accepted"

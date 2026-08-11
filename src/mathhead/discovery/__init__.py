@@ -398,7 +398,7 @@ from .program_search import (
     evaluate_program,
     evolve,
 )
-from .provenance import KERNEL_VERSION, axioms_used, proof_hash, replay
+from .provenance import KERNEL_VERSION, axioms_used, proof_hash, proof_sha256, replay
 from .pslq_hunt import (
     CONSTANTS,
     NumericalConjecture,
@@ -614,6 +614,7 @@ __all__ = [
     "consecutive_product",
     "axioms_used",
     "proof_hash",
+    "proof_sha256",
     "replay",
     "KERNEL_VERSION",
     "FailureMemory",

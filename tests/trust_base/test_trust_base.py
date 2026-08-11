@@ -71,13 +71,13 @@ class TrustBaseTests(unittest.TestCase):
 
     def test_repository_inventory_and_report_are_current(self) -> None:
         report = trust.validate_trust_base(ROOT, check_report=ROOT / trust.REPORT_PATH)
-        self.assertEqual(report["source"]["file_count"], 123)
-        self.assertEqual(report["source"]["module_count"], 123)
-        self.assertEqual(len(report["import_roots"]), 32)
+        self.assertEqual(report["source"]["file_count"], 125)
+        self.assertEqual(report["source"]["module_count"], 125)
+        self.assertEqual(len(report["import_roots"]), 35)
         self.assertEqual(report["surface_summary"]["count"], 24)
         self.assertEqual(
             report["report_sha256"],
-            "f9c5d41ad3b33512fac28b528dccf55a903c5e0ac281a131cacfa4376f589b25",
+            "77eb4bfe924cef5f7be8d820310dd33c7dd72d3a2eece280f4260d587db1996d",
         )
 
     def test_dependency_minimal_and_full_schema_profiles_match(self) -> None:

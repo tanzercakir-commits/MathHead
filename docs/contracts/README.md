@@ -84,6 +84,13 @@ before the critical implementation that they govern.
   `../trust/trust-base-v1.schema.json` and is accepted under the project
   owner's programme-wide authority at SHA-256
   `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
+- `MH-C-PROVENANCE-REPLAY-001.json` governs complete content-addressed run
+  manifests, exact foundation and checker artifact identity, allowlisted fresh
+  checker replay, authority preservation without promotion, and the separate
+  atomic filesystem adapter. It binds
+  `schemas/provenance-manifest-v1.schema.json` and
+  `schemas/provenance-replay-result-v1.schema.json` and is accepted at SHA-256
+  `31a664252096b47a10dfe14d999a5fe7bf278612fdebd003c3982123a0bcdb67`.
 - `MH-C-PROOF-TERM-001.json` governs the closed four-rule immutable proof-term
   algebra, constructor and deserialization boundaries, canonical JSON wire
   bytes, full content identity, exact numeric and graph budgets, stable error
@@ -159,7 +166,7 @@ command, object-store layout, and non-promotion rules.
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 121 source modules, 32 import roots, 24 trust surfaces, eight entry-point
+all 125 source modules, 35 import roots, 24 trust surfaces, ten entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -198,6 +205,21 @@ python tools/validate_kernel_checker.py
 python -m unittest discover -s tests/kernel_checker -v
 python tools/contract_artifacts.py verify \
   --contract MH-C-KERNEL-CHECKER-001 --require-bound
+```
+
+## Content-addressed provenance replay
+
+MH-035 is documented in `docs/PROVENANCE_REPLAY_V1.md`. The pure
+`mathhead.kernel.provenance` boundary verifies the complete object graph and
+freshly reproduces an allowlisted checker result; `mathhead.provenance_store`
+is an effect-only atomic adapter. Validate both schemas, immutable result,
+adversarial substitution cases, store safety, and measured closure with:
+
+```bash
+python tools/validate_provenance_replay.py
+python -m unittest discover -s tests/provenance_replay -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROVENANCE-REPLAY-001 --require-bound
 ```
 
 ## Proposed contracts

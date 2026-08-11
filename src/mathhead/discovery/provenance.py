@@ -14,9 +14,13 @@ Given a kernel proof TERM (kernel.py), this derives the honest provenance an aud
 These are derived METADATA: they never mint a Theorem (only kernel.check does). They let a proof be
 stored, shared, de-duplicated, and re-verified later — an audit trail, not part of the trusted core.
 """
+
 from __future__ import annotations
 
 import hashlib
+
+from mathhead.kernel.proof_terms import proof_term_sha256
+from mathhead.legacy_kernel_adapter import adapt_legacy_proof_term
 
 from .kernel import CRT, Identity, Residue, SumInduction, Theorem, _norm, _norm_q, check
 
@@ -61,10 +65,20 @@ def axioms_used(term) -> frozenset:
 
 
 def proof_hash(term) -> str:
-    """Deterministic 16-hex content hash of the canonical term + kernel version (M4). Same proof ⇒
-    same hash, in any process; changing KERNEL_VERSION invalidates stored artifacts."""
+    """Return the legacy 16-hex compatibility identifier.
+
+    This historical prefix is not a complete content identity and carries no
+    replay authority.  New persistence and audit code must use
+    :func:`proof_sha256` and a complete provenance bundle.
+    """
     payload = f"{KERNEL_VERSION}|{_canonical(term)}"
     return hashlib.sha256(payload.encode()).hexdigest()[:16]
+
+
+def proof_sha256(term) -> str:
+    """Return the full canonical MH-031 proof-term identity for a legacy term."""
+    candidate = adapt_legacy_proof_term(term)
+    return proof_term_sha256(candidate)
 
 
 def replay(term) -> Theorem:

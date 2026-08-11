@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/provenance-replay-result-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authority",
+    "bundle_complete",
+    "bundle_sha256",
+    "checker_authority",
+    "checker_contract_id",
+    "checker_contract_sha256",
+    "checker_id",
+    "checker_verdict",
+    "diagnostic",
+    "exact",
+    "manifest_sha256",
+    "object_count",
+    "reason_code",
+    "replayed_result_sha256",
+    "schema",
+    "total_object_bytes",
+    "verdict"
+  ],
+  "properties": {
+    "authority": {"enum": ["checker_attestation", "none"]},
+    "bundle_complete": {"type": "boolean"},
+    "bundle_sha256": {
+      "oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+    },
+    "checker_authority": {
+      "enum": ["checker_attestation", "none", null]
+    },
+    "checker_contract_id": {
+      "type": ["string", "null"],
+      "maxLength": 128
+    },
+    "checker_contract_sha256": {
+      "oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+    },
+    "checker_id": {
+      "type": ["string", "null"],
+      "maxLength": 256
+    },
+    "checker_verdict": {
+      "enum": ["verified", "refuted", "invalid", "unsupported", "exhausted", null]
+    },
+    "diagnostic": {"type": "string", "maxLength": 512},
+    "exact": {"const": true},
+    "manifest_sha256": {
+      "oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+    },
+    "object_count": {"type": "integer", "minimum": 0, "maximum": 13},
+    "reason_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "replayed_result_sha256": {
+      "oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+    },
+    "schema": {"const": "mathhead.provenance-replay-result.v1"},
+    "total_object_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 536870912
+    },
+    "verdict": {
+      "enum": ["verified", "refuted", "invalid", "unsupported", "exhausted"]
+    }
+  }
+}

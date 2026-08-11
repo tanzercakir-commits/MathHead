@@ -29,12 +29,14 @@ class TrustBaseTests(unittest.TestCase):
             "docs/contracts/MH-C-KERNEL-CHECKER-001.json",
             "docs/contracts/MH-C-KERNEL-CHECKER-002.json",
             "docs/contracts/MH-C-PROOF-TERM-001.json",
+            "docs/contracts/MH-C-SAT-REPLAY-001.json",
             "docs/contracts/MH-C-TRUST-BASE-001.json",
             "docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md",
             "docs/contracts/reports/foundation-conformance-v1.json",
             "docs/contracts/schemas/kernel-checker-result-v1.schema.json",
             "docs/contracts/schemas/kernel-checker-result-v2.schema.json",
             "docs/contracts/schemas/proof-term-v1.schema.json",
+            "docs/contracts/schemas/sat-replay-result-v1.schema.json",
             "docs/fixtures/foundation-v1/manifest.json",
             "docs/trust/trust-base-v1.json",
             "docs/trust/trust-base-v1.schema.json",
@@ -69,13 +71,13 @@ class TrustBaseTests(unittest.TestCase):
 
     def test_repository_inventory_and_report_are_current(self) -> None:
         report = trust.validate_trust_base(ROOT, check_report=ROOT / trust.REPORT_PATH)
-        self.assertEqual(report["source"]["file_count"], 122)
-        self.assertEqual(report["source"]["module_count"], 122)
+        self.assertEqual(report["source"]["file_count"], 123)
+        self.assertEqual(report["source"]["module_count"], 123)
         self.assertEqual(len(report["import_roots"]), 32)
         self.assertEqual(report["surface_summary"]["count"], 24)
         self.assertEqual(
             report["report_sha256"],
-            "183eb0a0239ce1ef062ff78c32b9b6d741b478efc722c078e58ed272b2564d12",
+            "f9c5d41ad3b33512fac28b528dccf55a903c5e0ac281a131cacfa4376f589b25",
         )
 
     def test_dependency_minimal_and_full_schema_profiles_match(self) -> None:

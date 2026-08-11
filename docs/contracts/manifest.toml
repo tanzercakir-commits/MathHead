@@ -161,3 +161,9 @@ id = "MH-C-KERNEL-CHECKER-002"
 path = "docs/contracts/MH-C-KERNEL-CHECKER-002.json"
 sha256 = "1baf3b44734369fdb298609ad0230062686697a7198401d6fc53f161c70a678e"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-SAT-REPLAY-001"
+path = "docs/contracts/MH-C-SAT-REPLAY-001.json"
+sha256 = "0bf4edbba9285070ef525ae584124ae4fab2762ce83a42f2434c18c8db6f2b50"
+state = "accepted"

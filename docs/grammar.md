@@ -124,9 +124,9 @@ Kripke model checking over `max_worlds` (1..12).
 
 ---
 
-## 6. CNF layer (`drat.py`, `hpsolver.py`)
+## 6. CNF layer (`kernel/sat.py`, `drat.py`, `hpsolver.py`)
 
-Used by: `prove_unsat`, `check_unsat_proof`, `solve_cnf`. DIMACS-style.
+Legacy tools accept DIMACS-style collections:
 
 ```
 cnf    := clause+
@@ -135,5 +135,8 @@ literal:= nonzero_integer                 # n = variable n true, -n = false
 proof  := clause*                         # a DRUP proof (lemmas, ending in the empty clause)
 ```
 
-`0` is not a valid literal (a clean error). `prove_unsat` is bounded to 20 variables;
-`check_unsat_proof` scales further (checking is polynomial).
+`0` is not a valid collection literal (a clean error). `prove_unsat` is bounded to 20 variables;
+`check_unsat_proof` scales further (checking is polynomial). Before authority is granted, the
+adapters normalize these collections into the strict, versioned ASCII/LF CNF and certificate
+grammars in `SAT_REPLAY_V1.md`. Only `mathhead.kernel.sat` replays them. DRUP additions and
+deletions are supported; DRAT/RAT is explicitly outside this checker fragment.

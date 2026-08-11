@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.3.0` · 171 MCP tools · 2403 collected tests.**  
+**Package `1.4.0` · 171 MCP tools · 2425 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -281,6 +281,7 @@ mathhead/
 │   ├── PROOF_TERMS_V1.md · immutable canonical proof terms + authority boundary
 │   ├── KERNEL_CHECKER_V1.md · historical exact checker + v1 replay ABI
 │   ├── KERNEL_CHECKER_V2.md · explicit arithmetic evidence + current replay ABI
+│   ├── SAT_REPLAY_V1.md · canonical SAT witnesses + RUP-only DRUP replay
 │   ├── mcp-api.md        · precise MCP protocol & tool definitions + grammar
 │   ├── api-reference.md  · auto reference for ALL tools (code=docs)
 │   ├── threat-model.md  · trust boundaries, threat table, the timeout model

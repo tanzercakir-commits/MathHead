@@ -263,3 +263,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-KERNEL-CHEC
 profiles = ["status", "fast"]
 tasks = ["MH-033"]
 timeout_seconds = 60
+
+[[checks]]
+name = "sat-replay-tests"
+command = "python -m unittest discover -s tests/sat_replay -v"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 180
+
+[[checks]]
+name = "sat-replay-validator"
+command = "python tools/validate_sat_replay.py"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 120
+
+[[checks]]
+name = "sat-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAT-REPLAY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 60

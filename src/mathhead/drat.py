@@ -1,20 +1,17 @@
 """
 mathhead.drat — Verifiable UNSAT certificates (ROADMAP J2).
 
-This module closes the standing **Phase-10 wall**: a `sat` witness was already an
-independently-checkable certificate (`frontier`/`certificate.py`), but an `unsat`
-verdict was only Z3's word. Here an UNSAT result becomes a **DRUP proof** that is
-re-checked by an INDEPENDENT, pure-Python **reverse-unit-propagation (RUP)** checker.
+This compatibility module keeps the original J2 producer and result shapes. The
+authoritative SAT/UNSAT replay boundary is now ``mathhead.kernel.sat`` under
+``MH-C-SAT-REPLAY-001``; this module normalizes legacy collections into its exact
+versioned bytes and translates the result without minting authority itself.
 
 Two halves, both stdlib-only (this module imports NEITHER z3 NOR sympy — proven by a
 subprocess test, the same "don't trust us, run the checker" guarantee as
 `certificate.py`):
 
-  * `rup_check(clauses, proof)`  — the CHECKER. A DRUP proof is a sequence of lemma
-    clauses, each of which must have the RUP property (assuming the negation of the
-    lemma's literals, unit propagation over the accumulated formula reaches a
-    conflict), ending by deriving the empty clause. Polynomial-time, independent of
-    any solver — so a DRUP proof from ANY solver can be checked here.
+  * `rup_check(clauses, proof)` — a compatibility adapter to the dependency-minimal,
+    content-addressed kernel checker.
   * `refute(clauses)` — a self-contained PRODUCER. A DPLL search that, on UNSAT,
     emits a resolution refutation as a DRUP proof (each resolvent is RUP by
     construction). No external SAT binary is required.
@@ -34,6 +31,13 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from typing import Any
+
+from mathhead.kernel.sat import (
+    SATReplayResult,
+    canonical_cnf_bytes,
+    canonical_drup_bytes,
+    check_sat_certificate,
+)
 
 _MAX_VARS_PROVE = 20        # 2^n worst case; the node budget is the real fence
 _MAX_CLAUSES = 2_000
@@ -80,63 +84,21 @@ def _validate(clauses: Any) -> tuple[list[list[int]], set[int]]:
 
 
 # --------------------------------------------------------------------------- #
-# RUP checker (independent verifier)
+# Compatibility adapter to the one authoritative SAT replay boundary
 # --------------------------------------------------------------------------- #
-def _propagate(clauses: list, assumed: list[int]) -> bool:
-    """True iff unit propagation from the `assumed` literals reaches a conflict."""
-    assign: dict[int, bool] = {}
-
-    def setl(lit: int) -> bool:
-        v, val = abs(lit), lit > 0
-        if v in assign and assign[v] != val:
-            return False
-        assign[v] = val
-        return True
-
-    for lit in assumed:
-        if not setl(lit):
-            return True
-
-    changed = True
-    while changed:
-        changed = False
-        for cl in clauses:
-            unassigned: list[int] = []
-            satisfied = False
-            for lit in cl:
-                v = abs(lit)
-                if v in assign:
-                    if assign[v] == (lit > 0):
-                        satisfied = True
-                        break
-                else:
-                    unassigned.append(lit)
-            if satisfied:
-                continue
-            if not unassigned:
-                return True                    # a clause is fully falsified → conflict
-            if len(unassigned) == 1:
-                if not setl(unassigned[0]):
-                    return True
-                changed = True
-    return False
+def _replay_unsat(clauses: list[list[int]], proof: list[list[int]]) -> SATReplayResult:
+    cnf = canonical_cnf_bytes(clauses)
+    certificate = canonical_drup_bytes(cnf, [("a", clause) for clause in proof])
+    return check_sat_certificate(cnf, certificate)
 
 
 def rup_check(clauses: list[list[int]], proof: list[list[int]]) -> tuple[bool, str]:
-    """Independently verify a DRUP `proof` refutes `clauses`. Returns (ok, message)."""
-    formula = [frozenset(c) for c in clauses]
-    if frozenset() in formula:
-        return True, "the input already contains the empty clause"
-    for i, lemma in enumerate(proof):
-        lit_set = frozenset(lemma)
-        if not _propagate(formula, [-lit for lit in lit_set]):
-            return False, f"proof step {i + 1} {sorted(lit_set)} is not RUP"
-        formula.append(lit_set)
-        if not lit_set:                        # derived the empty clause
-            return True, "verified: the empty clause was derived by reverse unit propagation"
-    if _propagate(formula, []):
-        return True, "verified: the empty clause is reverse-unit-propagation implied"
-    return False, "the proof does not derive the empty clause"
+    """Compatibility shape for the versioned ``mathhead.kernel.sat`` checker."""
+    try:
+        result = _replay_unsat(clauses, proof)
+    except (TypeError, ValueError) as exc:
+        return False, f"invalid legacy DRUP input: {exc}"
+    return result.ok, result.diagnostic
 
 
 # --------------------------------------------------------------------------- #
@@ -307,10 +269,19 @@ def check_unsat_proof(clauses: list[list[int]], proof: list[list[int]]) -> DratR
         if any(not isinstance(x, int) or isinstance(x, bool) or x == 0 for x in step):
             return DratResult("error", "GUARDRAIL_VIOLATION",
                               "each proof step must be a list of nonzero integers", meta=_meta(t0))
-    ok, msg = rup_check(cnf, proof)
+    try:
+        replay = _replay_unsat(cnf, proof)
+    except (TypeError, ValueError) as exc:
+        return DratResult("error", "GUARDRAIL_VIOLATION", str(exc), meta=_meta(t0))
     extra = {"proof_length": len(proof)}
-    if ok:
-        return DratResult("verified", "PROOF_VERIFIED", msg, verified=True,
+    if replay.ok:
+        return DratResult("verified", "PROOF_VERIFIED", replay.diagnostic, verified=True,
                           proof_length=len(proof), meta=_meta(t0, {**extra, "verified": True}))
-    return DratResult("refuted", "PROOF_REFUTED", msg, verified=False,
+    if replay.verdict == "exhausted":
+        return DratResult("unknown", "BUDGET_EXCEEDED", replay.diagnostic, verified=None,
+                          proof_length=len(proof), meta=_meta(t0, extra))
+    if replay.verdict in {"invalid", "unsupported"}:
+        return DratResult("error", "GUARDRAIL_VIOLATION", replay.diagnostic, verified=None,
+                          proof_length=len(proof), meta=_meta(t0, extra))
+    return DratResult("refuted", "PROOF_REFUTED", replay.diagnostic, verified=False,
                       proof_length=len(proof), meta=_meta(t0, extra))

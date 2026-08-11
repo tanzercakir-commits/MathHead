@@ -4,6 +4,24 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-08-12
+
+### Added
+- `mathhead.kernel.sat` now provides one dependency-minimal, versioned checker for exact
+  canonical SAT assignments and RUP-only DRUP refutations. Immutable replay results bind the
+  CNF, certificate, checker, accepted contract, deterministic counters, and canonical result
+  bytes by full SHA-256 identities.
+- `MH-C-SAT-REPLAY-001`, a closed Draft 2020-12 result schema, strict ASCII/LF CNF and
+  certificate grammars, deterministic resource ceilings, adversarial tests, and a measured
+  one-module/five-root checker closure define the public boundary.
+
+### Changed
+- `mathhead.drat` and `mathhead.discovery.rup_check` are compatibility adapters to the single
+  kernel replay implementation. PySAT, DPLL, Ramsey encoders, clocks, and other producers remain
+  outside the authoritative closure.
+- DRUP and DRAT are no longer conflated: the supported RUP-only fragment replays independently;
+  DRAT/RAT and unknown versions fail closed as unsupported.
+
 ## [1.3.0] — 2026-08-12
 
 ### Added

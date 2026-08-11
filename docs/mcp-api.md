@@ -662,9 +662,11 @@ below**; details in `docs/track-b-results.md`.
 
 ## Verifiable UNSAT certificate (J2 — DRUP/RUP)
 
-Closes the `unsat`-side wall: an UNSAT result becomes a **DRUP proof** re-checked by an
-INDEPENDENT, pure-Python reverse-unit-propagation checker (`mathhead/drat.py` imports neither
-z3 nor sympy — no external SAT binary).
+Closes the `unsat`-side wall: an UNSAT result becomes a **RUP-only DRUP proof** re-checked by
+the dependency-minimal, content-addressed `mathhead.kernel.sat` boundary. `mathhead.drat`
+keeps the legacy tool shape as an adapter; the checker imports no solver, clock, filesystem,
+process, or transport dependency. DRAT/RAT evidence is explicitly unsupported rather than
+being misrouted through RUP semantics.
 
 | Tool | Signature | Result |
 |---|---|---|

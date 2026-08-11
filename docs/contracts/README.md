@@ -25,6 +25,11 @@ before the critical implementation that they govern.
   output for MH-012. It was accepted under the project owner's programme-wide
   acceptance authority at SHA-256
   `b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210`.
+- `MH-C-LEGACY-COMPAT-001.json` governs deterministic legacy result capture,
+  allowlisted unstable-metadata normalization, and fail-closed differential
+  replay for MH-017. It was accepted under the project owner's programme-wide
+  acceptance authority at SHA-256
+  `53a9e09b58738ccdbb596ec28fa15d989d4cba66cecd46c5c97ca8d1da1f9412`.
 
 ## Proposed contracts
 
@@ -32,6 +37,8 @@ before the critical implementation that they govern.
   evidence; their presence does not make them the active manifest target.
 - The MH-C-GRAPH-BUDGET-001 and MH-C-ENCODING-001 proposal sources are retained
   byte-identically as their immutable review evidence.
+- The MH-C-LEGACY-COMPAT-001 proposal source is retained byte-identically as
+  its immutable review evidence.
 
 ## Contract rule
 

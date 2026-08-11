@@ -1,0 +1,75 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-LEGACY-COMPAT-001",
+  "target": "tools.legacy_compat:main",
+  "signature": "main(argv: Sequence[str] | None = None) -> int",
+  "requires": [
+    "The immutable MH-C-BASELINE-001 artifact, accepted MH-ADR-0004 compatibility policy, legacy Python package, router, and discovery product entry point are present.",
+    "Every case has a unique stable ID, exactly one outcome category from success, refuted, unsupported, timeout, or error, a supported invocation surface, JSON-compatible arguments, and an explicit expected stable-field policy.",
+    "Capture runs against a clean committed source revision whose 40-character Git object identity and MathHead source-tree identity are recorded in the corpus provenance.",
+    "At least ten representative cases cover every required outcome category, both the routed result surface and discovery verdict surface, conclusive and inconclusive results, and stable witness or evidence fields where emitted."
+  ],
+  "ensures": [
+    "Capture mode writes one canonical UTF-8 JSON corpus containing contract identity, exact source provenance, normalization policy, ordered case inputs, normalized expected outputs, and per-case stable-output SHA-256 identities.",
+    "Replay mode invokes every case through its declared legacy public entry point, applies only the corpus-declared normalization rules, and compares the complete normalized result with the committed expected output.",
+    "Success, refuted, unsupported, timeout, and error remain distinct outcome categories; replay never converts an inconclusive or rejected result into success and never weakens a stable verdict, reason code, witness, evidence tier, or explanation.",
+    "Only meta.elapsed_ms and backend version metadata at meta.sympy_version or meta.z3_version may be normalized; each normalized field must exist with its declared JSON type and is replaced by a path-specific typed sentinel rather than deleted.",
+    "Case order is ascending by stable ID, mapping keys are canonical, sets and tuples become JSON arrays in deterministic order, and every stable output identity is computed after normalization.",
+    "Check mode is read-only, fails on stale corpus bytes or provenance, and distinguishes malformed corpus, invocation failure, per-case timeout, semantic drift, and unsupported host profile with nonzero exit results.",
+    "A mutation to a case input, category, surface, expected stable field, output identity, source provenance, or normalization allowlist is rejected by an independent validator.",
+    "The compatibility corpus is a differential migration oracle, not a new promise for incidental legacy internals; known incorrect trust claims must still be corrected under MH-ADR-0004."
+  ],
+  "raises": [
+    "No Python exception crosses the command boundary for malformed JSON, unknown fields, duplicate IDs, unsupported surfaces, missing entry points, non-JSON results, invocation failure, timeout, stale output, or semantic drift.",
+    "MemoryError, KeyboardInterrupt, and SystemExit from in-process library execution are not reclassified as ordinary legacy results.",
+    "Programmer defects may produce a traceback only in explicit debug mode."
+  ],
+  "effects": {
+    "filesystem": "check mode is read-only except interpreter and test caches; capture mode may atomically replace only docs/reconstruction/legacy-compat-v1.json",
+    "process": "case execution occurs in bounded child processes so a product timeout cannot hang capture or replay; children are terminated, killed if necessary, waited, and reaped",
+    "network": "none after the selected MH-C-ENV-002 profile is bootstrapped",
+    "repository": "never edits PLAN, TODO, PROGRESS, accepted contracts, the immutable legacy baseline, observations, ADRs, source modules, or files outside the declared corpus output",
+    "mutation": "case arguments are decoded afresh for each invocation and no result may mutate committed corpus data"
+  },
+  "determinism": {
+    "serialization": "canonical JSON uses UTF-8, sorted mapping keys, stable separators, a trailing newline, and no clock, checkout path, runner identity, random value, or raw elapsed timing",
+    "case_order": "cases are sorted lexicographically by stable ID and duplicate IDs fail closed",
+    "normalization": "the exact allowlist is meta.elapsed_ms, meta.sympy_version, and meta.z3_version; typed sentinels preserve field presence and reject type drift",
+    "timeout": "the timeout representative uses a fixed solver seed, accepted finite solver budget, bounded input, and a larger process watchdog; any non-timeout verdict is semantic drift",
+    "provenance": "the corpus binds the source commit, MathHead source-tree SHA-256, accepted contract hash, and each normalized case-output SHA-256"
+  },
+  "budget": {
+    "total_seconds": 90,
+    "case_seconds": 10,
+    "timeout_solver_ms": 1,
+    "memory_mb": 1024,
+    "case_count_minimum": 10,
+    "cancellation": "terminate then kill the active child, wait for reaping, report the case ID, and return a distinct nonzero result"
+  },
+  "epistemics": {
+    "current": "all cases reproduced the complete normalized legacy outputs and all provenance and output identities matched",
+    "drifted": "a stable output, case input, category, identity, normalization rule, or source binding differs",
+    "invalid": "the corpus or contract is malformed, incomplete, ambiguous, unbound, or contains a non-allowlisted normalization",
+    "timed_out": "a child exceeded the corpus process watchdog; this is a replay failure distinct from the expected solver-timeout result category",
+    "not_run": "the corpus was inspected without executing every case; never equivalent to current"
+  },
+  "invariants": [
+    "Every required outcome category has at least one representative and the complete corpus has at least ten cases.",
+    "Expected product timeout is represented inside a completed result envelope; a harness watchdog timeout is always a failed replay.",
+    "Stable result fields are compared recursively and byte-for-byte after canonical JSON serialization.",
+    "Normalization never removes a field, masks verdict or evidence semantics, accepts an arbitrary path, or rewrites case inputs.",
+    "Each committed case output identity equals the SHA-256 of its canonical normalized expected output.",
+    "The source tree used for capture contains no implementation changes from the MH-016 green legacy architecture.",
+    "Accepted contracts, ADRs, legacy baseline evidence, and observations remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-LEGACY-COMPAT-001.json",
+    "python tools/validate_legacy_compat.py",
+    "python tools/legacy_compat.py --check",
+    "python -m pytest -q tests/compatibility",
+    "python tools/dev.py check --profile core",
+    "python tools/dev.py check --profile release",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

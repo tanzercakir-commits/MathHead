@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Canonical ProblemIR contract accepted
+
+**Task.** MH-021 (`done`).
+
+**Changed.** Accepted the closed, solver-neutral ProblemIR contract and normative Draft 2020-12 schema with typed domains, variables, expressions, relations, statements, definitions, assumptions, ordered goals, complete alternative readings, source provenance, canonical identity, and fail-closed resource budgets.
+
+**Learned.** Adversarial review of immutable MH-C-PROBLEM-IR-001 found numeric-literal and nesting budgets that were not fully enforceable; it was preserved and superseded by MH-C-PROBLEM-IR-002. GitHub runs 31505894788, 31505894683, and 31505889060 passed 26/26 CI jobs, 9/9 reproducibility jobs, and 2/2 governance jobs. Pull-request governance run 31505894798 had both jobs succeed but its wrapper remained stale in_progress.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md); MH-C-CONTRACT-ARTIFACTS-002=602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750 (docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json); MH-C-PROBLEM-IR-002=6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286 (docs/contracts/MH-C-PROBLEM-IR-002.json)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f; contract-artifact-tests=passed/exit-0/output-a1d76a7cc945d58c43e5fe49d6f5bf99c174032109ff785783af62694282d43f; contract-artifact-workflow=passed/exit-0/output-b0ca27108a6d7ed70aaeccfb40c1aebe9fa13fe23fd94172fecda53e51b09c19; problem-ir-contract=passed/exit-0/output-5d79fe1def4d4f26b36ecde4fd4b1f61938869ca948574a5f135c37963d7de68
+
+**Evidence.** docs/contracts/MH-C-PROBLEM-IR-002.json=6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286; docs/contracts/schemas/problem-ir-v1.schema.json=dcf871f15ebbae06b0eca285a115f2545defc00cb0befc23e3cc574d8523df2c; tools/validate_problem_ir_contract.py=b110b10aa25075734b1afeb34a9dff8dc8c5a0f0871c68e2d6854e403f7662cb; tests/problem_ir_contract/test_problem_ir_contract.py=77b30b6218f540c241f6a808447812ed2d0ac64db4cfb34b123a2ea12989a85a; docs/contracts/reports/verification-v1.json=aabadb542d11414e8987fd5144385fa84028b3bed3d27d18353e6f18782fb889; docs/project-facts.json=ade3d0953de05826435cad39df38f7698436da1b0b94b588ed62d9d836c2fac2
+
+**Limitations.** The accepted artifact intentionally targets a not-yet-implemented mathhead.ir:ProblemIR constructor; implementation binding and cross-layer fixture conformance remain assigned to MH-027 and MH-028. Representation validity makes no mathematical truth claim.
+
+**Next.** Activate MH-022 and accept the canonical TheoryContext contract for axioms, definitions, imported lemmas, local hypotheses, consistency state, namespaces, revisions, and dependency hashes.
+
+---
+
 ## 2026-08-11 - Transactional contract artifact workflow implemented
 
 **Task.** MH-020 (`done`).

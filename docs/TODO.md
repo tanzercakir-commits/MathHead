@@ -5,35 +5,36 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-021 - Accept the ProblemIR contract
+### MH-022 - Accept the TheoryContext contract
 
-**Goal:** freeze one canonical, typed, ambiguity-preserving problem
-representation before any new parser, planner, theory plugin, or proof engine
-depends on it.
+**Goal:** freeze one canonical, immutable mathematical context before planners,
+theory plugins, producers, or checkers can depend on contextual authority.
 
-**Scope:** variables and stable IDs; finite, numeric, symbolic, and structured
-domains; quantifiers and binders; typed expressions and relations; definitions,
-hypotheses, and ordered goals; source spans and source-document identity;
-alternative readings and unresolved ambiguity; extension namespaces; schema
-versioning; canonical serialization and content identity; validation errors and
-resource limits.
+**Scope:** stable context and declaration IDs; namespaces and qualified names;
+axioms, definitions, imported lemmas, and local hypotheses; dependency edges
+and content hashes; import aliases and collision rules; consistency states and
+the evidence that may justify them; parent revisions and monotonic derivation;
+canonical serialization, identity, validation errors, and resource limits.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`, and the new
-`MH-C-PROBLEM-IR-002` artifact.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`, and
+`MH-C-PROBLEM-IR-002`; this task will propose and accept a new versioned
+TheoryContext artifact before implementation.
 
-**Validators:** closed schema and enum checks, unique IDs, reference integrity,
-scope and binder checks, source-span bounds, ambiguity preservation, canonical
-ordering/serialization/hash rules, unknown-field and malformed-union rejection,
-round-trip examples, deterministic pre-screen/acceptance evidence, Ruff, and
-project status.
+**Validators:** closed schema and tagged-union checks, global and qualified-name
+uniqueness, reference and namespace integrity, acyclic imports and declaration
+dependencies, parent-revision and dependency-hash binding, consistency-state
+epistemics, canonical ordering/serialization/hash rules, unknown-field and
+malformed-state rejection, adversarial fixtures, Ruff, and project status.
 
-**Done when:** the ProblemIR schema and lifecycle semantics are explicit enough
-for independent implementations to serialize the same mathematical problem to
-identical bytes; the proposal is accepted under its exact SHA-256 and all
-semantic contract validators fail closed on representative mutations.
+**Done when:** two independent implementations have enough normative detail to
+serialize the same theory context to identical bytes; no unchecked assertion is
+silently promoted to a proved lemma or a consistent context; the proposal is
+accepted under its exact SHA-256 and every semantic validator fails closed on
+representative mutations.
 
-**Dependencies:** `MH-020` (done); implementation and cross-layer fixtures
-remain assigned to MH-027, MH-028, and later engine tasks.
+**Dependencies:** `MH-021` (done); resource accounting, result/evidence formats,
+runtime implementation, and cross-layer fixtures remain assigned to MH-023
+through MH-028.
 
 ## Next
 

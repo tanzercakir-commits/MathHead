@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Canonical TheoryContext contract accepted
+
+**Task.** MH-022 (`done`).
+
+**Changed.** Accepted the closed TheoryContext contract and normative Draft 2020-12 schema for stable context and declaration identities, explicit axiom, definition, lemma, imported-origin, and local-hypothesis authority, content-addressed imports, monotonic revisions, bounded consistency states, canonical identity, and fail-closed resource limits.
+
+**Learned.** Adversarial review caught and closed two pre-acceptance gaps: the consistency basis now binds context and revision identity, and resource accounting now rejects oversized nested mapping keys. Local scope rules also prevent a scoped claim from becoming public or escaping through an unscoped dependent. GitHub same-head runs 31508802990, 31508802977, 31508802962, 31508798025, and 31508797965 all completed successfully: CI 26/26, reproducibility 9/9 on both PR and push, and governance 2/2 on both PR and push.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md); MH-C-CONTRACT-ARTIFACTS-002=602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750 (docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json); MH-C-PROBLEM-IR-002=6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286 (docs/contracts/MH-C-PROBLEM-IR-002.json); MH-C-THEORY-CONTEXT-001=d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d (docs/contracts/MH-C-THEORY-CONTEXT-001.json)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f; contract-artifact-tests=passed/exit-0/output-4c78510ed9b96de2ea207638adccca4bd0ba9d070be988f0e70a2a69e7aec209; contract-artifact-workflow=passed/exit-0/output-b0ca27108a6d7ed70aaeccfb40c1aebe9fa13fe23fd94172fecda53e51b09c19; problem-ir-contract=passed/exit-0/output-5d79fe1def4d4f26b36ecde4fd4b1f61938869ca948574a5f135c37963d7de68; theory-context-contract=passed/exit-0/output-f24f2be1f18acde0fece5a52df2a6e01dd006959aae7da3d492c5d05658b531c
+
+**Evidence.** docs/contracts/MH-C-THEORY-CONTEXT-001.json=d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d; docs/contracts/schemas/theory-context-v1.schema.json=6a6e40070ba0a3209f5bfcfa0cc912d1ec08359a178611a40d61ffadda5819ec; tools/validate_theory_context_contract.py=e4ad17b3face322da383265aa5885fe809351834d91f5c53b4fa95b44e55a1a9; tests/theory_context_contract/test_theory_context_contract.py=6a28fa03bfde81a5a3bed37a4ed739967d2f78ed9776ce7d49cba8866f148427; docs/contracts/reports/verification-v1.json=7dae94f9feb048e61d404a00a88ed327e719ce1d214bf58a093d16cf1dc25419; docs/project-facts.json=1966eaeb0dc4a43e2a3d06a945edad3dd6e23a380c078a7dea24d4f7e805ec5f
+
+**Limitations.** The accepted artifact intentionally targets a not-yet-implemented mathhead.context:TheoryContext constructor. Parent monotonicity and ProblemIR entity existence require independently hash-verified cross-artifact bytes; implementation binding and golden cross-layer enforcement remain assigned to MH-027 and MH-028. Structural validity makes no theorem-truth or global-consistency claim.
+
+**Next.** Activate MH-023 and accept the canonical resource Budget contract for wall time, CPU, memory, solver calls, generated objects, proof size, cancellation, truncation, nesting, and child-budget accounting.
+
+---
+
 ## 2026-08-11 - Canonical ProblemIR contract accepted
 
 **Task.** MH-021 (`done`).

@@ -5,36 +5,40 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-022 - Accept the TheoryContext contract
+### MH-023 - Accept the resource Budget contract
 
-**Goal:** freeze one canonical, immutable mathematical context before planners,
-theory plugins, producers, or checkers can depend on contextual authority.
+**Goal:** freeze one canonical, compositional resource-accounting model before
+engine results, evidence, plugins, planners, workers, or caches can depend on
+what it means to remain within a declared budget.
 
-**Scope:** stable context and declaration IDs; namespaces and qualified names;
-axioms, definitions, imported lemmas, and local hypotheses; dependency edges
-and content hashes; import aliases and collision rules; consistency states and
-the evidence that may justify them; parent revisions and monotonic derivation;
-canonical serialization, identity, validation errors, and resource limits.
+**Scope:** stable budget, lease, and consumption identities; wall-time and CPU
+limits; peak and retained memory; solver-call and generated-object counts;
+proof, evidence, output, and diagnostic sizes; canonical nesting limits;
+cancellation, deadlines, exhaustion, and truncation reasons; deterministic
+reservation, child allocation, refund, reconciliation, and conservation;
+platform-independent units, serialization, validation errors, and hard
+resource ceilings.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
-`MH-C-PROBLEM-IR-002`, and accepted `MH-C-THEORY-CONTEXT-001` at SHA-256
-`d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d`.
+`MH-C-PROBLEM-IR-002`, and `MH-C-THEORY-CONTEXT-001`; this task will propose
+and accept a new versioned Budget artifact before implementation.
 
-**Validators:** closed schema and tagged-union checks, global and qualified-name
-uniqueness, reference and namespace integrity, acyclic imports and declaration
-dependencies, parent-revision and dependency-hash binding, consistency-state
-epistemics, canonical ordering/serialization/hash rules, unknown-field and
-malformed-state rejection, adversarial fixtures, Ruff, and project status.
+**Validators:** closed schema and tagged-union checks; exact nonnegative integer
+units; canonical ordering, serialization, and identity; dimension and limit
+closure; child-allocation conservation with no double-spend or double-refund;
+monotonic consumption and deadline rules; explicit cancellation, exhaustion,
+partial-output, and truncation semantics; unknown-field, overflow, malformed
+state, and adversarial mutation rejection; Ruff and project status.
 
 **Done when:** two independent implementations have enough normative detail to
-serialize the same theory context to identical bytes; no unchecked assertion is
-silently promoted to a proved lemma or a consistent context; the proposal is
-accepted under its exact SHA-256 and every semantic validator fails closed on
-representative mutations.
+serialize the same budget state and accounting transition to identical bytes;
+no timeout, cancellation, truncation, or exhausted dimension can be reported
+as ordinary success; the proposal is accepted under its exact SHA-256 and all
+representative conservation and authority mutations fail closed.
 
-**Dependencies:** `MH-021` (done); resource accounting, result/evidence formats,
-runtime implementation, and cross-layer fixtures remain assigned to MH-023
-through MH-028.
+**Dependencies:** `MH-022` (done); result/evidence formats, runtime enforcement,
+worker isolation, and cross-layer fixtures remain assigned to MH-024 through
+MH-028 and MH-052.
 
 ## Next
 

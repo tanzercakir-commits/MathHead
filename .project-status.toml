@@ -1,0 +1,48 @@
+schema = 1
+tool_version = "2.0.0"
+plan = "docs/PLAN.md"
+progress = "docs/PROGRESS.md"
+todo = "docs/TODO.md"
+contract_manifest = "docs/contracts/manifest.toml"
+todo_mode = "managed"
+max_todo_items = 5
+
+[[checks]]
+name = "project-status-unit-tests"
+command = "python -m unittest discover -s tests/project_status -v"
+profiles = ["status"]
+timeout_seconds = 120
+
+[[checks]]
+name = "reconstruction-plan"
+command = "python tools/validate_reconstruction_plan.py"
+profiles = ["status"]
+timeout_seconds = 30
+
+[[checks]]
+name = "adoption-idempotence"
+command = "python tools/project_status.py adopt --dry-run"
+profiles = ["status"]
+tasks = ["MH-000", "MH-001"]
+timeout_seconds = 30
+
+[[checks]]
+name = "task-aware-status-contract"
+command = "python -m unittest discover -s tests/project_status -p test_task_aware_status.py -v"
+profiles = ["status"]
+tasks = ["MH-002"]
+timeout_seconds = 120
+
+[[checks]]
+name = "legacy-index"
+command = "python tools/validate_legacy_index.py"
+profiles = ["status"]
+tasks = ["MH-005"]
+timeout_seconds = 30
+
+[[checks]]
+name = "contract-manifest"
+command = "python tools/validate_contract_manifest.py"
+profiles = ["status"]
+tasks = ["MH-000", "MH-002"]
+timeout_seconds = 30

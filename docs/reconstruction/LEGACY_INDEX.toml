@@ -1,0 +1,124 @@
+schema = 1
+programme = "MH-RECONSTRUCTION-V1"
+
+[[records]]
+path = "docs/PLAN.md"
+role = "authoritative-plan"
+claim_status = "current"
+phase = "P0"
+immutable = false
+note = "Sole authority for reconstruction tasks, dependencies, gates, and milestones."
+
+[[records]]
+path = "docs/TODO.md"
+role = "authoritative-todo"
+claim_status = "current"
+phase = "P0"
+immutable = false
+note = "Sole live work queue for the reconstruction programme."
+
+[[records]]
+path = "docs/PROGRESS.md"
+role = "authoritative-progress"
+claim_status = "current"
+phase = "P0"
+immutable = false
+note = "Sole append-only task state and evidence ledger."
+
+[[records]]
+path = "Plan.md"
+role = "historical-plan"
+claim_status = "mixed"
+phase = "P0"
+immutable = true
+sha256 = "4ca684761f74c025604d3bafe1205f90e237891054f3db985c1eaf1182995bef"
+note = "Original product vision; useful intent, but no longer current programme authority."
+
+[[records]]
+path = "Todo.md"
+role = "historical-todo"
+claim_status = "historical"
+phase = "P0"
+immutable = true
+sha256 = "059a89d0092342e687112b4f4de819a25cca91a5ac295c3d0d3a08165d13b78e"
+note = "Legacy completion claims; retained as evidence, not current task state."
+
+[[records]]
+path = "Progress.md"
+role = "historical-progress"
+claim_status = "mixed"
+phase = "P0"
+immutable = true
+sha256 = "c2bee30318549974d9c2fadf4b29dd99e80d964714b7ab5e42e4988a895be3ef"
+note = "Legacy changelog; chronology is useful, health and version claims require baseline verification."
+
+[[records]]
+path = "DECISIONS.md"
+role = "decision-ledger"
+claim_status = "mixed"
+phase = "P0"
+immutable = true
+sha256 = "10f3d146ce00a0aa67cb652507cf2f3ae04f1fd65ede406098fe5ac456022b1b"
+note = "Accepted legacy ADRs; reconstruction changes are recorded only as new superseding ADRs."
+
+[[records]]
+path = "docs/IDEAL-ENGINE-ROADMAP.md"
+role = "historical-plan"
+claim_status = "mixed"
+phase = "P8"
+immutable = true
+sha256 = "9a945ba9805325c06f98a24f6318bb1da2286c7dd8f295ae2e70d6c82542313d"
+note = "Frozen discovery ambition and phase inventory; not reconstruction completion authority."
+
+[[records]]
+path = "docs/discovery/TODO.md"
+role = "historical-todo"
+claim_status = "historical"
+phase = "P8"
+immutable = true
+sha256 = "cde17980615c45d95ca4ef189f869116bdbe43717d07c849aad7b09ebecca14a"
+note = "Discovery work snapshot at the audited legacy SHA."
+
+[[records]]
+path = "docs/discovery/PROGRESS.md"
+role = "historical-progress"
+claim_status = "historical"
+phase = "P8"
+immutable = true
+sha256 = "cd914991db645a26a6b6643aaac2571a6d91665043aa052fbf839378be077ee2"
+note = "Append-only discovery history preserved as migration evidence."
+
+[[records]]
+path = "docs/discovery/DECISIONS.md"
+role = "archive"
+claim_status = "historical"
+phase = "P8"
+immutable = true
+sha256 = "d2986817b082d2e82c6d719aa787406b6d79141cfd1b04c7a733261428631fc4"
+note = "Explicitly frozen discovery ADR archive."
+
+[[records]]
+path = "docs/discovery/SAMPLE-REPORT.md"
+role = "generated-output"
+claim_status = "historical"
+phase = "P8"
+immutable = false
+note = "Generated legacy engine output; reproducibility fixture, never a status authority."
+
+[[records]]
+path = "docs/architecture.md"
+role = "reference"
+claim_status = "mixed"
+phase = "P6"
+immutable = true
+sha256 = "6f671ca92da8f7f42fe3f97f08a2c997d71db39b16be1e2236d465b98338472a"
+note = "Legacy package architecture; descriptive input for preserve/rebuild ADRs."
+
+[[records]]
+path = "docs/threat-model.md"
+role = "reference"
+claim_status = "mixed"
+phase = "P10"
+immutable = true
+sha256 = "cfbb2de14c751368c0a51cc13a0d7d424bc61656d17abcacdf9300632b48ce2a"
+note = "Legacy threat model; acknowledged asymmetric timeout boundaries require supersession."

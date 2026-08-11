@@ -1,0 +1,19 @@
+schema = 1
+
+[[contracts]]
+id = "MH-C-STATUS-001"
+path = "docs/contracts/PROJECT_STATUS_CONTRACT_V1.md"
+sha256 = "b4293b653ad3d30112ac284934b562091ba287b669f8a2b8d020d7a86edb0b2d"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-ENV-001"
+path = "docs/contracts/proposed/MH-C-ENV-001.json"
+sha256 = "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87"
+state = "proposed"
+
+[[contracts]]
+id = "MH-C-WORKFLOW-001"
+path = "docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md"
+sha256 = "99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca"
+state = "accepted"

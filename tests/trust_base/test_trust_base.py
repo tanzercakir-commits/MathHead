@@ -26,9 +26,11 @@ class TrustBaseTests(unittest.TestCase):
         temporary = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, temporary, True)
         for relative in (
+            "docs/contracts/MH-C-PROOF-TERM-001.json",
             "docs/contracts/MH-C-TRUST-BASE-001.json",
             "docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md",
             "docs/contracts/reports/foundation-conformance-v1.json",
+            "docs/contracts/schemas/proof-term-v1.schema.json",
             "docs/fixtures/foundation-v1/manifest.json",
             "docs/trust/trust-base-v1.json",
             "docs/trust/trust-base-v1.schema.json",
@@ -63,13 +65,13 @@ class TrustBaseTests(unittest.TestCase):
 
     def test_repository_inventory_and_report_are_current(self) -> None:
         report = trust.validate_trust_base(ROOT, check_report=ROOT / trust.REPORT_PATH)
-        self.assertEqual(report["source"]["file_count"], 117)
-        self.assertEqual(report["source"]["module_count"], 117)
+        self.assertEqual(report["source"]["file_count"], 119)
+        self.assertEqual(report["source"]["module_count"], 119)
         self.assertEqual(len(report["import_roots"]), 32)
         self.assertEqual(report["surface_summary"]["count"], 24)
         self.assertEqual(
             report["report_sha256"],
-            "8ee749726b01be055e724ac36ce69e60ff253e9f247763cd510768f0d78bff24",
+            "d920b258322562ec0f927666a1663b9e05c551cf9044fb78152d46aa26d3364c",
         )
 
     def test_dependency_minimal_and_full_schema_profiles_match(self) -> None:

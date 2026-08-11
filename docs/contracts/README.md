@@ -84,6 +84,13 @@ before the critical implementation that they govern.
   `../trust/trust-base-v1.schema.json` and is accepted under the project
   owner's programme-wide authority at SHA-256
   `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
+- `MH-C-PROOF-TERM-001.json` governs the closed four-rule immutable proof-term
+  algebra, constructor and deserialization boundaries, canonical JSON wire
+  bytes, full content identity, exact numeric and graph budgets, stable error
+  taxonomy, and explicit absence of mathematical authority before MH-032. It
+  binds `schemas/proof-term-v1.schema.json` and is accepted under the project
+  owner's programme-wide authority at SHA-256
+  `20c501b77e370c4258523a291e83b15a99ed6308e002d9a54d0abc3bb18199ac`.
 
 ## Repository command
 
@@ -145,7 +152,7 @@ command, object-store layout, and non-promotion rules.
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 117 source modules, 32 import roots, 24 trust surfaces, seven entry-point
+all 119 source modules, 32 import roots, 24 trust surfaces, seven entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -155,6 +162,20 @@ python -m unittest discover -s tests/trust_base -v
 
 See `docs/trust/README.md` for current authority boundaries and the MH-031
 through MH-037 minimization map.
+
+## Immutable proof terms
+
+MH-031 is documented in `docs/PROOF_TERMS_V1.md`. The implementation lives in
+`mathhead.kernel.proof_terms` and exposes only structurally valid,
+non-authoritative values. Validate its accepted binding, closed schema,
+canonical round trips, constructor hardening, forgery resistance, and fixed
+resource ceilings with:
+
+```bash
+python -m unittest discover -s tests/proof_terms -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROOF-TERM-001 --require-bound
+```
 
 ## Proposed contracts
 

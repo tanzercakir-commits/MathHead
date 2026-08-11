@@ -143,3 +143,9 @@ id = "MH-C-TRUST-BASE-001"
 path = "docs/contracts/MH-C-TRUST-BASE-001.json"
 sha256 = "2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROOF-TERM-001"
+path = "docs/contracts/MH-C-PROOF-TERM-001.json"
+sha256 = "20c501b77e370c4258523a291e83b15a99ed6308e002d9a54d0abc3bb18199ac"
+state = "accepted"

@@ -10,11 +10,11 @@ The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
 SHA-256
 `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 Its self-identity is
-`d93d09a044430ec2ae97ca915ee9d592814c025e9277b91ac927f60d9d83ace7`.
+`7d51099a6368fbc21fcc435b487b53468e68ee9c47ee35bdbdafc9c3253b42eb`.
 
 ## Current result
 
-The static boundary contains 117 Python modules, 32 non-`mathhead` import
+The static boundary contains 119 Python modules, 32 non-`mathhead` import
 roots, 24 classified trust surfaces, and seven supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -29,7 +29,8 @@ The important current distinctions are:
 | PySAT and nauty | producer report | retain outside the checker and bind exact encodings or output |
 | `certificate.py` | checker attestation, with a visible approximate legacy branch | split exact typed certificates from numerical checks in MH-032/MH-033 |
 | `drat.py` and `discovery/rup_check.py` | two checker-attested RUP/DRUP boundaries | unify and harden one versioned streaming checker in MH-034 |
-| `discovery/kernel.py` | checker attestation under a Python LCF-style guard | replace forgeable theorem objects and expose derived evidence in MH-031/MH-033 |
+| `discovery/kernel.py` | checker attestation under a Python LCF-style guard | immutable non-authoritative proof terms now exist; checker and theorem-result replacement remains MH-032/MH-033 |
+| `kernel/proof_terms.py` | structural validity only, no mathematical authority | constructor-controlled closed values and canonical parsing implemented in MH-031 for MH-032 replay |
 | SHA-256 and canonical JSON | identity only | centralize full content and replay identities in MH-035 |
 | Lean export | no current authority | grant authority only after pinned external replay in MH-036 |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |

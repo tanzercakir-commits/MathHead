@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.2.0` · 171 MCP tools · 2352 collected tests.**  
+**Package `1.2.0` · 171 MCP tools · 2370 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -278,6 +278,7 @@ mathhead/
 ├── pyproject.toml       · dependencies (z3-solver, sympy, mcp[cli])
 ├── docs/
 │   ├── architecture.md  · layer diagram (Mermaid) + request lifecycle
+│   ├── PROOF_TERMS_V1.md · immutable canonical proof terms + authority boundary
 │   ├── mcp-api.md        · precise MCP protocol & tool definitions + grammar
 │   ├── api-reference.md  · auto reference for ALL tools (code=docs)
 │   ├── threat-model.md  · trust boundaries, threat table, the timeout model
@@ -286,6 +287,7 @@ mathhead/
 │   └── glossary.md       · terms (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/
 │   ├── core/            · logic (Z3) + verification (verify/crosscheck/inequality)
+│   ├── kernel/          · dependency-minimal immutable proof terms (checker follows in MH-032)
 │   ├── certificate.py  · INDEPENDENT certificate checker (stdlib only, NO z3/sympy)
 │   ├── compute/         · symbolic compute (SymPy)                
 │   ├── router/          · routing

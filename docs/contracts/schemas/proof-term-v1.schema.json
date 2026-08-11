@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "crt": {
+      "additionalProperties": false,
+      "properties": {
+        "parts": {
+          "items": {
+            "$ref": "#/$defs/term"
+          },
+          "maxItems": 1024,
+          "minItems": 1,
+          "type": "array"
+        },
+        "rule": {
+          "const": "crt"
+        }
+      },
+      "required": [
+        "parts",
+        "rule"
+      ],
+      "type": "object"
+    },
+    "integerPolynomial": {
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "type": "array"
+    },
+    "polynomialIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "lhs": {
+          "$ref": "#/$defs/rationalPolynomial"
+        },
+        "rhs": {
+          "$ref": "#/$defs/rationalPolynomial"
+        },
+        "rule": {
+          "const": "polynomial_identity"
+        }
+      },
+      "required": [
+        "lhs",
+        "rhs",
+        "rule"
+      ],
+      "type": "object"
+    },
+    "rational": {
+      "additionalProperties": false,
+      "properties": {
+        "denominator": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "numerator": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "denominator",
+        "numerator"
+      ],
+      "type": "object"
+    },
+    "rationalPolynomial": {
+      "items": {
+        "$ref": "#/$defs/rational"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "type": "array"
+    },
+    "residue": {
+      "additionalProperties": false,
+      "properties": {
+        "modulus": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "polynomial": {
+          "$ref": "#/$defs/integerPolynomial"
+        },
+        "rule": {
+          "const": "residue"
+        }
+      },
+      "required": [
+        "modulus",
+        "polynomial",
+        "rule"
+      ],
+      "type": "object"
+    },
+    "sumInduction": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_form": {
+          "$ref": "#/$defs/rationalPolynomial"
+        },
+        "rule": {
+          "const": "sum_induction"
+        },
+        "summand": {
+          "$ref": "#/$defs/rationalPolynomial"
+        }
+      },
+      "required": [
+        "closed_form",
+        "rule",
+        "summand"
+      ],
+      "type": "object"
+    },
+    "term": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/residue"
+        },
+        {
+          "$ref": "#/$defs/crt"
+        },
+        {
+          "$ref": "#/$defs/sumInduction"
+        },
+        {
+          "$ref": "#/$defs/polynomialIdentity"
+        }
+      ]
+    }
+  },
+  "$id": "https://mathhead.dev/schemas/proof-term-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "mathhead.proof-term.v1"
+    },
+    "term": {
+      "$ref": "#/$defs/term"
+    },
+    "term_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "term",
+    "term_sha256"
+  ],
+  "title": "MathHead ProofTerm v1",
+  "type": "object"
+}

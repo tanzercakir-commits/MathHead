@@ -221,3 +221,17 @@ command = "python tools/validate_trust_base.py"
 profiles = ["status", "fast"]
 tasks = ["MH-030"]
 timeout_seconds = 120
+
+[[checks]]
+name = "proof-term-tests"
+command = "python -m unittest discover -s tests/proof_terms -v"
+profiles = ["status", "fast"]
+tasks = ["MH-031"]
+timeout_seconds = 120
+
+[[checks]]
+name = "proof-term-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-TERM-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-031"]
+timeout_seconds = 60

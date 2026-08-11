@@ -23,14 +23,13 @@ The design must leave room for later rule registration without allowing an
 unknown tag, unknown field, subclass, mutable alias, or implementation detail
 to acquire authority.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, and the accepted P2
-ProblemIR, TheoryContext, ResourceBudget, EngineResult, Evidence, Certificate,
-and TheoryPlugin boundaries. Before implementation, propose, pre-screen, and
-accept a closed proof-term contract that fixes constructors, wire form,
-canonical identity, budgets, error classes, trust semantics, and the exact
-implementation binding. Proof-term validity is structural only; mathematical
-authority remains exclusively assigned to the dependency-minimal checker in
-MH-032.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, accepted
+`MH-C-PROOF-TERM-001`, and the accepted P2 ProblemIR, TheoryContext,
+ResourceBudget, EngineResult, Evidence, Certificate, and TheoryPlugin
+boundaries. The proof-term contract fixes constructors, wire form, canonical
+identity, budgets, error classes, trust semantics, and the exact implementation
+binding. Proof-term validity is structural only; mathematical authority remains
+exclusively assigned to the dependency-minimal checker in MH-032.
 
 **Validators:** closed Draft 2020-12 schema and repository-owned validator;
 dependency-minimal and full-environment byte agreement; canonical round trips;

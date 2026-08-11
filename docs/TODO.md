@@ -5,45 +5,46 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-024 - Accept the EngineResult contract
+### MH-025 - Accept Evidence and Certificate contracts
 
-**Goal:** freeze one canonical, solver-neutral result envelope before evidence,
-plugins, planners, workers, caches, or user interfaces depend on verdict,
-partial-result, or replay semantics.
+**Goal:** freeze independent, content-addressed Evidence and Certificate
+envelopes so producer output cannot become a verified mathematical claim by
+self-labeling, mutation, missing bytes, or replay drift.
 
-**Scope:** stable result and replay identities; ProblemIR, TheoryContext, and
-ResourceBudget bindings; execution outcome versus mathematical verdict;
-epistemic tier and trust dependencies; selected and alternative readings;
-assumptions and discharged obligations; exact and one-sided bounds; witnesses,
-counterexamples, proof and certificate references; producer provenance;
-consumed-budget snapshots; structured diagnostics; unsupported, ambiguous,
-unknown, cancelled, exhausted, truncated, disagreement, and verifier-failure
-states; canonical ordering, serialization, extensions, and hard ceilings.
+**Scope:** artifact versus checker-result separation; evidence and certificate
+type registries; exact subject, ProblemIR, TheoryContext, assumption, obligation,
+producer, checker, implementation, configuration, and environment bindings;
+canonical byte identity; format and semantic-version compatibility; dependency
+closure; independent verification outcomes; deterministic replay inputs and
+observations; unsupported, invalid, inconclusive, cancelled, exhausted,
+truncated, verifier-failure, and disagreement states; namespaced extensions and
+hard resource ceilings.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
-`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`, and
-`MH-C-RESOURCE-BUDGET-001`; accepted `MH-C-ENGINE-RESULT-001` is bound at
-SHA-256
-`6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370`.
+`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
+`MH-C-RESOURCE-BUDGET-001`, and `MH-C-ENGINE-RESULT-001`. This task will
+propose and accept the canonical Evidence and Certificate contracts without
+changing any accepted dependency bytes.
 
-**Validators:** closed schema and tagged-union checks; exact canonical identity
-and cross-artifact hash bindings; verdict, execution, epistemic, reading,
-assumption, bound, witness, certificate, provenance, diagnostic, and budget
-compatibility; no producer self-attestation or hidden non-success state;
-unknown-field, overflow, malformed-reference, contradictory-state, and
-adversarial mutation rejection; Ruff and project status.
+**Validators:** closed Draft 2020-12 schemas plus independent semantic
+validators; exact canonical identities and cross-envelope hash bindings;
+acyclic dependency closure; producer/checker role separation; compatibility,
+trust, replay, result, diagnostic, and terminal-budget invariants; malformed,
+unknown-field, duplicate-key, version-confusion, self-attestation,
+substitution, omission, cycle, overflow, and adversarial mutation rejection;
+Ruff and project status.
 
 **Done when:** two independent implementations have enough normative detail to
-serialize the same result to identical bytes and reach the same fail-closed
-validity decision; proof, refutation, exactness, and trust cannot be inferred
-from producer labels alone; cancellation, exhaustion, truncation, ambiguity,
-unsupported input, disagreement, and verifier failure cannot be ordinary
-success.
+serialize equivalent Evidence and Certificate values to identical bytes and
+reach the same fail-closed verification decision; certificate validity is a
+checker observation under explicit trust dependencies rather than a producer
+claim; missing, changed, unsupported, inconclusive, interrupted, or
+resource-limited replay can never be reported as verified.
 
-**Dependencies:** `MH-021`, `MH-022`, and `MH-023` (done); independent Evidence
-and Certificate semantics, plugin behavior, conformance suites, cross-layer
-fixtures, and runtime enforcement remain assigned to MH-025 through MH-028 and
-later implementation tasks.
+**Dependencies:** `MH-021` through `MH-024` are done. Runtime checker kernels,
+broader contract conformance, cross-layer golden fixtures, and theory-specific
+certificate semantics remain assigned to MH-030 through MH-037, MH-027,
+MH-028, and MH-060 through MH-067.
 
 ## Next
 

@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Canonical EngineResult contract accepted
+
+**Task.** MH-024 (`done`).
+
+**Changed.** Accepted a closed canonical EngineResult envelope that binds ProblemIR, TheoryContext, ResourceBudget, replay identity, provenance, artifacts, ordered assessments, execution outcomes, terminal budget state, and diagnostics while separating execution completion from mathematical verdicts.
+
+**Learned.** Adversarial review corrected refutation support so independently checked proofs of negation do not require counterexamples and allowed verified witnesses to support existential proofs without weakening the independent checker or external verifier trust boundary.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md); MH-C-CONTRACT-ARTIFACTS-002=602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750 (docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json); MH-C-PROBLEM-IR-002=6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286 (docs/contracts/MH-C-PROBLEM-IR-002.json); MH-C-THEORY-CONTEXT-001=d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d (docs/contracts/MH-C-THEORY-CONTEXT-001.json); MH-C-RESOURCE-BUDGET-001=eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045 (docs/contracts/MH-C-RESOURCE-BUDGET-001.json); MH-C-ENGINE-RESULT-001=6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370 (docs/contracts/MH-C-ENGINE-RESULT-001.json)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f; contract-artifact-tests=passed/exit-0/output-0a795cd7798d2a725da0b3780cb713a80b43e932f652f501b03d0303b1634ae1; contract-artifact-workflow=passed/exit-0/output-b0ca27108a6d7ed70aaeccfb40c1aebe9fa13fe23fd94172fecda53e51b09c19; problem-ir-contract=passed/exit-0/output-5d79fe1def4d4f26b36ecde4fd4b1f61938869ca948574a5f135c37963d7de68; theory-context-contract=passed/exit-0/output-f24f2be1f18acde0fece5a52df2a6e01dd006959aae7da3d492c5d05658b531c; resource-budget-contract=passed/exit-0/output-8bb1a05a7c0196d839031e95e46f4c01221e27baee2453596bc31e029e23d0ae; engine-result-contract=passed/exit-0/output-8b2c527ad5ee906e03c9b0fbf95ddfaeb7b7f4be28d14142c5c5eb72f2532d79
+
+**Evidence.** docs/contracts/MH-C-ENGINE-RESULT-001.json=6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370; docs/contracts/schemas/engine-result-v1.schema.json=4cd26ad69c6528a7553a429d06f224c79ae6b01b7d9cc0fa41ccb7c4d20cc948; tools/validate_engine_result_contract.py=161f4adf9bba750414f4517faf3784b7b8a42dd32e46873e9490b1391a669beb; tests/engine_result_contract/test_engine_result_contract.py=2baae51d8387c478432d649fd92becebab9b45ec8579b35acf0e5a121dc257ce; docs/contracts/reports/verification-v1.json=ad7ec8896741ec3a6feb3e461d5406f2f7986aa92f734f058e689dc17d31941a; docs/project-facts.json=4c8089aafeeb3ca807ed3d5216ec2b154306cc1f411fb456ac8687b04c8fb976
+
+**Limitations.** The target mathhead.results:EngineResult is not implemented yet. Structural validity does not establish truth; cross-artifact byte verification, independent Evidence and Certificate semantics, conformance fixtures, and runtime enforcement remain in MH-025, MH-027, MH-028, and later implementation work. Same-head GitHub runs 31514329850, 31514329789, 31514329802, 31514323122, and 31514323140 succeeded on commit 6f06ac3066a8a4e4fb71825064b7126703134fd1.
+
+**Next.** Activate MH-025 to accept independent Evidence and Certificate contracts.
+
+---
+
 ## 2026-08-11 - Canonical ResourceBudget contract accepted
 
 **Task.** MH-023 (`done`).

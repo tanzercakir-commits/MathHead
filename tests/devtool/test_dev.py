@@ -95,11 +95,14 @@ class DevDispatcherTests(unittest.TestCase):
 
     def test_status_bootstrap_never_invokes_pip(self) -> None:
         stdout = io.StringIO()
-        with mock.patch.object(dev, "_run_command") as run:
-            with redirect_stdout(stdout):
-                code = dev.main(
-                    ["bootstrap", "--profile", "status", "--current", "--json"]
-                )
+        with mock.patch.object(
+            dev, "_profile_support", return_value=(True, "supported")
+        ):
+            with mock.patch.object(dev, "_run_command") as run:
+                with redirect_stdout(stdout):
+                    code = dev.main(
+                        ["bootstrap", "--profile", "status", "--current", "--json"]
+                    )
         self.assertEqual(code, 0)
         self.assertFalse(run.called)
         self.assertEqual(json.loads(stdout.getvalue())["reason"], "stdlib-profile-no-install")

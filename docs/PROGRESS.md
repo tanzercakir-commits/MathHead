@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Python 3.10 profile-policy test corrected
+
+**Task.** MH-003 (`partial`).
+
+**Changed.** Made the status-bootstrap no-install unit test independent of the executing interpreter by mocking only profile support; the production support policy remains unchanged and the test still proves pip is never invoked.
+
+**Learned.** GitHub environment run 31480370760 passed Ubuntu 3.11/3.12, Windows 3.11/3.12, both dependency-free status jobs, and release smoke; Ubuntu and Windows 3.10 failed only because a status-profile test incorrectly assumed that status itself supports Python 3.10 while running inside the supported core 3.10 matrix.
+
+**Contracts.** MH-C-ENV-001=63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87 (docs/contracts/MH-C-ENV-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6
+
+**Evidence.** tests/devtool/test_dev.py=3f4f4f7b13d2c391d081226cd3476e5dfc94e9f49b584126c9ea8b2a61c68a07; tools/dev_profiles.json=dc1cc8c8bcd4d2e3d9f2e30be7d48348f7874a8eaff3d1275908af4cf07bcd3d
+
+**Limitations.** The focused fix passes locally; replacement Ubuntu and Windows Python 3.10 jobs are pending a new push.
+
+**Next.** Commit and push the focused test-policy fix, require the replacement environment matrix to pass, then record MH-003 done.
+
+---
+
 ## 2026-08-11 - Reproducible environment implemented locally
 
 **Task.** MH-003 (`partial`).

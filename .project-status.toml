@@ -172,3 +172,10 @@ command = "python tools/validate_evidence_certificate_contracts.py"
 profiles = ["status", "fast"]
 tasks = ["MH-025"]
 timeout_seconds = 60
+
+[[checks]]
+name = "theory-plugin-contract"
+command = "python tools/validate_theory_plugin_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-026"]
+timeout_seconds = 60

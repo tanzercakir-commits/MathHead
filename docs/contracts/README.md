@@ -70,6 +70,13 @@ before the critical implementation that they govern.
   `schemas/certificate-v1.schema.json`, depends on the accepted Evidence
   contract hash, and is accepted at SHA-256
   `0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740`.
+- `MH-C-THEORY-PLUGIN-001.json` governs stable plugin and component identity,
+  exact capability negotiation and deterministic cost routing, the fixed
+  plan-cost/solve/check/explain ABI, isolated effects, child budgets,
+  cancellation and replay, and producer/checker authority separation. It
+  binds `schemas/theory-plugin-v1.schema.json`, depends on the six accepted
+  foundation contracts, and is accepted at SHA-256
+  `2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8`.
 
 ## Repository command
 

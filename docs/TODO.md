@@ -23,9 +23,10 @@ registration conflicts, lifecycle, concurrency, and hard ceilings.
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
 `MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
 `MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`,
-`MH-C-EVIDENCE-001`, and `MH-C-CERTIFICATE-001`. This task will propose and
-accept the canonical TheoryPlugin contract without changing accepted
-dependency bytes.
+`MH-C-EVIDENCE-001`, and `MH-C-CERTIFICATE-001`. The canonical
+`MH-C-THEORY-PLUGIN-001` contract is accepted at SHA-256
+`2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8`
+without changing accepted dependency bytes.
 
 **Validators:** closed Draft 2020-12 schema plus an independent semantic
 validator; exact manifest, capability, fragment, operation, component,

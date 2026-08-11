@@ -131,3 +131,9 @@ id = "MH-C-CERTIFICATE-001"
 path = "docs/contracts/MH-C-CERTIFICATE-001.json"
 sha256 = "0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-THEORY-PLUGIN-001"
+path = "docs/contracts/MH-C-THEORY-PLUGIN-001.json"
+sha256 = "2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8"
+state = "accepted"

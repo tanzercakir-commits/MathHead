@@ -5,73 +5,77 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-035 - Make provenance content-addressed and replayable
+### MH-036 - Close the external Lean verification loop
 
-**Goal:** replace truncated, representation-dependent provenance with one
-versioned run-bundle boundary whose identity and replay verdict bind the exact
-canonical ProblemIR, TheoryContext, TheoryPlugin descriptor/version,
-ResourceBudget, Evidence, Certificate, and CheckerResult bytes. A bundle is an
-audit object, never authority by itself; only a fresh independent checker replay
-may recover the authority already permitted by its accepted checker contract.
+**Goal:** replace the legacy written-only Lean export with one versioned,
+content-addressed external proof-assistant boundary. Exporting source must remain
+non-authoritative; only a successful run of the exact pinned Lean toolchain over
+the exact generated theorem bytes may issue `external_proof_assistant`
+authority, and that authority must survive independent provenance replay.
 
-**Scope:** add a dependency-minimal `mathhead.kernel.provenance` verifier for a
-canonical manifest plus immutable content-addressed objects. Require complete
-SHA-256 digests, byte lengths, media/schema identifiers, one occurrence of each
-required semantic role, explicit optional-role policy, deterministic ordering,
-and exact cross-links between the run identity, producer report, evidence,
-certificate, checker request, checker result, contract, implementation,
-configuration, resource budget, and trust dependencies. Recompute every object
-identity before interpretation; dispatch only allowlisted, versioned kernel
-replayers; recompute and compare the checker result; fail closed on missing,
-extra, duplicate, stale, aliased, noncanonical, unsupported, mismatched, or
-over-budget content. Add a non-authoritative filesystem adapter that writes
-validated objects and manifests atomically into a fan-out SHA-256 store,
-refuses traversal, links, mutation, collisions, and partial commits, and can
-reload a large bundle without trusting filenames or directory state. Retire the
-legacy 16-hex proof hash as an authority claim while retaining a clearly named
-compatibility adapter.
+**Scope:** define a deterministic exporter for the supported arithmetic
+proof-term fragment, a closed execution request and result algebra, a bounded
+effect adapter for invoking Lean without a shell, and a dependency-minimal pure
+validator that binds the original proof term and checker result to the theorem
+statement, generated source, project files, toolchain lock and binary identity,
+command, sanitized environment policy, exit status, bounded stdout and stderr,
+and output artifacts. Generate stable namespaces and identifiers; reject
+unsupported terms rather than inserting axioms or opaque assumptions; forbid
+`sorry`, `admit`, `axiom`, `unsafe`, native-oracle shortcuts, undeclared imports,
+and unpinned dependencies; separate `export_written`, `check_unavailable`,
+`check_failed`, `check_exhausted`, and `externally_verified` outcomes; persist
+all inputs and observations through the MH-035 run-bundle model; and turn the
+legacy discovery exporter into a clearly non-authoritative compatibility
+adapter. The runner owns process and filesystem effects but never decides
+authority; the pure validator must recompute every identity and apply the
+contracted authority lattice from exact bytes alone.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, the accepted
-ProblemIR, TheoryContext, ResourceBudget, EngineResult, Evidence, Certificate,
-TheoryPlugin, proof-term, checker, and SAT-replay contracts. Before runtime
-implementation, propose, prescreen, and accept one new
-`MH-C-PROVENANCE-REPLAY-001` contract with a closed run-manifest schema. The
-contract must freeze the pure verifier API, canonical JSON and binary-object
-rules, required and optional roles, replay dispatch, authority lattice,
-full-digest identities, atomic store layout, status/reason algebra, and finite
-limits for manifest/object/aggregate bytes, entries, nesting, strings, replay
-steps, diagnostics, and filesystem components. No new replay or persistence
-implementation may precede acceptance of those exact bytes.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
+`MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`, and
+`MH-C-PROVENANCE-REPLAY-001`. Before implementation, propose, prescreen, and
+accept one new MH-C-LEAN-VERIFICATION-001 contract with closed request and
+result schemas. It must freeze the exporter, runner, and pure-validator APIs;
+the supported proof fragment and exact statement correspondence; canonical
+source and project bytes; toolchain and dependency pinning; process,
+environment, filesystem, and artifact rules; authority and status/reason
+algebras; provenance roles and cross-links; and finite limits for source,
+artifacts, output, paths, identifiers, theorem count, integers, elaboration
+heartbeats, memory, and wall time. No new authoritative Lean runtime path may
+precede acceptance of those exact contract bytes.
 
-**Validators:** canonical round trips and identity stability across processes,
-Python 3.10 through 3.14, and Linux/macOS/Windows; complete proof-term and SAT
-happy-path replay; producer-only and unsupported-format outcomes; store/reload
-equivalence for multi-megabyte streamed objects; crash-before-rename recovery;
-and deterministic diagnostics. Adversarially cover truncation, bit flips,
-reordering, substitution across runs, forged hashes and lengths, wrong schemas
-or media types, missing/extra/duplicate roles, dangling or cyclic references,
-mixed checker contracts/implementations/configurations, stale contexts or
-budgets, result self-attestation, noncanonical manifests, Unicode/NUL/path
-attacks, symlinks, hard links, collisions, concurrent writes, short reads,
-oversized objects/manifests/collections, mutation, aliasing, copying, pickling,
-subclassing, and replay exhaustion. Measure the import/source closure and prove
-that the pure verifier has no solver, CAS, clock, filesystem, process, network,
-dynamic-import, transport, or discovery dependency. Run Ruff, compileall,
-project status, core, solver, discovery, slow, docs, release, clean-wheel
-smoke, coverage, and exact same-head GitHub gates.
+**Validators:** canonical export and result round trips across processes,
+Python 3.10 through 3.14, and Linux/macOS/Windows; byte-identical source for
+residue, CRT, finite-sum induction, and polynomial-identity proof terms; one
+pinned Linux CI job that installs from the committed lock, records exact Lean
+and dependency identities, compiles every supported positive fixture, and
+imports the successful result through provenance replay; deterministic
+unavailable behavior on platforms without Lean; and clean-wheel import and
+export smoke tests. Adversarially cover forged success, export-only promotion,
+statement substitution, changed assumptions or domains, wrong proof/checker
+identity, toolchain or lock drift, PATH substitution, symlinks and traversal,
+shell injection, hostile names and Unicode, undeclared imports, forbidden Lean
+constructs, stale or truncated logs, exit-code mismatch, missing or extra
+artifacts, tampered object hashes, timeout and output exhaustion, corrupted
+`.olean` data, copied/mutated/pickled/subclassed results, and replay under a
+different provenance bundle. Prove that the pure validator has no filesystem,
+process, network, clock, environment, dynamic-import, solver, CAS, discovery,
+or Lean dependency. Run Ruff, compileall, project status, core, solver,
+discovery, slow, docs, release, clean-wheel smoke, coverage, and exact
+same-head GitHub gates.
 
-**Done when:** one accepted boundary makes every supported checker-attested run
-independently reproducible from exact bytes alone; any partial or mismatched
-bundle deterministically loses authority; persisted bundles are immutable,
-atomic, content-addressed, and independently reloadable; legacy provenance can
-no longer be mistaken for full replay evidence; the measured kernel closure
-remains within the MH-030 budget; and every local and same-head remote gate
-passes.
+**Done when:** the repository owns a reproducible pinned Lean project and every
+supported positive fixture is compiled by Lean in CI; exact successful process
+evidence can be independently validated and replayed as
+`external_proof_assistant` authority; written, unavailable, failed, exhausted,
+unsupported, stale, forged, or mismatched exports deterministically remain
+non-authoritative; generated source contains no trust-widening escape hatch;
+the toolchain, theorem, Python checker, and provenance identities are all bound;
+and every local and same-head remote gate passes.
 
-**Dependencies:** MH-030 through MH-034 are done and provide the frozen trust
-inventory, immutable proof/evidence formats, dependency-minimal checkers, and
-SAT replay. MH-036 will bind external Lean execution into the same provenance
-model, and MH-037 will red-team all remaining trust-tier transitions.
+**Dependencies:** MH-030 through MH-035 are done and supply the authority
+lattice, immutable proof terms, arithmetic evidence, dependency-minimal
+checkers, SAT replay, and content-addressed provenance. MH-037 will red-team the
+completed Lean boundary together with every remaining trust-tier transition.
 
 ## Next
 

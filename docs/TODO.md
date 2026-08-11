@@ -5,30 +5,33 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-016 - Make the full supported CI matrix green
+### MH-017 - Freeze the legacy compatibility corpus
 
-**Goal:** make every required ENV-002 CI job pass on its declared operating
-systems and Python versions without deleting coverage or weakening rejection.
+**Goal:** preserve representative legacy result semantics as deterministic,
+machine-checkable fixtures before the architecture is replaced.
 
-**Scope:** normalize Python-version-dependent `ast.parse` failures at one
-content-addressed expression-parser boundary, route all user expression parsers
-through it, preserve caller-specific error envelopes, and repair any remaining
-supported-matrix failures exposed by the full workflow.
+**Scope:** inventory public result envelopes and choose successful, refuted,
+unsupported, timeout, and error cases; capture canonical outputs from the
+legacy implementation; normalize only explicitly unstable metadata; add
+differential replay, mutation, schema, and provenance validation.
 
-**Contracts:** `MH-C-AST-PARSE-001`, `MH-C-DISCOVERY-PORTFOLIO-002`,
-`MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
+**Contracts:** propose and accept `MH-C-LEGACY-COMPAT-001` before corpus
+implementation; retain `MH-C-ENV-002` and `MH-C-WORKFLOW-001` as governing
+environment and contract-workflow boundaries.
 
-**Validators:** accepted contract hash/signature, deterministic malformed-input
-and NUL rejection, direct and routed Hypothesis properties, core/discovery/docs/
-solver/live/slow/release profiles, required coverage at 85 percent or higher,
-all supported OS/Python jobs, Ruff, and project status.
+**Validators:** accepted contract hash/signature, complete outcome-category
+coverage, exact source/provenance binding, allowlisted normalization only,
+deterministic replay on all supported Python/OS jobs, mutation rejection,
+unchanged 85 percent coverage floor, three consecutive clean G2 runs, Ruff,
+and project status.
 
-**Done when:** all required jobs in a clean GitHub Actions run conclude success;
-no supported Python leaks `SyntaxError`, `ValueError`, or `TypeError` from the
-shared expression boundary; no test, matrix cell, or coverage gate is removed.
+**Done when:** the committed corpus replays against the legacy architecture
+without semantic drift on every supported environment; changing a stable
+field, case input, provenance binding, or normalization rule fails closed; G2
+has passed from clean commits three consecutive times.
 
-**Dependencies:** `MH-015` (done); parser normalization contract accepted under
-the project owner's programme-wide acceptance authority.
+**Dependencies:** `MH-016` (done); compatibility contract acceptance is covered
+by the project owner's programme-wide acceptance authority.
 
 ## Next
 

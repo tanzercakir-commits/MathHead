@@ -71,3 +71,9 @@ id = "MH-C-DISCOVERY-PORTFOLIO-002"
 path = "docs/contracts/MH-C-DISCOVERY-PORTFOLIO-002.json"
 sha256 = "247534720fe49f89a9961196701cc12a954f5e95e12bd7b8b8c5a07318b3bf7b"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-LEGACY-COMPAT-001"
+path = "docs/contracts/proposed/MH-C-LEGACY-COMPAT-001.json"
+sha256 = "53a9e09b58738ccdbb596ec28fa15d989d4cba66cecd46c5c97ca8d1da1f9412"
+state = "proposed"

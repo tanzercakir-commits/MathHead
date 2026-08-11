@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Full supported CI matrix made portable and green
+
+**Task.** MH-016 (`done`).
+
+**Changed.** Centralized every untrusted expression parse behind MH-C-AST-PARSE-001, normalized Python 3.10 NUL rejection without weakening caller grammars, and made canonical discovery proof selection independent of host speed under MH-C-DISCOVERY-PORTFOLIO-002.
+
+**Learned.** CPython 3.10 raised ValueError for embedded NUL where newer interpreters raised SyntaxError; after that fix, macOS ARM alone exposed a timeout-dependent proof label in the generated discovery report. Clean GitHub runs 31496709716, 31496709637, and 31496709688 finished 26/26 product jobs, 9/9 reproducibility jobs, and 2/2 governance jobs green; coverage was 87.69 percent over 2107 tests.
+
+**Contracts.** MH-C-AST-PARSE-001=69884d482ed38e34ea0b1cd1c6d3349d2dca389704ddbd385d8e493b30886965 (docs/contracts/MH-C-AST-PARSE-001.json); MH-C-DISCOVERY-PORTFOLIO-002=247534720fe49f89a9961196701cc12a954f5e95e12bd7b8b8c5a07318b3bf7b (docs/contracts/MH-C-DISCOVERY-PORTFOLIO-002.json); MH-C-ENV-002=aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d (docs/contracts/MH-C-ENV-002.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e
+
+**Evidence.** src/mathhead/parsing.py=b0a3f36f0a3850f3be1b9b99fe18a5454949fd27bdb28969da812ea877d2ac1b; tests/parsing/test_ast_parse_contract.py=5e923d736e76dd1a9e2a38dddc4320257cdd996c5675ba3e8d6b19b283d685b3; tools/validate_ast_parse.py=fad7cfb7828417d257637e616ad18804c306b8f03f4a846e65b5eda8d512ac96; src/mathhead/discovery/arithmetic.py=0eaa02b5100fe3b5cb960beec92b29eec9f0a6f78cecfe4ebe758224dde40cd0; tests/test_discovery_portfolio_contract.py=bc3a471e914a1344be3f904e87fd4dd06fd672bfa5b0d5b33d0d82a1a84794b1; tools/validate_discovery_portfolio.py=7e3da4de228e6f186ca3658fd05a59a2c6c3c95acdf13543ebdc6df7b4dd3749; .github/workflows/ci.yml=1ba54d9d4847b7566b1058a0cc88bf9c4ffe5d98dc4a9d1ce0318859f0c58b02; docs/project-facts.json=9dbbafcf6e1eee78b1bd68d5eaf2cfe82bf1df8ddbdd60d5a2dcf600ae643190
+
+**Limitations.** The local host provides only CPython 3.14, so solver and slow profiles declared for Python 3.10 through 3.13 rely on the clean supported GitHub run. The initially accepted portfolio 001 artifact is preserved immutably and explicitly superseded by corrected 002 before implementation.
+
+**Next.** Activate MH-017 and freeze representative legacy compatibility outputs for differential migration.
+
+---
+
 ## 2026-08-11 - Generated project facts and executable docs ownership
 
 **Task.** MH-015 (`done`).

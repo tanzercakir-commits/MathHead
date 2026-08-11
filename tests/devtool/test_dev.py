@@ -18,6 +18,13 @@ ROOT = Path(__file__).resolve().parents[2]
 class DevDispatcherTests(unittest.TestCase):
     def test_repository_manifest_is_strict_and_bound(self) -> None:
         manifest = dev._load_manifest(ROOT)
+        self.assertEqual(
+            tuple(manifest["profiles"]),
+            (
+                "status", "runtime", "core", "solver", "discovery", "docs",
+                "live-mcp", "slow", "release",
+            ),
+        )
         self.assertEqual(tuple(manifest["profiles"]), dev.PROFILE_NAMES)
         self.assertEqual(manifest["contract_id"], dev.CONTRACT_ID)
         self.assertEqual(manifest["contract_sha256"], dev.CONTRACT_SHA256)
@@ -30,8 +37,53 @@ class DevDispatcherTests(unittest.TestCase):
         self.assertNotIn("solvers", " ".join(profiles["core"]["install"]))
         self.assertEqual(profiles["solver"]["install"], [".[dev,solvers]"])
         self.assertEqual(profiles["solver"]["platforms"], ["linux"])
-        self.assertEqual(profiles["docs"]["install"], [".[docs]"])
+        self.assertEqual(profiles["discovery"]["install"], [".[dev]"])
+        self.assertEqual(profiles["docs"]["install"], [".[dev,docs]"])
+        self.assertEqual(profiles["live-mcp"]["install"], [".[dev]"])
+        self.assertEqual(profiles["live-mcp"]["python"], ["3.10", "3.11", "3.12"])
+        self.assertEqual(profiles["slow"]["install"], [".[dev,solvers]"])
+        self.assertEqual(profiles["slow"]["platforms"], ["linux"])
         self.assertEqual(profiles["release"]["install"], [".[release]"])
+
+    def test_profile_marker_ownership_is_negative_and_explicit(self) -> None:
+        profiles = dev._load_manifest(ROOT)["profiles"]
+        commands = {
+            profile_name: {command["id"]: command for command in profile["commands"]}
+            for profile_name, profile in profiles.items()
+        }
+        self.assertEqual(
+            commands["core"]["core-tests"]["argv"][-1],
+            "not requires_solver and not discovery and not docs and not live_mcp and not slow",
+        )
+        self.assertEqual(
+            commands["solver"]["solver-tests"]["argv"][-1],
+            "requires_solver and not slow",
+        )
+        self.assertEqual(
+            commands["discovery"]["discovery-tests"]["argv"][-1],
+            "discovery and not requires_solver and not slow",
+        )
+        self.assertEqual(
+            commands["docs"]["docs-examples"]["argv"][-1],
+            "docs and not requires_solver and not slow",
+        )
+        self.assertEqual(
+            commands["live-mcp"]["live-mcp-tests"]["argv"][-1],
+            "live_mcp and not requires_solver and not slow",
+        )
+        self.assertEqual(commands["slow"]["slow-tests"]["argv"][-1], "slow")
+
+    def test_coverage_gate_is_separate_bounded_and_not_weakened(self) -> None:
+        profiles = dev._load_manifest(ROOT)["profiles"]
+        coverage = next(
+            command
+            for command in profiles["slow"]["commands"]
+            if command["id"] == "coverage-gate"
+        )
+        self.assertFalse(coverage["required"])
+        self.assertEqual(coverage["timeout_seconds"], 900)
+        self.assertIn("--cov=mathhead", coverage["argv"])
+        self.assertIn("--cov-fail-under=85", coverage["argv"])
 
     def test_describe_never_claims_passed(self) -> None:
         stdout = io.StringIO()

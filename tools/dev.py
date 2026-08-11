@@ -28,9 +28,19 @@ if str(_SOURCE_ROOT) not in sys.path:
 from mathhead.output import safe_print as print  # noqa: E402
 
 
-CONTRACT_ID = "MH-C-ENV-001"
-CONTRACT_SHA256 = "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87"
-PROFILE_NAMES = ("status", "runtime", "core", "solver", "docs", "release")
+CONTRACT_ID = "MH-C-ENV-002"
+CONTRACT_SHA256 = "aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d"
+PROFILE_NAMES = (
+    "status",
+    "runtime",
+    "core",
+    "solver",
+    "discovery",
+    "docs",
+    "live-mcp",
+    "slow",
+    "release",
+)
 MANIFEST_NAME = "dev_profiles.json"
 RESULT_EXIT_CODES = {
     "passed": 0,

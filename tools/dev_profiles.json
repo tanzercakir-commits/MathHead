@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "contract_id": "MH-C-ENV-001",
-  "contract_sha256": "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87",
+  "contract_id": "MH-C-ENV-002",
+  "contract_sha256": "aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d",
   "constraints": "constraints.txt",
   "bootstrap_pip": "pip==26.2.1",
   "profiles": {
@@ -50,10 +50,10 @@
       ]
     },
     "core": {
-      "purpose": "Fast dependency-minimal development gate without optional SAT backends.",
+      "purpose": "Portable dependency-minimal tests excluding solver, discovery, docs, live-MCP, and slow ownership.",
       "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
       "platforms": ["linux", "windows", "darwin"],
-      "timeout_seconds": 900,
+      "timeout_seconds": 600,
       "install": [".[dev]"],
       "required_executables": [],
       "commands": [
@@ -64,10 +64,10 @@
           "argv": ["{python}", "-m", "ruff", "check", "."]
         },
         {
-          "id": "contract-fast-tests",
+          "id": "core-tests",
           "required": true,
-          "timeout_seconds": 600,
-          "argv": ["{python}", "-m", "pytest", "-q", "tests/project_status", "tests/devtool", "tests/test_certificate.py", "tests/test_contract.py", "tests/test_contract_artifact.py", "tests/test_logic.py", "tests/test_cli.py", "tests/test_smoke.py", "tests/test_golden.py"]
+          "timeout_seconds": 480,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "not requires_solver and not discovery and not docs and not live_mcp and not slow"]
         },
         {
           "id": "core-import-boundary",
@@ -86,20 +86,14 @@
           "required": false,
           "timeout_seconds": 120,
           "argv": ["{python}", "scripts/gen_status.py", "--check"]
-        },
-        {
-          "id": "legacy-full",
-          "required": false,
-          "timeout_seconds": 900,
-          "argv": ["{python}", "-m", "pytest", "-q"]
         }
       ]
     },
     "solver": {
-      "purpose": "Linux-only full product profile with SAT solvers and nauty scale generation.",
+      "purpose": "Linux SAT and nauty capability tests excluding explicitly slow cases.",
       "python": ["3.10", "3.11", "3.12", "3.13"],
       "platforms": ["linux"],
-      "timeout_seconds": 1200,
+      "timeout_seconds": 600,
       "install": [".[dev,solvers]"],
       "required_executables": ["nauty-geng|geng"],
       "commands": [
@@ -116,26 +110,92 @@
           "argv": ["{python}", "-m", "pytest", "-q", "tests/graph_budget/test_fast_backend.py"]
         },
         {
-          "id": "solver-full-coverage",
+          "id": "solver-tests",
           "required": true,
-          "timeout_seconds": 1200,
-          "argv": ["{python}", "-m", "pytest", "-q", "--cov=mathhead", "--cov-report=term-missing"]
+          "timeout_seconds": 480,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "requires_solver and not slow"]
+        }
+      ]
+    },
+    "discovery": {
+      "purpose": "Dependency-minimal discovery and graph-budget tests without solver or slow cases.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 600,
+      "install": [".[dev]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "discovery-tests",
+          "required": true,
+          "timeout_seconds": 540,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "discovery and not requires_solver and not slow"]
+        },
+        {
+          "id": "graph-budget-contract",
+          "required": true,
+          "timeout_seconds": 60,
+          "argv": ["{python}", "tools/validate_graph_budget.py"]
         }
       ]
     },
     "docs": {
-      "purpose": "Pinned documentation toolchain and strict site build.",
+      "purpose": "Pinned documentation toolchain, executable examples, and strict site build.",
       "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
       "platforms": ["linux", "windows", "darwin"],
       "timeout_seconds": 300,
-      "install": [".[docs]"],
+      "install": [".[dev,docs]"],
       "required_executables": [],
       "commands": [
+        {
+          "id": "docs-examples",
+          "required": true,
+          "timeout_seconds": 180,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "docs and not requires_solver and not slow"]
+        },
         {
           "id": "docs-strict-build",
           "required": true,
           "timeout_seconds": 300,
           "argv": ["{python}", "-m", "mkdocs", "build", "--strict", "-q", "-d", "{temp}/site"]
+        }
+      ]
+    },
+    "live-mcp": {
+      "purpose": "Real installed subprocess-stdio MCP tests on the supported product matrix.",
+      "python": ["3.10", "3.11", "3.12"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 180,
+      "install": [".[dev]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "live-mcp-tests",
+          "required": true,
+          "timeout_seconds": 180,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "live_mcp and not requires_solver and not slow"]
+        }
+      ]
+    },
+    "slow": {
+      "purpose": "Explicitly marked expensive Linux tests plus the separately invoked coverage gate.",
+      "python": ["3.10", "3.11", "3.12", "3.13"],
+      "platforms": ["linux"],
+      "timeout_seconds": 1200,
+      "install": [".[dev,solvers]"],
+      "required_executables": ["nauty-geng|geng"],
+      "commands": [
+        {
+          "id": "slow-tests",
+          "required": true,
+          "timeout_seconds": 1200,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "slow"]
+        },
+        {
+          "id": "coverage-gate",
+          "required": false,
+          "timeout_seconds": 900,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "not requires_solver and not live_mcp and not slow", "--cov=mathhead", "--cov-report=term-missing", "--cov-fail-under=85"]
         }
       ]
     },

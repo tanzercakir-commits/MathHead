@@ -15,7 +15,7 @@ from mathhead.discovery.rup_check import (
     parse_drup,
 )
 
-pytestmark = pytest.mark.requires_solver
+pytestmark = [pytest.mark.requires_solver, pytest.mark.slow]
 pytest.importorskip("pysat.solvers", reason="pysat not installed")
 
 

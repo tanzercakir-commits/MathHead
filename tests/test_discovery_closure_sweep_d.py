@@ -313,15 +313,22 @@ def test_ag2_resource_fence_inventory_and_threat_model_cover_the_discovery_surfa
 
 def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
     ci = (_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    for job in ("trackers:", "test:", "test-solvers:", "reproducible:", "build:"):
+    for job in (
+        "trackers:", "test:", "test-discovery:", "test-docs:", "test-live-mcp:",
+        "test-solvers:", "test-slow:", "coverage:", "reproducible:", "build:",
+    ):
         assert f"\n  {job}" in ci, f"CI job missing: {job}"
     assert "os: [ubuntu-latest, macos-latest, windows-latest]" in ci     # 3-OS matrix
     assert 'python: ["3.10", "3.11", "3.12"]' in ci                      # 3-Python matrix
-    assert "check --profile core" in ci and "check --profile solver" in ci
+    for profile in ("core", "solver", "discovery", "docs", "live-mcp", "slow"):
+        assert f"check --profile {profile}" in ci
     assert "clean-smoke --profile release" in ci                         # wheel build validated
-    assert "bootstrap --profile core" in ci and "bootstrap --profile solver" in ci
-    assert "run --profile core --command legacy-full" in ci              # full legacy gate retained
+    for profile in ("core", "solver", "discovery", "docs", "live-mcp", "slow"):
+        assert f"bootstrap --profile {profile}" in ci
+    assert "run --profile slow --command coverage-gate" in ci            # coverage retained
+    assert "legacy-full" not in ci                                        # no monolithic duplicate
     assert "run --profile core --command tracker-integrity" in ci        # tracker integrity job
+    assert ci.count("actions/checkout@v7") == ci.count("fetch-depth: 0")  # baseline resolvable
     assert "pip install" not in ci and "pytest " not in ci               # no CI-only semantics
 
     rel = (_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")

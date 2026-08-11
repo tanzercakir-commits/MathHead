@@ -9,7 +9,7 @@ from mathhead.discovery.ramsey_sat import (
     ramsey_decide_case_split,
 )
 
-pytestmark = pytest.mark.requires_solver
+pytestmark = [pytest.mark.requires_solver, pytest.mark.slow]
 pytest.importorskip("pysat.solvers", reason="pysat not installed")
 
 

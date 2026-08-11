@@ -6,13 +6,14 @@ on:
     branches: [ main ]
 
 jobs:
-  # Tracker integrity — fast early signal that the frozen PLAN (103 phases / 21 tracks) is intact
-  # and SAMPLE-REPORT.md is in sync with the engine. Full enforcement is in tests/test_trackers.py.
+  # Fast governance signal. Profile semantics remain owned by tools/dev_profiles.json.
   trackers:
     name: tracker integrity (plan preserved + sample fresh)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
@@ -21,11 +22,9 @@ jobs:
       - name: Check trackers (plan not shrunk; sample fresh)
         run: python tools/dev.py run --profile core --command tracker-integrity
 
-  # Cross-platform / cross-Python matrix — CORE + dev only (no optional solvers,
-  # which have no Windows/macOS wheels). Proves the engine installs and passes
-  # everywhere the project claims to support (Python 3.10–3.12 × 3 OSes).
+  # The portable dependency-minimal product surface: 3 operating systems x 3 Pythons.
   test:
-    name: test (py${{ matrix.python }} · ${{ matrix.os }})
+    name: core (py${{ matrix.python }} · ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -34,6 +33,8 @@ jobs:
         python: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
@@ -41,16 +42,64 @@ jobs:
         run: python tools/dev.py bootstrap --profile core --current
       - name: Check portable core profile
         run: python tools/dev.py check --profile core
-      - name: Run the explicitly auxiliary legacy full suite
-        run: python tools/dev.py run --profile core --command legacy-full
 
-  # Linux job WITH the optional high-performance backend — exercises the J3 pysat
-  # path (skipped elsewhere) and enforces the coverage gate on the full surface.
-  test-solvers:
-    name: test + optional solvers + coverage (ubuntu · py3.11)
+  test-discovery:
+    name: discovery (ubuntu · py3.11)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Bootstrap discovery profile
+        run: python tools/dev.py bootstrap --profile discovery --current
+      - name: Check dependency-minimal discovery profile
+        run: python tools/dev.py check --profile discovery
+
+  test-docs:
+    name: docs examples + strict build (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Bootstrap docs profile
+        run: python tools/dev.py bootstrap --profile docs --current
+      - name: Check executable docs and strict build
+        run: python tools/dev.py check --profile docs
+
+  test-live-mcp:
+    name: live MCP (py${{ matrix.python }} · ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Bootstrap live MCP profile
+        run: python tools/dev.py bootstrap --profile live-mcp --current
+      - name: Check real subprocess-stdio MCP profile
+        run: python tools/dev.py check --profile live-mcp
+
+  test-solvers:
+    name: solver (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
@@ -58,31 +107,65 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nauty
       - name: Bootstrap solver profile
         run: python tools/dev.py bootstrap --profile solver --current
-      - name: Check the bounded graph fast backend
-        run: python tools/dev.py run --profile solver --command graph-budget-fast-backend
-      - name: Test solver profile with coverage gate
+      - name: Check bounded solver profile
         run: python tools/dev.py check --profile solver
 
-  # Reproducibility check — install the exact tested backend set (constraints.txt).
+  test-slow:
+    name: explicitly slow (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the system scale generator
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap slow profile
+        run: python tools/dev.py bootstrap --profile slow --current
+      - name: Check explicitly marked slow profile
+        run: python tools/dev.py check --profile slow
+
+  coverage:
+    name: coverage ≥85% (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the declared slow-profile system capability
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap coverage owner profile
+        run: python tools/dev.py bootstrap --profile slow --current
+      - name: Run the required bounded coverage gate
+        run: python tools/dev.py run --profile slow --command coverage-gate
+
   reproducible:
     name: reproducible install (constraints.txt)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Bootstrap the constrained core profile
         run: python tools/dev.py bootstrap --profile core --current
-      - name: Run the constrained legacy full suite
-        run: python tools/dev.py run --profile core --command legacy-full
+      - name: Check the constrained core profile
+        run: python tools/dev.py check --profile core
 
-  # Package build + install-from-wheel + CLI/MCP smoke (the real product surface).
   build:
     name: build + install-from-wheel + smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"

@@ -5,6 +5,50 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Portable live MCP semantics verified across supported hosts
+
+**Task.** MH-013 (`done`).
+
+**Changed.** Bound live test selection to accepted MH-C-LIVE-MCP-001, proved stdio capability with an independent fixed child, allowed skips only for explicit OS denials, kept every server and protocol defect red, and added bounded terminate-kill-wait-stream cleanup.
+
+**Learned.** GitHub run 31488731351 jobs 93769993963 (macOS 3.11), 93769993976 (Ubuntu 3.11), and 93769993905 (Windows 3.12) each completed with 2,082 passing and 22 skipped tests. Relative to the prior suite, the nine new contract tests passed and only the three deliberately backend-gated real-geng tests were added to skips, proving all five live MCP assertions executed rather than skipped.
+
+**Contracts.** MH-C-LIVE-MCP-001=3d43a67a5d7732eca8aab19e4326abed42e12c4836942d2301e24e4ae2f65143 (docs/contracts/MH-C-LIVE-MCP-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-affd66a226354fa8ebd14da134061139ec204ac944aff9bc0bf8958db3eecb09; reconstruction-plan=passed/exit-0/output-33d28b548fc5dc6ec67f83247ce1954ae62de6a2d106a0461bd0737f15928981; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-534f70123265827d7ec95d4d80095b3bef9666812cecec8c84a6dbbb2bb45e37; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-55b5802b273d56ed40f6f3f890e9e7f948f859c1e42897e2be4ee823516ba779; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-51f85123db48543345fbdac4843f2cc4d991172277b12aa8d709c144559d613c; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312
+
+**Evidence.** docs/contracts/MH-C-LIVE-MCP-001.json=3d43a67a5d7732eca8aab19e4326abed42e12c4836942d2301e24e4ae2f65143; src/mathhead/server/live.py=983cd93b2917bb5b6b17828ce90dc735914583d24a339eb8c63e84772dd73168; tests/live_mcp/test_live_mcp_contract.py=d554bc42fd6a727aa7fb0e7650beb5928c0151aca9396dda2fd0eba44aebb44a; tests/test_mcp_live.py=2492cdeebedb9afb8e137b5017e464fb566728477f8ccab52e6781ddfacceea0; tools/validate_live_mcp.py=c827a339cddd88dd2d66d651a13a9cde590de532dc850de6339c0ece481775c9; docs/mcp-api.md=1516b078e7cac530dc805c36f94e8eaef3723f18647dbab21635a8d0196e938b
+
+**Limitations.** The only local interpreter is CPython 3.14, where MCP 1.x starts the server but stalls during handshake; the independent probe reports supported and the application test remains red rather than being mislabeled unsupported. Supported CI Python 3.10-3.12 is green for the live assertions; interpreter claim alignment belongs to MH-014 and MH-015.
+
+**Next.** Activate MH-014, supersede the environment contract, split core, solver, discovery, docs, live-mcp, slow, and release profiles, and preserve coverage as an explicit bounded gate.
+
+---
+
+## 2026-08-11 - Finite graph enumeration bounded and independently verified
+
+**Task.** MH-011 (`done`).
+
+**Changed.** Bounded pure graph search to order 6 and 2,000 objects, bounded nauty search to order 8 and 20,000 objects, refused unsafe requests before enumeration, made scans incremental and first-witness stopping, bounded geng subprocesses, and added real fast-backend CI evidence.
+
+**Learned.** GitHub CI run 31488731351 job 93769993769 completed the dedicated real-nauty graph-budget step successfully after solver bootstrap. The prior cross-platform run 31486792484 completed core legacy-full on Linux, Windows, and macOS in roughly two to three minutes without the former graph timeout.
+
+**Contracts.** MH-C-GRAPH-BUDGET-001=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794 (docs/contracts/MH-C-GRAPH-BUDGET-001.json); MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md)
+
+**Validator profile.** status.
+
+**Validators.** project-status-unit-tests=passed/exit-0/output-ae625f9cbe04a6b1f6c6f001f3f57776ebfb3c7c1485391cf6bb20e2a95ac982; reconstruction-plan=passed/exit-0/output-3d49650537d551b9ee8a5c7d59991b71238d12aab5e316a78eac065a8452112f; adoption-idempotence=passed/exit-0/output-b1438d61c0cb83f92cb3d7bcd6599896638a5e7292551d5570faaffae4196bdc; task-aware-status-contract=passed/exit-0/output-2edc2b69e0fd5ec0dc44a4b303f3ffc05aa4025db78fe17a9436fa636f72f83e; legacy-index=passed/exit-0/output-d5278694b6bdc968cb46849b59fda229c69ba51347373475ff44ec1514f9f083; reconstruction-adrs=passed/exit-0/output-25c13053a243d31dcda50ce73cffacd0981d46eef52b3273cc3bf6c06ccee6dd; contract-manifest=passed/exit-0/output-55b5802b273d56ed40f6f3f890e9e7f948f859c1e42897e2be4ee823516ba779; dev-environment-contract=passed/exit-0/output-a3fb6217e4522c482532a0d520f4821cd78f528c4b27f83fa0fa4d9a656db5e6; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-51f85123db48543345fbdac4843f2cc4d991172277b12aa8d709c144559d613c; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312
+
+**Evidence.** docs/contracts/MH-C-GRAPH-BUDGET-001.json=3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794; src/mathhead/discovery/product.py=d9098f1082af22f1d65e2e440aa2c815c3daad8003c4bcfad74f98532bfc911a; src/mathhead/discovery/formalize.py=033ae47cc116a83dc2baaf03090bf6b61947b5e5926e1da3422919758f0f4aac; src/mathhead/discovery/nauty_scale.py=988c6030ae525608bcff2388d6954d3e4194a1a8acacc548ea44e9e11abf6c3f; tests/graph_budget/test_graph_budget.py=3fbc911028bffe564805c87ace8a29cbeb26fda545537b44a10e1f0a49992ba5; tests/graph_budget/test_fast_backend.py=d05d7e9fb3a30d6ae4a3f1c7ef848f707c991f22960eb896ea62a43356a7593e; tools/validate_graph_budget.py=3d77f7f3333905c838630555415f3573246aeafc30139f7b0a27f3a3c03b9f7e; tools/dev_profiles.json=1c7bfede267921f5b90fe1123e3f9cab9d807e0083ccf3bb0bcfd26dac865418; .github/workflows/ci.yml=e42fcff4ac3b73931562570fc923f8fa757c56511ad5a2a2ef6e1f4282c62442
+
+**Limitations.** The all-tests solver coverage command remains a separate monolithic 1,200-second gate and is assigned to MH-014 profile splitting; the dedicated capability and real-nauty graph-budget steps are independently green and no graph completion claim relies on that oversized aggregate.
+
+**Next.** Finish MH-013 on the supported live-MCP matrix, then split the oversized test profiles under MH-014 without deleting coverage.
+
+---
+
 ## 2026-08-11 - Accepted live MCP semantics implemented pending supported CI
 
 **Task.** MH-013 (`partial`).

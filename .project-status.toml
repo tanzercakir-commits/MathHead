@@ -58,7 +58,7 @@ timeout_seconds = 30
 name = "dev-environment-contract"
 command = "python tools/validate_dev_environment.py"
 profiles = ["status", "fast"]
-tasks = ["MH-003"]
+tasks = ["MH-003", "MH-014"]
 timeout_seconds = 180
 
 [[checks]]

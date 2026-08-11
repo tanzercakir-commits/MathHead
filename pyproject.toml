@@ -83,7 +83,10 @@ testpaths = ["tests"]
 timeout = 30            # no test may exceed 30 s (non-determinism/hang guardrail)
 markers = [
     "requires_solver: requires the solvers extra and, where applicable, nauty/geng",
+    "discovery: belongs to the dependency-minimal discovery or graph-budget surface",
+    "docs: executable documentation contract or example",
     "live_mcp: starts the installed MathHead MCP server over real subprocess stdio",
+    "slow: explicitly reviewed expensive test owned by the bounded slow profile",
 ]
 
 [tool.coverage.run]
@@ -93,7 +96,7 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
-fail_under = 85          # coverage gate (L1). Run in the Linux+solvers CI job (full surface).
+fail_under = 85          # Required CI-owned coverage gate; ENV-002 forbids lowering or deletion.
 
 [tool.ruff]
 line-length = 100

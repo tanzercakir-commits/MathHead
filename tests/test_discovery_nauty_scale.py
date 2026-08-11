@@ -12,6 +12,7 @@ from mathhead.discovery.nauty_scale import (
 
 pytestmark = [
     pytest.mark.requires_solver,
+    pytest.mark.slow,
     pytest.mark.skipif(not geng_available(), reason="nauty/geng not installed"),
 ]
 

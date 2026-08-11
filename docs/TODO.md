@@ -5,44 +5,27 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-011 - Bound finite graph enumeration defaults
+### MH-014 - Split test profiles
 
-**Goal:** replace unsafe finite-graph defaults with explicit bounded behavior.
+**Goal:** replace the monolithic test command with explicit, bounded ownership
+for every supported product and governance gate.
 
-**Scope:** pure-Python limits, fast-backend selection, resource budgets,
-truncation/refusal semantics, and product/CLI regression tests.
+**Scope:** status/runtime helpers plus core, solver, discovery, docs, live-mcp,
+slow, and release profiles; dependencies, markers, platform/Python support,
+timeouts, coverage preservation, CI routing, and full-history baseline replay.
 
-**Contracts:** `MH-C-GRAPH-BUDGET-001`, `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
 
-**Validators:** graph budget unit, timeout, negative, CLI, and legacy
-differential checks plus the relevant product profile.
+**Validators:** profile schema and ownership, dependency isolation, negative
+marker selection, per-profile budgets, unchanged coverage floor, full-history
+baseline replay, CI dispatcher ownership, and supported-platform checks.
 
-**Done when:** the default path cannot enumerate an unsafe search silently and
-larger requests require a declared fast capability or return an honest result.
+**Done when:** every test belongs to an explicit profile, fast jobs no longer
+run an auxiliary monolithic full suite, solver/live/slow work is isolated, and
+coverage remains a required bounded CI gate at 85 percent or higher.
 
-**Dependencies:** `MH-003` (done), `MH-004` (done); graph-budget contract
-accepted under the project owner's programme-wide acceptance authority.
-
-### MH-013 - Define portable live MCP test semantics
-
-**Goal:** separate real MCP application defects from independently proven host
-stdio-pipe restrictions without weakening the live integration gate.
-
-**Scope:** dependency-independent capability probing, strict skip
-classification, real stdio handshake/tool assertions, bounded deadlines, and
-deterministic subprocess/stream cleanup.
-
-**Contracts:** `MH-C-LIVE-MCP-001`, `MH-C-WORKFLOW-001`.
-
-**Validators:** live-MCP contract unit, negative classification, timeout,
-cleanup, real stdio integration, Windows/Linux/macOS, and status checks.
-
-**Done when:** only an allow-listed failure of the independent pipe probe can
-skip live MCP tests; application and cleanup defects fail closed, all children
-are reaped, and supported CI hosts execute the real assertions.
-
-**Dependencies:** `MH-003` (done), `MH-010` (done), `MH-012` (done); live-MCP
-contract accepted under the project owner's programme-wide acceptance authority.
+**Dependencies:** `MH-003` (done), `MH-010` through `MH-013` (done); environment
+v2 accepted under the project owner's programme-wide acceptance authority.
 
 ## Next
 

@@ -254,7 +254,9 @@ def _validator_references(root: Path, command: str) -> list[str]:
 
 
 def validate_contract_payload(data: dict[str, Any], spec: ContractSpec, root: Path) -> None:
-    _translate(spec.contract_id, lambda: artifacts.validate_contract(data, expected_id=spec.contract_id))
+    _translate(
+        spec.contract_id, lambda: artifacts.validate_contract(data, expected_id=spec.contract_id)
+    )
     _translate(spec.contract_id, lambda: artifacts._assert_decidable_consistency(data))  # noqa: SLF001
     if data["target"] != spec.target:
         _fail("target", spec.contract_id, "accepted target drift")
@@ -301,8 +303,7 @@ def _validate_acceptance_reports(root: Path, spec: ContractSpec) -> None:
         acceptance.get("operation") != "accept"
         or acceptance.get("status") != "accepted"
         or acceptance_contract != {"id": spec.contract_id, "sha256": spec.sha256}
-        or acceptance.get("proposal")
-        != f"docs/contracts/proposed/{spec.contract_id}.json"
+        or acceptance.get("proposal") != f"docs/contracts/proposed/{spec.contract_id}.json"
         or acceptance.get("accepted_artifact") != f"docs/contracts/{spec.contract_id}.json"
     ):
         _fail("acceptance", spec.contract_id, "acceptance report binding drift")
@@ -473,12 +474,14 @@ def _validate_schema_document(root: Path, spec: ContractSpec) -> dict[str, Any]:
 def _expect_validation_failure(label: str, action: Callable[[], Any]) -> None:
     try:
         action()
-    except (problem_ir.ProblemIRValidationError,
-            theory_context.TheoryContextValidationError,
-            resource_budget.ResourceBudgetValidationError,
-            engine_result.EngineResultValidationError,
-            evidence_certificate.EvidenceCertificateValidationError,
-            theory_plugin.TheoryPluginValidationError):
+    except (
+        problem_ir.ProblemIRValidationError,
+        theory_context.TheoryContextValidationError,
+        resource_budget.ResourceBudgetValidationError,
+        engine_result.EngineResultValidationError,
+        evidence_certificate.EvidenceCertificateValidationError,
+        theory_plugin.TheoryPluginValidationError,
+    ):
         return
     _fail("negative-probe", label, "mutation was accepted")
 
@@ -646,7 +649,8 @@ def _run_negative_probes(root: Path) -> list[dict[str, Any]]:
         "unsatisfiable",
         "contract-contradiction",
         lambda: _translate(
-            "contradiction", lambda: artifacts._assert_decidable_consistency(contradiction)  # noqa: SLF001
+            "contradiction",
+            lambda: artifacts._assert_decidable_consistency(contradiction),  # noqa: SLF001
         ),
     )
     missing_validator = copy.deepcopy(sample)
@@ -793,10 +797,24 @@ def build_report(root: Path = ROOT, *, run_validators: bool = True) -> dict[str,
     ):
         _fail("workflow", "tools/contract_artifacts.py", "workflow/tool identity drift")
 
-    records, manifest_raw = _translate(
-        str(MANIFEST_PATH), lambda: artifacts._manifest(root)  # noqa: SLF001
+    records, _manifest_raw = _translate(
+        str(MANIFEST_PATH),
+        lambda: artifacts._manifest(root),  # noqa: SLF001
     )
     by_id = {record["id"]: record for record in records}
+    try:
+        p2_cutoff = next(
+            index
+            for index, record in enumerate(records)
+            if record["id"] == CONTRACTS[-1].contract_id
+        )
+    except StopIteration:
+        _fail("manifest", CONTRACTS[-1].contract_id, "P2 manifest cutoff is missing")
+    # The conformance report is immutable P2 evidence. Later phase contracts are
+    # append-only manifest records and must not rewrite MH-027 or the MH-028 bundle
+    # that binds it. Any insertion, removal, or drift inside the P2 prefix still
+    # changes this projection and fails byte-exact report comparison.
+    manifest_raw = artifacts._render_manifest(records[: p2_cutoff + 1])  # noqa: SLF001
     entries: list[dict[str, Any]] = []
     schema_probes: list[dict[str, Any]] = []
     for spec in CONTRACTS:
@@ -918,7 +936,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             _write_report(path, report)
             print(f"contract-conformance: report updated: {path}")
         elif args.check_report is not None:
-            path = args.check_report if args.check_report.is_absolute() else args.root / args.check_report
+            path = (
+                args.check_report
+                if args.check_report.is_absolute()
+                else args.root / args.check_report
+            )
             if path.read_bytes() != payload:
                 _fail("report", str(path), "deterministic report drift")
             print(f"contract-conformance: report current: {path}")

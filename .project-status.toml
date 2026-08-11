@@ -207,3 +207,17 @@ command = "python tools/validate_reference_fixtures.py"
 profiles = ["status", "fast"]
 tasks = ["MH-028"]
 timeout_seconds = 120
+
+[[checks]]
+name = "trust-base-tests"
+command = "python -m unittest discover -s tests/trust_base -v"
+profiles = ["status", "fast"]
+tasks = ["MH-030"]
+timeout_seconds = 180
+
+[[checks]]
+name = "trust-base-inventory"
+command = "python tools/validate_trust_base.py"
+profiles = ["status", "fast"]
+tasks = ["MH-030"]
+timeout_seconds = 120

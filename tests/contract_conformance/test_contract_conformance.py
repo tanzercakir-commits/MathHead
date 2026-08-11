@@ -31,7 +31,9 @@ class ContractConformanceTests(unittest.TestCase):
     def load_contract(self, contract_id: str) -> dict[str, object]:
         return json.loads((ROOT / f"docs/contracts/{contract_id}.json").read_text())
 
-    def synthetic_root(self) -> tuple[tempfile.TemporaryDirectory[str], Path, dict[str, object], str]:
+    def synthetic_root(
+        self,
+    ) -> tuple[tempfile.TemporaryDirectory[str], Path, dict[str, object], str]:
         temporary = tempfile.TemporaryDirectory(prefix="mathhead-binding-test-")
         root = Path(temporary.name)
         source_path = root / "src/mathhead/synthetic.py"
@@ -52,6 +54,30 @@ class ContractConformanceTests(unittest.TestCase):
         self.assertEqual(len(first["negative_probes"]), 10)
         self.assertEqual(len(first["validators"]), 7)
         self.assertEqual({item["status"] for item in first["validators"]}, {"not_run"})
+        self.assertEqual(
+            first["manifest"]["sha256"],
+            "3921af074b4ebe8ddf483f1e46e7d10ee87c315582f3fe50e736883d62c8579d",
+        )
+
+    def test_later_phase_contracts_do_not_rewrite_p2_evidence(self) -> None:
+        root = self.copy_root()
+        before = conformance.build_report(root, run_validators=False)
+        records, _raw = artifacts._manifest(root)  # noqa: SLF001
+        later = root / "docs/contracts/MH-C-LATER-PHASE-999.json"
+        later.write_bytes(b"{}\n")
+        records.append(
+            {
+                "id": "MH-C-LATER-PHASE-999",
+                "path": "docs/contracts/MH-C-LATER-PHASE-999.json",
+                "sha256": hashlib.sha256(later.read_bytes()).hexdigest(),
+                "state": "accepted",
+            }
+        )
+        (root / conformance.MANIFEST_PATH).write_bytes(
+            artifacts._render_manifest(records)  # noqa: SLF001
+        )
+        after = conformance.build_report(root, run_validators=False)
+        self.assertEqual(before, after)
 
     def test_cli_writes_and_checks_the_same_report(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathhead-report-test-") as directory:
@@ -299,9 +325,7 @@ class ContractConformanceTests(unittest.TestCase):
 
     def test_future_targets_are_not_misreported_as_implemented(self) -> None:
         report = conformance.build_report(ROOT, run_validators=False)
-        bindings = {
-            item["contract_id"]: item["binding"]["status"] for item in report["contracts"]
-        }
+        bindings = {item["contract_id"]: item["binding"]["status"] for item in report["contracts"]}
         self.assertEqual(bindings["MH-C-CONTRACT-ARTIFACTS-002"], "passed")
         self.assertEqual(set(bindings.values()), {"passed", "not_implemented"})
 

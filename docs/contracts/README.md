@@ -77,6 +77,13 @@ before the critical implementation that they govern.
   binds `schemas/theory-plugin-v1.schema.json`, depends on the six accepted
   foundation contracts, and is accepted at SHA-256
   `2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8`.
+- `MH-C-TRUST-BASE-001.json` governs the complete static trusted-computing-base
+  inventory, authority and role separation, import and effect ownership,
+  deterministic entry-point closures, P3 migration ownership, and the closed
+  dependency-minimal checker target. It binds
+  `../trust/trust-base-v1.schema.json` and is accepted under the project
+  owner's programme-wide authority at SHA-256
+  `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 
 ## Repository command
 
@@ -133,6 +140,21 @@ python -m unittest discover -s tests/reference_fixtures -v
 
 See `docs/fixtures/README.md` for the stable bundle identity, regeneration
 command, object-store layout, and non-promotion rules.
+
+## Trusted computing base
+
+The MH-030 inventory and its deterministic static import report are under
+`docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
+all 117 source modules, 32 import roots, 24 trust surfaces, seven entry-point
+closures, effect boundaries, migrations, and minimal-kernel budget with:
+
+```bash
+python tools/validate_trust_base.py
+python -m unittest discover -s tests/trust_base -v
+```
+
+See `docs/trust/README.md` for current authority boundaries and the MH-031
+through MH-037 minimization map.
 
 ## Proposed contracts
 

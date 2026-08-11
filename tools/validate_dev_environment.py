@@ -165,6 +165,7 @@ def _validate_profile_ownership(root: Path, manifest: dict) -> None:
         raise DevEnvironmentValidationError("slow ownership inferred by collection hook")
     slow_sources = (
         "tests/test_discovery_nauty_scale.py",
+        "tests/test_discovery_program_search.py",
         "tests/test_discovery_ramsey_sat.py",
         "tests/test_discovery_rup_check.py",
     )

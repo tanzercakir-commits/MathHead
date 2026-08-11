@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import reduce
 from math import gcd
+from typing import Callable
 
 from .checker import check_proof
 from .congruence import crt_chain_is_derivable, residue_is_derivable
@@ -27,6 +28,12 @@ from .kernel import KernelError, _factor_prime_powers, poly_from_sympy, prove_di
 from .proof_tree import proof_tree
 from .provenance import axioms_used, proof_hash
 from .strategy import prove_by_residues, prove_modular_divisibility
+
+
+DISCOVERY_PORTFOLIO_CONTRACT_ID = "MH-C-DISCOVERY-PORTFOLIO-002"
+DISCOVERY_PORTFOLIO_CONTRACT_SHA256 = \
+    "247534720fe49f89a9961196701cc12a954f5e95e12bd7b8b8c5a07318b3bf7b"
+_MAX_INDUCTION_FIRST_DEGREE = 3
 
 
 # ------------------------------ polynomial family -------------------------- #
@@ -91,20 +98,32 @@ def first_counterexample(fn, m: int, upto: int):
     return next((n for n in range(upto + 1) if m and fn(n) % m != 0), None)
 
 
-def discover_and_prove(expr: str, fn, check_upto: int = 60, judge_timeout_ms: int = 2500):
-    """Discover the modulus, refute counterexample-first, then let MathHead judge the survivor via
-    the modulus-factoring strategy (a prime modulus reduces to a single induction; a composite one
-    factors + CRT). `judge_timeout_ms` bounds each induction — generous enough that the provable
-    prime parts prove reliably, and the unprovable ones return an honest `unknown`."""
+def discover_and_prove(
+    expr: str,
+    fn: Callable[[int], int],
+    check_upto: int = 60,
+    judge_timeout_ms: int = 2500,
+) -> ArithmeticFinding:
+    """Discover, refute first, then select a deterministic complete proof path.
+
+    Low-degree polynomials retain the legacy induction/CRT-first portfolio.
+    Higher-degree polynomials go directly to finite residue exhaustion so host
+    speed cannot change the proof label or the generated report.
+    """
     m = discovered_modulus(fn)
     ce = first_counterexample(fn, m, check_upto)
     claim = f"({expr}) % {m} == 0"
     if ce is not None:                                  # (shouldn't happen for a gcd modulus)
         return ArithmeticFinding(expr, m, claim, "refuted", "refuted", "unknown", check_upto)
-    v = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)
-    method = "modulus-factoring" if len(v.detail.get("prime_powers", [m])) > 1 else "induction"
-    if v.status != "proved":                            # complete fallback: exhaustive residue proof
+    degree = len(poly_from_sympy(expr)) - 1
+    if degree > _MAX_INDUCTION_FIRST_DEGREE:
         v, method = prove_by_residues(fn, m), "residue-exhaustion"
+    else:
+        v = prove_modular_divisibility(expr, m, timeout_ms=judge_timeout_ms)
+        method = "modulus-factoring" if len(v.detail.get("prime_powers", [m])) > 1 \
+            else "induction"
+        if v.status != "proved":                        # complete deterministic fallback
+            v, method = prove_by_residues(fn, m), "residue-exhaustion"
     finding = ArithmeticFinding(
         expr, m, claim, "no_counterexample_within_bound", v.status, v.certainty, check_upto, method)
     if v.status == "proved":                            # don't trust the prover — check the proof

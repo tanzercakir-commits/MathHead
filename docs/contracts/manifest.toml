@@ -59,3 +59,15 @@ id = "MH-C-AST-PARSE-001"
 path = "docs/contracts/MH-C-AST-PARSE-001.json"
 sha256 = "69884d482ed38e34ea0b1cd1c6d3349d2dca389704ddbd385d8e493b30886965"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-DISCOVERY-PORTFOLIO-001"
+path = "docs/contracts/MH-C-DISCOVERY-PORTFOLIO-001.json"
+sha256 = "aa0fbda6f0ba42c8f154ffc21a6a35eb7386f53e47be40326e5d49e3bc5be223"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-DISCOVERY-PORTFOLIO-002"
+path = "docs/contracts/MH-C-DISCOVERY-PORTFOLIO-002.json"
+sha256 = "247534720fe49f89a9961196701cc12a954f5e95e12bd7b8b8c5a07318b3bf7b"
+state = "accepted"

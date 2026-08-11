@@ -15,7 +15,8 @@ content-addressed expression-parser boundary, route all user expression parsers
 through it, preserve caller-specific error envelopes, and repair any remaining
 supported-matrix failures exposed by the full workflow.
 
-**Contracts:** `MH-C-AST-PARSE-001`, `MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-AST-PARSE-001`, `MH-C-DISCOVERY-PORTFOLIO-002`,
+`MH-C-ENV-002`, `MH-C-WORKFLOW-001`.
 
 **Validators:** accepted contract hash/signature, deterministic malformed-input
 and NUL rejection, direct and routed Hypothesis properties, core/discovery/docs/

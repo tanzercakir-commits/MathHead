@@ -18,14 +18,21 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from mathhead.kernel.checkers import (  # noqa: E402
+    BezoutWitness,
+    CRTEvidence,
     CheckerResult,
     CheckerResultValidationError,
     DividesStatement,
     KERNEL_CHECKER_CONTRACT_ID,
     KERNEL_CHECKER_CONTRACT_SHA256,
-    MAX_CHECK_STEPS,
+    MAX_RESIDUE_CLASSES,
     MAX_RESULT_INPUT_BYTES,
+    PolynomialIdentityEvidence,
     PolynomialIdentityStatement,
+    ProductStep,
+    ResidueEvaluation,
+    ResidueEvidence,
+    SumInductionEvidence,
     SumIdentityStatement,
     check_proof_term,
     checker_result_sha256,
@@ -79,6 +86,8 @@ class KernelCheckerTests(unittest.TestCase):
             self.assertEqual(result.authority, "checker_attestation")
             self.assertTrue(result.exact)
             self.assertIs(type(result.statement), statement_type)
+            self.assertIsNotNone(result.evidence)
+            self.assertEqual(len(result.evidence_sha256 or ""), 64)
             self.assertEqual(parse_checker_result(checker_result_to_bytes(result)), result)
 
     def test_crt_derives_product_and_requires_one_polynomial(self) -> None:
@@ -115,10 +124,12 @@ class KernelCheckerTests(unittest.TestCase):
             self.assertEqual((result.verdict, result.reason_code), ("invalid", reason))
             self.assertEqual(result.authority, "none")
             self.assertIsNone(result.statement)
+            self.assertIsNone(result.evidence)
+            self.assertIsNone(result.evidence_sha256)
             self.assertIsNotNone(result.proof_term_sha256)
 
     def test_deterministic_budget_refuses_before_large_residue_loop(self) -> None:
-        term = residue(MAX_CHECK_STEPS + 1, (0,))
+        term = residue(MAX_RESIDUE_CLASSES + 1, (0,))
         result = check_proof_term(term)
         self.assertEqual((result.verdict, result.reason_code), ("exhausted", "BUDGET_EXHAUSTED"))
         self.assertEqual(result.steps, 0)
@@ -139,6 +150,7 @@ class KernelCheckerTests(unittest.TestCase):
             self.assertEqual(result.authority, "none")
             self.assertIsNone(result.proof_term)
             self.assertIsNone(result.statement)
+            self.assertIsNone(result.evidence)
 
     def test_legacy_theorem_cannot_cross_new_checker_boundary(self) -> None:
         forged = object.__new__(Theorem)
@@ -154,6 +166,13 @@ class KernelCheckerTests(unittest.TestCase):
             DividesStatement,
             SumIdentityStatement,
             PolynomialIdentityStatement,
+            ResidueEvaluation,
+            ResidueEvidence,
+            BezoutWitness,
+            ProductStep,
+            CRTEvidence,
+            SumInductionEvidence,
+            PolynomialIdentityEvidence,
         ):
             with self.assertRaises(PermissionError):
                 cls()  # type: ignore[call-arg]
@@ -173,7 +192,7 @@ class KernelCheckerTests(unittest.TestCase):
             validate_checker_result(empty)
         result = check_proof_term(residue(2, self.poly))
         object.__setattr__(result, "authority", "none")
-        with self.assertRaisesRegex(CheckerResultValidationError, "recomputation"):
+        with self.assertRaisesRegex(CheckerResultValidationError, "evidence|recomputation"):
             validate_checker_result(result)
 
     def test_statement_injection_cannot_survive_result_validation(self) -> None:
@@ -189,7 +208,7 @@ class KernelCheckerTests(unittest.TestCase):
         results = (
             check_proof_term(residue(2, self.poly)),
             check_proof_term(residue(2, (1,))),
-            check_proof_term(residue(MAX_CHECK_STEPS + 1, (0,))),
+            check_proof_term(residue(MAX_RESIDUE_CLASSES + 1, (0,))),
             check_proof_term(object()),
         )
         for result in results:
@@ -252,10 +271,10 @@ class KernelCheckerTests(unittest.TestCase):
 
     def test_contract_and_proof_term_identities_are_exact(self) -> None:
         result = check_proof_term(residue(2, self.poly))
-        self.assertEqual(KERNEL_CHECKER_CONTRACT_ID, "MH-C-KERNEL-CHECKER-001")
+        self.assertEqual(KERNEL_CHECKER_CONTRACT_ID, "MH-C-KERNEL-CHECKER-002")
         self.assertEqual(
             KERNEL_CHECKER_CONTRACT_SHA256,
-            "78293c5a2e8845377e8bd704398c7a0058afcea74017dffbc2a18daac97ecff7",
+            "1baf3b44734369fdb298609ad0230062686697a7198401d6fc53f161c70a678e",
         )
         self.assertEqual(result.checker_contract_sha256, KERNEL_CHECKER_CONTRACT_SHA256)
         self.assertEqual(
@@ -265,7 +284,7 @@ class KernelCheckerTests(unittest.TestCase):
 
     def test_schema_is_closed_and_accepts_all_canonical_verdicts(self) -> None:
         schema = json.loads(
-            (ROOT / "docs/contracts/schemas/kernel-checker-result-v1.schema.json").read_text()
+            (ROOT / "docs/contracts/schemas/kernel-checker-result-v2.schema.json").read_text()
         )
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(
@@ -280,7 +299,7 @@ class KernelCheckerTests(unittest.TestCase):
         for result in (
             check_proof_term(residue(2, self.poly)),
             check_proof_term(residue(2, (1,))),
-            check_proof_term(residue(MAX_CHECK_STEPS + 1, (0,))),
+            check_proof_term(residue(MAX_RESIDUE_CLASSES + 1, (0,))),
             check_proof_term(object()),
         ):
             validator.validate(json.loads(checker_result_to_bytes(result)))

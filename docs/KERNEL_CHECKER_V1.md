@@ -1,5 +1,10 @@
 # Dependency-minimal kernel checker v1
 
+> Historical format: MH-033 superseded this contract with
+> `MH-C-KERNEL-CHECKER-002`. Current verified results use the explicit
+> arithmetic-evidence v2 format documented in `KERNEL_CHECKER_V2.md`; v1 wire
+> bytes are intentionally refused rather than upgraded.
+
 MH-032 introduces the only boundary that can issue the immutable
 `checker_attestation` used by the new kernel model. It is governed by accepted
 contract `MH-C-KERNEL-CHECKER-001` at SHA-256

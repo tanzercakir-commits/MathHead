@@ -1,5 +1,6 @@
 # Dependency-minimal kernel checker tests
 
-This directory is reserved by `MH-C-KERNEL-CHECKER-001`. Its executable
-positive, negative, forgery, budget, canonical-wire, and import-boundary tests
-are installed only after the exact checker contract bytes are accepted.
+This directory covers the historical `MH-C-KERNEL-CHECKER-001` boundary and
+current `MH-C-KERNEL-CHECKER-002` explicit-arithmetic evidence boundary. Its
+executable positive, negative, evidence-replay, forgery, budget,
+canonical-wire, legacy-migration, and import-boundary tests fail closed.

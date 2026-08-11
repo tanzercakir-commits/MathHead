@@ -12,9 +12,27 @@ from dataclasses import dataclass
 from fractions import Fraction
 import hashlib
 import json
-from math import comb, gcd
+from math import comb
 from typing import Any, NoReturn
 
+from mathhead.kernel.arithmetic_evidence import (
+    ArithmeticEvidence,
+    BezoutWitness,
+    CRTEvidence,
+    DivisibilityEvidence,
+    PolynomialIdentityEvidence,
+    ProductStep,
+    ResidueEvaluation,
+    ResidueEvidence,
+    SumInductionEvidence,
+    _new_bezout_witness,
+    _new_crt_evidence,
+    _new_polynomial_identity_evidence,
+    _new_product_step,
+    _new_residue_evaluation,
+    _new_residue_evidence,
+    _new_sum_evidence,
+)
 from mathhead.kernel.proof_terms import (
     CRTTerm,
     PROOF_TERM_CONTRACT_ID,
@@ -31,14 +49,16 @@ from mathhead.kernel.proof_terms import (
 )
 
 
-KERNEL_CHECKER_CONTRACT_ID = "MH-C-KERNEL-CHECKER-001"
-KERNEL_CHECKER_CONTRACT_SHA256 = "78293c5a2e8845377e8bd704398c7a0058afcea74017dffbc2a18daac97ecff7"
-KERNEL_CHECKER_ID = "mathhead.kernel.checker.v1"
-KERNEL_CHECKER_RESULT_SCHEMA = "mathhead.kernel-checker-result.v1"
+KERNEL_CHECKER_CONTRACT_ID = "MH-C-KERNEL-CHECKER-002"
+KERNEL_CHECKER_CONTRACT_SHA256 = "1baf3b44734369fdb298609ad0230062686697a7198401d6fc53f161c70a678e"
+KERNEL_CHECKER_ID = "mathhead.kernel.checker.v2"
+KERNEL_CHECKER_RESULT_SCHEMA = "mathhead.kernel-checker-result.v2"
 
-MAX_RESULT_INPUT_BYTES = 2_200_000
+MAX_RESULT_INPUT_BYTES = 67_108_864
 MAX_CHECK_STEPS = 1_000_000
 MAX_DERIVED_INTEGER_BITS = 16_384
+MAX_EVIDENCE_ITEMS = 100_000
+MAX_RESIDUE_CLASSES = 100_000
 
 
 class CheckerResultValidationError(ValueError):
@@ -123,6 +143,8 @@ class CheckerResult(_CheckerValue):
     proof_term: ProofTerm | None
     proof_term_sha256: str | None
     statement: Statement | None
+    evidence: ArithmeticEvidence | None
+    evidence_sha256: str | None
     steps: int
     checker_id: str
     checker_contract_id: str
@@ -153,6 +175,7 @@ class _BudgetExhausted(ValueError):
 @dataclass(slots=True)
 class _WorkBudget:
     used: int = 0
+    evidence_items: int = 0
 
     def consume(self, amount: int = 1) -> None:
         if type(amount) is not int or amount < 0:
@@ -160,6 +183,13 @@ class _WorkBudget:
         if amount > MAX_CHECK_STEPS - self.used:
             raise _BudgetExhausted
         self.used += amount
+
+    def retain(self, amount: int = 1) -> None:
+        if type(amount) is not int or amount < 0:
+            raise AssertionError("evidence item charge must be a nonnegative exact integer")
+        if amount > MAX_EVIDENCE_ITEMS - self.evidence_items:
+            raise _BudgetExhausted
+        self.evidence_items += amount
 
 
 def _fail(kind: str, detail: str) -> NoReturn:
@@ -199,6 +229,8 @@ def _new_result(
     proof_term: ProofTerm | None,
     proof_term_digest: str | None,
     statement: Statement | None,
+    evidence: ArithmeticEvidence | None,
+    evidence_digest: str | None,
     steps: int,
 ) -> CheckerResult:
     value = object.__new__(CheckerResult)
@@ -208,6 +240,8 @@ def _new_result(
         "checker_contract_sha256": KERNEL_CHECKER_CONTRACT_SHA256,
         "checker_id": KERNEL_CHECKER_ID,
         "diagnostic": diagnostic,
+        "evidence": evidence,
+        "evidence_sha256": evidence_digest,
         "exact": True,
         "proof_term": proof_term,
         "proof_term_contract_id": PROOF_TERM_CONTRACT_ID,
@@ -228,6 +262,12 @@ def _bounded_fraction(value: Fraction) -> Fraction:
         value.numerator.bit_length() > MAX_DERIVED_INTEGER_BITS
         or value.denominator.bit_length() > MAX_DERIVED_INTEGER_BITS
     ):
+        raise _BudgetExhausted
+    return value
+
+
+def _bounded_integer(value: int) -> int:
+    if value.bit_length() > MAX_DERIVED_INTEGER_BITS:
         raise _BudgetExhausted
     return value
 
@@ -271,30 +311,75 @@ def _shift_back(polynomial: tuple[Fraction, ...], budget: _WorkBudget) -> tuple[
     return _trim_fraction_polynomial(result)
 
 
-def _check_supported(term: ProofTerm, budget: _WorkBudget) -> Statement:
+def _evaluate_integer_polynomial(polynomial: tuple[int, ...], point: int) -> int:
+    value = 0
+    for coefficient in reversed(polynomial):
+        value = _bounded_integer(value * point)
+        value = _bounded_integer(value + coefficient)
+    return value
+
+
+def _extended_gcd(left: int, right: int, budget: _WorkBudget) -> tuple[int, int, int]:
+    old_remainder, remainder = left, right
+    old_left, left_coefficient = 1, 0
+    old_right, right_coefficient = 0, 1
+    while remainder:
+        budget.consume(8)
+        quotient = old_remainder // remainder
+        old_remainder, remainder = remainder, _bounded_integer(
+            old_remainder - quotient * remainder
+        )
+        old_left, left_coefficient = left_coefficient, _bounded_integer(
+            old_left - quotient * left_coefficient
+        )
+        old_right, right_coefficient = right_coefficient, _bounded_integer(
+            old_right - quotient * right_coefficient
+        )
+    return old_remainder, old_left, old_right
+
+
+def _check_supported(
+    term: ProofTerm, budget: _WorkBudget
+) -> tuple[Statement, ArithmeticEvidence]:
     if type(term) is ResidueTerm:
-        required = term.modulus * len(term.polynomial)
+        if term.modulus > MAX_RESIDUE_CLASSES:
+            raise _BudgetExhausted
+        required = term.modulus * (2 * len(term.polynomial) + 2)
         budget.consume(required)
+        budget.retain(term.modulus)
+        evaluations: list[ResidueEvaluation] = []
         for residue_value in range(term.modulus):
-            value = 0
-            for coefficient in reversed(term.polynomial):
-                value = (value * residue_value + coefficient) % term.modulus
-            if value != 0:
+            value = _evaluate_integer_polynomial(term.polynomial, residue_value)
+            quotient, remainder = divmod(value, term.modulus)
+            quotient = _bounded_integer(quotient)
+            if remainder != 0:
                 raise _InvalidProof(
                     "RESIDUE_COUNTEREXAMPLE", "residue sweep found a counterexample"
                 )
-        return _new_divides(term.modulus, term.polynomial)
+            evaluations.append(
+                _new_residue_evaluation(residue_value, value, quotient, remainder)
+            )
+        statement = _new_divides(term.modulus, term.polynomial)
+        evidence = _new_residue_evidence(
+            term.modulus, term.polynomial, tuple(evaluations)
+        )
+        return statement, evidence
 
     if type(term) is CRTTerm:
         premises: list[DividesStatement] = []
+        premise_evidence: list[DivisibilityEvidence] = []
         for part in term.parts:
             try:
-                statement = _check_supported(part, budget)
+                statement, evidence = _check_supported(part, budget)
             except _InvalidProof as exc:
                 raise _InvalidProof("CRT_PREMISE_INVALID", "a CRT premise did not verify") from exc
-            if type(statement) is not DividesStatement:
+            if type(statement) is not DividesStatement or type(evidence) not in {
+                ResidueEvidence,
+                CRTEvidence,
+            }:
                 raise _InvalidProof("CRT_PREMISE_INVALID", "a CRT premise did not verify")
             premises.append(statement)
+            premise_evidence.append(evidence)
         polynomial = premises[0].polynomial
         for premise in premises[1:]:
             budget.consume()
@@ -302,34 +387,76 @@ def _check_supported(term: ProofTerm, budget: _WorkBudget) -> Statement:
                 raise _InvalidProof(
                     "CRT_POLYNOMIAL_MISMATCH", "CRT premises prove different polynomials"
                 )
+        pair_count = len(premises) * (len(premises) - 1) // 2
+        budget.retain(pair_count + len(premises))
+        witnesses: list[BezoutWitness] = []
         for left_index, left in enumerate(premises):
             for right in premises[left_index + 1 :]:
-                budget.consume()
-                if gcd(left.modulus, right.modulus) != 1:
+                gcd_value, left_coefficient, right_coefficient = _extended_gcd(
+                    left.modulus, right.modulus, budget
+                )
+                budget.consume(3)
+                if gcd_value != 1:
                     raise _InvalidProof("CRT_NON_COPRIME", "CRT moduli are not pairwise coprime")
+                witnesses.append(
+                    _new_bezout_witness(
+                        left.modulus,
+                        right.modulus,
+                        gcd_value,
+                        left_coefficient,
+                        right_coefficient,
+                    )
+                )
         modulus = 1
+        product_steps: list[ProductStep] = []
         for premise in premises:
             budget.consume()
-            modulus *= premise.modulus
-            if modulus.bit_length() > MAX_DERIVED_INTEGER_BITS:
-                raise _BudgetExhausted
-        return _new_divides(modulus, polynomial)
+            prior_product = modulus
+            modulus = _bounded_integer(modulus * premise.modulus)
+            product_steps.append(
+                _new_product_step(prior_product, premise.modulus, modulus)
+            )
+        statement = _new_divides(modulus, polynomial)
+        evidence = _new_crt_evidence(
+            tuple(premise_evidence),
+            tuple(witnesses),
+            tuple(product_steps),
+            modulus,
+            polynomial,
+        )
+        return statement, evidence
 
     if type(term) is SumInductionTerm:
-        if _evaluate_at_one(term.closed_form, budget) != _evaluate_at_one(term.summand, budget):
+        closed_at_one = _evaluate_at_one(term.closed_form, budget)
+        summand_at_one = _evaluate_at_one(term.summand, budget)
+        if closed_at_one != summand_at_one:
             raise _InvalidProof("SUM_BASE_MISMATCH", "sum induction base case differs")
         shifted = _shift_back(term.closed_form, budget)
         difference = _subtract_polynomials(term.closed_form, shifted, budget)
         step = _subtract_polynomials(difference, term.summand, budget)
         if step != (Fraction(0),):
             raise _InvalidProof("SUM_STEP_MISMATCH", "sum induction step polynomial is nonzero")
-        return _new_sum(term.summand, term.closed_form)
+        budget.retain()
+        statement = _new_sum(term.summand, term.closed_form)
+        evidence = _new_sum_evidence(
+            term.summand,
+            term.closed_form,
+            summand_at_one,
+            closed_at_one,
+            shifted,
+            difference,
+            step,
+        )
+        return statement, evidence
 
     if type(term) is PolynomialIdentityTerm:
         difference = _subtract_polynomials(term.lhs, term.rhs, budget)
         if difference != (Fraction(0),):
             raise _InvalidProof("POLYNOMIAL_MISMATCH", "polynomial coefficients differ")
-        return _new_identity(term.lhs, term.rhs)
+        budget.retain()
+        statement = _new_identity(term.lhs, term.rhs)
+        evidence = _new_polynomial_identity_evidence(term.lhs, term.rhs, difference)
+        return statement, evidence
 
     raise _InvalidProof("UNSUPPORTED_TERM", "proof-term rule is unsupported")
 
@@ -345,6 +472,8 @@ def check_proof_term(term: object) -> CheckerResult:
             proof_term=None,
             proof_term_digest=None,
             statement=None,
+            evidence=None,
+            evidence_digest=None,
             steps=0,
         )
     try:
@@ -358,11 +487,13 @@ def check_proof_term(term: object) -> CheckerResult:
             proof_term=None,
             proof_term_digest=None,
             statement=None,
+            evidence=None,
+            evidence_digest=None,
             steps=0,
         )
     budget = _WorkBudget()
     try:
-        statement = _check_supported(term, budget)
+        statement, evidence = _check_supported(term, budget)
     except _BudgetExhausted:
         return _new_result(
             "exhausted",
@@ -371,6 +502,8 @@ def check_proof_term(term: object) -> CheckerResult:
             proof_term=term,
             proof_term_digest=digest,
             statement=None,
+            evidence=None,
+            evidence_digest=None,
             steps=budget.used,
         )
     except _InvalidProof as exc:
@@ -381,22 +514,26 @@ def check_proof_term(term: object) -> CheckerResult:
             proof_term=term,
             proof_term_digest=digest,
             statement=None,
+            evidence=None,
+            evidence_digest=None,
             steps=budget.used,
         )
     return _new_result(
         "verified",
         "CHECKER_VALID",
-        "proof term checked exactly",
+        "proof term checked exactly with explicit arithmetic evidence",
         proof_term=term,
         proof_term_digest=digest,
         statement=statement,
+        evidence=evidence,
+        evidence_digest=_arithmetic_evidence_sha256(evidence),
         steps=budget.used,
     )
 
 
 _REASON_DIAGNOSTIC = {
     "BUDGET_EXHAUSTED": "deterministic checker work budget exhausted",
-    "CHECKER_VALID": "proof term checked exactly",
+    "CHECKER_VALID": "proof term checked exactly with explicit arithmetic evidence",
     "CRT_NON_COPRIME": "CRT moduli are not pairwise coprime",
     "CRT_POLYNOMIAL_MISMATCH": "CRT premises prove different polynomials",
     "CRT_PREMISE_INVALID": "a CRT premise did not verify",
@@ -423,6 +560,8 @@ def validate_checker_result(result: object) -> None:
             result.proof_term,
             result.proof_term_sha256,
             result.statement,
+            result.evidence,
+            result.evidence_sha256,
             result.steps,
             result.checker_id,
             result.checker_contract_id,
@@ -472,6 +611,8 @@ def validate_checker_result(result: object) -> None:
             or result.authority != "none"
             or result.proof_term_sha256 is not None
             or result.statement is not None
+            or result.evidence is not None
+            or result.evidence_sha256 is not None
             or result.steps != 0
         ):
             _fail("result", "term-less checker result is not a canonical invalid result")
@@ -482,6 +623,29 @@ def validate_checker_result(result: object) -> None:
         PolynomialIdentityStatement,
     }:
         _fail("result", "unknown checker statement type")
+    if result.evidence is not None and type(result.evidence) not in {
+        ResidueEvidence,
+        CRTEvidence,
+        SumInductionEvidence,
+        PolynomialIdentityEvidence,
+    }:
+        _fail("evidence", "unknown arithmetic evidence type")
+    if result.verdict == "verified":
+        if (
+            result.authority != "checker_attestation"
+            or result.statement is None
+            or result.evidence is None
+            or result.evidence_sha256 is None
+        ):
+            _fail("evidence", "verified result lacks complete arithmetic evidence")
+        _lower_sha256(result.evidence_sha256, "evidence_sha256")
+    elif (
+        result.authority != "none"
+        or result.statement is not None
+        or result.evidence is not None
+        or result.evidence_sha256 is not None
+    ):
+        _fail("evidence", "non-verified result retains authority or evidence")
     if result.proof_term_sha256 is not None:
         _lower_sha256(result.proof_term_sha256, "proof_term_sha256")
     try:
@@ -492,12 +656,90 @@ def validate_checker_result(result: object) -> None:
     if result.proof_term_sha256 != digest:
         _fail("identity", "retained proof-term identity differs")
     expected = check_proof_term(result.proof_term)
-    if result != expected:
+    try:
+        matches = result == expected
+    except (AttributeError, TypeError, ValueError, RecursionError):
+        _fail("evidence", "arithmetic evidence graph is malformed")
+    if not matches:
         _fail("result", "checker result differs from independent recomputation")
 
 
 def _fraction_object(value: Fraction) -> dict[str, int]:
     return {"denominator": value.denominator, "numerator": value.numerator}
+
+
+def _fraction_polynomial_object(values: tuple[Fraction, ...]) -> list[dict[str, int]]:
+    return [_fraction_object(value) for value in values]
+
+
+def _evidence_object(evidence: ArithmeticEvidence | None) -> dict[str, Any] | None:
+    if evidence is None:
+        return None
+    if type(evidence) is ResidueEvidence:
+        return {
+            "evaluations": [
+                {
+                    "quotient": item.quotient,
+                    "remainder": item.remainder,
+                    "residue": item.residue,
+                    "value": item.value,
+                }
+                for item in evidence.evaluations
+            ],
+            "kind": "residue",
+            "modulus": evidence.modulus,
+            "polynomial": list(evidence.polynomial),
+        }
+    if type(evidence) is CRTEvidence:
+        return {
+            "bezout_witnesses": [
+                {
+                    "gcd": item.gcd,
+                    "left_coefficient": item.left_coefficient,
+                    "left_modulus": item.left_modulus,
+                    "right_coefficient": item.right_coefficient,
+                    "right_modulus": item.right_modulus,
+                }
+                for item in evidence.bezout_witnesses
+            ],
+            "kind": "crt",
+            "modulus": evidence.modulus,
+            "polynomial": list(evidence.polynomial),
+            "premises": [_evidence_object(item) for item in evidence.premises],
+            "product_steps": [
+                {
+                    "factor": item.factor,
+                    "prior_product": item.prior_product,
+                    "product": item.product,
+                }
+                for item in evidence.product_steps
+            ],
+        }
+    if type(evidence) is SumInductionEvidence:
+        return {
+            "closed_form": _fraction_polynomial_object(evidence.closed_form),
+            "closed_form_at_one": _fraction_object(evidence.closed_form_at_one),
+            "first_difference": _fraction_polynomial_object(evidence.first_difference),
+            "kind": "sum_induction",
+            "shifted_closed_form": _fraction_polynomial_object(
+                evidence.shifted_closed_form
+            ),
+            "step_difference": _fraction_polynomial_object(evidence.step_difference),
+            "summand": _fraction_polynomial_object(evidence.summand),
+            "summand_at_one": _fraction_object(evidence.summand_at_one),
+        }
+    if type(evidence) is PolynomialIdentityEvidence:
+        return {
+            "difference": _fraction_polynomial_object(evidence.difference),
+            "kind": "polynomial_identity",
+            "lhs": _fraction_polynomial_object(evidence.lhs),
+            "rhs": _fraction_polynomial_object(evidence.rhs),
+        }
+    _fail("evidence", f"unknown arithmetic evidence type: {type(evidence).__name__}")
+
+
+def _arithmetic_evidence_sha256(evidence: ArithmeticEvidence) -> str:
+    return hashlib.sha256(_canonical_json_bytes(_evidence_object(evidence))).hexdigest()
 
 
 def _statement_object(statement: Statement | None) -> dict[str, Any] | None:
@@ -536,6 +778,8 @@ def _result_object(result: CheckerResult) -> dict[str, Any]:
             "contract_sha256": result.checker_contract_sha256,
         },
         "diagnostic": result.diagnostic,
+        "evidence": _evidence_object(result.evidence),
+        "evidence_sha256": result.evidence_sha256,
         "exact": result.exact,
         "proof_term_contract": {
             "contract_id": result.proof_term_contract_id,
@@ -652,6 +896,8 @@ def _expected_without_term(item: dict[str, Any]) -> CheckerResult:
         proof_term=None,
         proof_term_digest=None,
         statement=None,
+        evidence=None,
+        evidence_digest=None,
         steps=0,
     )
 
@@ -689,6 +935,8 @@ def parse_checker_result(data: bytes) -> CheckerResult:
             "authority",
             "checker",
             "diagnostic",
+            "evidence",
+            "evidence_sha256",
             "exact",
             "proof_term_contract",
             "proof_term_hex",
@@ -737,8 +985,12 @@ def parse_checker_result(data: bytes) -> CheckerResult:
 
 
 __all__ = [
+    "ArithmeticEvidence",
+    "BezoutWitness",
+    "CRTEvidence",
     "CheckerResult",
     "CheckerResultValidationError",
+    "DivisibilityEvidence",
     "DividesStatement",
     "KERNEL_CHECKER_CONTRACT_ID",
     "KERNEL_CHECKER_CONTRACT_SHA256",
@@ -746,9 +998,16 @@ __all__ = [
     "KERNEL_CHECKER_RESULT_SCHEMA",
     "MAX_CHECK_STEPS",
     "MAX_DERIVED_INTEGER_BITS",
+    "MAX_EVIDENCE_ITEMS",
+    "MAX_RESIDUE_CLASSES",
     "MAX_RESULT_INPUT_BYTES",
+    "PolynomialIdentityEvidence",
     "PolynomialIdentityStatement",
+    "ProductStep",
+    "ResidueEvaluation",
+    "ResidueEvidence",
     "Statement",
+    "SumInductionEvidence",
     "SumIdentityStatement",
     "check_proof_term",
     "checker_result_sha256",

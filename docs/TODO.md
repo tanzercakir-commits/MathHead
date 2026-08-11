@@ -5,62 +5,70 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-032 - Extract dependency-minimal certificate checkers
+### MH-033 - Internalize derived arithmetic evidence
 
-**Goal:** make mathematical authority a property that only a small,
-independent checker boundary can issue. The checker must consume the immutable
-MH-031 proof-term algebra, revalidate its complete graph, evaluate the supported
-mathematics exactly, and return an immutable attestation without trusting any
-producer, solver, interface, transport, or orchestration code.
+**Goal:** ensure every arithmetic derivation named by a verified kernel tier is
+present in the canonical proof artifact and independently replayed, rather than
+remaining an unobservable primitive inside the checker. Preserve MH-032's small,
+effect-free authority boundary while making its residue, CRT, induction,
+polynomial-equality, and divisibility reasoning inspectable and mutation-safe.
 
-**Scope:** define and implement a closed checker request and result model for
-the residue, CRT, finite-sum induction, and polynomial-identity rules; bind the
-exact statement, proof term, governing contract identities, checker
-implementation identity, deterministic resource accounting, verdict, and
-classified diagnostics; evaluate all arithmetic with integers and
-`Fraction`; make rule dispatch exhaustive and fail closed; prevent public
-construction, copying, pickling, subclassing, `object.__new__` forgery, stale
-identity, and legacy `Theorem` values from crossing the authority boundary;
-and provide explicit non-authoritative adapters for legacy inputs. The checker
-closure must remain within twelve internal modules and nine approved standard
-library roots, with no third-party, dynamic-import, clock, filesystem, process,
-network, randomness, solver, CAS, UI, MCP, or discovery-producer dependency.
+**Scope:** supersede the v1 checker result with a v2 result under the unchanged
+`check_proof_term(term: object) -> CheckerResult` entry point. Add a closed,
+immutable arithmetic-evidence algebra: residue-class evaluations bind every
+checked class, exact value, quotient, and zero remainder; CRT evidence binds
+the recursively verified premises, pairwise extended-GCD/Bezout witnesses, and
+cumulative modulus-product derivation; finite-sum induction evidence binds both
+base evaluations plus the shifted closed-form and exact zero step-polynomial
+coefficients; polynomial identity evidence binds normalized operands and their
+exact zero difference. A verified result must contain exactly the evidence
+variant required by its proof term, a canonical evidence identity, and no
+unrecorded successful arithmetic decision. Invalid or exhausted results retain
+no evidence authority. Keep all values exact, constructor-controlled, deeply
+immutable, canonically serialized, deterministically budgeted, and replayed
+without producer, solver, CAS, transport, filesystem, clock, process, or network
+dependencies. Retain the MH-032 API as the compatibility surface, but make v1
+serialized results historical and non-current after explicit supersession.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
-`MH-C-PROOF-TERM-001`, `MH-C-EVIDENCE-001`, and `MH-C-CERTIFICATE-001`.
-Before implementation, propose, prescreen, and accept a new canonical
-`MH-C-KERNEL-CHECKER-001` contract that fixes the supported statement
-fragment, checker request/result ABI, exact verdict and error taxonomy,
-attestation construction authority, resource budgets, implementation binding,
-legacy migration behavior, and complete dependency boundary. No checker code
-may precede acceptance of the exact contract bytes.
+`MH-C-PROOF-TERM-001`, `MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`, and
+`MH-C-KERNEL-CHECKER-001`. Before implementation, propose, prescreen, and accept
+`MH-C-KERNEL-CHECKER-002` with the exact v2 evidence algebra, closed result
+schema, compatibility/refusal behavior, implementation binding, canonical
+identity, evidence-size and arithmetic budgets, and supersession link. No v2
+checker or arithmetic-evidence implementation may precede acceptance of those
+exact bytes.
 
-**Validators:** closed Draft 2020-12 schemas and repository-owned validators;
-positive evaluation for all four proof rules; exact rational and integer
-boundary cases; canonical request/result round trips; independent statement
-recomputation; and adversarial rejection for false residues, inconsistent or
-non-coprime CRT parts, wrong induction bases or steps, unequal or malformed
-polynomials, hidden variables, forged and uninitialized terms/results, cycles,
-excess depth/nodes/coefficients/parts/integer bits, duplicate or unknown JSON
-fields, stale hashes, contract or implementation drift, producer/checker
-identity aliasing, legacy theorem promotion, and unsupported rules. Add source
-closure and denied-import tests, deterministic replay, legacy differential
-tests, exact implementation binding, Ruff, project status, core, docs, release,
-clean-install, and same-head GitHub gates.
+**Validators:** closed Draft 2020-12 result/evidence schema; exact evidence and
+result round trips; all four verified-rule variants; independent recomputation
+of every residue row, quotient, remainder, extended-GCD coefficient, Bezout
+identity, cumulative product, base value, shift coefficient, difference
+coefficient, and normalized polynomial coefficient; equivalence with the
+MH-032 mathematical verdict on the retained supported fragment; stable refusal
+when evidence cardinality, bytes, steps, depth, nodes, coefficient count, CRT
+parts, or integer size exceed the v2 budget; and adversarial rejection for
+missing, reordered, duplicated, truncated, forged, stale, mismatched, aliased,
+wrong-variant, or unknown evidence. Include `object.__new__`, mutation, copying,
+pickling, subclass, duplicate JSON key, unknown field, noncanonical bytes,
+contract/schema/implementation drift, legacy-object, producer-assertion, and
+hidden-success-path attacks. Re-measure the complete source/import closure and
+run Ruff, compileall, project status, core, docs, release, clean-wheel smoke,
+coverage, and exact same-head GitHub gates.
 
-**Done when:** only the dependency-minimal checker can mint an immutable
-checker attestation; every accepted attestation deterministically binds and
-replays the exact statement and canonical MH-031 term; malformed, false,
-unsupported, exhausted, forged, stale, and mismatched inputs produce stable
-non-promoting failures; the legacy forgeable theorem representation cannot
-cross the new boundary; the actual import closure meets the MH-030 budget; and
-all local and same-head remote gates pass.
+**Done when:** every `checker_attestation` emitted by the current checker result
+format contains one complete canonical arithmetic-evidence object whose exact
+replay is necessary and sufficient for that verified result; changing or
+omitting any claimed arithmetic step fails closed; no successful residue, CRT,
+induction, divisibility, or polynomial comparison remains only in transient
+checker state; v1 results are explicitly refused as superseded rather than
+silently upgraded; the measured checker closure remains inside the MH-030
+budget; and all local and same-head remote gates pass.
 
-**Dependencies:** MH-030 and MH-031 are done and supply the frozen trust budget
-and structural proof terms. MH-033 will move currently hidden derived
-arithmetic into evidence; MH-034 will harden SAT proof replay; MH-035 will bind
-complete provenance; MH-036 will add external Lean authority; and MH-037 will
-red-team all remaining trust-tier transitions.
+**Dependencies:** MH-030 through MH-032 are done and provide the frozen trust
+inventory, immutable proof terms, and dependency-minimal checker. MH-034 will
+add adversarial SAT/UNSAT replay, MH-035 will bind whole-run provenance, MH-036
+will add external Lean authority, and MH-037 will red-team every remaining
+trust-tier transition.
 
 ## Next
 

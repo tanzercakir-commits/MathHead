@@ -4,7 +4,14 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-08-12
+
 ### Added
+- Kernel checker results now expose deterministic, immutable arithmetic evidence for residue,
+  Chinese-remainder, sum-induction, and polynomial-identity proofs. Canonical v2 result bytes bind
+  that evidence by SHA-256 and fail closed on omitted, forged, stale, or legacy-v1 payloads.
+- `MH-C-KERNEL-CHECKER-002`, its closed result schema, trust-base inventory, validator, and
+  adversarial regression suite define and enforce the new public evidence boundary.
 - Readings wave 2 — the ∀/∃ quantifier ambiguity of modular/congruence statements: on
   `m | p(n)` and `p(n) ≡ q(n) (mod m)` the envelope now also carries `readings` — the ∀ reading
   (the main envelope itself, byte-identical to before) and the ∃ reading, DECIDED from the same

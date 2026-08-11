@@ -522,7 +522,8 @@ def _runtime_smokes(
                 "checker_result_to_bytes, parse_checker_result; "
                 "from mathhead.kernel.proof_terms import residue; "
                 "r=check_proof_term(residue(6,(0,-1,0,1))); "
-                "assert r.verdict=='verified' and r.authority=='checker_attestation'; "
+                "assert r.verdict=='verified' and r.authority=='checker_attestation' "
+                "and r.evidence is not None and len(r.evidence_sha256)==64; "
                 "assert parse_checker_result(checker_result_to_bytes(r))==r; "
                 "print(r.reason_code)",
             ],

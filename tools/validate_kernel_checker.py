@@ -1,4 +1,4 @@
-"""Validate the accepted MH-032 dependency-minimal checker boundary."""
+"""Validate the accepted MH-033 explicit-evidence checker boundary."""
 
 from __future__ import annotations
 
@@ -15,14 +15,14 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOT = ROOT / "src"
 PACKAGE_ROOT = SOURCE_ROOT / "mathhead"
-CONTRACT = ROOT / "docs/contracts/MH-C-KERNEL-CHECKER-001.json"
-PROPOSAL = ROOT / "docs/contracts/proposed/MH-C-KERNEL-CHECKER-001.json"
-SCHEMA = ROOT / "docs/contracts/schemas/kernel-checker-result-v1.schema.json"
+CONTRACT = ROOT / "docs/contracts/MH-C-KERNEL-CHECKER-002.json"
+PROPOSAL = ROOT / "docs/contracts/proposed/MH-C-KERNEL-CHECKER-002.json"
+SCHEMA = ROOT / "docs/contracts/schemas/kernel-checker-result-v2.schema.json"
 TRUST_INVENTORY = ROOT / "docs/trust/trust-base-v1.json"
 
-CONTRACT_ID = "MH-C-KERNEL-CHECKER-001"
-CONTRACT_SHA256 = "78293c5a2e8845377e8bd704398c7a0058afcea74017dffbc2a18daac97ecff7"
-SCHEMA_SHA256 = "0718099abb10ff08501909b59faa92a1d4579c9047ef29576b16b1ed8a1892e4"
+CONTRACT_ID = "MH-C-KERNEL-CHECKER-002"
+CONTRACT_SHA256 = "1baf3b44734369fdb298609ad0230062686697a7198401d6fc53f161c70a678e"
+SCHEMA_SHA256 = "1eb1f5560f493728f23214356583296880c74d9403377f5a867139a12bacff8b"
 ALLOWED_ROOTS = {
     "__future__",
     "dataclasses",
@@ -192,7 +192,7 @@ def _verify_closure() -> tuple[int, int]:
         _fail("checker implementation is missing")
     closure, roots = _source_closure(entry)
     trust = _load(TRUST_INVENTORY).get("kernel_target")
-    if type(trust) is not dict or trust.get("task_id") != "MH-032":
+    if type(trust) is not dict or trust.get("task_id") not in {"MH-032", "MH-033"}:
         _fail("MH-030 kernel target is missing")
     source_budget = trust.get("source_budget")
     if type(source_budget) is not dict:
@@ -214,8 +214,12 @@ def _verify_closure() -> tuple[int, int]:
 def _verify_runtime() -> int:
     sys.path.insert(0, str(SOURCE_ROOT))
     from mathhead.kernel.checkers import (
+        CRTEvidence,
         KERNEL_CHECKER_CONTRACT_ID,
         KERNEL_CHECKER_CONTRACT_SHA256,
+        PolynomialIdentityEvidence,
+        ResidueEvidence,
+        SumInductionEvidence,
         check_proof_term,
         checker_result_to_bytes,
         parse_checker_result,
@@ -241,16 +245,21 @@ def _verify_runtime() -> int:
 
     polynomial = (0, -1, 0, 1)
     cases = (
-        residue(2, polynomial),
-        crt((residue(2, polynomial), residue(3, polynomial))),
-        sum_induction((0, 1), (0, Fraction(1, 2), Fraction(1, 2))),
-        polynomial_identity(polynomial, polynomial),
+        (residue(2, polynomial), ResidueEvidence),
+        (crt((residue(2, polynomial), residue(3, polynomial))), CRTEvidence),
+        (
+            sum_induction((0, 1), (0, Fraction(1, 2), Fraction(1, 2))),
+            SumInductionEvidence,
+        ),
+        (polynomial_identity(polynomial, polynomial), PolynomialIdentityEvidence),
     )
-    for term in cases:
+    for term, evidence_type in cases:
         first = check_proof_term(term)
         second = check_proof_term(term)
         if first != second or first.verdict != "verified":
             _fail("checker positive decision is not deterministic and verified")
+        if type(first.evidence) is not evidence_type or first.evidence_sha256 is None:
+            _fail("verified result lacks its exact arithmetic evidence variant")
         encoded = checker_result_to_bytes(first)
         if parse_checker_result(encoded) != first:
             _fail("checker canonical replay differs")
@@ -267,12 +276,48 @@ def _verify_runtime() -> int:
         ).encode("utf-8")
         if hashlib.sha256(result_bytes).hexdigest() != envelope["result_sha256"]:
             _fail("checker result identity differs")
+        evidence_bytes = (
+            json.dumps(
+                envelope["result"]["evidence"],
+                ensure_ascii=True,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            + "\n"
+        ).encode("utf-8")
+        if hashlib.sha256(evidence_bytes).hexdigest() != first.evidence_sha256:
+            _fail("arithmetic evidence identity differs")
     false = check_proof_term(residue(2, (1,)))
-    if false.authority != "none" or false.statement is not None or false.verdict != "invalid":
+    if (
+        false.authority != "none"
+        or false.statement is not None
+        or false.evidence is not None
+        or false.evidence_sha256 is not None
+        or false.verdict != "invalid"
+    ):
         _fail("false residue acquired checker authority")
     unknown = check_proof_term(object())
     if unknown.reason_code != "UNSUPPORTED_TERM" or unknown.authority != "none":
         _fail("unsupported object acquired checker authority")
+    legacy_schema = json.loads(checker_result_to_bytes(check_proof_term(cases[0][0])))
+    legacy_schema["schema"] = "mathhead.kernel-checker-result.v1"
+    legacy_bytes = (
+        json.dumps(
+            legacy_schema,
+            ensure_ascii=True,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+    try:
+        parse_checker_result(legacy_bytes)
+    except ValueError:
+        pass
+    else:
+        _fail("superseded v1 checker-result schema was accepted")
     return len(cases)
 
 

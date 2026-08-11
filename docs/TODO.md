@@ -5,50 +5,48 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-026 - Accept the TheoryPlugin contract
+### MH-027 - Build contract conformance tests
 
-**Goal:** freeze one canonical, version-negotiated TheoryPlugin boundary before
-the registry, planner, worker isolation, checker kernel, or theory vertical
-slices depend on capability, cost, execution, or compatibility semantics.
+**Goal:** prove that every P2 foundation contract has one executable,
+cross-contract conformance boundary that detects schema, artifact, validator,
+semantic, and future implementation drift before runtime code can claim
+compatibility.
 
-**Scope:** stable plugin and component identities; API and data-contract
-versions; declarative supported ProblemIR and TheoryContext fragments;
-required Evidence and Certificate formats and features; exact capability and
-effect declarations; deterministic planning-cost estimates; solve, check, and
-explain request/response bindings; child ResourceBudget leases; cancellation,
-exhaustion, truncation, unsupported input, ambiguity, failure, and partial
-results; producer/checker separation; replay identity; extension negotiation;
-registration conflicts, lifecycle, concurrency, and hard ceilings.
+**Scope:** enumerate the active accepted P2 contract closure; validate exact
+manifest IDs, states, paths, hashes, proposal bytes, canonical encoding,
+normative schema identities, Draft 2020-12 closure, declared validator
+commands, dependency hashes, supersession, and target bindings; exercise
+unknown and missing fields, malformed values, duplicate keys, signature and
+hash drift, absent or failing validators, contradictory requirements, budget
+and authority confusion, and synthetic implementation-side changes without
+editing immutable accepted artifacts.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
 `MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
 `MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`,
-`MH-C-EVIDENCE-001`, and `MH-C-CERTIFICATE-001`. The canonical
-`MH-C-THEORY-PLUGIN-001` contract is accepted at SHA-256
-`2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8`
-without changing accepted dependency bytes.
+`MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`, and
+`MH-C-THEORY-PLUGIN-001`. Accepted contract and proposal bytes remain
+immutable; conformance mutations operate only on isolated copies.
 
-**Validators:** closed Draft 2020-12 schema plus an independent semantic
-validator; exact manifest, capability, fragment, operation, component,
-contract, format, budget, replay, lifecycle, effect, and compatibility
-bindings; producer/checker role separation; deterministic ordering and cost;
-malformed, unknown-field, duplicate-key, capability-overclaim, version
-confusion, undeclared-effect, self-attestation, budget-alias, cancellation,
-replay-drift, collision, overflow, and adversarial mutation rejection; Ruff
-and project status.
+**Validators:** a dependency-minimal repository conformance command and
+focused unittest suite; exact active-contract inventory and dependency DAG;
+schema meta-validation and representative positive instances; canonical byte,
+manifest, proposal, validator-reference, target-binding, supersession, and
+semantic-contradiction checks; adversarial isolated-copy mutations for every
+required failure class; Ruff, project status, core, docs, release, and clean
+install gates.
 
-**Done when:** two independent implementations have enough normative detail to
-negotiate the same plugin compatibility, route the same supported fragment,
-serialize the same operation envelope to identical bytes, and reach the same
-fail-closed decision; cost estimation has no execution authority; solve cannot
-self-certify; check cannot reuse its producer identity; explain cannot create
-mathematical authority; interrupted or unsupported work cannot be ordinary
-success.
+**Done when:** the accepted P2 closure passes as one deterministic report;
+each required negative class is proven to fail closed without mutating source
+artifacts; a synthetic implemented target can pass only with its exact
+signature and source hash while implementation-side signature, source,
+validator, schema, contract, or dependency drift is rejected; conformance
+validity grants no mathematical authority.
 
-**Dependencies:** `MH-021` through `MH-025` are done. Runtime protocols,
-registries, worker isolation, conformance expansion, cross-layer fixtures, and
-theory-specific implementations remain assigned to MH-027, MH-028, MH-040
-through MH-047, MH-050 through MH-056, and MH-060 through MH-067.
+**Dependencies:** MH-020 through MH-026 are done. Golden cross-layer task
+fixtures remain assigned to MH-028; production dataclasses, protocols,
+registries, workers, kernels, and theory implementations remain in later
+phases.
 
 ## Next
 

@@ -5,6 +5,28 @@ only through the repository-owned status tool after adoption.
 
 ---
 
+## 2026-08-11 - Canonical TheoryPlugin contract accepted
+
+**Task.** MH-026 (`done`).
+
+**Changed.** Accepted a closed canonical TheoryPlugin descriptor covering stable API and implementation identity, separate producer and checker components, exact foundational contract compatibility, bounded capability fragments and format ranges, deterministic planning cost and routing, the fixed plan_cost/solve/check/explain ABI, lifecycle, isolated effects, child budgets, cancellation, replay, and hard limits.
+
+**Learned.** Adversarial review made theory membership and quantifier count explicit routing dimensions, bound the per-quantifier coefficient to quantifier count rather than nesting depth, and made unknown routing kinds fail closed. The resulting descriptor can be negotiated and costed without importing or trusting plugin code, while solve remains producer-only and check remains independently attestable.
+
+**Contracts.** MH-C-WORKFLOW-001=99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca (docs/contracts/PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md); MH-C-CONTRACT-ARTIFACTS-002=602845fedb167d06ce3999f6c245d590a43f184b3f271180cae1b8154fe7b750 (docs/contracts/MH-C-CONTRACT-ARTIFACTS-002.json); MH-C-PROBLEM-IR-002=6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286 (docs/contracts/MH-C-PROBLEM-IR-002.json); MH-C-THEORY-CONTEXT-001=d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d (docs/contracts/MH-C-THEORY-CONTEXT-001.json); MH-C-RESOURCE-BUDGET-001=eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045 (docs/contracts/MH-C-RESOURCE-BUDGET-001.json); MH-C-ENGINE-RESULT-001=6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370 (docs/contracts/MH-C-ENGINE-RESULT-001.json); MH-C-EVIDENCE-001=c68c20ca599cfdd7aabe9b85f2817c6c3f1a121289334136ff048768ee20c3b3 (docs/contracts/MH-C-EVIDENCE-001.json); MH-C-CERTIFICATE-001=0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740 (docs/contracts/MH-C-CERTIFICATE-001.json); MH-C-THEORY-PLUGIN-001=2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8 (docs/contracts/MH-C-THEORY-PLUGIN-001.json)
+
+**Validator profile.** fast.
+
+**Validators.** dev-environment-contract=passed/exit-0/output-a5d12a4366f7b754d6b4bfb641c42c61ab63cd2fca9373521e42043411707de2; legacy-baseline=passed/exit-0/output-67e9b831ee9562c7349211b81b71c8f6980fba822c741c29ab2c70bf50d046e2; optional-dependency-contract=passed/exit-0/output-9b6c89c4799b009bf7763e0fa95d16d60ca0dd4bb79b91eb3b2f9e4c8d1a21c9; graph-budget-contract=passed/exit-0/output-cee9ef7d724bd33473900600123db290c92ac623f1b64f507936438047392503; command-encoding-contract=passed/exit-0/output-6d10647e5ec87d340636de633ae04d25f6d634a024e2b03108dacc2906fde5e7; live-mcp-contract=passed/exit-0/output-6d1c5de7dfea9929d580ad221b80d16d1f297b87f0a048a68065a9adbf5f8312; project-metadata-contract=passed/exit-0/output-f243a673e396961eaa55196fba23ebe3802ab94c8ae17a4c14d6b473b834d9a0; ast-parse-contract=passed/exit-0/output-70ca7baa7b3b75148e5a0f57dcdbcecf5751715a0cf16ef5f244b6d1a3957a48; discovery-portfolio-contract=passed/exit-0/output-4181ac69819cf2985cfc4ff6516a1f863b08e14786a0623853c5d703da7fe08e; legacy-compat-contract=passed/exit-0/output-2b0378541035d4578c07dd455ba51ee05ecee22b1690a4678f7489d96c3d808f; contract-artifact-tests=passed/exit-0/output-dec60251d3793db5054da26578c3ed05dc5d013690620d51d35628414c04a709; contract-artifact-workflow=passed/exit-0/output-b0ca27108a6d7ed70aaeccfb40c1aebe9fa13fe23fd94172fecda53e51b09c19; problem-ir-contract=passed/exit-0/output-5d79fe1def4d4f26b36ecde4fd4b1f61938869ca948574a5f135c37963d7de68; theory-context-contract=passed/exit-0/output-f24f2be1f18acde0fece5a52df2a6e01dd006959aae7da3d492c5d05658b531c; resource-budget-contract=passed/exit-0/output-8bb1a05a7c0196d839031e95e46f4c01221e27baee2453596bc31e029e23d0ae; engine-result-contract=passed/exit-0/output-8b2c527ad5ee906e03c9b0fbf95ddfaeb7b7f4be28d14142c5c5eb72f2532d79; evidence-certificate-contracts=passed/exit-0/output-ca715228579cd4c11772b6a6ecc5801f7871a3cfbf08772a7f49280d77aba173; theory-plugin-contract=passed/exit-0/output-446dc06ef34cfc678f32c989d2f3299e19cf51dae037a451f2fdc57ff0896f9b
+
+**Evidence.** docs/contracts/MH-C-THEORY-PLUGIN-001.json=2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8; docs/contracts/schemas/theory-plugin-v1.schema.json=c3d234f725e2c3f0e6fa02507be83190bde71f8ddae6f5a08cd6395065d77142; tools/validate_theory_plugin_contract.py=ae46fada73138b533149aa20ff32bce03cfabb60637477f8ea19ff21b07a822e; tests/theory_plugin_contract/test_theory_plugin_contract.py=afbe87c55aaa3a6c9b6f49d33c7411c2dda40647fe080fa47b091a2a83956ed0; docs/contracts/reports/verification-v1.json=4043cd8eda800426a3ef609783e9d49b0c22a042f7e3ae8acccb8816b53fe723; docs/project-facts.json=012735b2c7def4601f6706cd5bf0c698e261ee343cd530857fb558da8adde848
+
+**Limitations.** The future target mathhead.plugins:TheoryPlugin is not implemented. Structural conformance and declarative routing do not establish plugin honesty, mathematical truth, runtime isolation, registry conflict handling, or cross-layer byte compatibility; these remain assigned to MH-027, MH-028, MH-040 through MH-047, MH-050 through MH-056, and MH-060 through MH-067. Same-head GitHub runs 31519053882, 31519054184, 31519053936, 31519048268, and 31519048260 succeeded on commit 75dcb6f34d2784bb9c785315fab4e30087310e86.
+
+**Next.** Activate MH-027 and build cross-contract conformance tests for schemas, signatures, hashes, validators, contradictions, and implementation-side drift.
+
+---
+
 ## 2026-08-11 - Independent Evidence and Certificate contracts accepted
 
 **Task.** MH-025 (`done`).

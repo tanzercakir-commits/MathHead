@@ -144,3 +144,10 @@ command = "python tools/validate_problem_ir_contract.py"
 profiles = ["status", "fast"]
 tasks = ["MH-021"]
 timeout_seconds = 60
+
+[[checks]]
+name = "theory-context-contract"
+command = "python tools/validate_theory_context_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-022"]
+timeout_seconds = 60

@@ -1,0 +1,346 @@
+{
+  "$id": "https://mathhead.dev/schemas/theory-context-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {"items": {"$ref": "#/$defs/artifact"}, "maxItems": 100000, "type": "array"},
+    "consistency": {"$ref": "#/$defs/consistency"},
+    "context_id": {"$ref": "#/$defs/id"},
+    "declarations": {"items": {"$ref": "#/$defs/declaration"}, "maxItems": 100000, "type": "array"},
+    "direct_import_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+    "extensions": {"$ref": "#/$defs/extensions"},
+    "imports": {"items": {"$ref": "#/$defs/import"}, "maxItems": 100000, "type": "array"},
+    "namespace": {"$ref": "#/$defs/namespaced"},
+    "revision": {"$ref": "#/$defs/revision"},
+    "schema": {"const": "mathhead.theory-context.v1"},
+    "scope": {"$ref": "#/$defs/scope"}
+  },
+  "required": [
+    "schema",
+    "context_id",
+    "namespace",
+    "revision",
+    "scope",
+    "artifacts",
+    "imports",
+    "direct_import_ids",
+    "declarations",
+    "consistency",
+    "extensions"
+  ],
+  "title": "MathHead TheoryContext v1",
+  "type": "object",
+  "$defs": {
+    "artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["problem_ir", "evidence", "checker_result", "other"]},
+        "schema": {"$ref": "#/$defs/namespaced"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "required": ["id", "kind", "schema", "sha256"],
+      "type": "object"
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"type": "integer"},
+        {"type": "string"},
+        {"items": {"$ref": "#/$defs/canonical_value"}, "maxItems": 100000, "type": "array"},
+        {"additionalProperties": {"$ref": "#/$defs/canonical_value"}, "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"}, "type": "object"}
+      ]
+    },
+    "consistency": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "basis_sha256": {"$ref": "#/$defs/sha256"},
+            "reason": {"$ref": "#/$defs/reason"},
+            "status": {"const": "unchecked"}
+          },
+          "required": ["status", "basis_sha256", "reason"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "basis_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_result_artifact_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+            "covered_declaration_refs": {"items": {"$ref": "#/$defs/declaration_ref"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+            "reason": {"$ref": "#/$defs/reason"},
+            "status": {"const": "unknown"}
+          },
+          "required": ["status", "basis_sha256", "covered_declaration_refs", "checker_result_artifact_id", "reason"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "basis_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_contract_id": {"$ref": "#/$defs/contract_id"},
+            "checker_contract_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_result_artifact_id": {"$ref": "#/$defs/id"},
+            "covered_declaration_refs": {"items": {"$ref": "#/$defs/declaration_ref"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true},
+            "evidence_artifact_id": {"$ref": "#/$defs/id"},
+            "fragment_id": {"$ref": "#/$defs/namespaced"},
+            "status": {"const": "fragment_consistent"},
+            "trust_dependency_sha256s": {"items": {"$ref": "#/$defs/sha256"}, "maxItems": 100000, "type": "array", "uniqueItems": true}
+          },
+          "required": [
+            "status",
+            "basis_sha256",
+            "fragment_id",
+            "covered_declaration_refs",
+            "evidence_artifact_id",
+            "checker_result_artifact_id",
+            "checker_contract_id",
+            "checker_contract_sha256",
+            "trust_dependency_sha256s"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "basis_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_contract_id": {"$ref": "#/$defs/contract_id"},
+            "checker_contract_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_result_artifact_id": {"$ref": "#/$defs/id"},
+            "conflict_declaration_refs": {"items": {"$ref": "#/$defs/declaration_ref"}, "maxItems": 100000, "minItems": 1, "type": "array", "uniqueItems": true},
+            "evidence_artifact_id": {"$ref": "#/$defs/id"},
+            "status": {"const": "inconsistent"},
+            "trust_dependency_sha256s": {"items": {"$ref": "#/$defs/sha256"}, "maxItems": 100000, "type": "array", "uniqueItems": true}
+          },
+          "required": [
+            "status",
+            "basis_sha256",
+            "conflict_declaration_refs",
+            "evidence_artifact_id",
+            "checker_result_artifact_id",
+            "checker_contract_id",
+            "checker_contract_sha256",
+            "trust_dependency_sha256s"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "content_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "entity_id": {"$ref": "#/$defs/id"},
+        "entity_kind": {"enum": ["statement", "definition"]}
+      },
+      "required": ["artifact_id", "entity_kind", "entity_id"],
+      "type": "object"
+    },
+    "contract_id": {"pattern": "^MH-C-[A-Z0-9-]+-[0-9]{3}$", "type": "string"},
+    "declaration": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {"$ref": "#/$defs/content_ref"},
+        "dependency_refs": {"items": {"$ref": "#/$defs/declaration_ref"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+        "epistemic": {"$ref": "#/$defs/epistemic"},
+        "extensions": {"$ref": "#/$defs/extensions"},
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["axiom", "definition", "lemma", "imported_lemma", "hypothesis"]},
+        "name": {"maxLength": 128, "pattern": "^[A-Za-z][A-Za-z0-9_]*$", "type": "string"},
+        "namespace": {"$ref": "#/$defs/namespaced"},
+        "origin": {"anyOf": [{"$ref": "#/$defs/imported_ref"}, {"type": "null"}]},
+        "qualified_name": {"maxLength": 512, "type": "string"},
+        "scope_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "visibility": {"enum": ["private", "public"]}
+      },
+      "required": [
+        "id",
+        "kind",
+        "namespace",
+        "name",
+        "qualified_name",
+        "visibility",
+        "content",
+        "dependency_refs",
+        "epistemic",
+        "origin",
+        "scope_id",
+        "extensions"
+      ],
+      "type": "object"
+    },
+    "declaration_ref": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "declaration_id": {"$ref": "#/$defs/id"},
+            "kind": {"const": "local"}
+          },
+          "required": ["kind", "declaration_id"],
+          "type": "object"
+        },
+        {"$ref": "#/$defs/imported_ref"}
+      ]
+    },
+    "epistemic": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "authority_id": {"$ref": "#/$defs/namespaced"},
+            "rationale": {"$ref": "#/$defs/reason"},
+            "status": {"const": "assumed"}
+          },
+          "required": ["status", "authority_id", "rationale"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {"status": {"const": "definitional"}},
+          "required": ["status"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "scope_id": {"$ref": "#/$defs/id"},
+            "status": {"const": "assumed_local"}
+          },
+          "required": ["status", "scope_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {"$ref": "#/$defs/reason"},
+            "status": {"const": "unchecked"}
+          },
+          "required": ["status", "reason"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "checker_contract_id": {"$ref": "#/$defs/contract_id"},
+            "checker_contract_sha256": {"$ref": "#/$defs/sha256"},
+            "checker_result_artifact_id": {"$ref": "#/$defs/id"},
+            "evidence_artifact_id": {"$ref": "#/$defs/id"},
+            "status": {"const": "checker_attested"},
+            "trust_dependency_sha256s": {"items": {"$ref": "#/$defs/sha256"}, "maxItems": 100000, "type": "array", "uniqueItems": true}
+          },
+          "required": [
+            "status",
+            "evidence_artifact_id",
+            "checker_result_artifact_id",
+            "checker_contract_id",
+            "checker_contract_sha256",
+            "trust_dependency_sha256s"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "extensions": {
+      "additionalProperties": {"$ref": "#/$defs/canonical_value"},
+      "propertyNames": {"$ref": "#/$defs/namespaced"},
+      "type": "object"
+    },
+    "fingerprint": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "required": ["id", "sha256"],
+      "type": "object"
+    },
+    "id": {"maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$", "type": "string"},
+    "import": {
+      "additionalProperties": false,
+      "properties": {
+        "alias": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "context_id": {"$ref": "#/$defs/id"},
+        "context_sha256": {"$ref": "#/$defs/sha256"},
+        "dependency_import_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true},
+        "exports_sha256": {"$ref": "#/$defs/sha256"},
+        "id": {"$ref": "#/$defs/id"},
+        "namespace": {"$ref": "#/$defs/namespaced"},
+        "revision": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"}
+      },
+      "required": [
+        "id",
+        "alias",
+        "context_id",
+        "namespace",
+        "revision",
+        "context_sha256",
+        "exports_sha256",
+        "dependency_import_ids"
+      ],
+      "type": "object"
+    },
+    "imported_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "declaration_id": {"$ref": "#/$defs/id"},
+        "declaration_sha256": {"$ref": "#/$defs/sha256"},
+        "import_id": {"$ref": "#/$defs/id"},
+        "kind": {"const": "imported"}
+      },
+      "required": ["kind", "import_id", "declaration_id", "declaration_sha256"],
+      "type": "object"
+    },
+    "namespaced": {"maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$", "type": "string"},
+    "parent": {
+      "additionalProperties": false,
+      "properties": {
+        "context_id": {"$ref": "#/$defs/id"},
+        "context_sha256": {"$ref": "#/$defs/sha256"},
+        "declaration_fingerprints": {"items": {"$ref": "#/$defs/fingerprint"}, "maxItems": 100000, "type": "array"},
+        "revision": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"}
+      },
+      "required": ["context_id", "revision", "context_sha256", "declaration_fingerprints"],
+      "type": "object"
+    },
+    "reason": {"maxLength": 4096, "minLength": 1, "type": "string"},
+    "revision": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"enum": ["root", "extension", "revision"]},
+        "number": {"maximum": 9007199254740991, "minimum": 0, "type": "integer"},
+        "parent": {"anyOf": [{"$ref": "#/$defs/parent"}, {"type": "null"}]},
+        "retired_declaration_ids": {"items": {"$ref": "#/$defs/id"}, "maxItems": 100000, "type": "array", "uniqueItems": true}
+      },
+      "required": ["number", "mode", "parent", "retired_declaration_ids"],
+      "type": "object"
+    },
+    "scope": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {"type": "null"},
+            "kind": {"const": "theory"},
+            "parent_theory_sha256": {"type": "null"}
+          },
+          "required": ["kind", "id", "parent_theory_sha256"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {"$ref": "#/$defs/id"},
+            "kind": {"const": "local"},
+            "parent_theory_sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["kind", "id", "parent_theory_sha256"],
+          "type": "object"
+        }
+      ]
+    },
+    "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+  }
+}

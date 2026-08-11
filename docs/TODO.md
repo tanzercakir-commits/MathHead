@@ -16,9 +16,9 @@ and content hashes; import aliases and collision rules; consistency states and
 the evidence that may justify them; parent revisions and monotonic derivation;
 canonical serialization, identity, validation errors, and resource limits.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`, and
-`MH-C-PROBLEM-IR-002`; this task will propose and accept a new versioned
-TheoryContext artifact before implementation.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-CONTRACT-ARTIFACTS-002`,
+`MH-C-PROBLEM-IR-002`, and accepted `MH-C-THEORY-CONTEXT-001` at SHA-256
+`d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d`.
 
 **Validators:** closed schema and tagged-union checks, global and qualified-name
 uniqueness, reference and namespace integrity, acyclic imports and declaration

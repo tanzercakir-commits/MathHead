@@ -40,6 +40,11 @@ before the critical implementation that they govern.
   and nesting limits were not fully enforceable, binds
   `schemas/problem-ir-v1.schema.json`, and is accepted at SHA-256
   `6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286`.
+- `MH-C-THEORY-CONTEXT-001.json` governs canonical theory and local contexts,
+  explicit epistemic authority, content-addressed imports and declarations,
+  monotonic revisions, bounded consistency claims, and immutable identity. It
+  binds `schemas/theory-context-v1.schema.json` and is accepted at SHA-256
+  `d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d`.
 
 ## Repository command
 

@@ -116,3 +116,10 @@ command = "python tools/validate_discovery_portfolio.py"
 profiles = ["status", "fast"]
 tasks = ["MH-016"]
 timeout_seconds = 60
+
+[[checks]]
+name = "legacy-compat-contract"
+command = "python tools/validate_legacy_compat.py"
+profiles = ["status", "fast"]
+tasks = ["MH-017"]
+timeout_seconds = 60

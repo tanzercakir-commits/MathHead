@@ -82,6 +82,12 @@
           "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "core"]
         },
         {
+          "id": "legacy-compat-replay",
+          "required": true,
+          "timeout_seconds": 90,
+          "argv": ["{python}", "tools/legacy_compat.py", "--check"]
+        },
+        {
           "id": "tracker-integrity",
           "required": false,
           "timeout_seconds": 120,

@@ -34,8 +34,8 @@ n=14: UNSAT [independently_verified_unsat_proof_of_strengthened_formula]  → R(
 R(3,5) = 14
 ```
 
-**What it can do today** (each claim CI-tested): prove modular facts and sum identities in an
-LCF-style proof kernel (forge-guarded, trust base fully derived); refute conjectures
+**What it can do today** (each claim CI-tested): prove modular facts and sum identities by
+replaying immutable proof terms in a dependency-minimal exact checker; refute conjectures
 counterexample-first over ALL connected graphs (nauty-scale, exact invariants incl. α, γ, ν,
 girth, diameter); certify spectral counterexamples in **pure integer arithmetic** (no floats in
 any verdict); bracket Ramsey numbers — R(3,3)=6 · R(3,4)=9 · R(3,5)=14 · R(4,4)=18 — with
@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.2.0` · 171 MCP tools · 2370 collected tests.**  
+**Package `1.2.0` · 171 MCP tools · 2393 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -279,6 +279,7 @@ mathhead/
 ├── docs/
 │   ├── architecture.md  · layer diagram (Mermaid) + request lifecycle
 │   ├── PROOF_TERMS_V1.md · immutable canonical proof terms + authority boundary
+│   ├── KERNEL_CHECKER_V1.md · exact dependency-minimal checker + replay ABI
 │   ├── mcp-api.md        · precise MCP protocol & tool definitions + grammar
 │   ├── api-reference.md  · auto reference for ALL tools (code=docs)
 │   ├── threat-model.md  · trust boundaries, threat table, the timeout model
@@ -287,7 +288,8 @@ mathhead/
 │   └── glossary.md       · terms (FOL, SMT, CAS, entailment...)
 ├── src/mathhead/
 │   ├── core/            · logic (Z3) + verification (verify/crosscheck/inequality)
-│   ├── kernel/          · dependency-minimal immutable proof terms (checker follows in MH-032)
+│   ├── kernel/          · immutable proof terms + dependency-minimal exact checker
+│   ├── legacy_kernel_adapter.py · non-authoritative migration into proof terms
 │   ├── certificate.py  · INDEPENDENT certificate checker (stdlib only, NO z3/sympy)
 │   ├── compute/         · symbolic compute (SymPy)                
 │   ├── router/          · routing

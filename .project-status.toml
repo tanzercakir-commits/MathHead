@@ -235,3 +235,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-TERM-
 profiles = ["status", "fast"]
 tasks = ["MH-031"]
 timeout_seconds = 60
+
+[[checks]]
+name = "kernel-checker-tests"
+command = "python -m unittest discover -s tests/kernel_checker -v"
+profiles = ["status", "fast"]
+tasks = ["MH-032"]
+timeout_seconds = 120
+
+[[checks]]
+name = "kernel-checker-validator"
+command = "python tools/validate_kernel_checker.py"
+profiles = ["status", "fast"]
+tasks = ["MH-032"]
+timeout_seconds = 120
+
+[[checks]]
+name = "kernel-checker-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-KERNEL-CHECKER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-032"]
+timeout_seconds = 60

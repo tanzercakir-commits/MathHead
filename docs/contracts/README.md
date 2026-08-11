@@ -91,6 +91,13 @@ before the critical implementation that they govern.
   binds `schemas/proof-term-v1.schema.json` and is accepted under the project
   owner's programme-wide authority at SHA-256
   `20c501b77e370c4258523a291e83b15a99ed6308e002d9a54d0abc3bb18199ac`.
+- `MH-C-KERNEL-CHECKER-001.json` governs exact evaluation of the four proof
+  rules, the immutable typed attestation, canonical replay ABI, stable
+  verdict taxonomy, deterministic budgets, legacy non-promotion, and the
+  dependency-minimal authority boundary. It binds
+  `schemas/kernel-checker-result-v1.schema.json` and is accepted under the
+  project owner's programme-wide authority at SHA-256
+  `78293c5a2e8845377e8bd704398c7a0058afcea74017dffbc2a18daac97ecff7`.
 
 ## Repository command
 
@@ -152,7 +159,7 @@ command, object-store layout, and non-promotion rules.
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 119 source modules, 32 import roots, 24 trust surfaces, seven entry-point
+all 121 source modules, 32 import roots, 24 trust surfaces, eight entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -175,6 +182,22 @@ resource ceilings with:
 python -m unittest discover -s tests/proof_terms -v
 python tools/contract_artifacts.py verify \
   --contract MH-C-PROOF-TERM-001 --require-bound
+```
+
+## Dependency-minimal kernel checker
+
+MH-032 is documented in `docs/KERNEL_CHECKER_V1.md`. Only
+`mathhead.kernel.checkers.check_proof_term` can issue the new immutable
+`checker_attestation`; malformed, false, unsupported, forged, stale, and
+exhausted candidates remain non-authoritative. Validate the accepted binding,
+exact rules, canonical replay, legacy differential behavior, and measured
+dependency closure with:
+
+```bash
+python tools/validate_kernel_checker.py
+python -m unittest discover -s tests/kernel_checker -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-KERNEL-CHECKER-001 --require-bound
 ```
 
 ## Proposed contracts

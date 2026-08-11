@@ -10,12 +10,12 @@ The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
 SHA-256
 `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 Its self-identity is
-`7d51099a6368fbc21fcc435b487b53468e68ee9c47ee35bdbdafc9c3253b42eb`.
+`12a2489d8b2909ecba1eb2cac511ee66480af441b40c0001481a90c64eb561df`.
 
 ## Current result
 
-The static boundary contains 119 Python modules, 32 non-`mathhead` import
-roots, 24 classified trust surfaces, and seven supported entry points. Every
+The static boundary contains 121 Python modules, 32 non-`mathhead` import
+roots, 24 classified trust surfaces, and eight supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
 entry-point closure, or trust classification changes the report and therefore
@@ -27,10 +27,11 @@ The important current distinctions are:
 |---|---|---|
 | Z3 and SymPy | solver verdict | producer-side; independent promotion requires evidence replay |
 | PySAT and nauty | producer report | retain outside the checker and bind exact encodings or output |
-| `certificate.py` | checker attestation, with a visible approximate legacy branch | split exact typed certificates from numerical checks in MH-032/MH-033 |
+| `certificate.py` | legacy mixed exact and approximate checking; cannot issue the new immutable attestation | separate remaining numerical evidence in MH-033 |
 | `drat.py` and `discovery/rup_check.py` | two checker-attested RUP/DRUP boundaries | unify and harden one versioned streaming checker in MH-034 |
-| `discovery/kernel.py` | checker attestation under a Python LCF-style guard | immutable non-authoritative proof terms now exist; checker and theorem-result replacement remains MH-032/MH-033 |
+| `discovery/kernel.py` | legacy checker attestation under a Python LCF-style guard | compatibility only; its forgeable `Theorem` cannot cross the new boundary |
 | `kernel/proof_terms.py` | structural validity only, no mathematical authority | constructor-controlled closed values and canonical parsing implemented in MH-031 for MH-032 replay |
+| `kernel/checkers.py` | immutable checker attestation after exact independent replay | active MH-032 authority boundary; five internal modules and seven stdlib roots |
 | SHA-256 and canonical JSON | identity only | centralize full content and replay identities in MH-035 |
 | Lean export | no current authority | grant authority only after pinned external replay in MH-036 |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
@@ -43,14 +44,16 @@ proof-assistant implementation as sound.
 
 ## Minimal checker target
 
-The MH-032 target is capped at 12 modules and nine standard-library roots. It
+The MH-032 target is capped at 12 modules and nine standard-library roots. The
+implemented closure uses five modules and seven standard-library roots. It
 permits only declared exact value, rational, digest, canonical JSON, Unicode,
 and integer-combinatorial primitives. Third-party packages, dynamic imports,
 filesystem and process effects, environment reads, network transport, clocks,
 randomness, and floating-point or solver authority are all explicitly denied.
 
-That target is a budget and allowlist, not a claim that the new kernel already
-exists. MH-031 through MH-037 own every migration in an acyclic order.
+The accepted checker contract and result schema are bound into the inventory;
+the legacy migration adapter carries no authority and never imports the
+checker. MH-031 through MH-037 own every migration in an acyclic order.
 
 ## Commands
 

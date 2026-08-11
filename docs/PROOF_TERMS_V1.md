@@ -10,13 +10,14 @@ The module is `mathhead.kernel.proof_terms`; its normative wire schema is
 
 A proof term is candidate structure, never a theorem. Factory construction,
 canonical parsing, hashing, equality, copying, and serialization do not grant
-mathematical authority. MH-032 will independently evaluate these values and is
-the only planned boundary that may issue checker attestation.
+mathematical authority. MH-032 now independently evaluates these values in
+`mathhead.kernel.checkers`, the only new boundary that may issue immutable
+checker attestation; see `KERNEL_CHECKER_V1.md`.
 
 The legacy `mathhead.discovery.kernel.Theorem` remains visible and forgeable
-through deliberate `object.__new__` use. MH-031 does not relabel it or silently
-claim that it has been sealed; replacing the checker-issued result belongs to
-MH-032.
+through deliberate `object.__new__` use. It is not relabelled or silently
+claimed to be sealed, and the MH-032 checker and migration adapter reject it
+as authority. Only replay of canonical proof terms can issue the new result.
 
 ## Closed algebra
 

@@ -5,53 +5,62 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-031 - Define immutable proof-term types
+### MH-032 - Extract dependency-minimal certificate checkers
 
-**Goal:** replace forgeable legacy theorem objects at the new trusted boundary
-with one frozen, typed, canonical proof-term algebra. Normal public APIs must
-not be able to create, mutate, deserialize, copy, or promote a theorem claim
-without structural validation and a later checker decision.
+**Goal:** make mathematical authority a property that only a small,
+independent checker boundary can issue. The checker must consume the immutable
+MH-031 proof-term algebra, revalidate its complete graph, evaluate the supported
+mathematics exactly, and return an immutable attestation without trusting any
+producer, solver, interface, transport, or orchestration code.
 
-**Scope:** define exact tagged nodes for the supported P3 kernel fragment,
-including residue, CRT, finite-sum induction, and polynomial-identity evidence;
-separate untrusted proof terms from checker-issued theorem results; control all
-public construction and parsing paths; deeply freeze collections and values;
-bind canonical JSON bytes and content identity; enforce cycle, depth, node,
-integer-size, and payload budgets; provide a stable error taxonomy; make rule
-dispatch exhaustive; and keep any legacy adapter explicitly non-authoritative.
-The design must leave room for later rule registration without allowing an
-unknown tag, unknown field, subclass, mutable alias, or implementation detail
-to acquire authority.
+**Scope:** define and implement a closed checker request and result model for
+the residue, CRT, finite-sum induction, and polynomial-identity rules; bind the
+exact statement, proof term, governing contract identities, checker
+implementation identity, deterministic resource accounting, verdict, and
+classified diagnostics; evaluate all arithmetic with integers and
+`Fraction`; make rule dispatch exhaustive and fail closed; prevent public
+construction, copying, pickling, subclassing, `object.__new__` forgery, stale
+identity, and legacy `Theorem` values from crossing the authority boundary;
+and provide explicit non-authoritative adapters for legacy inputs. The checker
+closure must remain within twelve internal modules and nine approved standard
+library roots, with no third-party, dynamic-import, clock, filesystem, process,
+network, randomness, solver, CAS, UI, MCP, or discovery-producer dependency.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`, accepted
-`MH-C-PROOF-TERM-001`, and the accepted P2 ProblemIR, TheoryContext,
-ResourceBudget, EngineResult, Evidence, Certificate, and TheoryPlugin
-boundaries. The proof-term contract fixes constructors, wire form, canonical
-identity, budgets, error classes, trust semantics, and the exact implementation
-binding. Proof-term validity is structural only; mathematical authority remains
-exclusively assigned to the dependency-minimal checker in MH-032.
+**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
+`MH-C-PROOF-TERM-001`, `MH-C-EVIDENCE-001`, and `MH-C-CERTIFICATE-001`.
+Before implementation, propose, prescreen, and accept a new canonical
+`MH-C-KERNEL-CHECKER-001` contract that fixes the supported statement
+fragment, checker request/result ABI, exact verdict and error taxonomy,
+attestation construction authority, resource budgets, implementation binding,
+legacy migration behavior, and complete dependency boundary. No checker code
+may precede acceptance of the exact contract bytes.
 
-**Validators:** closed Draft 2020-12 schema and repository-owned validator;
-dependency-minimal and full-environment byte agreement; canonical round trips;
-positive fixtures for every rule; and adversarial tests for direct constructor
-calls, `object.__new__`, dataclass replacement, pickle, copy and deepcopy,
-mutable aliases, subclassing, invalid tags and fields, duplicate JSON keys,
-non-canonical encodings, cycles, excess depth, excess nodes, oversized
-integers, stale hashes, and forged theorem promotion. Add source and import-
-boundary checks, exact implementation binding, Ruff, project status, core,
-docs, release, clean-install, and same-head GitHub gates.
+**Validators:** closed Draft 2020-12 schemas and repository-owned validators;
+positive evaluation for all four proof rules; exact rational and integer
+boundary cases; canonical request/result round trips; independent statement
+recomputation; and adversarial rejection for false residues, inconsistent or
+non-coprime CRT parts, wrong induction bases or steps, unequal or malformed
+polynomials, hidden variables, forged and uninitialized terms/results, cycles,
+excess depth/nodes/coefficients/parts/integer bits, duplicate or unknown JSON
+fields, stale hashes, contract or implementation drift, producer/checker
+identity aliasing, legacy theorem promotion, and unsupported rules. Add source
+closure and denied-import tests, deterministic replay, legacy differential
+tests, exact implementation binding, Ruff, project status, core, docs, release,
+clean-install, and same-head GitHub gates.
 
-**Done when:** public proof-term values are deeply immutable and either valid
-by controlled construction or rejected during canonical parsing; all forged
-or mutated values fail closed at the checker boundary; no public constructor
-can mint checker authority; every supported node has one canonical encoding
-and bounded validation path; the implementation stays inside the MH-030 target
-dependency budget; and all local and same-head remote gates pass.
+**Done when:** only the dependency-minimal checker can mint an immutable
+checker attestation; every accepted attestation deterministically binds and
+replays the exact statement and canonical MH-031 term; malformed, false,
+unsupported, exhausted, forged, stale, and mismatched inputs produce stable
+non-promoting failures; the legacy forgeable theorem representation cannot
+cross the new boundary; the actual import closure meets the MH-030 budget; and
+all local and same-head remote gates pass.
 
-**Dependencies:** MH-030 is done and supplies the closed trust inventory and
-migration ownership. Checker evaluation and theorem issuance remain MH-032;
-internal arithmetic evidence remains MH-033; SAT replay, provenance, Lean, and
-trust-tier red-team work remain MH-034 through MH-037.
+**Dependencies:** MH-030 and MH-031 are done and supply the frozen trust budget
+and structural proof terms. MH-033 will move currently hidden derived
+arithmetic into evidence; MH-034 will harden SAT proof replay; MH-035 will bind
+complete provenance; MH-036 will add external Lean authority; and MH-037 will
+red-team all remaining trust-tier transitions.
 
 ## Next
 

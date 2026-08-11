@@ -44,6 +44,13 @@ def _valid_digest(value: object) -> str:
     return value
 
 
+def _is_link_like(info: os.stat_result) -> bool:
+    reparse_point = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return stat.S_ISLNK(info.st_mode) or bool(
+        getattr(info, "st_file_attributes", 0) & reparse_point
+    )
+
+
 def _ensure_directory(path: Path) -> None:
     try:
         path.mkdir(mode=0o755)
@@ -55,8 +62,20 @@ def _ensure_directory(path: Path) -> None:
         info = path.lstat()
     except OSError as exc:
         _fail("io", f"cannot inspect store directory: {exc.__class__.__name__}")
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+    if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
         _fail("path", "store component is not a real directory")
+
+
+def _validate_directory_chain(path: Path) -> None:
+    current = Path(path.anchor)
+    for component in path.parts[1:]:
+        current /= component
+        try:
+            info = current.lstat()
+        except OSError as exc:
+            _fail("io", f"cannot inspect store path: {exc.__class__.__name__}")
+        if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
+            _fail("path", "store path contains a link or non-directory component")
 
 
 def _prepare_root(root: Path, *, create: bool) -> Path:
@@ -64,6 +83,8 @@ def _prepare_root(root: Path, *, create: bool) -> Path:
         _fail("type", "store root must be a pathlib.Path")
     if not root.is_absolute() or root == Path(root.anchor):
         _fail("path", "store root must be a non-root absolute path")
+    if root != Path(os.path.normpath(str(root))):
+        _fail("path", "store root must not contain parent traversal")
     if not create and not root.exists():
         _fail("missing", "store root does not exist")
     missing: list[Path] = []
@@ -74,7 +95,8 @@ def _prepare_root(root: Path, *, create: bool) -> Path:
             _fail("path", "store root has no existing parent")
         current = current.parent
     try:
-        if current.is_symlink() or not current.is_dir():
+        info = current.lstat()
+        if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
             _fail("path", "existing store ancestor is not a real directory")
     except OSError as exc:
         _fail("io", f"cannot inspect store ancestor: {exc.__class__.__name__}")
@@ -84,11 +106,7 @@ def _prepare_root(root: Path, *, create: bool) -> Path:
         _ensure_directory(path)
     if create:
         _ensure_directory(root)
-    try:
-        if root.resolve(strict=True) != root:
-            _fail("path", "store root must be absolute, normalized, and symlink-free")
-    except OSError as exc:
-        _fail("io", f"cannot resolve store root: {exc.__class__.__name__}")
+    _validate_directory_chain(root)
     return root
 
 
@@ -103,7 +121,7 @@ def _child_directory(parent: Path, name: str, *, create: bool) -> Path:
             info = path.lstat()
         except OSError as exc:
             _fail("missing", f"store directory is absent: {exc.__class__.__name__}")
-        if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+        if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
             _fail("path", "store component is not a real directory")
     return path
 
@@ -127,7 +145,7 @@ def _read_exact_file(path: Path, expected_digest: str, maximum: int) -> bytes:
         linked = path.lstat()
     except OSError as exc:
         _fail("io", f"cannot inspect content object: {exc.__class__.__name__}")
-    if stat.S_ISLNK(linked.st_mode) or not stat.S_ISREG(linked.st_mode):
+    if _is_link_like(linked) or not stat.S_ISREG(linked.st_mode):
         _fail("link", "content object path must name a regular file directly")
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     try:

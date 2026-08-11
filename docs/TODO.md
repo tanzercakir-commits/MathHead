@@ -12,7 +12,7 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 **Scope:** pure-Python limits, fast-backend selection, resource budgets,
 truncation/refusal semantics, and product/CLI regression tests.
 
-**Contracts:** `MH-C-GRAPH-BUDGET-001` (proposed), `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-GRAPH-BUDGET-001`, `MH-C-WORKFLOW-001`.
 
 **Validators:** graph budget unit, timeout, negative, CLI, and legacy
 differential checks plus the relevant product profile.
@@ -20,8 +20,8 @@ differential checks plus the relevant product profile.
 **Done when:** the default path cannot enumerate an unsafe search silently and
 larger requests require a declared fast capability or return an honest result.
 
-**Dependencies:** `MH-003` (done), `MH-004` (done), explicit owner acceptance
-of the proposed graph-budget contract.
+**Dependencies:** `MH-003` (done), `MH-004` (done); graph-budget contract
+accepted under the project owner's programme-wide acceptance authority.
 
 ### MH-012 - Make all command surfaces encoding-safe
 
@@ -31,7 +31,7 @@ output while preserving Unicode when supported.
 **Scope:** CLI, discovery CLI, MCP/subprocess diagnostics, JSON and human
 renderers, non-UTF-8 consoles, and redirected streams.
 
-**Contracts:** `MH-C-ENCODING-001` (proposed), `MH-C-WORKFLOW-001`.
+**Contracts:** `MH-C-ENCODING-001`, `MH-C-WORKFLOW-001`.
 
 **Validators:** non-UTF-8 locale, redirected console, JSON, human output,
 Windows, and negative encoding tests.
@@ -39,8 +39,8 @@ Windows, and negative encoding tests.
 **Done when:** supported commands never crash on encodable/unsupported glyphs,
 machine JSON stays canonical, and lossy fallback is explicit and deterministic.
 
-**Dependencies:** `MH-003` (done), `MH-004` (done), explicit owner acceptance
-of the proposed encoding contract.
+**Dependencies:** `MH-003` (done), `MH-004` (done); encoding contract accepted
+under the project owner's programme-wide acceptance authority.
 
 ## Next
 

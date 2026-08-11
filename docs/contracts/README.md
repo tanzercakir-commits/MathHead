@@ -16,15 +16,22 @@ before the critical implementation that they govern.
 - `MH-C-BASELINE-001.json` governs canonical legacy-baseline capture and
   offline replay. It was explicitly accepted by the project owner at SHA-256
   `3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2`.
+- `MH-C-GRAPH-BUDGET-001.json` governs bounded graph search planning,
+  fail-closed backend selection, and honest refusal semantics for MH-011. It
+  was accepted under the project owner's programme-wide acceptance authority
+  at SHA-256
+  `3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794`.
+- `MH-C-ENCODING-001.json` governs deterministic locale-safe human and machine
+  output for MH-012. It was accepted under the project owner's programme-wide
+  acceptance authority at SHA-256
+  `b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210`.
 
 ## Proposed contracts
 
 - Accepted proposal source files remain under `proposed/` as immutable review
   evidence; their presence does not make them the active manifest target.
-- `proposed/MH-C-GRAPH-BUDGET-001.json` defines bounded graph search planning,
-  fail-closed backend selection, and honest refusal semantics for MH-011.
-- `proposed/MH-C-ENCODING-001.json` defines deterministic locale-safe human and
-  machine output for MH-012.
+- The MH-C-GRAPH-BUDGET-001 and MH-C-ENCODING-001 proposal sources are retained
+  byte-identically as their immutable review evidence.
 
 ## Contract rule
 

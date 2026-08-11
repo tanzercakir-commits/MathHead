@@ -26,12 +26,12 @@ state = "accepted"
 
 [[contracts]]
 id = "MH-C-GRAPH-BUDGET-001"
-path = "docs/contracts/proposed/MH-C-GRAPH-BUDGET-001.json"
+path = "docs/contracts/MH-C-GRAPH-BUDGET-001.json"
 sha256 = "3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794"
-state = "proposed"
+state = "accepted"
 
 [[contracts]]
 id = "MH-C-ENCODING-001"
-path = "docs/contracts/proposed/MH-C-ENCODING-001.json"
+path = "docs/contracts/MH-C-ENCODING-001.json"
 sha256 = "b47e07c259a8357000d57cde4238b61ea11a872113d713165515dc86a54cf210"
-state = "proposed"
+state = "accepted"

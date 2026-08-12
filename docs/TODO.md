@@ -5,134 +5,119 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-050 - Replace keyword routing with a typed capability registry
+### MH-051 - Implement a deterministic planner
 
-**Goal:** replace tool-name and description keyword similarity with a bounded,
-content-addressed capability registry that decides routing eligibility only from
-the exact owned IR fragment, requested operation and evidence type, accepted
-contract identities, cost model, platform availability, and current
-TheoryContext. A registry decision may authorize a later planner to consider a
-capability, but it must never execute a plugin, infer mathematical truth, select
-a user reading, revive stale session evidence, or grant producer output checker
-authority.
+**Goal:** transform one validated typed capability-routing result for an exact
+current obligation into a finite, canonical, replayable strategy plan with
+explicit prerequisites, expected evidence, resource requests, success/stop
+conditions, and typed fallback rules. Planning may order already-admitted
+capabilities for later execution, but it must never load or run a plugin, call a
+model, invent a capability, change the selected mathematical reading, claim a
+proof, or upgrade producer output into checker authority.
 
-**Scope:** implement a dependency-minimal pure registry and routing boundary over
-explicitly supplied canonical TheoryPlugin descriptor bytes. Registration must
-independently validate every descriptor, bind its full content identity, stable
-plugin/version identity, distinct producer and checker identities, accepted
-contract and schema compatibility, declared fragment, evidence/certificate
-formats, integer cost model, lifecycle, effects, replay modes, dependencies,
-platforms, and hard limits without importing an entry point or inspecting the
-host. Duplicate byte-identical registration is idempotent; logical-ID/version,
-component, capability, format, dependency, or namespace collisions fail closed
-for the complete registry rather than choosing by load order.
+**Scope:** implement a dependency-minimal pure planner over canonical bytes. It
+must independently validate the accepted capability-route result and bind the
+route, registry, request, session head, TheoryContext, obligation, fragment,
+availability, descriptor, capability, component, dependency, evidence-format,
+certificate-format, replay, effect, priority, and exact integer cost identities
+used by every planned strategy. A non-routed, stale, incomplete, ambiguous,
+invalid, exhausted, or repaired route produces no executable plan or partial
+strategy set.
 
-Route one exact obligation from a replay-validated successful canonical
-normalization artifact and its exact current TheoryContext/session revision.
-Derive the fragment summary from accepted bytes rather than trusting a
-caller-supplied label, then filter capabilities by exact theory, domain,
-quantifier, expression, relation, arithmetic, feature, size, version, platform,
-effect, operation, evidence, certificate, replay, dependency, and availability
-constraints. Emit immutable canonical registry, request, candidate,
-incompatibility, and result records. Every candidate binds the descriptor,
-capability, operation, producer/checker, context, obligation, input artifact,
-cost derivation, required evidence/certificate formats, dependencies, declared
-effects, and replay identities. Order eligible candidates deterministically by
-estimated cost ascending, priority descending, capability ID, plugin ID, and
-version; retain explicit dimension-level reasons for every rejected capability.
+Represent a plan as an immutable content-addressed directed acyclic graph. Each
+strategy has a stable identity, the exact candidate it derives from, ordered
+prerequisites, expected Evidence and Certificate contracts/formats, declared
+effects, replay mode, an integer resource request derived without floats, and
+closed success, refusal, exhaustion, cancellation, verifier-failure, and
+fallback transitions. Every transition names one typed outcome and one exact
+next strategy or terminal state; all nodes are reachable, every fallback target
+is later in the canonical order, and cycles, hidden branches, duplicate
+capability use, dangling targets, or implicit exception fallbacks fail closed.
 
-Remove keyword overlap as a routing mechanism. The legacy `recommend_tool`
-surface may remain only as an explicitly non-authoritative compatibility notice
-or exact-name lookup; prose tokens, substrings, descriptions, display names,
-catalogue insertion order, profile labels, and tool popularity must not affect
-typed eligibility or ranking. Runtime loading, entry-point discovery, plugin
-initialization, planning/fallback policy, worker isolation, execution,
-verification, caching, and theory-specific mathematical semantics remain owned
-by later tasks.
+Preserve the registry's deterministic cost/priority ordering as the default
+strategy order. Any permitted policy transformation must be an explicit closed
+canonical input, must not make an incompatible candidate eligible, and must
+have a completely specified deterministic comparison key. Define whether
+unsupported, exhausted, cancelled, producer error, checker inconclusive,
+checker disagreement, verifier failure, and invalid evidence stop or fall back;
+never treat any of them as success. Make counterexample-first behavior explicit
+only when the candidate and obligation contracts declare a sound witness path;
+do not infer it from names, descriptions, prose, or mathematical folklore.
+
+The planner outputs intent only. Worker creation, operating-system isolation,
+hard wall/memory enforcement, process-tree termination, plugin import and
+initialization, execution, certificate checking, portfolio concurrency,
+runtime retry, persistent cache, cancellation propagation, refusal UI, and
+public CLI/MCP/SDK exposure remain owned by MH-052 through MH-056 and MH-090
+through MH-093.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
-`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
-`MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`,
-`MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`,
-`MH-C-THEORY-PLUGIN-001`, `MH-C-CANONICAL-NORMALIZATION-001`,
-`MH-C-PROBLEM-SESSION-001`, and `MH-C-PROBLEM-SESSION-STORE-001`
-identities. Before implementation, propose, independently prescreen, and accept
-a new versioned capability-registry contract with closed availability,
-registry-entry, registry, route-request, cost-derivation, candidate,
-incompatibility, and route-result schemas. Freeze exact byte-oriented public
-signatures; pure effect
-boundaries; descriptor admission; registry conflict and idempotency rules;
-upstream replay and current-context binding; operation and evidence-format
-negotiation; dependency closure; exact fragment containment; availability and
-platform vocabulary; deterministic cost/ranking/tie policy; rejection reasons;
-canonical serialization and SHA-256 preimages; immutable result surfaces; and
-finite ceilings for input/output bytes, descriptors, versions, capabilities,
-operations, formats, dependencies, fragment dimensions, candidates,
-incompatibilities, diagnostics, strings, integers, nesting, validation and
-routing work, runtime, and memory.
+`MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`, `MH-C-EVIDENCE-001`,
+`MH-C-CERTIFICATE-001`, `MH-C-THEORY-PLUGIN-001`,
+`MH-C-CAPABILITY-REGISTRY-001`, `MH-C-PROBLEM-SESSION-001`, and current
+normalization/context identities. Before implementation, propose,
+independently prescreen, and accept a new versioned deterministic-planner
+contract with closed policy, planning-request, prerequisite, evidence
+expectation, resource request, strategy node, transition, and planning-result
+schemas.
 
-The contract must forbid keyword, regex, edit-distance, embedding, LLM, display-
-name, description, or import-order routing; dynamic imports, entry-point scans,
-filesystem, environment, network, subprocess, solver, clock, randomness, and
-plugin execution in the pure boundary; caller-forged fragment summaries;
-partial or repaired upstream artifacts; stale or cross-session contexts;
-undeclared dependencies, effects, formats, or platform assumptions; producer/
-checker substitution; unsupported-version fallback; collision resolution by
-last writer; hidden cost terms; float costs; authority escalation; partial
-registries or partial success; and exception-to-supported behavior. Closed
-`routed`, `unsupported`, `ambiguous`, `invalid`, and `exhausted` outcomes must
-carry no executable handle or mathematical verdict, and every non-routed result
-must contain no selected capability.
+Freeze exact byte-oriented public signatures; route and current-session
+preconditions; allowed planning policies; canonical node and transition order;
+cost and resource arithmetic; prerequisite and dependency closure; Evidence and
+Certificate expectations; terminal states; fallback outcome matrix; DAG and
+reachability rules; identity preimages; immutable value surfaces; pure effects;
+authority ceilings; and finite ceilings for input/output bytes, candidates,
+strategies, prerequisites, transitions, dependency depth, diagnostics, strings,
+integers, nesting, nodes, planning work, runtime, and memory.
 
-**Validators:** cover empty, one-plugin, multi-version, multi-plugin, and
-byte-identical duplicate registries; exact supported and unsupported fragments;
-every fragment dimension and boundary; decision, construction, verification,
-and explanation operations; Evidence and Certificate format/version
-negotiation; exact and unavailable platforms; declared and forbidden effects;
-dependency chains; optional and required extensions; lowest-cost selection;
-priority and lexical ties; deterministic full candidate ordering; explicit
-rejection projections; context and session revision changes; supported and
-unsupported obligations; and the legacy recommendation surface without keyword
-selection.
+The contract must forbid keyword, regex, edit-distance, embedding, LLM,
+description, display-name, popularity, import-order, clock, randomness, or
+historical-success planning; dynamic imports, entry-point scans, filesystem,
+environment, network, subprocess, solver, plugin, or checker execution in the
+pure boundary; caller-forged candidates or costs; stale/cross-session route
+reuse; undeclared prerequisites, formats, effects, dependencies, or outcomes;
+fallback to an incompatible or earlier strategy; cycles; exception-to-success;
+partial plans; producer authority; and any result containing an executable
+callable or live plugin handle.
 
-Require an independent validator to parse canonical descriptors and upstream
-artifacts itself, recompute descriptor and registry identities, dependency
-closure, fragment summaries, compatibility, cost terms, candidate ordering,
-every incompatibility reason, route identity, and top-level result without
-importing production registry helpers. Require byte-identical results across
-repeated processes, hash seeds, Python 3.10 through 3.14, and
-Linux/macOS/Windows. Reject duplicate or conflicting IDs, versions, components,
-capabilities, namespaces and formats; dependency cycles or missing hashes;
-forged current context, session, obligation, fragment, cost, priority,
-availability, evidence or certificate requirements; stale/cross-reading input;
-reordered semantic data; unknown fields; duplicate JSON keys; floats;
-bool-as-int; NUL/non-NFC text; subclasses; mutation; pickling; oversized/deep
-values; and budget exhaustion without a partial registry or candidate set. Add
-contract, schema, unit, property/adversarial, independent-validator,
+**Validators:** cover one and many routed candidates; all four capability kinds
+and operations; empty/non-routed input; exact registry order; cost, priority,
+and lexical ordering; explicit policy variants; prerequisite closure; Evidence
+and Certificate requirements; dependencies; effect and replay propagation;
+resource request arithmetic and saturation; every engine/checker outcome;
+single and multi-hop fallback; terminal success/refusal/exhaustion/cancellation/
+verifier-failure; unreachable nodes; cycles; dangling or backward targets;
+duplicate candidate use; and route/session/context changes.
+
+Require an independent validator to parse and recompute the accepted route,
+strategy ordering, prerequisites, evidence expectations, resource terms,
+transition matrix, reachability, acyclicity, terminal coverage, node identities,
+and complete plan identity without importing production planner helpers.
+Require byte-identical output across repeated processes, hash seeds, Python 3.10
+through 3.14, and Linux/macOS/Windows. Reject unknown or missing fields,
+duplicate JSON keys, floats, bool-as-int, NUL/non-NFC text, noncanonical bytes,
+stale or repaired hashes, reordered semantic data, mutation, subclassing,
+pickling, oversized/deep values, and budget exhaustion without partial state.
+Add contract, schema, unit, property/adversarial, independent-validator,
 frozen-report, documentation, trust-inventory, clean-wheel, Ruff, compileall,
 project-status, core, coverage, and exact-head remote gates.
 
-**Done when:** the accepted contract and every closed schema are
-content-addressed and bound; canonical plugin descriptors form one deterministic
-collision-free registry without importing or executing plugin code; an exact
-current obligation/context routes only to fully compatible candidates with
-independently reproducible cost and ordering; every rejection exposes a closed
-machine-readable reason; changed context, session, availability, dependency,
-format, effect, or platform identity cannot reuse a prior route; keyword and
-description similarity have no routing influence; no registry result claims
-truth or checker authority; frozen reports and trust inventories are current;
-and every local and exact-head gate passes.
+**Done when:** the accepted planner contract and closed schemas are
+content-addressed and implementation-bound; a routed exact current obligation
+produces one deterministic canonical acyclic plan whose every strategy,
+prerequisite, expected artifact, resource term, terminal, and fallback is
+independently reproducible; non-routed or stale input yields no partial plan;
+no hidden model, plugin execution, keyword selection, or authority escalation is
+possible; frozen reports and trust inventories are current; and every local and
+exact-head gate passes.
 
-**Dependencies:** MH-026 supplies the accepted declarative TheoryPlugin
-contract and its exact containment/cost semantics; MH-040 through MH-045 supply
-the replayable owned IR, contexts, obligations, normalization, and unsupported
-boundaries; MH-046 supplies current session/revision identity and stale-evidence
-invalidation. MH-051 owns strategy planning and fallbacks, MH-052 through MH-056
-own isolated execution, portfolios, audit, caching, cancellation and refusal,
-MH-060 through MH-067 own real theory-plugin slices, and MH-090 through MH-093
-own stable public CLI/MCP/SDK exposure. The legacy task-name dispatcher remains
-a compatibility surface until those interface migrations and cannot serve as
-authority for this registry.
+**Dependencies:** MH-050 supplies validated compatible candidates, explicit
+incompatibilities, exact costs, registry order, and current route identity;
+MH-040 through MH-046 supply canonical obligations, context, normalization, and
+session freshness. MH-052 enforces the resource requests in isolated workers,
+MH-053 executes proof/search portfolios, MH-054 audits producer/checker
+separation, MH-055 owns cache and deterministic replay, MH-056 owns cancellation
+and refusal behavior, and MH-060 through MH-067 supply real theory strategies.
 
 ## Next
 

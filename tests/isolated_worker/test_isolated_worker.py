@@ -591,8 +591,11 @@ class IsolatedWorkerTests(unittest.TestCase):
                 directory,
             )
         self.assertEqual((result.status, result.reason_code), ("unsupported", "ISOLATION_UNSUPPORTED"))
-        self.assertTrue(result.lease_reconciled)
-        self.assertTrue(result.tree_terminated)
+        # Capability refusal precedes executable/cwd authority, budget
+        # reservation, and process creation, so neither post-launch claim is
+        # made for this honest closed outcome.
+        self.assertFalse(result.lease_reconciled)
+        self.assertFalse(result.tree_terminated)
 
 
 if __name__ == "__main__":

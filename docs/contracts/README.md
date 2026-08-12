@@ -220,7 +220,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 133 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 138 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -323,6 +323,24 @@ python -m unittest discover -s tests/unsupported_explanations -v
 python tools/validate_unsupported_explanations.py
 python tools/contract_artifacts.py verify \
   --contract MH-C-UNSUPPORTED-EXPLANATION-001 --require-bound
+```
+
+## Persistent problem sessions
+
+MH-046 is documented in `docs/PROBLEM_SESSIONS_V1.md`. The pure
+`mathhead.problem_sessions` boundary records replayable revisions and
+deterministically invalidates stale dependency closures. The separate
+`mathhead.problem_session_store` adapter persists only validated canonical
+objects and atomically advances one non-authoritative head:
+
+```bash
+python -m unittest discover -s tests/problem_sessions -v
+python tools/validate_problem_sessions.py
+python tools/validate_problem_session_store.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROBLEM-SESSION-001 --require-bound
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROBLEM-SESSION-STORE-001 --require-bound
 ```
 
 ## Immutable proof terms

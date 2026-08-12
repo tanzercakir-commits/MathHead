@@ -142,6 +142,12 @@ AUTHORITY_LITERAL_COUNTS = {
         "producer_report": 1,
         "solver_verdict": 1,
     },
+    "src/mathhead/problem_sessions.py": {
+        "checker_attestation": 2,
+        "external_proof_assistant": 2,
+        "producer_report": 1,
+        "solver_verdict": 1,
+    },
     "src/mathhead/proof_assistant/export.py": {"checker_attestation": 1},
     "src/mathhead/proof_assistant/lean.py": {"external_proof_assistant": 2},
     "src/mathhead/proof_assistant/provenance.py": {"checker_attestation": 1},

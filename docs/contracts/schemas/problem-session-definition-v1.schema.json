@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-session-definition-v1.schema.json",
+  "title": "MathHead problem-session definition record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-session-definition.v1"},
+    "record_id": {"$ref": "#/$defs/id"},
+    "generation": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "definition_id": {"$ref": "#/$defs/id"},
+    "primary_artifact_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_ir_sha256": {"$ref": "#/$defs/sha256"},
+    "theory_context_sha256": {"$ref": "#/$defs/sha256"},
+    "declaration_sha256": {"$ref": "#/$defs/sha256"},
+    "depends_on_record_sha256s": {"$ref": "#/$defs/dependencies"},
+    "record_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "record_id",
+    "generation",
+    "definition_id",
+    "primary_artifact_sha256",
+    "problem_ir_sha256",
+    "theory_context_sha256",
+    "declaration_sha256",
+    "depends_on_record_sha256s",
+    "record_sha256",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+    "dependencies": {
+      "type": "array",
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    }
+  }
+}

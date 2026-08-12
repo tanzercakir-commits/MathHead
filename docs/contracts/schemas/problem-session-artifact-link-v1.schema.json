@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-session-artifact-link-v1.schema.json",
+  "title": "MathHead problem-session artifact link v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-session-artifact-link.v1"},
+    "role": {
+      "enum": [
+        "certificate",
+        "context",
+        "definition_payload",
+        "diagnostic_attachment",
+        "engine_result",
+        "evidence",
+        "lemma_statement",
+        "obligation",
+        "problem_analysis",
+        "provenance_replay",
+        "resource_outcome",
+        "unsupported_explanation",
+        "attempt_input",
+        "attempt_observation"
+      ]
+    },
+    "media_type": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.+-]{0,31}/[a-z0-9][a-z0-9.+-]{0,63}$"
+    },
+    "artifact_schema": {
+      "anyOf": [
+        {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+        {"type": "null"}
+      ]
+    },
+    "sha256": {"$ref": "#/$defs/sha256"},
+    "bytes": {"type": "integer", "minimum": 1, "maximum": 67108864},
+    "context_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "reading_id": {
+      "anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]
+    },
+    "depends_on_sha256s": {
+      "type": "array",
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    },
+    "retained_tier": {
+      "enum": [
+        "none",
+        "assumed",
+        "definitional",
+        "unchecked",
+        "producer_report",
+        "solver_verdict",
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "role",
+    "media_type",
+    "artifact_schema",
+    "sha256",
+    "bytes",
+    "context_sha256",
+    "reading_id",
+    "depends_on_sha256s",
+    "retained_tier",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"}
+  }
+}

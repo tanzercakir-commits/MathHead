@@ -227,3 +227,15 @@ id = "MH-C-UNSUPPORTED-EXPLANATION-001"
 path = "docs/contracts/MH-C-UNSUPPORTED-EXPLANATION-001.json"
 sha256 = "35248c92eea2253c153b4cc0d1be2cffead624c417c74ca5562696e8d07786f9"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROBLEM-SESSION-001"
+path = "docs/contracts/MH-C-PROBLEM-SESSION-001.json"
+sha256 = "822f72c9f41f583e4e0535e83b9dbb10954202acc820192e52eab48a5c2d9c0a"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROBLEM-SESSION-STORE-001"
+path = "docs/contracts/MH-C-PROBLEM-SESSION-STORE-001.json"
+sha256 = "7637e5178767b661e6e361305090a9f7fb50d50bd5d316035283d73f970a9b82"
+state = "accepted"

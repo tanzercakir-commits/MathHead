@@ -480,3 +480,38 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-UNSUPPORTED
 profiles = ["status", "fast"]
 tasks = ["MH-045"]
 timeout_seconds = 60
+
+[[checks]]
+name = "problem-session-tests"
+command = "python -m unittest discover -s tests/problem_sessions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-validator"
+command = "python tools/validate_problem_sessions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-store-validator"
+command = "python tools/validate_problem_session_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-SESSION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-session-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-SESSION-STORE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 60

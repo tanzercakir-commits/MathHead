@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-session-store-head-v1.schema.json",
+  "title": "MathHead problem-session store head v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-session-store-head.v1"},
+    "store_contract_id": {"const": "MH-C-PROBLEM-SESSION-STORE-001"},
+    "store_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "session_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+    "session_key_sha256": {"$ref": "#/$defs/sha256"},
+    "revision": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "head_event_sha256": {"$ref": "#/$defs/sha256"},
+    "revision_sha256": {"$ref": "#/$defs/sha256"},
+    "event_sha256s": {"$ref": "#/$defs/digests"},
+    "artifact_sha256s": {"$ref": "#/$defs/digests"},
+    "head_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "store_contract_id",
+    "store_contract_sha256",
+    "session_id",
+    "session_key_sha256",
+    "revision",
+    "head_event_sha256",
+    "revision_sha256",
+    "event_sha256s",
+    "artifact_sha256s",
+    "head_sha256",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "digests": {
+      "type": "array",
+      "maxItems": 1000000,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    }
+  }
+}

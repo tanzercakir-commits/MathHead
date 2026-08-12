@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.5.0` · 171 MCP tools · 2594 collected tests.**  
+**Package `1.5.0` · 171 MCP tools · 2615 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -108,7 +108,10 @@ identities and reversible occurrence traces under
 remain separate. Explicitly unsupported occurrences then receive exact,
 source-backed owner boundaries and conservative caller-confirmed next steps
 under `docs/UNSUPPORTED_EXPLANATIONS_V1.md`. No stage grants mathematical
-authority or promises a runtime capability.
+authority or promises a runtime capability. The complete artifact chain can
+then be retained as a content-addressed, replayable revision history with
+deterministic dependency invalidation and an atomic non-authoritative store as
+documented in `docs/PROBLEM_SESSIONS_V1.md`.
 
 ### Version vocabulary (separate on purpose)
 

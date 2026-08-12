@@ -5,131 +5,147 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-045 - Produce structured unsupported explanations
+### MH-046 - Create persistent problem sessions
 
-**Goal:** turn every explicitly unsupported construct retained by the accepted
-MH-040 through MH-044 analysis chain into a bounded, content-addressed,
-machine-readable explanation that names the exact construct, identifies the
-nearest currently owned fragment, and gives one safe next formalization step.
-The explanation must preserve every source occurrence and make the support
-boundary clearer without rewriting the problem, guessing user intent,
-promising future capability, or treating unsupported as false, impossible, or
-mathematically unresolved.
+**Goal:** create a bounded, content-addressed problem-session boundary that can
+be closed and reopened without losing definitions, lemmas, failed attempts,
+open obligations, accepted analysis artifacts, or their exact provenance. Every
+change must create a new replayable revision, and a context change must make all
+dependent evidence visibly stale before any caller can mistake it for current
+evidence. Historical work remains auditable but can never silently survive as
+authority for a different context.
 
-**Scope:** consume only canonical successful MH-044 result bytes and replay-
-validate their complete embedded intake, reading, domain/assumption,
-proof-obligation, and normalization chain before use. Cover every unsupported
-index, `supported: false` normal form, opaque fact, and unsupported obligation
-that is reachable from an accepted candidate; successful candidates with no
-unsupported records receive an exact empty explanation set. Emit one stable
-explanation target per source occurrence, retaining reading, registry, source
-reference, semantic identity, obligation/context ownership, dependency closure,
-source spans, occurrence traces, original construct kind, namespaced identifier
-and arity or shape where present. Repeated or alpha-/commutative-equivalent
-constructs may share a cause identity only while their distinct occurrences,
-origins, multiplicity, and order remain explicit.
+**Scope:** separate a dependency-minimal pure transition/replay core from a
+non-authoritative filesystem adapter. The core consumes exact canonical session
+command bytes, an optional canonical parent revision, and the complete declared
+artifact byte set; it validates every object before use and emits an immutable
+revision result. The adapter persists only validated canonical objects and one
+committed head reference beneath an explicit absolute store root, then reloads
+all bytes and asks the core to replay them afresh. Filesystem state, object
+names, mtimes, host paths, clocks, locale, process IDs, random values, and Python
+object identity must not participate in session or revision identity.
 
-Classify the nearest owned fragment only through a frozen exact-match catalogue,
-never through string similarity, edit distance, keyword routing, model output,
-runtime plugin discovery, or solver behavior. Each catalogue entry must bind an
-unsupported structural shape to an exact owner boundary, accepted contract and
-fragment code, a machine action code, an explanation template, required missing
-declarations or structure, and one conservative formalization recipe. Safe
-recipes may ask the caller to express the construct with an already owned typed
-relation, add an explicit definition or domain condition, split it into owned
-sub-obligations, or retain it for a separately contracted capability; they must
-not mutate ProblemIR, select a reading, invent an equivalence, silently drop a
-condition, install or invoke a backend, or claim the proposed reformulation is
-semantically valid. Provide deterministic English display text as a rendering
-of the structured fields, while keeping codes and parameters authoritative for
-later interfaces and localization.
+Support root-session creation and typed commands for adding, replacing, or
+retiring a problem analysis, definition, lemma record, attempt record, and
+obligation state. Definitions retain their exact ProblemIR and TheoryContext
+declaration identities. Lemma records retain the claimed statement, exact
+context and dependency closure, producer artifact, checker/certificate or
+explicit absence, provenance replay identity, and epistemic tier; recording a
+lemma never verifies it or raises its tier. Failed attempts retain strategy,
+inputs, observations, diagnostics, resource outcome, produced artifact
+identities, and the obligations they attempted, without being retried during
+replay. Open obligations retain their canonical obligation and context
+identities, dependencies, lifecycle state, and only separately validated
+evidence links.
+
+Each accepted command creates exactly one child revision with a full parent
+identity, monotonically increasing revision number, canonical event identity,
+complete current-view identity, and deterministic invalidation projection.
+Revising or retiring context-bearing input must traverse the exact dependency
+graph: directly affected and transitively dependent analyses, lemmas, attempts,
+obligations, explanations, evidence, certificates, and results remain in
+history but move to an explicit stale state with the causal prior/new context
+identities. Unchanged artifacts may remain current only when every declared
+dependency and context identity is byte-exact. A stale record can return to the
+current view only through a new command containing fresh independently accepted
+evidence; hash equality, labels, copied verdict fields, or a reintroduced name
+cannot revive it.
+
+Use optimistic compare-and-swap semantics for the mutable head: a write names
+the exact expected parent/head, concurrent or forked updates fail without
+overwriting either history, and identical retries are idempotent. The store uses
+immutable content objects, temporary-file plus fsync commit discipline, a
+single atomic head replacement, strict ownership/link checks, and recovery that
+accepts only the last fully committed replayable head. Orphaned temporary or
+unreferenced objects may be reported but never interpreted as committed state;
+garbage collection, remote synchronization, multi-host consensus, merging
+divergent branches, encryption, and user-facing collaboration remain outside
+this task.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
-`MH-C-PROBLEM-IR-002`, `MH-C-PROBLEM-INTAKE-001`,
-`MH-C-READING-ANALYSIS-002`,
-`MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001`,
-`MH-C-PROOF-OBLIGATION-DECOMPOSITION-001`, and
-`MH-C-CANONICAL-NORMALIZATION-001` identities. Before implementation, propose,
-independently prescreen, and accept a new versioned unsupported-explanations
-function contract plus closed unsupported-target, owned-fragment,
-formalization-step, explanation, catalogue, and result schemas. Freeze the
-exact byte-oriented public signature; successful upstream
-status and identity checks; complete unsupported-source coverage; occurrence
-and cause identity policy; exact construct naming; owner and nearest-fragment
-vocabulary; catalogue matching and tie rules; generic fail-safe fallback;
-action and template parameters; provenance, ordering, canonical serialization,
-SHA-256 identities, immutable result surface, non-authority statement, and
-finite ceilings for bytes, readings, graphs, contexts, obligations, facts,
-forms, targets, causes, occurrences, dependencies, source spans, traces,
-catalogue entries, template parameters, rendered code points, strings,
-integers, nesting, explanation work, runtime, and memory.
+`MH-C-PROBLEM-IR-002`, `MH-C-THEORY-CONTEXT-001`,
+`MH-C-ENGINE-RESULT-001`, `MH-C-EVIDENCE-001`,
+`MH-C-CERTIFICATE-001`, `MH-C-PROVENANCE-REPLAY-001`, and the complete
+`MH-C-PROBLEM-INTAKE-001` through
+`MH-C-UNSUPPORTED-EXPLANATION-001` analysis chain. Before implementation,
+propose, independently prescreen, and accept versioned problem-session
+transition/replay and persistence contracts with closed command, artifact-link,
+definition, lemma, attempt, obligation-state, invalidation, event, revision,
+result, and store-head schemas. Freeze exact public signatures and effect
+boundaries; command algebra and lifecycle transitions; root, parent, event,
+revision, view, object, and session identities; artifact admission and trust-
+tier rules; dependency closure and invalidation semantics; history/current-view
+separation; ordering, canonical bytes, SHA-256 preimages, immutable result
+surfaces, compare-and-swap conflicts, idempotency, crash recovery, path policy,
+and deterministic ceilings for input/output bytes, revisions, commands,
+artifacts, definitions, lemmas, attempts, obligations, dependency edges,
+invalidations, diagnostics, strings, integers, nesting, replay work, I/O,
+runtime, and memory.
 
-The contract must forbid natural-language interpretation, semantic distance or
-equivalence claims, heuristic nearest-fragment selection, unregistered advice,
-source rewriting, unsupported-record omission, duplicate collapse, cross-
-reading grouping or leakage, capability availability claims, automatic plugin
-or backend selection, planner or solver calls, proof or checker inference,
-truth or impossibility claims, partial explanation sets, authority escalation,
-and exception-to-success behavior. `explained`, `invalid`, and `exhausted`
-result states must be closed and ordinary failure states must contain no partial
-targets, causes, explanations, catalogue matches, or output identity.
+The contracts must forbid in-place revision mutation, history deletion,
+undeclared dependencies, stale-to-current promotion, self-attested evidence,
+trust-tier escalation, verifier or producer substitution, cross-session or
+cross-reading leakage, name-based artifact rebinding, implicit context merge,
+automatic conflict resolution, retrying failed work during replay, partial
+results or partial commits, arbitrary caller-selected object paths, path escape,
+symlink/reparse-point or hardlink acceptance, writable committed objects,
+unbounded directory scans, pickle authority, host-dependent identity, network
+or subprocess use by the core, and exception-to-success behavior. Closed
+`updated`, `unchanged`, `conflict`, `invalid`, and `exhausted` outcomes must
+distinguish successful state transitions from ordinary refusal; every
+non-success outcome carries no new revision, head, or authority.
 
-**Validators:** cover an entirely supported reading; exact supported and unknown
-predicate assumptions at multiple arities; unsupported relation, logical, and
-quantified assumption structures; repeated identical opaque facts with distinct
-roles, origins, dependencies, and spans; shared canonical causes with separate
-occurrences; multiple contexts and goals; inherited hypotheses; unresolved and
-resolved readings; empty strategy sets; every frozen owner-fragment and action
-code; exact catalogue matches, deterministic tie handling, and the generic
-fallback. Require every upstream unsupported index and every `supported: false`
-record to be covered exactly once as a target, every target to resolve to one
-source-backed cause and explanation, and every explanation to resolve to one
-catalogue entry or the explicit fallback. Verify that supported forms never
-receive unsupported explanations and that no explanation crosses a reading or
-changes a graph, context, obligation, status, choice, witness, strategy, trace,
-or semantic identity.
+**Validators:** exercise root creation; byte-identical reopen and full-log
+replay; definition add/replace/retire; lemma records at every permitted trust
+tier; successful, failed, cancelled, timed-out, and exhausted attempts; opening,
+blocking, discharging, reopening, and superseding obligations; supported and
+unsupported analysis artifacts; unchanged-context retention; direct and
+transitive context invalidation; unrelated-artifact retention; explicit fresh-
+evidence revival; idempotent duplicate commands; stale expected heads;
+concurrent writers; divergent children; interrupted writes at every commit
+stage; orphan temporaries and objects; missing, truncated, reordered, duplicated,
+or corrupted events and objects; and reopening after process termination.
 
-An independent validator must recompute the unsupported inventory, occurrence
-projection, cause grouping, exact construct descriptor, nearest owned fragment,
-catalogue match, safe action parameters, display rendering, ordering, every
-digest, and the top-level result without calling production helpers. Require
-byte-identical output across repeated processes, hash seeds, Python 3.10 through
-3.14, and Linux/macOS/Windows. Reject invalid or exhausted upstream results,
-noncanonical bytes, stale hashes, forged support flags, missing or surplus
-targets, ambiguous owners, false catalogue matches, unsafe or unregistered
-steps, malformed template parameters, fabricated source spans or traces,
-cross-reading references, reordered semantic inputs, NUL/non-NFC text, unknown
-fields, floats, bool-as-int, subclasses, pickling, mutation, oversized/deep
-values, and explanation-work exhaustion without a partial result. Prove the
-production module imports no natural-language or legacy parser, NLP/LLM,
-solver, CAS, discovery or proof producer, capability registry, planner,
-checker, filesystem, process, environment, network, clock, randomness, dynamic
-import, CLI, or MCP owner. Add contract, schema, unit, property/adversarial,
-independent-validator and frozen-report coverage, documentation, trust inventory,
-clean-wheel, Ruff, compileall, project-status, core, coverage, and exact-head
-remote gates.
+Require the independent validator to parse canonical bytes itself and recompute
+the complete event chain, revision numbering, dependency graph, current view,
+stale closure and causes, trust ceilings, every object/revision/session digest,
+and final head without importing production transition or persistence helpers.
+Require byte-identical core results and logical store contents across repeated
+processes, hash seeds, Python 3.10 through 3.14, and Linux/macOS/Windows. Reject
+forged parent or context identities, cycles, missing or surplus dependencies,
+repaired outer hashes, fabricated checked status, evidence from another session
+or reading, stale evidence referenced as current, unknown commands or fields,
+duplicate JSON keys, floats, bool-as-int, NUL/non-NFC text, subclasses, mutation,
+pickling, oversized/deep values, budget exhaustion, root/path traversal,
+symlink/reparse-point and hardlink state, ownership/mode drift, content
+collisions, concurrent head replacement, and crash remnants without changing a
+valid prior head. Add contract, schema, unit, property/adversarial, independent-
+validator, frozen-report, atomic-store, failure-injection, documentation, trust
+inventory, clean-wheel, Ruff, compileall, project-status, core, coverage, and
+exact-head remote gates.
 
-**Done when:** the accepted contract, closed schemas, and frozen explanation
-catalogue are content-addressed and bound; every unsupported occurrence in every
-successful reading is named exactly and mapped to one independently derivable
-owner boundary, nearest owned fragment, and conservative next-step record;
-duplicates and shared causes retain complete occurrence provenance; fully
-supported inputs produce a valid empty explanation set; display text is a
-deterministic rendering of authoritative structured codes and parameters; no
-input artifact is rewritten and no support, equivalence, capability, solver,
-proof, checker, verdict, or mathematical-authority claim is created; failure
-and budget paths return no partial explanation artifact; frozen reports and
-trust inventories are current; and every local and exact-head gate passes.
+**Done when:** accepted contracts and every closed schema are content-addressed
+and bound; a session can be created, revised, atomically persisted, reopened,
+and independently replayed to the same exact head and current view; definitions,
+lemmas, failed attempts, and open obligations retain complete immutable history
+and provenance; every relevant context change deterministically marks all and
+only dependent prior artifacts stale before the new head commits; stale or
+self-attested evidence cannot discharge an obligation or regain authority;
+optimistic conflicts and interrupted writes preserve the last valid head;
+malformed, missing, corrupted, linked, escaped, over-budget, or cross-session
+state fails closed; frozen reports and trust inventories are current; and every
+local and exact-head gate passes.
 
-**Dependencies:** MH-044 is done and supplies replayable canonical forms,
-unsupported semantic indexes, exact contexts and obligations, and reversible
-occurrence traces; MH-043 retains structural unsupported statuses and source
-topology; MH-042 retains opaque facts, roles, origins, and dependencies; MH-041
-and MH-040 retain reading separation and exact source-backed declarations.
-MH-050 owns runtime capability discovery and routing, MH-056 owns general
-cancellation/refusal semantics, and MH-073 owns evidence-grounded mathematical
-explanations, so this task is limited to deterministic support-boundary
-diagnostics and safe formalization recipes.
+**Dependencies:** MH-045 is done and completes the replayable MH-040 through
+MH-045 analysis artifact chain. MH-022 supplies revisioned TheoryContext,
+MH-024 through MH-026 define result, evidence, certificate, and plugin trust
+semantics, and MH-035 supplies independently replayed content-addressed
+provenance plus a hardened immutable-store pattern. MH-050 and MH-051 own
+capability routing and planning, MH-052 through MH-056 own execution scheduling
+and general resource/cancellation behavior, and MH-070 through MH-086 own the
+interactive mathematician workspace, so this task persists and invalidates
+declared artifacts but neither plans, solves, verifies, retries, merges, nor
+presents collaborative sessions.
 
 ## Next
 

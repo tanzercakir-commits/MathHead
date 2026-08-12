@@ -459,3 +459,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-CANONICAL-N
 profiles = ["status", "fast"]
 tasks = ["MH-044"]
 timeout_seconds = 60
+
+[[checks]]
+name = "unsupported-explanation-tests"
+command = "python -m unittest discover -s tests/unsupported_explanations -v"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 180
+
+[[checks]]
+name = "unsupported-explanation-validator"
+command = "python tools/validate_unsupported_explanations.py"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 180
+
+[[checks]]
+name = "unsupported-explanation-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-UNSUPPORTED-EXPLANATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 60

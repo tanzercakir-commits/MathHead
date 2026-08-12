@@ -557,3 +557,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-DETERMINIST
 profiles = ["status", "fast"]
 tasks = ["MH-051"]
 timeout_seconds = 60
+
+[[checks]]
+name = "isolated-worker-tests"
+command = "python -m unittest discover -s tests/isolated_worker -v"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 180
+
+[[checks]]
+name = "isolated-worker-validator"
+command = "python tools/validate_isolated_worker.py"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 120
+
+[[checks]]
+name = "isolated-worker-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-ISOLATED-WORKER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 60

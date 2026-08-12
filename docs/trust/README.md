@@ -10,7 +10,7 @@ The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
 SHA-256
 `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 Its current self-identity is
-`3d2a7141186a3fcfb4c6dd31f6a004149d2dd3595544bc71a228c9e40a9151d0`.
+`5e21336fe4f02a285a7dc1c45b8c7c99ba16163247dd1e3fef5fb10120f09644`.
 
 MH-037 adds the normative transition catalogue
 `trust-transition-catalogue-v1.json` and frozen G3 report
@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 140 Python modules, 35 non-`mathhead` import
+The static boundary contains 141 Python modules, 38 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -58,6 +58,7 @@ The important current distinctions are:
 | `problem_session_store.py` | no mathematical authority | effect-only content-addressed atomic store; every committed load rehashes exact bytes and invokes fresh pure replay |
 | `capability_registry.py` | no mathematical authority | pure typed registration and exact structural routing; compatibility, cost, and selection never execute a plugin or imply solvability |
 | `deterministic_planner.py` | no mathematical authority | pure content-addressed strategy intent; reroutes exact inputs, binds prerequisites/resources/fallbacks, and never executes or promotes a result |
+| `isolated_worker.py` | no mathematical authority | effectful producer containment; enforces a child budget and returns bounded opaque bytes without validating mathematics |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:

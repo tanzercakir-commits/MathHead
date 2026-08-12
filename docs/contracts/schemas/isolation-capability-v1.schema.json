@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/isolation-capability-v1.schema.json",
+  "title": "MathHead Isolation Capability v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "platform", "containment", "wall_limit", "cpu_limit", "memory_limit", "tree_termination", "supported", "reason_code", "capability_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.isolation-capability.v1"},
+    "platform": {"enum": ["linux", "darwin", "windows", "unsupported"]},
+    "containment": {"enum": ["posix_session", "windows_job", "none"]},
+    "wall_limit": {"enum": ["supervisor_monotonic", "none"]},
+    "cpu_limit": {"enum": ["posix_rlimit_inherited", "windows_job", "none"]},
+    "memory_limit": {"enum": ["posix_address_space_inherited", "windows_job_tree", "none"]},
+    "tree_termination": {"enum": ["process_group", "job_close", "none"]},
+    "supported": {"type": "boolean"},
+    "reason_code": {"enum": ["SUPPORTED", "PLATFORM_UNSUPPORTED", "PRIMITIVE_UNAVAILABLE"]},
+    "capability_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

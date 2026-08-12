@@ -251,3 +251,9 @@ id = "MH-C-DETERMINISTIC-PLANNER-001"
 path = "docs/contracts/MH-C-DETERMINISTIC-PLANNER-001.json"
 sha256 = "72e3c39ea40c599cd709fff590a72bfd096450adbb80689ce934342c3aaaa124"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-ISOLATED-WORKER-001"
+path = "docs/contracts/MH-C-ISOLATED-WORKER-001.json"
+sha256 = "c578d5a75f7a670f55e660147c335dc29709e71b82af8b37eb0033891b81a49b"
+state = "accepted"

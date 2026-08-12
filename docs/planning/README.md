@@ -74,3 +74,40 @@ The frozen report is
 `reports/deterministic-planner-v1.json`. Identical explicit bytes are tested
 across fresh processes and different Python hash seeds. CI supplies the
 Python 3.10 through 3.14 and Linux/macOS/Windows qualification matrix.
+
+## Isolated worker enforcement
+
+MH-052 consumes one exact planned strategy and reserves its complete ten-
+dimension request from an open accepted `ResourceBudget` before launching any
+producer. The boundary is governed by `MH-C-ISOLATED-WORKER-001` at SHA-256
+`c578d5a75f7a670f55e660147c335dc29709e71b82af8b37eb0033891b81a49b`.
+
+`supervise_worker` never imports a producer or accepts a callable. It executes
+one content-bound absolute executable with a direct argument vector, closed
+stdin, bounded binary stdout/stderr sinks, a private working directory, and a
+minimal environment. Linux and macOS use fresh POSIX sessions, inherited CPU,
+address-space, file-size and descriptor limits, plus complete process-group
+termination. Windows starts the process suspended, assigns a kill-on-close Job
+Object with job CPU and memory limits, and resumes only after containment.
+
+Wall timeout, cancellation, output exhaustion, nonzero exit, malformed input,
+and cleanup failure are distinct terminal results. All ordinary launched paths
+close a child budget and reconcile its lease exactly once. `completed` means
+only that bounded producer bytes were returned and the complete containment
+unit was cleaned; it never validates `Evidence`, a `Certificate`, a proof, a
+refutation, or any mathematical claim.
+
+The exact checks are:
+
+```bash
+python -m unittest discover -s tests/isolated_worker -v
+python tools/validate_isolated_worker.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-ISOLATED-WORKER-001 --require-bound
+```
+
+The independent validator does not import the production supervisor. It
+rebinds the accepted contract and six closed schemas, reconstructs request and
+artifact identities and lease conservation, audits both platform adapters and
+their forbidden shell surface, and freezes the result in
+`reports/isolated-worker-v1.json`.

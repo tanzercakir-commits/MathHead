@@ -354,3 +354,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-TRUST-TRANS
 profiles = ["status", "fast"]
 tasks = ["MH-037"]
 timeout_seconds = 60
+
+[[checks]]
+name = "problem-intake-tests"
+command = "python -m unittest discover -s tests/problem_intake -v"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-intake-validator"
+command = "python tools/validate_problem_intake.py"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 120
+
+[[checks]]
+name = "problem-intake-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-INTAKE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 60

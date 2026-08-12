@@ -35,8 +35,8 @@ not silently routed through the new API.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the already accepted
 `MH-C-PROBLEM-IR-002`. Before implementation, propose, independently
-prescreen, and accept a new critical problem-intake function contract plus
-closed schemas for the input envelope and intake result. Freeze the public
+prescreen, and accept `MH-C-PROBLEM-INTAKE-001` with closed schemas for the
+input envelope and intake result. Freeze the public
 signature, accepted input type algebra, reference and ID rules, canonical
 construction algorithm, diagnostic taxonomy, success/failure algebra,
 ProblemIR schema/contract hashes, dependency closure, non-authority statement,

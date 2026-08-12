@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-intake-result-v1.schema.json",
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "path"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^\\$(?:\\.[a-z][a-z0-9_]*|\\[[0-9]+\\])*$"
+        }
+      }
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableDigest": {
+      "oneOf": [
+        {"$ref": "#/$defs/digest"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "contract_sha256",
+    "diagnostics",
+    "mathematical_authority",
+    "problem_ir",
+    "problem_ir_contract_sha256",
+    "problem_ir_schema_sha256",
+    "problem_ir_sha256",
+    "reason_code",
+    "schema",
+    "status"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "MH-C-PROBLEM-INTAKE-001"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    },
+    "mathematical_authority": {
+      "const": false
+    },
+    "problem_ir": {
+      "oneOf": [
+        {"$ref": "problem-ir-v1.schema.json"},
+        {"type": "null"}
+      ]
+    },
+    "problem_ir_contract_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "problem_ir_schema_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "problem_ir_sha256": {
+      "$ref": "#/$defs/nullableDigest"
+    },
+    "reason_code": {
+      "enum": [
+        "ACCEPTED",
+        "BUDGET_EXHAUSTED",
+        "INVALID_CANONICAL_VALUE",
+        "INVALID_PROBLEM",
+        "INVALID_REFERENCE",
+        "INVALID_SCHEMA",
+        "INVALID_SEMANTICS",
+        "INVALID_TYPE"
+      ]
+    },
+    "schema": {
+      "const": "mathhead.problem-intake-result.v1"
+    },
+    "status": {
+      "enum": ["accepted", "exhausted", "invalid"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "accepted"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "diagnostics": {"maxItems": 0},
+          "problem_ir": {"$ref": "problem-ir-v1.schema.json"},
+          "problem_ir_sha256": {"$ref": "#/$defs/digest"},
+          "reason_code": {"const": "ACCEPTED"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"enum": ["exhausted", "invalid"]}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "diagnostics": {"minItems": 1},
+          "problem_ir": {"type": "null"},
+          "problem_ir_sha256": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "exhausted"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "reason_code": {"const": "BUDGET_EXHAUSTED"}
+        }
+      }
+    }
+  ]
+}

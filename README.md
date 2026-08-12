@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.5.0` · 171 MCP tools · 2486 collected tests.**  
+**Package `1.5.0` · 171 MCP tools · 2500 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -94,6 +94,8 @@ Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 The full MCP catalog is curated down to a small `core` profile by default (see *Tool profiles*).
 The project also ships a CLI. It is not yet published to PyPI; install from source (below).
 Full history is in `CHANGELOG.md`; reconstruction governance is in `docs/PLAN.md`.
+The reconstruction target's first structured boundary is the non-authoritative,
+syntax-neutral ProblemIR intake API documented in `docs/PROBLEM_INTAKE_V1.md`.
 
 ### Version vocabulary (separate on purpose)
 

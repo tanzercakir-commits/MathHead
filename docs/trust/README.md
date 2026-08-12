@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 130 Python modules, 35 non-`mathhead` import
+The static boundary contains 131 Python modules, 35 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -48,6 +48,7 @@ The important current distinctions are:
 | `proof_assistant/lean.py` | external proof-assistant authority after fresh exact replay | pinned Lean 4.33, path-only dependency runtime, bounded shell-free process, exact output artifacts |
 | `proof_assistant/provenance.py` | preserves external authority only after MH-035 replay | byte-identical proof/checker objects followed by another fresh Lean execution |
 | `kernel/trust_transitions.py` | no mathematical authority | pure byte-bound policy audit; its result cannot substitute for a checker or Lean |
+| `problem_intake.py` | no mathematical authority | syntax-neutral exact-data canonicalizer; validates representation only and imports no parser, solver, interface, filesystem, process, or network owner |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:

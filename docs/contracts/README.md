@@ -40,6 +40,14 @@ before the critical implementation that they govern.
   and nesting limits were not fully enforceable, binds
   `schemas/problem-ir-v1.schema.json`, and is accepted at SHA-256
   `6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286`.
+- `MH-C-PROBLEM-INTAKE-001.json` governs exact built-in structured input,
+  syntax-neutral canonical ProblemIR construction, closed immutable results,
+  bounded diagnostics, deterministic identities, and the explicit absence of
+  mathematical authority or adapter fallback. It binds
+  `schemas/problem-intake-v1.schema.json` and
+  `schemas/problem-intake-result-v1.schema.json` and is accepted under the
+  project owner's programme-wide authority at SHA-256
+  `855375a8fb788ff65728d860c16f0ccfa32fe9d058b3fe93534ef11f147794dc`.
 - `MH-C-THEORY-CONTEXT-001.json` governs canonical theory and local contexts,
   explicit epistemic authority, content-addressed imports and declarations,
   monotonic revisions, bounded consistency claims, and immutable identity. It
@@ -188,7 +196,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 130 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 131 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -198,6 +206,21 @@ python -m unittest discover -s tests/trust_base -v
 
 See `docs/trust/README.md` for current authority boundaries and the MH-031
 through MH-037 minimization map.
+
+## Syntax-neutral problem intake
+
+MH-040 is documented in `docs/PROBLEM_INTAKE_V1.md`. The dependency-minimal
+`mathhead.problem_intake` boundary accepts only explicit exact built-in Python
+data and emits independently valid canonical ProblemIR bytes or one complete
+failure result. It parses no prose or mathematical notation and always carries
+`mathematical_authority: false`:
+
+```bash
+python -m unittest discover -s tests/problem_intake -v
+python tools/validate_problem_intake.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROBLEM-INTAKE-001 --require-bound
+```
 
 ## Immutable proof terms
 

@@ -111,6 +111,15 @@ before the critical implementation that they govern.
   binds `schemas/theory-plugin-v1.schema.json`, depends on the six accepted
   foundation contracts, and is accepted at SHA-256
   `2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8`.
+- `MH-C-PROOF-SEARCH-PORTFOLIO-001.json` governs exact plan-order execution,
+  closed producer/checker manifests, sequential child-lease conservation,
+  canonical Evidence and Certificate reconstruction, independent checker
+  agreement, explicit inconclusive fallbacks, and the v1 prohibition on
+  heuristic counterexample reordering. It binds six closed portfolio schemas,
+  depends on the accepted planner, worker, foundation, plugin, capability and
+  trust-transition identities, and is accepted under the project owner's
+  programme-wide authority at SHA-256
+  `b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144`.
 - `MH-C-TRUST-BASE-001.json` governs the complete static trusted-computing-base
   inventory, authority and role separation, import and effect ownership,
   deterministic entry-point closures, P3 migration ownership, and the closed

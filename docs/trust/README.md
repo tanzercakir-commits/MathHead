@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 141 Python modules, 38 non-`mathhead` import
+The static boundary contains 142 Python modules, 38 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -59,6 +59,7 @@ The important current distinctions are:
 | `capability_registry.py` | no mathematical authority | pure typed registration and exact structural routing; compatibility, cost, and selection never execute a plugin or imply solvability |
 | `deterministic_planner.py` | no mathematical authority | pure content-addressed strategy intent; reroutes exact inputs, binds prerequisites/resources/fallbacks, and never executes or promotes a result |
 | `isolated_worker.py` | no mathematical authority | effectful producer containment; enforces a child budget and returns bounded opaque bytes without validating mathematics |
+| `proof_search_portfolio.py` | no mathematical authority | effectful deterministic orchestration; only an exact separately checked Evidence/Certificate chain can be selected, while the portfolio envelope itself cannot attest truth |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:
@@ -108,3 +109,25 @@ Report generation statically parses Python source. It does not import
 solver, subprocess, worker, or network request. Dependency-minimal and
 full-`jsonschema` profiles produce identical report bytes, including in a
 relocated checkout.
+
+## Checked proof/search orchestration
+
+MH-053 keeps producers outside the trusted kernel and invokes both producer
+and checker only through `isolated_worker.py`. The portfolio revalidates the
+exact planned subject, descriptor components, Evidence bytes, Certificate
+replay, checker independence, seven-part trust closure, and closed checker
+decision before selection. Process completion, producer consensus, repeated
+bytes, search exhaustion, and portfolio metadata grant no authority.
+
+The selected Certificate may carry `checker_attested` or
+`external_verified`; `ProofSearchPortfolioResult` always remains explicitly
+non-authoritative. Its trust role is orchestration and evidence binding, not
+mathematical checking. Validate this boundary and its independent reconstruction
+with:
+
+```bash
+python -m unittest discover -s tests/proof_search_portfolio -v
+python tools/validate_proof_search_portfolio.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROOF-SEARCH-PORTFOLIO-001 --require-bound
+```

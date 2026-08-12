@@ -263,3 +263,9 @@ id = "MH-C-ENV-003"
 path = "docs/contracts/MH-C-ENV-003.json"
 sha256 = "2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-PROOF-SEARCH-PORTFOLIO-001"
+path = "docs/contracts/MH-C-PROOF-SEARCH-PORTFOLIO-001.json"
+sha256 = "b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144"
+state = "accepted"

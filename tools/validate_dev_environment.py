@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate MH-C-ENV-002 acceptance, profile ownership, budgets, docs, and CI routing."""
+"""Validate MH-C-ENV-003 acceptance, profile ownership, budgets, docs, and CI routing."""
 
 from __future__ import annotations
 
@@ -25,14 +25,17 @@ if str(ROOT_HINT) not in sys.path:
 from tools import dev  # noqa: E402
 
 
-EXPECTED_HASH = "aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d"
-LEGACY_HASH = "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87"
+EXPECTED_HASH = "2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8"
+LEGACY_HASHES = {
+    "MH-C-ENV-001": "63be92413da8c377b20fb4aa0f86e59900cc058d186f621862b9c007146aee87",
+    "MH-C-ENV-002": "aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d",
+}
 EXPECTED_PROFILES = (
     "status", "runtime", "core", "solver", "discovery", "docs", "live-mcp",
     "slow", "release",
 )
 EXPECTED_BUDGETS = {
-    "status": 180,
+    "status": 300,
     "runtime": 180,
     "core": 600,
     "solver": 600,
@@ -101,6 +104,9 @@ def _validate_profile_ownership(root: Path, manifest: dict) -> None:
     budgets = {name: profile["timeout_seconds"] for name, profile in profiles.items()}
     if budgets != EXPECTED_BUDGETS:
         raise DevEnvironmentValidationError("profile budget drift")
+    status_check = _commands(manifest, "status").get("project-status-check")
+    if status_check is None or status_check["timeout_seconds"] != 300:
+        raise DevEnvironmentValidationError("project-status-check budget drift")
     installs = {
         "status": [],
         "runtime": ["."],
@@ -223,18 +229,19 @@ def _validate_ci(root: Path) -> None:
 
 
 def validate(root: Path) -> int:
-    accepted = root / "docs" / "contracts" / "MH-C-ENV-002.json"
-    proposal = root / "docs" / "contracts" / "proposed" / "MH-C-ENV-002.json"
+    accepted = root / "docs" / "contracts" / "MH-C-ENV-003.json"
+    proposal = root / "docs" / "contracts" / "proposed" / "MH-C-ENV-003.json"
     for path in (accepted, proposal):
         if _sha256(path) != EXPECTED_HASH:
             raise DevEnvironmentValidationError(f"accepted contract hash drift: {path}")
-    legacy_paths = (
-        root / "docs" / "contracts" / "MH-C-ENV-001.json",
-        root / "docs" / "contracts" / "proposed" / "MH-C-ENV-001.json",
-    )
-    for path in legacy_paths:
-        if _sha256(path) != LEGACY_HASH:
-            raise DevEnvironmentValidationError(f"superseded contract hash drift: {path}")
+    for contract_id, expected_hash in LEGACY_HASHES.items():
+        legacy_paths = (
+            root / "docs" / "contracts" / f"{contract_id}.json",
+            root / "docs" / "contracts" / "proposed" / f"{contract_id}.json",
+        )
+        for path in legacy_paths:
+            if _sha256(path) != expected_hash:
+                raise DevEnvironmentValidationError(f"superseded contract hash drift: {path}")
     try:
         contract = json.loads(accepted.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:

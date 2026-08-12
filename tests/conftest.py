@@ -1,4 +1,4 @@
-"""Deterministic pytest ownership markers for MH-C-ENV-002 profiles."""
+"""Deterministic pytest ownership markers for MH-C-ENV-003 profiles."""
 
 from __future__ import annotations
 

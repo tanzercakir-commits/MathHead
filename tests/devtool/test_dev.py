@@ -29,6 +29,13 @@ class DevDispatcherTests(unittest.TestCase):
         self.assertEqual(manifest["contract_id"], dev.CONTRACT_ID)
         self.assertEqual(manifest["contract_sha256"], dev.CONTRACT_SHA256)
 
+    def test_status_budget_is_bounded_for_the_append_only_validator_corpus(self) -> None:
+        status = dev._load_manifest(ROOT)["profiles"]["status"]
+        commands = {command["id"]: command for command in status["commands"]}
+        self.assertEqual(status["timeout_seconds"], 300)
+        self.assertEqual(commands["project-status-check"]["timeout_seconds"], 300)
+        self.assertTrue(commands["project-status-check"]["required"])
+
     def test_profile_dependency_boundaries_are_explicit(self) -> None:
         profiles = dev._load_manifest(ROOT)["profiles"]
         self.assertEqual(profiles["status"]["install"], [])

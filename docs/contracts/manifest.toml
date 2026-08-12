@@ -257,3 +257,9 @@ id = "MH-C-ISOLATED-WORKER-001"
 path = "docs/contracts/MH-C-ISOLATED-WORKER-001.json"
 sha256 = "c578d5a75f7a670f55e660147c335dc29709e71b82af8b37eb0033891b81a49b"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-ENV-003"
+path = "docs/contracts/MH-C-ENV-003.json"
+sha256 = "2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8"
+state = "accepted"

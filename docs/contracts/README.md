@@ -9,10 +9,12 @@ before the critical implementation that they govern.
   transitions, and their validators.
 - `PYTHON_CONTRACT_FIRST_WORKFLOW_V1.md` governs how critical Python function
   contracts are proposed, accepted, attached to code, and verified.
-- `MH-C-ENV-002.json` governs the repository-owned development dispatcher,
-  dependency profiles, platform policy, time budgets, and clean-install smoke
-  checks. It supersedes `MH-C-ENV-001.json` and is accepted at SHA-256
-  `aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d`.
+- `MH-C-ENV-003.json` governs the repository-owned development dispatcher,
+  dependency profiles, platform policy, bounded time budgets, and clean-install
+  smoke checks. It raises only the dependency-free status budget to 300 seconds
+  for the append-only validator corpus, without weakening required checks or
+  coverage. It supersedes `MH-C-ENV-002.json` and is accepted at SHA-256
+  `2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8`.
 - `MH-C-BASELINE-001.json` governs canonical legacy-baseline capture and
   offline replay. It was explicitly accepted by the project owner at SHA-256
   `3d1313a252711960afb65e5973cc95839a248224a03313dc3a715a60ccb93fa2`.

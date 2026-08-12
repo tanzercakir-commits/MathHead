@@ -28,8 +28,8 @@ if str(_SOURCE_ROOT) not in sys.path:
 from mathhead.output import safe_print as print  # noqa: E402
 
 
-CONTRACT_ID = "MH-C-ENV-002"
-CONTRACT_SHA256 = "aa5f459b40359c446c5f6853e7a7739e91b42964fbbe97b81d5884e5c7af354d"
+CONTRACT_ID = "MH-C-ENV-003"
+CONTRACT_SHA256 = "2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8"
 PROFILE_NAMES = (
     "status",
     "runtime",

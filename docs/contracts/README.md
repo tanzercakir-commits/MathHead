@@ -120,6 +120,20 @@ before the critical implementation that they govern.
   trust-transition identities, and is accepted under the project owner's
   programme-wide authority at SHA-256
   `b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144`.
+- `MH-C-AUDITED-RUN-001.json` governs exact audited execution, safe lifecycle
+  capture, content-addressed object closure, deterministic event order, and a
+  machine-independent logical report. It binds the audit object, event,
+  manifest, and report schemas and is accepted at SHA-256
+  `6032b9efac0c1ffa93cc2ee738318f45d8331c8ee25f4d97b51b55ba8aff8c0a`.
+- `MH-C-RUN-AUDIT-REPLAY-001.json` governs hostile-byte logical replay without
+  producer, checker, solver, process, filesystem, environment, or clock
+  effects. It binds the replay-result schema and is accepted at SHA-256
+  `ed130e9099a4308ed2c911e9ad63d2450783d9bff9700ad6ac0e2dd22ede9bc5`.
+- `MH-C-RUN-AUDIT-STORE-001.json` governs the private append-only
+  content-addressed object store, immutable run-record commit point, exact
+  deduplication, relocation, corruption rejection, and freshly replayed
+  loading. It binds the store record/result schemas and is accepted at SHA-256
+  `a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12`.
 - `MH-C-TRUST-BASE-001.json` governs the complete static trusted-computing-base
   inventory, authority and role separation, import and effect ownership,
   deterministic entry-point closures, P3 migration ownership, and the closed
@@ -231,7 +245,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 138 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 144 source modules, 38 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash

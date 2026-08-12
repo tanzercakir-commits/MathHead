@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 142 Python modules, 38 non-`mathhead` import
+The static boundary contains 144 Python modules, 38 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -60,6 +60,8 @@ The important current distinctions are:
 | `deterministic_planner.py` | no mathematical authority | pure content-addressed strategy intent; reroutes exact inputs, binds prerequisites/resources/fallbacks, and never executes or promotes a result |
 | `isolated_worker.py` | no mathematical authority | effectful producer containment; enforces a child budget and returns bounded opaque bytes without validating mathematics |
 | `proof_search_portfolio.py` | no mathematical authority | effectful deterministic orchestration; only an exact separately checked Evidence/Certificate chain can be selected, while the portfolio envelope itself cannot attest truth |
+| `run_audit.py` | no mathematical authority | safe content-addressed execution capture and pure hostile-byte logical replay; it preserves exact checked artifacts and authority tiers as history without creating or upgrading them |
+| `run_audit_store.py` | no mathematical authority | append-only filesystem adapter with an immutable run-record commit point; every visible run is rehashed and freshly replayed before use |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:
@@ -130,4 +132,28 @@ python -m unittest discover -s tests/proof_search_portfolio -v
 python tools/validate_proof_search_portfolio.py
 python tools/contract_artifacts.py verify \
   --contract MH-C-PROOF-SEARCH-PORTFOLIO-001 --require-bound
+```
+
+## Non-authoritative run audit and replay
+
+MH-054 records the exact normalized input, plan, selected plugin components,
+declared and reconciled budgets, validated artifacts, checker decisions, and
+deterministic lifecycle order. It deliberately excludes environment values,
+credentials, paths, clocks, process identifiers, raw invalid output, and
+diagnostic prose. The audit manifest, logical report, replay result, store
+record, and store result all remain non-authoritative metadata.
+
+Logical replay reruns only pure routing, planning, parsing, identity, and
+checker-link validation over exact bytes. It never executes a producer,
+checker, solver, subprocess, network operation, or filesystem operation. The
+separate store adapter owns only private append-only filesystem effects and
+cannot promote a verdict. The selected Evidence and Certificate retain their
+upstream tier; neither replay completeness nor durable storage proves a
+mathematical claim.
+
+```bash
+python tools/validate_run_audit.py
+python tools/validate_run_audit_store.py
+python -m unittest discover -s tests/run_audit -v
+python -m unittest discover -s tests/run_audit_store -v
 ```

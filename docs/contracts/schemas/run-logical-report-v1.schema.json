@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-logical-report-v1.schema.json",
+  "title": "MathHead Run Logical Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "audited_run_contract_sha256",
+    "normalized_input_sha256",
+    "planning_request_sha256",
+    "route_result_sha256",
+    "planning_result_sha256",
+    "portfolio_request_sha256",
+    "declared_budget_limits_sha256",
+    "plugins",
+    "artifacts",
+    "attempts",
+    "status",
+    "mathematical_verdict",
+    "reason_code",
+    "selected_strategy_sha256",
+    "selected_evidence_sha256",
+    "selected_certificate_sha256",
+    "selected_checker_decision_sha256",
+    "authority_tier",
+    "report_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.run-logical-report.v1"},
+    "audited_run_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "normalized_input_sha256": {"$ref": "#/$defs/sha256"},
+    "planning_request_sha256": {"$ref": "#/$defs/sha256"},
+    "route_result_sha256": {"$ref": "#/$defs/sha256"},
+    "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+    "portfolio_request_sha256": {"$ref": "#/$defs/sha256"},
+    "declared_budget_limits_sha256": {"$ref": "#/$defs/sha256"},
+    "plugins": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {"$ref": "#/$defs/plugin"}
+    },
+    "artifacts": {
+      "type": "array",
+      "maxItems": 200000,
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "attempts": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {"$ref": "#/$defs/attempt"}
+    },
+    "status": {"enum": ["succeeded", "unsupported", "exhausted", "cancelled", "failed", "ambiguous", "truncated", "inconclusive", "disagreement", "verifier_failed", "invalid_evidence", "invalid"]},
+    "mathematical_verdict": {"enum": ["proved", "refuted", "inconclusive", "none"]},
+    "reason_code": {"$ref": "#/$defs/reason"},
+    "selected_strategy_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_evidence_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_certificate_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_checker_decision_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "authority_tier": {"enum": ["none", "checker_attestation", "external_proof_assistant"]},
+    "report_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullable_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[a-z][a-z0-9_.-]*$"},
+    "reason": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Z][A-Z0-9_]*$"},
+    "plugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_order", "strategy_sha256", "descriptor_sha256", "plugin_id", "plugin_version", "producer_component_id", "checker_component_id"],
+      "properties": {
+        "plan_order": {"$ref": "#/$defs/quantity"},
+        "strategy_sha256": {"$ref": "#/$defs/sha256"},
+        "descriptor_sha256": {"$ref": "#/$defs/sha256"},
+        "plugin_id": {"$ref": "#/$defs/id"},
+        "plugin_version": {"type": "string", "minLength": 5, "maxLength": 64, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"},
+        "producer_component_id": {"$ref": "#/$defs/id"},
+        "checker_component_id": {"$ref": "#/$defs/id"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role_id", "sha256", "byte_count"],
+      "properties": {
+        "role_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z][a-z0-9_]*$"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "byte_count": {"$ref": "#/$defs/quantity"}
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt_order", "strategy_sha256", "producer_worker_result_sha256", "producer_status", "producer_reason_code", "evidence_sha256", "checker_worker_result_sha256", "checker_status", "checker_reason_code", "checker_decision_sha256", "outcome", "transition_sha256"],
+      "properties": {
+        "attempt_order": {"$ref": "#/$defs/quantity"},
+        "strategy_sha256": {"$ref": "#/$defs/sha256"},
+        "producer_worker_result_sha256": {"$ref": "#/$defs/nullable_sha256"},
+        "producer_status": {"type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[a-z][a-z_]*$"},
+        "producer_reason_code": {"$ref": "#/$defs/reason"},
+        "evidence_sha256": {"$ref": "#/$defs/nullable_sha256"},
+        "checker_worker_result_sha256": {"$ref": "#/$defs/nullable_sha256"},
+        "checker_status": {"type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[a-z][a-z_]*$"},
+        "checker_reason_code": {"$ref": "#/$defs/reason"},
+        "checker_decision_sha256": {"$ref": "#/$defs/nullable_sha256"},
+        "outcome": {"type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[a-z][a-z_]*$"},
+        "transition_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

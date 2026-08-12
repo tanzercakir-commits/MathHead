@@ -162,3 +162,56 @@ The frozen independent report is
 `reports/proof-search-portfolio-v1.json`. MH-053 retains no audit log, cache,
 replay bundle, public cancellation surface, or interface adapter; those remain
 owned by later tasks.
+
+## Audited execution, replay, and persistence
+
+MH-054 wraps the exact MH-050 through MH-053 route, plan, isolated producer,
+checker, and portfolio path in `execute_audited_run`. It freshly recomputes the
+route and plan, runs the portfolio exactly once, and captures only validated,
+allowlisted canonical objects. The bundle binds the normalized input, current
+session closure, selected plugins and components, declared budgets, every
+reconciled parent ledger, validated Evidence and Certificate bytes, checker
+decisions, attempt transitions, and terminal portfolio result.
+
+The event transcript is derived from fixed lifecycle precedence and accepted
+attempt order. It has contiguous ordinals and a content-addressed previous
+link, but no timestamps, PIDs, completion-arrival order, executable paths,
+workspace paths, environment values, credentials, raw failed output, or
+diagnostic prose. The logical report excludes runtime observations and is
+byte-stable across fresh processes and hash seeds for identical semantic
+inputs and outcomes.
+
+`replay_run_audit` treats the manifest and object tuple as hostile bytes. It
+reconstructs the object closure, current-session bindings, route, plan,
+portfolio links, budget chain, selected checker chain, lifecycle events, and
+logical report without launching a producer, checker, solver, subprocess, or
+filesystem operation. Missing, surplus, duplicate, reordered, noncanonical,
+repaired, stale, corrupt, and over-budget inputs fail closed.
+
+`persist_run_audit` is the separate effect adapter. It writes exact bytes to
+private SHA-256-addressed regular files and installs one immutable run record
+last as the sole commit point. Exact concurrent writes deduplicate; corrupted,
+linked, conflicting, or partial state is rejected. Orphan objects are not
+visible runs, and every load and sorted listing freshly replays committed
+bytes. Store results, audit bundles, replays, and reports always carry
+`mathematical_authority: false`.
+
+Validate all three accepted contracts, the independent byte reconstruction,
+the two-strategy fallback, ambient-data exclusion, concurrency, interruption,
+relocation, and corruption controls with:
+
+```bash
+python -m unittest discover -s tests/run_audit -v
+python tools/validate_run_audit.py
+python -m unittest discover -s tests/run_audit_store -v
+python tools/validate_run_audit_store.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-AUDITED-RUN-001 --require-bound
+python tools/contract_artifacts.py verify \
+  --contract MH-C-RUN-AUDIT-REPLAY-001 --require-bound
+python tools/contract_artifacts.py verify \
+  --contract MH-C-RUN-AUDIT-STORE-001 --require-bound
+```
+
+The frozen reports are `reports/run-audit-v1.json` and
+`reports/run-audit-store-v1.json`.

@@ -160,6 +160,10 @@ AUTHORITY_LITERAL_COUNTS = {
         "checker_attestation": 3,
         "external_proof_assistant": 2,
     },
+    "src/mathhead/run_audit.py": {
+        "checker_attestation": 1,
+        "external_proof_assistant": 1,
+    },
     "src/mathhead/proof_assistant/export.py": {"checker_attestation": 1},
     "src/mathhead/proof_assistant/lean.py": {"external_proof_assistant": 2},
     "src/mathhead/proof_assistant/provenance.py": {"checker_attestation": 1},

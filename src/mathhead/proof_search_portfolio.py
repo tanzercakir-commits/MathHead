@@ -1782,6 +1782,31 @@ class _PreparedPortfolio:
     executable_paths: dict[str, str]
 
 
+@dataclass(frozen=True, slots=True)
+class _PortfolioAuditAttempt:
+    """Safe, validated execution observations retained only by MH-054."""
+
+    attempt_order: int
+    strategy_sha256: str
+    producer_request_sha256: str
+    producer_result_sha256: str
+    producer_status: str
+    producer_reason_code: str
+    producer_parent_before: bytes
+    producer_parent_after: bytes
+    evidence: bytes | None
+    checker_request_sha256: str | None
+    checker_result_sha256: str | None
+    checker_status: str
+    checker_reason_code: str
+    checker_parent_before: bytes | None
+    checker_parent_after: bytes | None
+    checker_decision: bytes | None
+    certificate: bytes | None
+    outcome: str
+    transition_sha256: str
+
+
 def _descriptor_inventory(descriptors: tuple[bytes, ...]) -> dict[str, dict[str, object]]:
     if type(descriptors) is not tuple or len(descriptors) > 10_000 or any(type(item) is not bytes for item in descriptors):
         _fail("type", "descriptors", "expected a bounded exact descriptor tuple")
@@ -2192,7 +2217,7 @@ def _terminal_result(
     )
 
 
-def run_portfolio(
+def _execute_portfolio(
     request: bytes,
     planning_result: bytes,
     parent_budget: bytes,
@@ -2201,9 +2226,9 @@ def run_portfolio(
     artifacts: tuple[bytes, ...],
     executable_paths: tuple[tuple[str, str], ...],
     workspace_root: str,
-    cancel_event: Event | None = None,
+    cancel_event: Event | None,
+    audit_attempts: list[_PortfolioAuditAttempt] | None,
 ) -> ProofSearchPortfolioResult:
-    """Run the exact planned graph through sequential isolated producer/checker leases."""
     prepared: _PreparedPortfolio | None = None
     initial_parent: bytes | None = None
     current_parent: bytes | None = None
@@ -2259,6 +2284,7 @@ def run_portfolio(
                 workspace_root,
                 cancel_event,
             )
+            producer_parent_after = current_parent
             producer_identity = _portfolio_worker_identity(producer_result)
             outcome, reason_code = _worker_outcome(producer_result, checker=False)
             evidence_data: bytes | None = None
@@ -2268,6 +2294,9 @@ def run_portfolio(
             checker_identity: str | None = None
             decision: PortfolioCheckerDecision | None = None
             certificate_data: bytes | None = None
+            checker_request_sha256: str | None = None
+            checker_parent_before: bytes | None = None
+            checker_parent_after: bytes | None = None
             authority = "none"
 
             if outcome == "success":
@@ -2303,6 +2332,10 @@ def run_portfolio(
                     artifacts=checker_artifacts,
                     executable_sha256=binding.checker_executable_sha256,
                 )
+                checker_request_sha256 = parse_isolated_worker_request(
+                    checker_request
+                ).request_sha256
+                checker_parent_before = current_parent
                 checker_result, current_parent = _supervise_exact(
                     checker_request,
                     planning_result,
@@ -2312,6 +2345,7 @@ def run_portfolio(
                     workspace_root,
                     cancel_event,
                 )
+                checker_parent_after = current_parent
                 checker_identity = _portfolio_worker_identity(checker_result)
                 outcome, reason_code = _worker_outcome(checker_result, checker=True)
                 if outcome == "success":
@@ -2351,6 +2385,36 @@ def run_portfolio(
                 parent_after=current_parent,
             )
             attempts.append(attempt)
+            if audit_attempts is not None:
+                audit_attempts.append(
+                    _PortfolioAuditAttempt(
+                        attempt_order=attempt.attempt_order,
+                        strategy_sha256=strategy.strategy_sha256,
+                        producer_request_sha256=producer_result.request_sha256,
+                        producer_result_sha256=producer_identity,
+                        producer_status=producer_result.status,
+                        producer_reason_code=producer_result.reason_code,
+                        producer_parent_before=parent_before,
+                        producer_parent_after=producer_parent_after,
+                        evidence=evidence_data,
+                        checker_request_sha256=checker_request_sha256,
+                        checker_result_sha256=checker_identity,
+                        checker_status="not_started"
+                        if checker_result is None
+                        else checker_result.status,
+                        checker_reason_code="NOT_STARTED"
+                        if checker_result is None
+                        else checker_result.reason_code,
+                        checker_parent_before=checker_parent_before,
+                        checker_parent_after=checker_parent_after,
+                        checker_decision=None
+                        if decision is None
+                        else _canonical(_decision_mapping(decision)),
+                        certificate=certificate_data,
+                        outcome=outcome,
+                        transition_sha256=selected_transition.transition_sha256,
+                    )
+                )
             if outcome in _INCONCLUSIVE_OUTCOMES:
                 inconclusive.append(_make_inconclusive(attempt, reason_code))
 
@@ -2419,6 +2483,60 @@ def run_portfolio(
                 initial_parent_budget=initial_parent,
                 final_parent_budget=current_parent,
             )
+
+
+def run_portfolio(
+    request: bytes,
+    planning_result: bytes,
+    parent_budget: bytes,
+    descriptors: tuple[bytes, ...],
+    bindings: tuple[bytes, ...],
+    artifacts: tuple[bytes, ...],
+    executable_paths: tuple[tuple[str, str], ...],
+    workspace_root: str,
+    cancel_event: Event | None = None,
+) -> ProofSearchPortfolioResult:
+    """Run the exact planned graph through sequential isolated producer/checker leases."""
+    return _execute_portfolio(
+        request,
+        planning_result,
+        parent_budget,
+        descriptors,
+        bindings,
+        artifacts,
+        executable_paths,
+        workspace_root,
+        cancel_event,
+        None,
+    )
+
+
+def _run_portfolio_audited(
+    request: bytes,
+    planning_result: bytes,
+    parent_budget: bytes,
+    descriptors: tuple[bytes, ...],
+    bindings: tuple[bytes, ...],
+    artifacts: tuple[bytes, ...],
+    executable_paths: tuple[tuple[str, str], ...],
+    workspace_root: str,
+    cancel_event: Event | None = None,
+) -> tuple[ProofSearchPortfolioResult, tuple[_PortfolioAuditAttempt, ...]]:
+    """Execute once and return only allowlisted validated MH-054 observations."""
+    captured: list[_PortfolioAuditAttempt] = []
+    result = _execute_portfolio(
+        request,
+        planning_result,
+        parent_budget,
+        descriptors,
+        bindings,
+        artifacts,
+        executable_paths,
+        workspace_root,
+        cancel_event,
+        captured,
+    )
+    return result, tuple(captured)
 
 
 __all__ = [

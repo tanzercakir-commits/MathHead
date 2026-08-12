@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.5.0` · 171 MCP tools · 2702 collected tests.**  
+**Package `1.5.0` · 171 MCP tools · 2729 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -112,6 +112,14 @@ authority or promises a runtime capability. The complete artifact chain can
 then be retained as a content-addressed, replayable revision history with
 deterministic dependency invalidation and an atomic non-authoritative store as
 documented in `docs/PROBLEM_SESSIONS_V1.md`.
+That session state can now flow through an exact deterministic plan and one
+isolated proof/search portfolio into a content-addressed audited run. The
+audit records validated semantic objects and checker links in deterministic
+order, supports hostile-byte logical replay without rerunning producers, and
+can be committed to a private append-only store. Machine paths, environment
+values, credentials, clocks, PIDs, and raw invalid process output never enter
+canonical audit bytes; audit and storage metadata never gain mathematical
+authority. See `docs/planning/README.md`.
 
 ### Version vocabulary (separate on purpose)
 

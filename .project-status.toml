@@ -599,3 +599,52 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-SEARC
 profiles = ["status", "fast"]
 tasks = ["MH-053"]
 timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-tests"
+command = "python -m unittest discover -s tests/run_audit -v"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-validator"
+command = "python tools/validate_run_audit.py"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-AUDITED-RUN-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-REPLAY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-store-tests"
+command = "python -m unittest discover -s tests/run_audit_store -v"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 240
+
+[[checks]]
+name = "run-audit-store-validator"
+command = "python tools/validate_run_audit_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-STORE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60

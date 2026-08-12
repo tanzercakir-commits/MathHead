@@ -269,3 +269,21 @@ id = "MH-C-PROOF-SEARCH-PORTFOLIO-001"
 path = "docs/contracts/MH-C-PROOF-SEARCH-PORTFOLIO-001.json"
 sha256 = "b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-AUDITED-RUN-001"
+path = "docs/contracts/MH-C-AUDITED-RUN-001.json"
+sha256 = "6032b9efac0c1ffa93cc2ee738318f45d8331c8ee25f4d97b51b55ba8aff8c0a"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-REPLAY-001"
+path = "docs/contracts/MH-C-RUN-AUDIT-REPLAY-001.json"
+sha256 = "ed130e9099a4308ed2c911e9ad63d2450783d9bff9700ad6ac0e2dd22ede9bc5"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-STORE-001"
+path = "docs/contracts/MH-C-RUN-AUDIT-STORE-001.json"
+sha256 = "a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12"
+state = "accepted"

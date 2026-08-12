@@ -594,7 +594,14 @@ def isolation_capability() -> IsolationCapability:
             import resource  # noqa: PLC0415
             required = (resource.RLIMIT_CPU, resource.RLIMIT_AS, resource.RLIMIT_FSIZE, resource.RLIMIT_NOFILE)
             del required
-            supported = hasattr(os, "killpg") and hasattr(os, "setsid")
+            # Darwin exposes RLIMIT_AS through Python, but macOS does not expose
+            # it as an enforceable address-space resource and rejects ceilings
+            # below the forked supervisor image before exec.  Claiming support
+            # would therefore either fail during launch or silently weaken the
+            # exact requested memory budget.  The closed unsupported capability
+            # is the only honest v1 outcome until a native pre-exec launcher is
+            # accepted as part of the trusted boundary.
+            supported = platform != "darwin" and hasattr(os, "killpg") and hasattr(os, "setsid")
         except (ImportError, AttributeError):
             supported = False
         mapping: dict[str, object] = {

@@ -65,7 +65,11 @@ def process_descriptor(fixture: PlannerFixture) -> bytes:
     return plugin_bytes(
         fixture.fragment,
         suffix="isolated_worker",
-        base_cost=200_000,
+        # A POSIX child inherits the long-lived pytest process's peak RSS before
+        # exec, and wait4 reports that peak as part of the child observation.
+        # Keep the fixture above the supported matrix's supervisor footprint so
+        # a bounded successful producer is not mislabeled as a memory overrun.
+        base_cost=1_000_000,
         mutation=mutate,
     )
 
@@ -161,10 +165,12 @@ class IsolatedWorkerTests(unittest.TestCase):
         return parse_isolated_worker_request(raw).resource_limits
 
     def execute(self, arguments: tuple[str, ...], **kwargs: object):
+        if not worker_module.isolation_capability().supported:
+            self.skipTest("host cannot enforce the complete isolated-worker capability")
         parent = kwargs.pop("parent", self.parent)
         payloads = kwargs.pop("payloads", ())
         request = self.request(arguments, parent=parent, artifacts=tuple((f"input_{index}", payload) for index, payload in enumerate(payloads)), **kwargs)
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             return supervise_worker(
                 request,
                 self.plan_bytes,
@@ -251,7 +257,9 @@ class IsolatedWorkerTests(unittest.TestCase):
         event = Event()
         event.set()
         request = self.request(("-I", "-S", "-c", "import time;time.sleep(30)"))
-        with tempfile.TemporaryDirectory() as directory:
+        if not worker_module.isolation_capability().supported:
+            self.skipTest("host cannot enforce the complete isolated-worker capability")
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             result = supervise_worker(request, self.plan_bytes, self.parent, (), str(self.executable), directory, event)
         self.assertEqual((result.status, result.reason_code), ("cancelled", "CANCELLED"))
         self.assertTrue(result.tree_terminated)
@@ -260,12 +268,12 @@ class IsolatedWorkerTests(unittest.TestCase):
         self.assertEqual(child["outcome"]["status"], "cancelled")
         budget_validator.validate_resource_budget(child, self.schema)
 
-    @unittest.skipUnless(os.name == "posix", "POSIX hard-limit adapter")
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Linux hard-limit adapter")
     def test_posix_adapter_enforces_hard_wall_cpu_and_memory_limits(self) -> None:
         capability = worker_module.isolation_capability()
         self.assertTrue(capability.supported)
         command_prefix = [str(self.executable), "-I", "-S", "-c"]
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             root = Path(directory)
             environment = worker_module._environment(root)
             wall = worker_module._run_posix(
@@ -284,7 +292,7 @@ class IsolatedWorkerTests(unittest.TestCase):
             self.assertEqual(wall.reason, "WALL_TIME_EXHAUSTED")
             self.assertTrue(wall.tree_terminated)
 
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             root = Path(directory)
             environment = worker_module._environment(root)
             cpu = worker_module._run_posix(
@@ -303,7 +311,7 @@ class IsolatedWorkerTests(unittest.TestCase):
             self.assertEqual(cpu.reason, "CPU_TIME_EXHAUSTED")
             self.assertTrue(cpu.tree_terminated)
 
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             root = Path(directory)
             environment = worker_module._environment(root)
             memory = worker_module._run_posix(
@@ -377,8 +385,10 @@ class IsolatedWorkerTests(unittest.TestCase):
         self.assertEqual([worker_artifact_bytes(result.artifacts[0]) for result in results], [b"0", b"1", b"2", b"3"])
 
     def test_cleanup_failure_cannot_become_success(self) -> None:
+        if not worker_module.isolation_capability().supported:
+            self.skipTest("host cannot enforce the complete isolated-worker capability")
         request = self.request(("-I", "-S", "-c", "print('ok',end='')"))
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             with mock.patch.object(worker_module.shutil, "rmtree", side_effect=OSError("cleanup denied")):
                 result = supervise_worker(request, self.plan_bytes, self.parent, (), str(self.executable), directory)
         self.assertEqual((result.status, result.reason_code), ("failed", "SUPERVISOR_FAILED"))
@@ -405,7 +415,7 @@ class IsolatedWorkerTests(unittest.TestCase):
 
     def test_invalid_plan_artifact_budget_and_executable_fail_before_authority(self) -> None:
         request = self.request(("-I", "-S", "-c", "print('never')"), artifacts=(("context", b"abc"),))
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             wrong_artifact = supervise_worker(request, self.plan_bytes, self.parent, (b"xyz",), str(self.executable), directory)
             wrong_plan = supervise_worker(request, self.plan_bytes[:-1], self.parent, (b"abc",), str(self.executable), directory)
         self.assertEqual(wrong_artifact.status, "invalid")
@@ -416,7 +426,7 @@ class IsolatedWorkerTests(unittest.TestCase):
         self.assertEqual((refused.status, refused.reason_code), ("refused", "BUDGET_INSUFFICIENT"))
 
         request_bad_executable = self.request(("-I", "-S", "-c", "print('never')"), executable=b"wrong")
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             invalid_executable = supervise_worker(request_bad_executable, self.plan_bytes, self.parent, (), str(self.executable), directory)
         self.assertEqual((invalid_executable.status, invalid_executable.reason_code), ("invalid", "EXECUTABLE_INVALID"))
 
@@ -472,7 +482,7 @@ class IsolatedWorkerTests(unittest.TestCase):
         for malformed in malformed_values:
             parent = canonical(malformed)
             request = self.request(("-I", "-S", "-c", "print('never')"), parent=parent)
-            with self.subTest(parent=malformed), tempfile.TemporaryDirectory() as directory:
+            with self.subTest(parent=malformed), tempfile.TemporaryDirectory(dir=ROOT) as directory:
                 result = supervise_worker(request, self.plan_bytes, parent, (), str(self.executable), directory)
             self.assertEqual((result.status, result.reason_code), ("invalid", "REQUEST_INVALID"))
 
@@ -502,7 +512,7 @@ class IsolatedWorkerTests(unittest.TestCase):
         self_hash(raw, "request_sha256")
         repaired = canonical(raw)
         parse_isolated_worker_request(repaired)
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             rejected = supervise_worker(repaired, self.plan_bytes, self.parent, (), str(self.executable), directory)
         self.assertEqual((rejected.status, rejected.reason_code), ("invalid", "STRATEGY_MISMATCH"))
 
@@ -553,13 +563,36 @@ class IsolatedWorkerTests(unittest.TestCase):
             copy.copy(request)
 
     def test_fatal_controls_propagate_after_cleanup_path(self) -> None:
+        if not worker_module.isolation_capability().supported:
+            self.skipTest("host cannot enforce the complete isolated-worker capability")
         request = self.request(("-I", "-S", "-c", "print('ok')"))
         for fatal in (MemoryError(), KeyboardInterrupt(), SystemExit()):
-            with self.subTest(kind=type(fatal).__name__), tempfile.TemporaryDirectory() as directory:
+            with self.subTest(kind=type(fatal).__name__), tempfile.TemporaryDirectory(dir=ROOT) as directory:
                 patcher = mock.patch.object(worker_module, "_run_posix" if os.name == "posix" else "_run_windows", side_effect=fatal)
                 with patcher:
                     with self.assertRaises(type(fatal)):
                         supervise_worker(request, self.plan_bytes, self.parent, (), str(self.executable), directory)
+
+    @unittest.skipUnless(sys.platform == "darwin", "Darwin capability outcome")
+    def test_darwin_address_space_limit_is_explicitly_unsupported(self) -> None:
+        capability = worker_module.isolation_capability()
+        self.assertEqual(capability.platform, "darwin")
+        self.assertFalse(capability.supported)
+        self.assertEqual(capability.reason_code, "PRIMITIVE_UNAVAILABLE")
+        self.assertEqual(capability.containment, "none")
+        request = self.request(("-I", "-S", "-c", "print('never')"))
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
+            result = supervise_worker(
+                request,
+                self.plan_bytes,
+                self.parent,
+                (),
+                str(self.executable),
+                directory,
+            )
+        self.assertEqual((result.status, result.reason_code), ("unsupported", "ISOLATION_UNSUPPORTED"))
+        self.assertTrue(result.lease_reconciled)
+        self.assertTrue(result.tree_terminated)
 
 
 if __name__ == "__main__":

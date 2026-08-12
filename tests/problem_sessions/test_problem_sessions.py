@@ -707,7 +707,7 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
         create_event = json.loads(fixture.events[0])
         command = canonical(create_event["command"])
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary) / "store"
+            root = Path(temporary).resolve() / "store"
             stored = persist_problem_session(root, command, fixture.artifacts)
             self.assertEqual(stored.status, "updated")
             loaded = load_problem_session(root, fixture.session_id)
@@ -724,7 +724,7 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
         fixture = Fixture()
         command = canonical(json.loads(fixture.events[0])["command"])
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             root = base / "store"
             stored = persist_problem_session(root, command, fixture.artifacts)
             definition_payload = canonical({"schema": "mathhead.definition-payload.v1", "v": 1})
@@ -759,7 +759,11 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
             os.link(object_path, duplicate)
             with self.assertRaises(ProblemSessionStoreError):
                 load_problem_session(root, fixture.session_id)
-            duplicate.unlink()
+            os.chmod(duplicate, 0o600)
+            try:
+                duplicate.unlink()
+            finally:
+                os.chmod(object_path, 0o444)
             link_root = base / "link"
             link_root.symlink_to(root, target_is_directory=True)
             with self.assertRaises(ProblemSessionStoreError):
@@ -773,7 +777,7 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
         fixture = Fixture()
         command = canonical(json.loads(fixture.events[0])["command"])
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary) / "store"
+            root = Path(temporary).resolve() / "store"
             stored = persist_problem_session(root, command, fixture.artifacts)
             key = sha(fixture.session_id.encode())
             session_dir = root / "sessions" / key[:2] / key[2:]
@@ -793,7 +797,7 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
         definition = fixture.add_definition()
         update = canonical(json.loads(definition.events[-1])["command"])  # type: ignore[index]
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary) / "store"
+            root = Path(temporary).resolve() / "store"
             initial = persist_problem_session(root, create, create_artifacts)
             key = sha(fixture.session_id.encode())
             session_dir = root / "sessions" / key[:2] / key[2:]
@@ -807,6 +811,27 @@ print(r.head_sha256,r.view_sha256,r.result_sha256)
             self.assertEqual(load_problem_session(root, fixture.session_id).head_sha256, initial.head_sha256)
             self.assertFalse((session_dir / ".writer-lock").exists())
             self.assertFalse(any(path.name.startswith(".mathhead-head-") for path in session_dir.iterdir()))
+
+    def test_store_replaces_a_sealed_head_through_the_windows_path(self) -> None:
+        fixture = Fixture()
+        create = canonical(json.loads(fixture.events[0])["command"])
+        create_artifacts = fixture.artifacts
+        definition = fixture.add_definition()
+        update = canonical(json.loads(definition.events[-1])["command"])  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve() / "store"
+            initial = persist_problem_session(root, create, create_artifacts)
+            with mock.patch.object(session_store, "_WINDOWS", True):
+                updated = persist_problem_session(root, update, fixture.artifacts)
+            self.assertEqual(initial.revision, 0)
+            self.assertEqual(updated.revision, 1)
+            key = sha(fixture.session_id.encode())
+            head = root / "sessions" / key[:2] / key[2:] / "HEAD"
+            self.assertEqual(head.stat().st_mode & 0o777, 0o444)
+            self.assertEqual(
+                load_problem_session(root, fixture.session_id).head_sha256,
+                updated.head_sha256,
+            )
 
     def test_pure_import_closure_has_no_effect_or_optional_roots(self) -> None:
         tree = ast.parse((ROOT / "src/mathhead/problem_sessions.py").read_text())

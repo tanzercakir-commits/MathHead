@@ -344,7 +344,7 @@ def _inspect(root: Path, fixture: dict[str, object]) -> dict[str, object]:
 
 def _report() -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="mathhead-session-store-validator-") as directory:
-        root = Path(directory) / "store"
+        root = Path(directory).resolve() / "store"
         fixture = _fixture(root)
         inspection = _inspect(root, fixture)
     report: dict[str, object] = {

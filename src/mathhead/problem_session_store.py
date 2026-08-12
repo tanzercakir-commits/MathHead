@@ -41,6 +41,7 @@ MAX_JSON_NESTING = 128
 MAX_JSON_NODES = 8_000_000
 MAX_STRING_CODEPOINTS = 1_048_576
 MAX_INTEGER = 9_007_199_254_740_991
+_WINDOWS = os.name == "nt"
 
 _ID = re.compile(r"^[a-z][a-z0-9_.-]{0,127}$")
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
@@ -628,7 +629,9 @@ def _atomic_replace_head(session: Path, data: bytes) -> None:
     except OSError as exc:
         _fail("io", f"cannot create HEAD temporary: {type(exc).__name__}")
     temporary = Path(temporary_name)
+    head = session / "HEAD"
     replaced = False
+    prior_head_unsealed = False
     try:
         try:
             with os.fdopen(descriptor, "wb", closefd=True) as stream:
@@ -638,15 +641,40 @@ def _atomic_replace_head(session: Path, data: bytes) -> None:
             os.chmod(temporary, 0o444)
         except OSError as exc:
             _fail("io", f"cannot seal HEAD temporary: {type(exc).__name__}")
+        if _WINDOWS and (head.exists() or head.is_symlink()):
+            try:
+                info = head.lstat()
+                if (
+                    _is_link_like(info)
+                    or not stat.S_ISREG(info.st_mode)
+                    or info.st_nlink != 1
+                ):
+                    _fail("link", "session HEAD changed before replacement")
+                os.chmod(head, 0o644)
+                prior_head_unsealed = True
+            except ProblemSessionStoreError:
+                raise
+            except OSError as exc:
+                _fail("io", f"cannot prepare HEAD replacement: {type(exc).__name__}")
         try:
-            os.replace(temporary, session / "HEAD")
+            os.replace(temporary, head)
             replaced = True
         except OSError as exc:
+            if prior_head_unsealed:
+                try:
+                    os.chmod(head, 0o444)
+                except OSError as restore_exc:
+                    _fail(
+                        "io",
+                        f"cannot restore prior HEAD mode: {type(restore_exc).__name__}",
+                    )
             _fail("io", f"cannot atomically replace HEAD: {type(exc).__name__}")
         _fsync_directory(session)
     finally:
         if not replaced:
             try:
+                if _WINDOWS and temporary.exists():
+                    os.chmod(temporary, 0o600)
                 temporary.unlink(missing_ok=True)
             except OSError:
                 _fail("io", "cannot clean uncommitted HEAD temporary")
@@ -754,6 +782,8 @@ def recover_problem_session_store(root: Path, session_id: str) -> ProblemSession
                     info = path.lstat()
                     if _is_link_like(info) or not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
                         _fail("link", "recovery target is not a direct single-link regular file")
+                    if _WINDOWS and not info.st_mode & 0o200:
+                        os.chmod(path, 0o600)
                     path.unlink()
                 except FileNotFoundError:
                     pass

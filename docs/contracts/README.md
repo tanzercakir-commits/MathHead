@@ -292,6 +292,22 @@ python tools/contract_artifacts.py verify \
   --contract MH-C-PROOF-OBLIGATION-DECOMPOSITION-001 --require-bound
 ```
 
+## Canonical normalization
+
+MH-044 is documented in `docs/CANONICAL_NORMALIZATION_V1.md`. The pure
+`mathhead.canonical_normalization` boundary creates capture-safe alpha forms,
+only catalogue-authorized commutative comparison order, canonical local
+contexts and obligations, and reversible occurrence traces over exact MH-043
+bytes. Source topology and reading separation remain intact and every artifact
+is non-authoritative:
+
+```bash
+python -m unittest discover -s tests/canonical_normalization -v
+python tools/validate_canonical_normalization.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-CANONICAL-NORMALIZATION-001 --require-bound
+```
+
 ## Immutable proof terms
 
 MH-031 is documented in `docs/PROOF_TERMS_V1.md`. The implementation lives in

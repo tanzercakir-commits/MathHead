@@ -438,3 +438,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-OBLIG
 profiles = ["status", "fast"]
 tasks = ["MH-043"]
 timeout_seconds = 60
+
+[[checks]]
+name = "canonical-normalization-tests"
+command = "python -m unittest discover -s tests/canonical_normalization -v"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 180
+
+[[checks]]
+name = "canonical-normalization-validator"
+command = "python tools/validate_canonical_normalization.py"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 180
+
+[[checks]]
+name = "canonical-normalization-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-CANONICAL-NORMALIZATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 60

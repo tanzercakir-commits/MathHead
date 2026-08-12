@@ -215,3 +215,9 @@ id = "MH-C-PROOF-OBLIGATION-DECOMPOSITION-001"
 path = "docs/contracts/MH-C-PROOF-OBLIGATION-DECOMPOSITION-001.json"
 sha256 = "ea5d0664611b57da3074e20fce90623318ce04280d38ecce548025a91a7b19ff"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-CANONICAL-NORMALIZATION-001"
+path = "docs/contracts/MH-C-CANONICAL-NORMALIZATION-001.json"
+sha256 = "ad2a58afc455fed01310b125f3ae7e0597642e849fd10b86149c31a13b9249c8"
+state = "accepted"

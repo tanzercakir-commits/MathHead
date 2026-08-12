@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/canonical-occurrence-trace-v1.schema.json",
+  "title": "MathHead canonical normalization occurrence trace v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "mathhead.canonical-occurrence-trace.v1"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^trace_[0-9]{8}$"
+    },
+    "kind": {
+      "enum": [
+        "quantified_binder",
+        "definition_parameter",
+        "commutative_operand",
+        "assumption_order",
+        "hypothesis_order",
+        "witness_slot",
+        "preserved_order",
+        "opaque"
+      ]
+    },
+    "owner_kind": {
+      "enum": [
+        "definition",
+        "relation",
+        "statement",
+        "local_context",
+        "obligation"
+      ]
+    },
+    "owner_ref": {
+      "$ref": "#/$defs/ref"
+    },
+    "source_ref": {
+      "$ref": "#/$defs/ref"
+    },
+    "source_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 399999
+    },
+    "canonical_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 399999
+    },
+    "semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "rule_id": {
+      "$ref": "#/$defs/rule_id"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "trace_id",
+    "kind",
+    "owner_kind",
+    "owner_ref",
+    "source_ref",
+    "source_index",
+    "canonical_index",
+    "semantic_sha256",
+    "rule_id",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^mh[.]canonical[.][a-z0-9_.-]+$",
+      "maxLength": 128
+    }
+  }
+}

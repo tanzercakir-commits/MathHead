@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.5.0` · 171 MCP tools · 2554 collected tests.**  
+**Package `1.5.0` · 171 MCP tools · 2575 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -102,7 +102,10 @@ declared domains and assumptions then become a separate source-backed fact
 inventory under `docs/DOMAIN_ASSUMPTIONS_V1.md`; unsupported structures remain
 visible. The exact goals finally become independent typed dependency graphs
 under `docs/PROOF_OBLIGATIONS_V1.md`; choices and symbolic witness duties stay
-explicit, and no stage grants mathematical authority.
+explicit. Those graphs then receive capture-safe, catalogue-limited comparison
+identities and reversible occurrence traces under
+`docs/CANONICAL_NORMALIZATION_V1.md`. Source topology remains exact, readings
+remain separate, and no stage grants mathematical authority.
 
 ### Version vocabulary (separate on purpose)
 

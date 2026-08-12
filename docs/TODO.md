@@ -45,11 +45,11 @@ obligation.
 `MH-C-PROBLEM-IR-002`, `MH-C-PROBLEM-INTAKE-001`,
 `MH-C-READING-ANALYSIS-002`,
 `MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001`, and
-`MH-C-PROOF-OBLIGATION-DECOMPOSITION-001` identities. Before implementation,
-propose, independently prescreen, and accept a new versioned canonical-
-normalization contract plus closed normal-form, occurrence-trace, normalized-
-context, normalized-obligation, rule-catalogue, and top-level result schemas.
-Freeze the exact byte-oriented public signature; accepted upstream
+`MH-C-PROOF-OBLIGATION-DECOMPOSITION-001` identities. The independently
+prescreened and accepted `MH-C-CANONICAL-NORMALIZATION-001` contract binds the
+closed normal-form, occurrence-trace, normalized-context, normalized-obligation,
+rule-catalogue, and top-level result schemas. Freeze the exact byte-oriented
+public signature; accepted upstream
 status and identity checks; alpha-equivalence namespace and capture rules;
 operator/property authority and exact commutative allowlist; operand comparison
 keys and stable tie policy; assumption-role, multiplicity, origin, dependency,

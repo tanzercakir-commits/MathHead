@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/canonical-context-v1.schema.json",
+  "title": "MathHead canonical local context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "mathhead.canonical-context.v1"
+    },
+    "reading_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_local_context_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "semantic_value": {
+      "$ref": "#/$defs/canonical_value"
+    },
+    "definition_occurrences": {
+      "$ref": "#/$defs/occurrences"
+    },
+    "assumption_occurrences": {
+      "$ref": "#/$defs/occurrences"
+    },
+    "bound_variable_occurrences": {
+      "$ref": "#/$defs/occurrences"
+    },
+    "hypothesis_occurrences": {
+      "$ref": "#/$defs/occurrences"
+    },
+    "witness_occurrences": {
+      "$ref": "#/$defs/occurrences"
+    },
+    "dependency_semantic_sha256s": {
+      "type": "array",
+      "maxItems": 2400000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "source_span_ids": {
+      "type": "array",
+      "maxItems": 1200000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "trace_ids": {
+      "type": "array",
+      "maxItems": 2400000,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^trace_[0-9]{8}$"
+      }
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "reading_id",
+    "source_local_context_sha256",
+    "semantic_sha256",
+    "semantic_value",
+    "definition_occurrences",
+    "assumption_occurrences",
+    "bound_variable_occurrences",
+    "hypothesis_occurrences",
+    "witness_occurrences",
+    "dependency_semantic_sha256s",
+    "source_span_ids",
+    "trace_ids",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 64
+    },
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "occurrences": {
+      "type": "array",
+      "maxItems": 400000,
+      "items": {
+        "$ref": "#/$defs/occurrence"
+      }
+    },
+    "occurrence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_ref": {
+          "$ref": "#/$defs/ref"
+        },
+        "semantic_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "role": {
+          "enum": [
+            "definition",
+            "given",
+            "domain_constraint",
+            "side_condition",
+            "domain_fact",
+            "variable_fact",
+            "bound",
+            "parameter",
+            "hypothesis",
+            "witness",
+            "unsupported"
+          ]
+        },
+        "source_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 399999
+        },
+        "canonical_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 399999
+        }
+      },
+      "required": [
+        "source_ref",
+        "semantic_sha256",
+        "role",
+        "source_index",
+        "canonical_index"
+      ]
+    },
+    "canonical_value": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        {
+          "type": "array",
+          "maxItems": 400000,
+          "items": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 400000,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "maxLength": 64
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        }
+      ]
+    }
+  }
+}

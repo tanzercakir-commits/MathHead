@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 134 Python modules, 35 non-`mathhead` import
+The static boundary contains 135 Python modules, 35 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,

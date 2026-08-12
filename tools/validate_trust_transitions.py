@@ -133,6 +133,10 @@ ISSUER_SITES = (
     ),
 )
 AUTHORITY_LITERAL_COUNTS = {
+    "src/mathhead/capability_registry.py": {
+        "checker_attestation": 1,
+        "producer_report": 1,
+    },
     "src/mathhead/kernel/checkers.py": {"checker_attestation": 2},
     "src/mathhead/kernel/provenance.py": {"checker_attestation": 2},
     "src/mathhead/kernel/sat.py": {"checker_attestation": 1},

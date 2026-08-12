@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/capability-route-request-v1.schema.json",
+  "title": "MathHead Capability Route Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "session_id", "session_head_sha256", "session_context_sha256", "event_sha256s", "session_artifact_sha256s", "normalization_result_sha256", "reading_id", "session_obligation_record_id", "obligation_artifact_sha256", "obligation_semantic_sha256", "local_context_semantic_sha256", "capability_kind", "operation", "evidence_format", "certificate_format", "availability", "replay_mode", "request_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.capability-route-request.v1"},
+    "session_id": {"$ref": "#/$defs/id"},
+    "session_head_sha256": {"$ref": "#/$defs/sha256"},
+    "session_context_sha256": {"$ref": "#/$defs/sha256"},
+    "event_sha256s": {"type": "array", "minItems": 1, "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "session_artifact_sha256s": {"type": "array", "minItems": 1, "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "normalization_result_sha256": {"$ref": "#/$defs/sha256"},
+    "reading_id": {"$ref": "#/$defs/id"},
+    "session_obligation_record_id": {"$ref": "#/$defs/id"},
+    "obligation_artifact_sha256": {"$ref": "#/$defs/sha256"},
+    "obligation_semantic_sha256": {"$ref": "#/$defs/sha256"},
+    "local_context_semantic_sha256": {"$ref": "#/$defs/sha256"},
+    "capability_kind": {"enum": ["construction", "decision", "explanation", "verification"]},
+    "operation": {"enum": ["plan_cost", "solve", "check", "explain"]},
+    "evidence_format": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/format"}]},
+    "certificate_format": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/format"}]},
+    "availability": {"$ref": "#/$defs/availability"},
+    "replay_mode": {"enum": ["deterministic", "seeded", "recorded"]},
+    "request_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z][a-z0-9_]*$"},
+    "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"},
+    "format": {
+      "type": "object", "additionalProperties": false,
+      "required": ["format_id", "major", "minor", "required_features"],
+      "properties": {"format_id": {"$ref": "#/$defs/namespaced"}, "major": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "minor": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "required_features": {"type": "array", "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/namespaced"}}}
+    },
+    "availability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "platform", "python_version", "extension_ids", "available_descriptor_sha256s", "allowed_effects", "replay_modes", "availability_sha256", "mathematical_authority"],
+      "properties": {"schema": {"const": "mathhead.capability-availability.v1"}, "platform": {"enum": ["linux", "macos", "windows"]}, "python_version": {"type": "string", "pattern": "^3\\.(?:10|11|12|13|14)$"}, "extension_ids": {"type": "array", "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/namespaced"}}, "available_descriptor_sha256s": {"type": "array", "maxItems": 10000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}}, "allowed_effects": {"type": "array", "maxItems": 5, "uniqueItems": true, "items": {"enum": ["environment", "filesystem", "network", "process", "solver"]}}, "replay_modes": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["deterministic", "seeded", "recorded"]}}, "availability_sha256": {"$ref": "#/$defs/sha256"}, "mathematical_authority": {"const": false}}
+    }
+  }
+}

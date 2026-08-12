@@ -515,3 +515,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-SES
 profiles = ["status", "fast"]
 tasks = ["MH-046"]
 timeout_seconds = 60
+
+[[checks]]
+name = "capability-registry-tests"
+command = "python -m unittest discover -s tests/capability_registry -v"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 180
+
+[[checks]]
+name = "capability-registry-validator"
+command = "python tools/validate_capability_registry.py"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 180
+
+[[checks]]
+name = "capability-registry-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-CAPABILITY-REGISTRY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 60

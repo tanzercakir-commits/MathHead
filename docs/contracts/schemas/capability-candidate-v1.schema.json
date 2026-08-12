@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/capability-candidate-v1.schema.json",
+  "title": "MathHead Capability Candidate v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "registry_sha256", "request_sha256", "availability_sha256", "descriptor_sha256", "plugin_id", "plugin_version", "capability_id", "capability_kind", "operation", "component_id", "producer_component_id", "checker_component_id", "session_head_sha256", "session_context_sha256", "normalization_result_sha256", "obligation_semantic_sha256", "fragment_sha256", "dependency_descriptor_sha256s", "evidence_format", "certificate_format", "effect_kinds", "replay_mode", "priority", "cost", "candidate_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.capability-candidate.v1"},
+    "registry_sha256": {"$ref": "#/$defs/sha256"}, "request_sha256": {"$ref": "#/$defs/sha256"}, "availability_sha256": {"$ref": "#/$defs/sha256"}, "descriptor_sha256": {"$ref": "#/$defs/sha256"},
+    "plugin_id": {"$ref": "#/$defs/namespaced"}, "plugin_version": {"$ref": "#/$defs/semver"}, "capability_id": {"$ref": "#/$defs/id"}, "capability_kind": {"enum": ["construction", "decision", "explanation", "verification"]}, "operation": {"enum": ["plan_cost", "solve", "check", "explain"]},
+    "component_id": {"$ref": "#/$defs/id"}, "producer_component_id": {"$ref": "#/$defs/id"}, "checker_component_id": {"$ref": "#/$defs/id"},
+    "session_head_sha256": {"$ref": "#/$defs/sha256"}, "session_context_sha256": {"$ref": "#/$defs/sha256"}, "normalization_result_sha256": {"$ref": "#/$defs/sha256"}, "obligation_semantic_sha256": {"$ref": "#/$defs/sha256"}, "fragment_sha256": {"$ref": "#/$defs/sha256"},
+    "dependency_descriptor_sha256s": {"$ref": "#/$defs/sha_set"}, "evidence_format": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/format"}]}, "certificate_format": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/format"}]}, "effect_kinds": {"type": "array", "maxItems": 5, "uniqueItems": true, "items": {"enum": ["environment", "filesystem", "network", "process", "solver"]}}, "replay_mode": {"enum": ["deterministic", "seeded", "recorded"]},
+    "priority": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "cost": {"$ref": "#/$defs/cost"}, "candidate_sha256": {"$ref": "#/$defs/sha256"}, "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "sha_set": {"type": "array", "maxItems": 10000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}}, "id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$"}, "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"}, "semver": {"type": "string", "minLength": 5, "maxLength": 64, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"},
+    "format": {"type": "object", "additionalProperties": false, "required": ["format_id", "major", "minor", "required_features"], "properties": {"format_id": {"$ref": "#/$defs/namespaced"}, "major": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "minor": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "required_features": {"type": "array", "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/namespaced"}}}},
+    "cost": {"type": "object", "additionalProperties": false, "required": ["schema", "base", "variable_term", "expression_node_term", "quantifier_term", "goal_term", "ambiguity_term", "unsaturated_total", "maximum", "estimated_cost", "saturated", "confidence_ppm", "cost_sha256", "mathematical_authority"], "properties": {"schema": {"const": "mathhead.capability-cost-derivation.v1"}, "base": {"type": "integer", "minimum": 0}, "variable_term": {"type": "integer", "minimum": 0}, "expression_node_term": {"type": "integer", "minimum": 0}, "quantifier_term": {"type": "integer", "minimum": 0}, "goal_term": {"type": "integer", "minimum": 0}, "ambiguity_term": {"type": "integer", "minimum": 0}, "unsaturated_total": {"type": "integer", "minimum": 0}, "maximum": {"type": "integer", "minimum": 0}, "estimated_cost": {"type": "integer", "minimum": 0}, "saturated": {"type": "boolean"}, "confidence_ppm": {"type": "integer", "minimum": 1, "maximum": 1000000}, "cost_sha256": {"$ref": "#/$defs/sha256"}, "mathematical_authority": {"const": false}}}
+  }
+}

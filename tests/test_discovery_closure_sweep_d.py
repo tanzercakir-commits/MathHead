@@ -17,7 +17,6 @@ import re
 import shlex
 import shutil
 import subprocess
-import sys
 try:
     import tomllib
 except ModuleNotFoundError:  # Python 3.10 uses the pinned compatibility package.
@@ -67,12 +66,12 @@ def test_af0_catch_rate_and_tool_selection_extend_to_the_discovery_surface():
     # the measurement is deterministic: a re-run of a slice reproduces the verdicts exactly
     assert [check(s) for s, _ in battery[:10]] == results[:10]
 
-    # tool-selection base (♻️ MathHead): the benchmark runs live and its honest floors hold …
-    sys.path.insert(0, str(_ROOT / "benchmarks"))
-    import run_tool_selection as ts
-    summary = ts.summarize(ts.run())
-    assert summary["cases"] >= 15                               # a substantial case set
-    assert summary["top3_rate"] >= 0.85 and summary["top1_rate"] >= 0.70
+    # Legacy recommendation is exact-name-only; prose similarity has no routing authority.
+    from mathhead.router import route
+    assert route("recommend_tool", {"query": "verify_equality"}).status == "ok"
+    assert route(
+        "recommend_tool", {"query": "verify that two expressions are equal"}
+    ).status == "unknown"
     # … and the discovery side selects the strongest instrument first (X2 map)
     from mathhead.discovery.technique_map import suggest_techniques
     assert suggest_techniques("6 | n^3 - n")[0][1] == "kernel.prove_divides"

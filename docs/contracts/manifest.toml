@@ -239,3 +239,9 @@ id = "MH-C-PROBLEM-SESSION-STORE-001"
 path = "docs/contracts/MH-C-PROBLEM-SESSION-STORE-001.json"
 sha256 = "7637e5178767b661e6e361305090a9f7fb50d50bd5d316035283d73f970a9b82"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-CAPABILITY-REGISTRY-001"
+path = "docs/contracts/MH-C-CAPABILITY-REGISTRY-001.json"
+sha256 = "52cc70945a4e83115c756e5b0a72724676f0e52a89e56c06a0fa8bd42c0e0413"
+state = "accepted"

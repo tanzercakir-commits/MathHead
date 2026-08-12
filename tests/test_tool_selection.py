@@ -1,43 +1,24 @@
-"""
-Tool-selection accuracy fence (ROADMAP L5).
-
-Runs `benchmarks/run_tool_selection.py` and fences the L3 triage quality:
-`recommend_tool` must surface a correct tool often enough to be useful. The
-thresholds are HONEST floors set BELOW the measured accuracy (top-3 ≈ 94%,
-top-1 ≈ 78% at the time of writing) — they catch a regression without pretending
-the keyword heuristic is perfect.
-"""
-import sys
-from pathlib import Path
+"""Legacy recommendation must never regain prose- or keyword-based routing authority."""
 
 from mathhead.router import route
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "benchmarks"))
 
-import run_tool_selection as ts  # noqa: E402
-
-_ROWS = ts.run()
-_SUMMARY = ts.summarize(_ROWS)
-
-
-def test_case_set_is_substantial():
-    assert len(_ROWS) >= 15
+def test_exact_tool_name_remains_a_compatibility_lookup():
+    result = route("recommend_tool", {"query": "verify_equality", "limit": 5})
+    assert result.status == "ok"
+    assert [item["tool"] for item in result.recommendations] == ["verify_equality"]
+    assert result.recommendations[0]["score"] == 1
 
 
-def test_expected_tools_are_real():
-    # every "correct answer" must name a tool that actually exists in the catalog
-    seen = set()
-    for row in _ROWS:
-        for name in row["expect"]:
-            if name not in seen:
-                assert route("describe_tool", {"name": name}).status == "ok", \
-                    f"expected tool {name!r} is not a real tool"
-                seen.add(name)
-
-
-def test_top3_accuracy_floor():
-    assert _SUMMARY["top3_rate"] >= 0.85, f"top-3 accuracy regressed: {_SUMMARY}"
-
-
-def test_top1_accuracy_floor():
-    assert _SUMMARY["top1_rate"] >= 0.70, f"top-1 accuracy regressed: {_SUMMARY}"
+def test_prose_keywords_descriptions_and_substrings_do_not_select():
+    for query in (
+        "verify that two expressions are equal",
+        "derivative claim",
+        "verify_equal",
+        "equality",
+        "VERIFY_EQUALITY",
+    ):
+        result = route("recommend_tool", {"query": query, "limit": 99})
+        assert result.status == "unknown"
+        assert result.reason_code == "EXACT_NAME_NOT_FOUND"
+        assert result.recommendations == []

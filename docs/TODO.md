@@ -5,84 +5,81 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-037 - Red-team every trust-tier transition
+### MH-040 - Define a syntax-neutral intake API
 
-**Goal:** close P3 by proving that every supported transition among `none`,
-`producer_report`, `solver_verdict`, `checker_attestation`, and
-`external_proof_assistant` authority is explicit, byte-bound, independently
-checked where promised, and fail-closed under attack. No parser, producer,
-adapter, transport, effect owner, stored artifact, successful process, or
-human-readable label may silently mint or preserve a stronger tier.
+**Goal:** introduce the first target-architecture problem-analysis boundary:
+one deterministic, dependency-minimal structured Python API that converts
+explicit mathematical declarations into canonical ProblemIR bytes without
+parsing prose, LaTeX, SymPy expressions, solver objects, Python source, or
+interface-specific payloads. Successful intake proves representation validity
+only; it never proves, solves, normalizes semantically, selects an ambiguous
+reading, or grants mathematical authority.
 
-**Scope:** build one canonical transition catalogue and deterministic mutation
-runner covering every current authority issuer, preserver, downgrade path, and
-forbidden shortcut. Exercise proof-term construction and parsing, arithmetic
-evidence, kernel checker results, SAT assignments and RUP certificates,
-content-addressed provenance, pinned Lean execution and replay, legacy kernel
-and SAT adapters, solver/CAS reports, approximate arithmetic, discovery
-producers, dynamic imports, nauty processes, workers, clocks, randomness,
-filesystem/process adapters, CLI output, and MCP transport. Mutations must forge
-or copy closed objects, alter normal and hidden state, repair outer hashes after
-semantic substitution, swap domains, assumptions, statements, contracts,
-implementations, configurations, budgets, producer/checker identities, and
-provenance roles, truncate or extend certificates and observations, exhaust
-each finite limit, substitute executables and dependencies, race or mutate
-stored bytes, and force deterministic backend agreement and disagreement.
-Every attack has a named positive control, exact expected downgrade or rejection,
-and stable diagnostic; the harness itself never grants mathematical authority.
-Add a static authority-issuer audit so new call sites, tier strings, transition
-edges, entry points, or unclassified effect paths fail the frozen report.
+**Scope:** inventory the accepted ProblemIR v1 schema and every legacy parser,
+natural-language recognizer, MCP/CLI translation path, and fixture producer,
+then freeze the supported structured construction algebra. Provide immutable
+typed declarations or an equally closed public builder surface for source
+identities and spans, domains, variables, expressions, relations, statements,
+definitions, assumptions, goals, readings, ambiguity, and namespaced
+extensions. Resolve symbolic local references into stable explicit IDs,
+preserve every order that ProblemIR declares semantic, sort only registry and
+set-valued data that the accepted contract permits, and return canonical bytes,
+their SHA-256 identity, and bounded structured diagnostics. Keep input objects
+distinct from ProblemIR wire objects so caller mutation, object identity,
+mapping order, dataclass internals, repr output, hash randomization, locale,
+platform, or process state cannot affect the result. Natural-language, LaTeX,
+SymPy, AST/eval, CLI, MCP, files, network, solver, clock, randomness, dynamic
+imports, and discovery code remain outside this boundary; existing legacy
+parsers stay available only as explicitly non-authoritative adapters and are
+not silently routed through the new API.
 
-**Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
-`MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`,
-`MH-C-SAT-REPLAY-001`, `MH-C-PROVENANCE-REPLAY-001`, and
-`MH-C-LEAN-VERIFICATION-001`. Before adding the audit implementation, propose,
-prescreen, and accept `MH-C-TRUST-TRANSITION-001` with closed transition-attempt,
-audit-result, catalogue, and report schemas. It must freeze the tier lattice,
-allowed issuers and preservers, required byte and freshness bindings, downgrade
-and rejection algebra, mutation classes and coverage accounting, deterministic
-ordering and identities, dependency-minimal pure audit API, static source audit,
-and finite bounds for artifacts, mutations, diagnostics, nesting, strings,
-integers, aggregate bytes, runtime, and memory. A mutation survivor, missing
-positive control, unknown transition, incomplete coverage, stale report, or
-unclassified authority site must make the contract validator fail.
+**Contracts:** follow `MH-C-WORKFLOW-001` and bind the already accepted
+`MH-C-PROBLEM-IR-002`. Before implementation, propose, independently
+prescreen, and accept a new critical problem-intake function contract plus
+closed schemas for the input envelope and intake result. Freeze the public
+signature, accepted input type algebra, reference and ID rules, canonical
+construction algorithm, diagnostic taxonomy, success/failure algebra,
+ProblemIR schema/contract hashes, dependency closure, non-authority statement,
+and finite limits for bytes, entities, collection sizes, strings, integers,
+numeric literals, nesting, validation work, runtime, and memory. The contract
+must forbid partial ProblemIR success, implicit defaults that alter
+mathematical meaning, unregistered fields, unknown object types, adapter
+fallback, and any exception-to-success conversion.
 
-**Validators:** canonical catalogue/result/report round trips and identical
-identities across processes, Python 3.10 through 3.14, and Linux/macOS/Windows;
-complete positive-path preservation for each permitted edge; and a 100-percent
-kill rate for the normative deterministic mutant catalogue. Cover constructor,
-`object.__new__`, field mutation, copying, pickling, subclassing, duplicate and
-unknown JSON fields, noncanonical encodings, Unicode/NUL, oversized values,
-hash-and-length repair, subject and assumption substitution, producer/checker
-aliasing, replay self-attestation, missing/extra/reordered roles, stale bundles,
-certificate truncation and trailing data, forged process success, toolchain and
-PATH substitution, link/path attacks, timeout/output exhaustion, and backend
-disagreement. Prove that approximate, solver, discovery, CLI, MCP, dynamic
-import, worker, clock, random, nauty, filesystem, and process surfaces cannot
-issue checker or Lean authority. Measure the pure auditor closure with zero
-third-party, solver, CAS, discovery, filesystem, process, network, clock,
-environment, randomness, dynamic-import, or transport dependencies. Run Ruff,
-compileall, project status, core, solver, discovery, slow, docs, release,
-clean-wheel smoke, coverage, and exact same-head GitHub gates; freeze a G3 exit
-report binding every tested transition, mutation, expected outcome, source,
-contract, artifact, and validator identity.
+**Validators:** round-trip every supported structured declaration into bytes
+accepted independently by the existing ProblemIR validator; require identical
+bytes and identities across repeated processes, Python hash seeds, Python 3.10
+through 3.14, and Linux/macOS/Windows. Cover all ProblemIR tagged variants plus
+the eight frozen foundation scenarios, multiple ordered goals and binders,
+unresolved and resolved readings, source-span identities, lexical scope, and
+extensions. Reject missing, duplicate, dangling, aliased, cyclic, out-of-scope,
+ill-typed, noncanonical, NUL/non-NFC, bool-as-int, float, oversized, deeply
+nested, mutated, forged, subclassed, pickled, and custom mapping/sequence
+inputs with stable paths and reason codes. Prove caller objects are not retained
+or mutated, failed intake returns no canonical ProblemIR identity, the module
+imports no producer, solver, CAS, discovery, interface, filesystem, process,
+environment, network, clock, randomness, or dynamic-import owner, and all
+legacy text/LaTeX/AST/SymPy payloads are refused rather than guessed. Add
+contract, unit, property/adversarial, independent validator, documentation,
+clean-wheel, Ruff, compileall, project-status, core, coverage, and exact-head
+remote gates.
 
-**Done when:** the accepted transition contract and schemas are bound; every
-current permitted edge has a passing positive control; every normative mutant
-is killed with the contracted rejection or downgrade; no unclassified issuer,
-preserver, tier label, or effect-to-authority route remains; forced backend
-disagreement, partial evidence, unsupported states, exhaustion, and all forged
-or stale material remain non-authoritative; the trust inventory and docs name
-every remaining Python, arithmetic, hashing, serialization, solver, runtime,
-and Lean primitive precisely; the frozen G3 report is reproducible and current;
-all local and exact-head remote gates pass; and the P3 exit condition in
-`docs/PLAN.md` is satisfied.
+**Done when:** the new accepted contract and schemas are content-addressed and
+bound to the implementation; every supported structured Python construct
+produces independently validated canonical ProblemIR bytes or one complete
+bounded failure result; cross-process and cross-platform identities are stable;
+no implicit ambiguity choice, semantic normalization, solver call, adapter
+fallback, partial artifact, caller mutation, or mathematical authority is
+possible; legacy natural-language and LaTeX routes are documented outside the
+trusted boundary; the frozen intake report and trust inventory are current;
+and all required local and exact-head gates pass.
 
-**Dependencies:** MH-030 through MH-036 are done and provide the frozen trust
-lattice, immutable proof terms, explicit arithmetic evidence, dependency-minimal
-checkers, hardened SAT replay, content-addressed provenance, and pinned external
-Lean authority. MH-040 may begin only after this task closes G3 for the supported
-kernel fragment.
+**Dependencies:** MH-020 and MH-021 provide the accepted contract workflow and
+ProblemIR v1 wire semantics; MH-027 and MH-028 provide conformance and reference
+fixtures; MH-030 through MH-037 provide the closed trust and provenance model.
+MH-041 consumes this stable intake result to represent alternative readings,
+while MH-042 through MH-044 own domain/assumption normalization and semantic
+canonicalization that this task must not perform.
 
 ## Next
 

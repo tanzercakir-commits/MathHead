@@ -417,3 +417,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-DOMAIN-ASSU
 profiles = ["status", "fast"]
 tasks = ["MH-042"]
 timeout_seconds = 60
+
+[[checks]]
+name = "proof-obligation-tests"
+command = "python -m unittest discover -s tests/proof_obligations -v"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-obligation-validator"
+command = "python tools/validate_proof_obligations.py"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-obligation-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-OBLIGATION-DECOMPOSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 60

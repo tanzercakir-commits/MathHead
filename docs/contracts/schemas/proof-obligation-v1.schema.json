@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/proof-obligation-v1.schema.json",
+  "title": "MathHead proof obligation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "obligation_sha256": {"$ref": "#/$defs/sha256"},
+    "obligation_id": {"$ref": "#/$defs/obligation_id"},
+    "ordinal": {"type": "integer", "minimum": 0, "maximum": 800000},
+    "reading_id": {"$ref": "#/$defs/id"},
+    "root_goal_id": {"$ref": "#/$defs/id"},
+    "parent_obligation_id": {"anyOf": [{"$ref": "#/$defs/obligation_id"}, {"type": "null"}]},
+    "rule_id": {"type": "string", "pattern": "^mh[.]obligation[.][a-z0-9_.-]+$", "maxLength": 160},
+    "kind": {
+      "enum": [
+        "truth", "relation", "negation", "conjunction", "disjunction",
+        "implication", "biconditional", "universal", "existential",
+        "unique_existence", "witness_construction", "witness_verification",
+        "uniqueness", "refutation", "witness_search", "computation",
+        "classification", "optimization", "unsupported"
+      ]
+    },
+    "goal_mode": {"enum": ["prove", "refute", "find_witness", "compute", "classify", "optimize"]},
+    "status": {"enum": ["ready", "waiting", "choice_required", "unsupported"]},
+    "statement_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "relation_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "statement_fragment_sha256": {"$ref": "#/$defs/sha256"},
+    "source_span_ids": {"$ref": "#/$defs/id_array"},
+    "dependency_ids": {"$ref": "#/$defs/id_array"},
+    "local_context_sha256": {"$ref": "#/$defs/sha256"},
+    "child_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+    "prerequisite_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+    "alternative_group_id": {"anyOf": [{"type": "string", "pattern": "^alternative_[a-z0-9_]+$", "maxLength": 160}, {"type": "null"}]},
+    "alternative_index": {"anyOf": [{"type": "integer", "minimum": 0, "maximum": 100000}, {"type": "null"}]},
+    "witness_placeholder_ids": {
+      "type": "array", "maxItems": 100000, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^witness_[a-z0-9_]+$", "maxLength": 192}
+    },
+    "admissible_strategies": {
+      "type": "array", "maxItems": 128, "uniqueItems": true,
+      "items": {"$ref": "#/$defs/admissibility"}
+    },
+    "payload": {"$ref": "#/$defs/canonical_value"},
+    "supported": {"type": "boolean"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "obligation_sha256", "obligation_id", "ordinal", "reading_id", "root_goal_id",
+    "parent_obligation_id", "rule_id", "kind", "goal_mode", "status",
+    "statement_id", "relation_id", "statement_fragment_sha256", "source_span_ids",
+    "dependency_ids", "local_context_sha256", "child_obligation_ids",
+    "prerequisite_obligation_ids", "alternative_group_id", "alternative_index",
+    "witness_placeholder_ids", "admissible_strategies", "payload", "supported",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "obligation_id": {"type": "string", "pattern": "^obligation_[0-9]{6}$"},
+    "id_array": {"type": "array", "maxItems": 1200000, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "obligation_id_array": {"type": "array", "maxItems": 800000, "uniqueItems": true, "items": {"$ref": "#/$defs/obligation_id"}},
+    "admissibility": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "strategy_id": {"type": "string", "pattern": "^mh[.]strategy[.][a-z0-9_.-]+$", "maxLength": 160},
+        "match_rule_id": {"type": "string", "pattern": "^mh[.]strategy-match[.][a-z0-9_.-]+$", "maxLength": 160},
+        "reason_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "maxLength": 128},
+        "matched_value": {"type": "string", "minLength": 1, "maxLength": 255},
+        "prerequisite_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+        "guarantees_success": {"const": false},
+        "mathematical_authority": {"const": false}
+      },
+      "required": ["strategy_id", "match_rule_id", "reason_code", "matched_value", "prerequisite_obligation_ids", "guarantees_success", "mathematical_authority"]
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"}, {"type": "boolean"},
+        {"type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991},
+        {"type": "string", "maxLength": 1048576},
+        {"type": "array", "maxItems": 100000, "items": {"$ref": "#/$defs/canonical_value"}},
+        {"type": "object", "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"}, "additionalProperties": {"$ref": "#/$defs/canonical_value"}}
+      ]
+    }
+  }
+}

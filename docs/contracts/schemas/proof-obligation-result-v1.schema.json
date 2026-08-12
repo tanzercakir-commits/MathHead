@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/proof-obligation-result-v1.schema.json",
+  "title": "MathHead proof-obligation decomposition result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.proof-obligation-result.v1"},
+    "contract_id": {"const": "MH-C-PROOF-OBLIGATION-DECOMPOSITION-001"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "domain_assumption_contract_id": {"const": "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001"},
+    "domain_assumption_contract_sha256": {"const": "609bc3a0773016f73d4bcee21d6aef034c74bb8edb36fddd9b6df1a4f4ba219a"},
+    "reading_analysis_contract_id": {"const": "MH-C-READING-ANALYSIS-002"},
+    "reading_analysis_contract_sha256": {"const": "0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70"},
+    "problem_intake_contract_id": {"const": "MH-C-PROBLEM-INTAKE-001"},
+    "problem_intake_contract_sha256": {"const": "855375a8fb788ff65728d860c16f0ccfa32fe9d058b3fe93534ef11f147794dc"},
+    "problem_ir_contract_id": {"const": "MH-C-PROBLEM-IR-002"},
+    "problem_ir_contract_sha256": {"const": "6d657195869a5746c5a41492c334b32ee5edd2ca84eb7facfade44f53334c286"},
+    "decomposition_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "strategy_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"enum": ["decomposed", "invalid", "exhausted"]},
+    "reason_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "maxLength": 128},
+    "input_result_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "domain_assumption_result": {"anyOf": [{"type": "object"}, {"type": "null"}]},
+    "ambiguity_status": {"anyOf": [{"enum": ["unambiguous", "unresolved", "resolved"]}, {"type": "null"}]},
+    "selected_reading_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "candidates": {
+      "type": "array", "maxItems": 100000,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "reading_id": {"$ref": "#/$defs/id"},
+          "projection_sha256": {"$ref": "#/$defs/sha256"},
+          "normalized_context_sha256": {"$ref": "#/$defs/sha256"},
+          "graph_sha256": {"$ref": "#/$defs/sha256"},
+          "graph": {"$ref": "proof-obligation-graph-v1.schema.json"}
+        },
+        "required": ["reading_id", "projection_sha256", "normalized_context_sha256", "graph_sha256", "graph"]
+      }
+    },
+    "diagnostics": {
+      "type": "array", "maxItems": 32,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "maxLength": 128},
+          "path": {"type": "string", "pattern": "^[$](?:[.][A-Za-z_][A-Za-z0-9_]*|\\[[0-9]+\\])*$", "maxLength": 4096},
+          "message": {"type": "string", "minLength": 1, "maxLength": 512}
+        },
+        "required": ["code", "path", "message"]
+      }
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": ["schema", "contract_id", "contract_sha256", "domain_assumption_contract_id", "domain_assumption_contract_sha256", "reading_analysis_contract_id", "reading_analysis_contract_sha256", "problem_intake_contract_id", "problem_intake_contract_sha256", "problem_ir_contract_id", "problem_ir_contract_sha256", "decomposition_catalogue_sha256", "strategy_catalogue_sha256", "status", "reason_code", "input_result_sha256", "domain_assumption_result", "ambiguity_status", "selected_reading_id", "candidates", "diagnostics", "mathematical_authority"],
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "decomposed"}}},
+      "then": {
+        "properties": {
+          "reason_code": {"const": "DECOMPOSED"},
+          "input_result_sha256": {"$ref": "#/$defs/sha256"},
+          "domain_assumption_result": {"type": "object"},
+          "ambiguity_status": {"enum": ["unambiguous", "unresolved", "resolved"]},
+          "candidates": {"minItems": 1},
+          "diagnostics": {"maxItems": 0}
+        }
+      },
+      "else": {
+        "properties": {
+          "input_result_sha256": {"type": "null"},
+          "domain_assumption_result": {"type": "null"},
+          "ambiguity_status": {"type": "null"},
+          "selected_reading_id": {"type": "null"},
+          "candidates": {"maxItems": 0},
+          "diagnostics": {"minItems": 1}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -65,6 +65,13 @@ before the critical implementation that they govern.
   catalogue, and result schemas and is accepted under the project owner's
   programme-wide authority at SHA-256
   `609bc3a0773016f73d4bcee21d6aef034c74bb8edb36fddd9b6df1a4f4ba219a`.
+- `MH-C-PROOF-OBLIGATION-DECOMPOSITION-001.json` governs deterministic,
+  per-reading typed proof-obligation graphs, exact local contexts, explicit
+  choices and symbolic witness duties, frozen structural strategy hints,
+  canonical replay, and the absence of solving or mathematical authority. It
+  binds six closed schemas plus the rule and strategy catalogues and is
+  accepted under the project owner's programme-wide authority at SHA-256
+  `ea5d0664611b57da3074e20fce90623318ce04280d38ecce548025a91a7b19ff`.
 - `MH-C-THEORY-CONTEXT-001.json` governs canonical theory and local contexts,
   explicit epistemic authority, content-addressed imports and declarations,
   monotonic revisions, bounded consistency claims, and immutable identity. It
@@ -267,6 +274,22 @@ python -m unittest discover -s tests/domain_assumptions -v
 python tools/validate_domain_assumptions.py
 python tools/contract_artifacts.py verify \
   --contract MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001 --require-bound
+```
+
+## Proof-obligation decomposition
+
+MH-043 is documented in `docs/PROOF_OBLIGATIONS_V1.md`. The pure
+`mathhead.proof_obligations` boundary gives every declared goal in every
+successful MH-042 reading one finite typed obligation graph. It retains exact
+local contexts, dependencies, choices, witness placeholders, and reviewed
+strategy admissibility reasons without selecting a reading, executing a
+strategy, or granting mathematical authority:
+
+```bash
+python -m unittest discover -s tests/proof_obligations -v
+python tools/validate_proof_obligations.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROOF-OBLIGATION-DECOMPOSITION-001 --require-bound
 ```
 
 ## Immutable proof terms

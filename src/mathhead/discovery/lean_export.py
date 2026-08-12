@@ -19,23 +19,33 @@ We NEVER report a theorem as Lean-verified until that external run happens.
 """
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 
+from mathhead.kernel.checkers import check_proof_term
+from mathhead.kernel.proof_terms import polynomial_identity, residue
+from mathhead.parsing import parse_expression
+from mathhead.proof_assistant.export import build_lean_export
+
 _HEADER = '''/-
-  MathHead kernel theorems — Lean 4 export (v2C2/M6 cross-seal).
+  MathHead legacy combined Lean export — non-authoritative compatibility view.
 
   TO VERIFY (external step, NOT yet run):
-    lake new mathhead_check math && cd mathhead_check
-    -- put this file in MathheadCheck/, add to imports, then:
-    lake build          -- success = Lean's kernel re-checked every theorem below
+    Use mathhead.proof_assistant to create one canonical content-addressed
+    request per theorem, then run the pinned MH-C-LEAN-VERIFICATION-001 job.
+    `lake build` on this combined convenience file is not an authority source.
 
-  Correspondence: MathHead's RESIDUE rule (finite residue exhaustion) is Lean's `decide` over the
-  FINITE type `ZMod m`; the bridge lemma transports it to all of ℤ. Tactic glue may need adjustment
-  across mathlib versions; `decide` over `ZMod m` is the version-stable mathematical core.
+  Each theorem block below is derived by the canonical exporter from a freshly
+  checked proof term. This file deliberately omits request and provenance bytes.
   Status of every theorem here: export_written_pending_external_check.
 -/
-import Mathlib.Data.ZMod.Basic
-import Mathlib.Tactic
+import Mathlib
+
+set_option autoImplicit false
+set_option maxHeartbeats 1000000
+set_option maxRecDepth 100000
+
+namespace MathHead.LegacyExport
 
 '''
 
@@ -55,22 +65,104 @@ def _lean_poly(coeffs: tuple, var: str = "n") -> str:
     return " + ".join(terms) if terms else "(0 : ℤ)"
 
 
+def _legacy_name(name: str) -> str:
+    """Accept one inert ASCII compatibility identifier, never source text."""
+    if (
+        type(name) is not str
+        or not 0 < len(name) <= 128
+        or not name.isascii()
+        or not (name[0].isalpha() or name[0] == "_")
+        or any(not (character.isalnum() or character == "_") for character in name)
+        or name in {"axiom", "def", "end", "namespace", "opaque", "partial", "theorem", "unsafe"}
+    ):
+        raise ValueError("legacy theorem name is not one inert ASCII identifier")
+    return name
+
+
 def export_divides(name: str, m: int, poly: tuple) -> str:
-    """Lean theorem for `m | p(n) ∀ n : ℤ` via decide-over-ZMod — mirrors the RESIDUE proof exactly."""
-    p = _lean_poly(poly)
-    return (
-        f"-- MathHead kernel: Divides({m}, {poly}) — RESIDUE exhaustion ≡ decide over ZMod {m}\n"
-        f"theorem {name} : ∀ n : ℤ, ({m} : ℤ) ∣ ({p}) := by\n"
-        f"  intro n\n"
-        f"  have key : ∀ x : ZMod {m}, ({_lean_poly(poly, 'x').replace('ℤ', f'ZMod {m}')}) = 0 := by decide\n"
-        f"  have h : ((({p}) : ℤ) : ZMod {m}) = 0 := by push_cast; simpa using key ((n : ZMod {m}))\n"
-        f"  exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ {m}).mp h\n")
+    """Compatibility text derived from one canonical written-only export."""
+    name = _legacy_name(name)
+    term = residue(int(m), tuple(int(value) for value in poly))
+    exported = build_lean_export(term, check_proof_term(term))
+    return _theorem_block(exported).replace(exported.theorem_name, name, 1)
+
+
+def _legacy_polynomial(expression: str) -> tuple[int, ...]:
+    """Parse the tiny historical integer-polynomial expression surface."""
+    if type(expression) is not str or len(expression) > 4096:
+        raise ValueError("legacy polynomial expression is invalid")
+    tree = parse_expression(expression.replace("^", "**"))
+
+    def add(left: tuple[int, ...], right: tuple[int, ...], sign: int = 1) -> tuple[int, ...]:
+        size = max(len(left), len(right))
+        values = [0] * size
+        for index in range(size):
+            values[index] = (
+                (left[index] if index < len(left) else 0)
+                + sign * (right[index] if index < len(right) else 0)
+            )
+        while len(values) > 1 and values[-1] == 0:
+            values.pop()
+        return tuple(values)
+
+    def multiply(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
+        if len(left) + len(right) > 66:
+            raise ValueError("legacy polynomial degree exceeds the adapter budget")
+        values = [0] * (len(left) + len(right) - 1)
+        for i, a in enumerate(left):
+            for j, b in enumerate(right):
+                values[i + j] += a * b
+        return tuple(values)
+
+    def visit(node: ast.AST) -> tuple[int, ...]:
+        if isinstance(node, ast.Name) and node.id == "n":
+            return (0, 1)
+        if isinstance(node, ast.Constant) and type(node.value) is int:
+            return (node.value,)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            return tuple(-value for value in visit(node.operand))
+        if isinstance(node, ast.BinOp):
+            if isinstance(node.op, ast.Add):
+                return add(visit(node.left), visit(node.right))
+            if isinstance(node.op, ast.Sub):
+                return add(visit(node.left), visit(node.right), -1)
+            if isinstance(node.op, ast.Mult):
+                return multiply(visit(node.left), visit(node.right))
+            if (
+                isinstance(node.op, ast.Pow)
+                and isinstance(node.right, ast.Constant)
+                and type(node.right.value) is int
+                and 0 <= node.right.value <= 32
+            ):
+                base = visit(node.left)
+                result = (1,)
+                for _ in range(node.right.value):
+                    result = multiply(result, base)
+                return result
+        raise ValueError("legacy polynomial expression uses unsupported syntax")
+
+    return visit(tree.body)
 
 
 def export_identity(name: str, lhs: str, rhs: str) -> str:
-    """Lean theorem for a polynomial identity — the kernel's PolyIdentity ≡ `ring`."""
-    return (f"-- MathHead kernel: PolyIdentity — exact coefficient equality ≡ ring\n"
-            f"theorem {name} : ∀ n : ℤ, ({lhs} : ℤ) = ({rhs}) := by intro n; ring\n")
+    """Preserve legacy text only after the canonical checker accepts the identity."""
+    name = _legacy_name(name)
+    left = _legacy_polynomial(lhs)
+    right = _legacy_polynomial(rhs)
+    term = polynomial_identity(left, right)
+    build_lean_export(term, check_proof_term(term))
+    return (
+        "-- Non-authoritative compatibility rendering of a checked identity\n"
+        f"theorem {name} : ∀ n : ℤ, ({_lean_poly(left)}) = "
+        f"({_lean_poly(right)}) := by intro n; ring\n"
+    )
+
+
+def _theorem_block(export: object) -> str:
+    source = export.artifacts[1].decode("utf-8")
+    start = source.index("theorem ")
+    end = source.index("\n\nend MathHead.Generated")
+    return source[start:end] + "\n"
 
 
 @dataclass
@@ -83,7 +175,7 @@ class LeanExport:
 
 
 def export_kernel_theorems(path: str = "docs/discovery/lean/MathheadKernel.lean") -> LeanExport:
-    """Export the kernel's proved Divides facts + representative identities to one Lean file."""
+    """Write a compatibility view; canonical per-theorem requests remain separate."""
     from pathlib import Path
 
     from .arithmetic import run_arithmetic_discovery
@@ -94,13 +186,13 @@ def export_kernel_theorems(path: str = "docs/discovery/lean/MathheadKernel.lean"
         if f.verdict != "proved":
             continue
         count += 1
-        safe = f.expression.replace("**", "_pow_").replace("*", "_mul_").replace(" ", "") \
-                           .replace("+", "_plus_").replace("-", "_minus_").replace("(", "").replace(")", "")
-        blocks.append(export_divides(f"mathhead_divides_{count}_{safe[:40]}",
-                                     f.modulus, poly_from_sympy(f.expression)))
-    for lhs, rhs in (("n^2 - 1", "(n - 1) * (n + 1)"), ("n^3 - n", "n * (n - 1) * (n + 1)")):
+        term = residue(f.modulus, poly_from_sympy(f.expression))
+        blocks.append(_theorem_block(build_lean_export(term, check_proof_term(term))))
+    for coefficients in ((-1, 0, 1), (0, -1, 0, 1)):
         count += 1
-        blocks.append(export_identity(f"mathhead_identity_{count}", lhs, rhs))
+        term = polynomial_identity(coefficients, coefficients)
+        blocks.append(_theorem_block(build_lean_export(term, check_proof_term(term))))
+    blocks.append("\nend MathHead.LegacyExport\n")
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(blocks), encoding="utf-8")

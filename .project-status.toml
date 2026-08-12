@@ -305,3 +305,31 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROVENANCE-
 profiles = ["status", "fast"]
 tasks = ["MH-035"]
 timeout_seconds = 60
+
+[[checks]]
+name = "lean-verification-tests"
+command = "python -m unittest discover -s tests/lean_verification -v"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 180
+
+[[checks]]
+name = "lean-verification-validator"
+command = "python tools/validate_lean_verification.py"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 120
+
+[[checks]]
+name = "lean-verification-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-LEAN-VERIFICATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 60
+
+[[checks]]
+name = "lean-legacy-adapter-tests"
+command = "python -m unittest discover -s tests/lean_verification -p test_legacy_adapter.py -v"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 180

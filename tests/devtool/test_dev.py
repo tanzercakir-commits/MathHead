@@ -215,6 +215,21 @@ class DevDispatcherTests(unittest.TestCase):
         self.assertEqual(code, dev.RESULT_EXIT_CODES["failed"])
         self.assertIn("artifact-export-requires-release-profile", stderr.getvalue())
 
+    def test_runtime_smokes_include_installed_lean_export_round_trip(self) -> None:
+        passed = dev.CommandResult("smoke", "passed", 0, "0" * 64, 0.0)
+        with mock.patch.object(dev, "_run_command", return_value=(passed, "", "")) as run:
+            results, diagnostics = dev._runtime_smokes(
+                Path("/isolated/python"), root=Path("/repository"), remaining=30
+            )
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(len(results), 5)
+        commands = {call.args[0]: call.args[1] for call in run.call_args_list}
+        self.assertIn("smoke-lean-export", commands)
+        self.assertIn(
+            "mathhead.proof_assistant.export",
+            " ".join(commands["smoke-lean-export"]),
+        )
+
     def test_release_export_is_repository_bounded_and_complete(self) -> None:
         with tempfile.TemporaryDirectory() as temp_name:
             root = Path(temp_name)

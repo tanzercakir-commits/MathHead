@@ -529,6 +529,21 @@ def _runtime_smokes(
             ],
         ),
         (
+            "smoke-lean-export",
+            [
+                str(python),
+                "-c",
+                "from mathhead.kernel.checkers import check_proof_term; "
+                "from mathhead.kernel.proof_terms import residue; "
+                "from mathhead.proof_assistant.export import "
+                "build_lean_export, parse_lean_export; "
+                "t=residue(6,(0,-1,0,1)); e=build_lean_export(t,check_proof_term(t)); "
+                "assert e.status=='export_written' and e.authority=='none'; "
+                "assert parse_lean_export(e.request,e.artifacts)==e; "
+                "print(e.theorem_name)",
+            ],
+        ),
+        (
             "smoke-mcp",
             [
                 str(python), "-c",

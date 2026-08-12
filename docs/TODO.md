@@ -33,7 +33,7 @@ contracted authority lattice from exact bytes alone.
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
 `MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`, and
 `MH-C-PROVENANCE-REPLAY-001`. Before implementation, propose, prescreen, and
-accept one new MH-C-LEAN-VERIFICATION-001 contract with closed request and
+accept one new `MH-C-LEAN-VERIFICATION-001` contract with closed request and
 result schemas. It must freeze the exporter, runner, and pure-validator APIs;
 the supported proof fragment and exact statement correspondence; canonical
 source and project bytes; toolchain and dependency pinning; process,

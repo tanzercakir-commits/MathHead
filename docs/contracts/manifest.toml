@@ -173,3 +173,9 @@ id = "MH-C-PROVENANCE-REPLAY-001"
 path = "docs/contracts/MH-C-PROVENANCE-REPLAY-001.json"
 sha256 = "31a664252096b47a10dfe14d999a5fe7bf278612fdebd003c3982123a0bcdb67"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-LEAN-VERIFICATION-001"
+path = "docs/contracts/MH-C-LEAN-VERIFICATION-001.json"
+sha256 = "b5c8bd2b3f93698d404042e7785d6dc503968481de13a77aee71769079a4b60a"
+state = "accepted"

@@ -91,6 +91,13 @@ before the critical implementation that they govern.
   `schemas/provenance-manifest-v1.schema.json` and
   `schemas/provenance-replay-result-v1.schema.json` and is accepted at SHA-256
   `31a664252096b47a10dfe14d999a5fe7bf278612fdebd003c3982123a0bcdb67`.
+- `MH-C-LEAN-VERIFICATION-001.json` governs the pure four-rule Lean exporter,
+  exact request and result bytes, pinned Lean 4.33 and mathlib dependency
+  identities, shell-free bounded runner, fresh-only proof-assistant authority,
+  provenance dispatch, and non-authoritative legacy adapter. It binds
+  `schemas/lean-verification-request-v1.schema.json` and
+  `schemas/lean-verification-result-v1.schema.json` and is accepted at SHA-256
+  `b5c8bd2b3f93698d404042e7785d6dc503968481de13a77aee71769079a4b60a`.
 - `MH-C-PROOF-TERM-001.json` governs the closed four-rule immutable proof-term
   algebra, constructor and deserialization boundaries, canonical JSON wire
   bytes, full content identity, exact numeric and graph budgets, stable error
@@ -162,11 +169,26 @@ python -m unittest discover -s tests/reference_fixtures -v
 See `docs/fixtures/README.md` for the stable bundle identity, regeneration
 command, object-store layout, and non-promotion rules.
 
+## Pinned external Lean verification
+
+MH-036 is documented in `docs/LEAN_VERIFICATION_V1.md`. The portable suite
+checks canonical exports and deterministic unavailable behavior without a Lean
+installation; the dedicated Linux CI job separately acquires the exact locked
+toolchain and compiles all four supported proof rules through fresh provenance
+dispatch:
+
+```bash
+python -m unittest discover -s tests/lean_verification -v
+python tools/validate_lean_verification.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-LEAN-VERIFICATION-001 --require-bound
+```
+
 ## Trusted computing base
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 125 source modules, 35 import roots, 24 trust surfaces, ten entry-point
+all 129 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash

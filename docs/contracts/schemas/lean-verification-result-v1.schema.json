@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/lean-verification-result-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableDigest": {
+      "oneOf": [
+        {"$ref": "#/$defs/digest"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authority",
+    "checker_result_sha256",
+    "compiled_artifact_sha256",
+    "contract_id",
+    "contract_sha256",
+    "diagnostic",
+    "exact",
+    "exit_code",
+    "lake_executable_sha256",
+    "lean_executable_sha256",
+    "lean_version_sha256",
+    "project_sha256",
+    "proof_term_sha256",
+    "reason_code",
+    "request_sha256",
+    "schema",
+    "source_sha256",
+    "status",
+    "stderr_bytes",
+    "stderr_sha256",
+    "stdout_bytes",
+    "stdout_sha256",
+    "toolchain",
+    "verdict"
+  ],
+  "properties": {
+    "authority": {"enum": ["external_proof_assistant", "none"]},
+    "checker_result_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "compiled_artifact_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "contract_id": {"const": "MH-C-LEAN-VERIFICATION-001"},
+    "contract_sha256": {"$ref": "#/$defs/digest"},
+    "diagnostic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "exact": {"const": true},
+    "exit_code": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 255
+    },
+    "lake_executable_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "lean_executable_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "lean_version_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "project_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "proof_term_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "reason_code": {
+      "enum": [
+        "CHECK_EXHAUSTED",
+        "CHECK_FAILED",
+        "CHECK_UNAVAILABLE",
+        "EXPORT_WRITTEN",
+        "EXTERNALLY_VERIFIED",
+        "REQUEST_INVALID"
+      ]
+    },
+    "request_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "schema": {"const": "mathhead.lean-verification-result.v1"},
+    "source_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "status": {
+      "enum": [
+        "check_exhausted",
+        "check_failed",
+        "check_unavailable",
+        "export_written",
+        "externally_verified"
+      ]
+    },
+    "stderr_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1048576
+    },
+    "stderr_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "stdout_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1048576
+    },
+    "stdout_sha256": {"$ref": "#/$defs/nullableDigest"},
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lean_commit", "lean_toolchain", "mathlib_commit", "platform"],
+      "properties": {
+        "lean_commit": {
+          "const": "d8b18978322de05a8f3dba51ef03cf5461676c17"
+        },
+        "lean_toolchain": {"const": "leanprover/lean4:v4.33.0"},
+        "mathlib_commit": {
+          "const": "db584cd6d46c92f209a44c0f1c829460d327499d"
+        },
+        "platform": {"const": "x86_64-unknown-linux-gnu"}
+      }
+    },
+    "verdict": {"enum": ["exhausted", "invalid", "unsupported", "verified"]}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "externally_verified"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "authority": {"const": "external_proof_assistant"},
+          "checker_result_sha256": {"$ref": "#/$defs/digest"},
+          "compiled_artifact_sha256": {"$ref": "#/$defs/digest"},
+          "exit_code": {"const": 0},
+          "lake_executable_sha256": {"$ref": "#/$defs/digest"},
+          "lean_executable_sha256": {"$ref": "#/$defs/digest"},
+          "lean_version_sha256": {"$ref": "#/$defs/digest"},
+          "project_sha256": {"$ref": "#/$defs/digest"},
+          "proof_term_sha256": {"$ref": "#/$defs/digest"},
+          "reason_code": {"const": "EXTERNALLY_VERIFIED"},
+          "request_sha256": {"$ref": "#/$defs/digest"},
+          "source_sha256": {"$ref": "#/$defs/digest"},
+          "stderr_sha256": {"$ref": "#/$defs/digest"},
+          "stdout_sha256": {"$ref": "#/$defs/digest"},
+          "verdict": {"const": "verified"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "check_exhausted",
+              "check_failed",
+              "check_unavailable",
+              "export_written"
+            ]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {"properties": {"authority": {"const": "none"}}}
+    }
+  ]
+}

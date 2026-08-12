@@ -110,6 +110,62 @@ jobs:
       - name: Check bounded solver profile
         run: python tools/dev.py check --profile solver
 
+  test-lean:
+    name: pinned Lean 4.33 external verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Bootstrap the dependency-minimal Python boundary
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Download and verify the exact Lean release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/lean-4.33.0-linux.tar.zst"
+          curl --fail --location --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.33.0/lean-4.33.0-linux.tar.zst \
+            --output "$archive"
+          test "$(wc -c < "$archive")" -eq 574882764
+          echo "4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c  $archive" \
+            | sha256sum --check --strict
+          mkdir -p lean/.toolchain
+          tar --zstd --extract --file "$archive" --directory lean/.toolchain \
+            --strip-components=1
+          echo "60330ab6f07dce20f3fa9ebb08e8b984ea9549eac172afeb15d9d2227060e2b3  lean/.toolchain/bin/lake" \
+            | sha256sum --check --strict
+          echo "e8baaa71855a616dc351028f3ad2200051b0671f423a1696a100e809302d5550  lean/.toolchain/bin/lean" \
+            | sha256sum --check --strict
+          chmod a-w lean/.toolchain/bin/lake lean/.toolchain/bin/lean
+          rm -- "$archive"
+      - name: Acquire the exact locked dependency tree and mathlib cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_lakefile="$RUNNER_TEMP/runtime-lakefile.toml"
+          runtime_manifest="$RUNNER_TEMP/runtime-lake-manifest.json"
+          cp lean/lakefile.toml "$runtime_lakefile"
+          cp lean/lake-manifest.json "$runtime_manifest"
+          cp lean/acquisition-lakefile.toml lean/lakefile.toml
+          cp lean/acquisition-lake-manifest.json lean/lake-manifest.json
+          export PATH="$PWD/lean/.toolchain/bin:$PATH"
+          lean/.toolchain/bin/lake --version
+          (cd lean && ../lean/.toolchain/bin/lake exe cache get)
+          cp "$runtime_lakefile" lean/lakefile.toml
+          cp "$runtime_manifest" lean/lake-manifest.json
+          git diff --exit-code -- lean/lakefile.toml lean/lake-manifest.json
+      - name: Check the contract, adversarial unit suite, and four live rules
+        run: |
+          python tools/contract_artifacts.py verify \
+            --contract MH-C-LEAN-VERIFICATION-001 --require-bound
+          python -m unittest discover -s tests/lean_verification -v
+          python tools/validate_lean_verification.py --require-live
+
   test-slow:
     name: explicitly slow (ubuntu · py3.11)
     runs-on: ubuntu-latest

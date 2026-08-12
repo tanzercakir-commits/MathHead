@@ -10,12 +10,12 @@ The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
 SHA-256
 `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 Its current self-identity is
-`2be22378913e0a87360f020120f5edfd082843c2b0c76423fa74d805d23004ca`.
+`3d2a7141186a3fcfb4c6dd31f6a004149d2dd3595544bc71a228c9e40a9151d0`.
 
 ## Current result
 
-The static boundary contains 125 Python modules, 35 non-`mathhead` import
-roots, 24 classified trust surfaces, and ten supported entry points. Every
+The static boundary contains 129 Python modules, 35 non-`mathhead` import
+roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
 entry-point closure, or trust classification changes the report and therefore
@@ -36,7 +36,9 @@ The important current distinctions are:
 | `kernel/provenance.py` | preserves a fresh checker attestation only after complete bundle replay | active MH-035 boundary; exact manifest, object graph, plugin, contract, source, config, inputs, and result bytes |
 | `provenance_store.py` | no mathematical authority | atomic immutable fan-out store; every load is rehashed and freshly replayed |
 | SHA-256 and canonical JSON | identity only | centralized into complete MH-035 content and replay bindings; a digest alone never proves truth |
-| Lean export | no current authority | grant authority only after pinned external replay in MH-036 |
+| `proof_assistant/export.py` | no authority | canonical four-rule source, request, and project bytes only |
+| `proof_assistant/lean.py` | external proof-assistant authority after fresh exact replay | pinned Lean 4.33, path-only dependency runtime, bounded shell-free process, exact output artifacts |
+| `proof_assistant/provenance.py` | preserves external authority only after MH-035 replay | byte-identical proof/checker objects followed by another fresh Lean execution |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:

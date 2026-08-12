@@ -203,3 +203,9 @@ id = "MH-C-READING-ANALYSIS-002"
 path = "docs/contracts/MH-C-READING-ANALYSIS-002.json"
 sha256 = "0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001"
+path = "docs/contracts/MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001.json"
+sha256 = "609bc3a0773016f73d4bcee21d6aef034c74bb8edb36fddd9b6df1a4f4ba219a"
+state = "accepted"

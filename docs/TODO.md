@@ -36,8 +36,8 @@ proof checking; MH-043 and MH-044 own those later boundaries.
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
 `MH-C-PROBLEM-IR-002`, `MH-C-PROBLEM-INTAKE-001`, and
 `MH-C-READING-ANALYSIS-002` identities. Before implementation, propose,
-independently prescreen, and accept a new versioned domain-and-assumption
-normalization contract plus closed input/result, normalized context, fact, and
+independently prescreen, and accept
+`MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001` plus closed input/result, normalized context, fact, and
 rule-catalogue schemas. Freeze the exact byte-oriented public
 signature; accepted upstream status and identity checks; per-reading topology;
 all eight ProblemIR domain variants and six builtin carriers; assumption-role

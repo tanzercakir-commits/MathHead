@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/domain-assumption-fact-v1.schema.json",
+  "title": "MathHead normalized domain and assumption fact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.domain-assumption-fact.v1"},
+    "fact_sha256": {"$ref": "#/$defs/sha256"},
+    "ordinal": {"type": "integer", "minimum": 0, "maximum": 399999},
+    "reading_id": {"$ref": "#/$defs/id"},
+    "rule_id": {"$ref": "#/$defs/rule_id"},
+    "kind": {
+      "enum": [
+        "builtin_domain",
+        "finite_domain",
+        "interval_domain",
+        "modular_domain",
+        "collection_domain",
+        "product_domain",
+        "function_domain",
+        "structure_domain",
+        "variable_domain",
+        "truth_assumption",
+        "equality_assumption",
+        "disequality_assumption",
+        "bound_assumption",
+        "membership_assumption",
+        "nonmembership_assumption",
+        "divisibility_assumption",
+        "congruence_assumption",
+        "nonzero_assumption",
+        "finiteness_assumption",
+        "cardinality_assumption",
+        "dimension_assumption",
+        "graph_class_assumption",
+        "regularity_assumption",
+        "opaque_relation_assumption",
+        "opaque_predicate_assumption",
+        "logical_assumption",
+        "quantified_assumption"
+      ]
+    },
+    "assumption_role": {"enum": ["given", "domain_constraint", "side_condition", null]},
+    "origin_registry": {"enum": ["domains", "variables", "assumptions"]},
+    "origin_id": {"$ref": "#/$defs/id"},
+    "statement_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "relation_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "subject_ids": {"$ref": "#/$defs/id_list"},
+    "dependency_ids": {"$ref": "#/$defs/id_list"},
+    "span_ids": {"$ref": "#/$defs/id_list"},
+    "fragment_sha256": {"$ref": "#/$defs/sha256"},
+    "payload": {"$ref": "#/$defs/canonical_value"},
+    "supported": {"type": "boolean"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "fact_sha256",
+    "ordinal",
+    "reading_id",
+    "rule_id",
+    "kind",
+    "assumption_role",
+    "origin_registry",
+    "origin_id",
+    "statement_id",
+    "relation_id",
+    "subject_ids",
+    "dependency_ids",
+    "span_ids",
+    "fragment_sha256",
+    "payload",
+    "supported",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "rule_id": {"type": "string", "pattern": "^mh[.]normalize[.][a-z0-9_.-]+$", "maxLength": 128},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id_list": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "maxItems": 100000,
+      "uniqueItems": true
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991},
+        {"type": "string", "maxLength": 1048576},
+        {"type": "array", "maxItems": 100000, "items": {"$ref": "#/$defs/canonical_value"}},
+        {
+          "type": "object",
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+          "additionalProperties": {"$ref": "#/$defs/canonical_value"},
+          "maxProperties": 100000
+        }
+      ]
+    }
+  }
+}

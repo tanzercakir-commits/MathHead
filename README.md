@@ -86,7 +86,7 @@ certificate* when it can — and an honest `unknown` when it can't.
   being made explicit).
 
 <!-- BEGIN MATHHEAD PROJECT FACTS -->
-**Package `1.5.0` · 171 MCP tools · 2517 collected tests.**  
+**Package `1.5.0` · 171 MCP tools · 2530 collected tests.**  
 Governed profiles: `status`, `runtime`, `core`, `solver`, `discovery`, `docs`, `live-mcp`, `slow`, `release`.  
 Product Python matrix: 3.10, 3.11, 3.12, 3.13, 3.14.
 <!-- END MATHHEAD PROJECT FACTS -->
@@ -97,7 +97,10 @@ Full history is in `CHANGELOG.md`; reconstruction governance is in `docs/PLAN.md
 The reconstruction target's first structured boundary is the non-authoritative,
 syntax-neutral ProblemIR intake API documented in `docs/PROBLEM_INTAKE_V1.md`.
 Declared alternatives then pass through the deterministic, non-selecting
-reading analysis documented in `docs/PROBLEM_READINGS_V2.md`.
+reading analysis documented in `docs/PROBLEM_READINGS_V2.md`. Each reading's
+declared domains and assumptions then become a separate source-backed fact
+inventory under `docs/DOMAIN_ASSUMPTIONS_V1.md`; unsupported structures remain
+visible and no stage grants mathematical authority.
 
 ### Version vocabulary (separate on purpose)
 
@@ -287,6 +290,7 @@ mathhead/
 │   ├── KERNEL_CHECKER_V2.md · explicit arithmetic evidence + current replay ABI
 │   ├── SAT_REPLAY_V1.md · canonical SAT witnesses + RUP-only DRUP replay
 │   ├── PROVENANCE_REPLAY_V1.md · content-addressed whole-run replay + atomic store
+│   ├── DOMAIN_ASSUMPTIONS_V1.md · per-reading declared fact inventory + frozen rules
 │   ├── mcp-api.md        · precise MCP protocol & tool definitions + grammar
 │   ├── api-reference.md  · auto reference for ALL tools (code=docs)
 │   ├── threat-model.md  · trust boundaries, threat table, the timeout model

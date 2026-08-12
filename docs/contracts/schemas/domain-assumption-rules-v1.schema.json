@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/domain-assumption-rules-v1.schema.json",
+  "title": "MathHead domain and assumption structural rule catalogue v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.domain-assumption-rules.v1"},
+    "catalogue_id": {"const": "mathhead.domain-assumption-rules.v1"},
+    "policy": {"const": "exact structural matches only; no semantic inference"},
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/rule"}
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": ["schema", "catalogue_id", "policy", "rules", "mathematical_authority"],
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rule_id": {"type": "string", "pattern": "^mh[.]normalize[.][a-z0-9_.-]+$", "maxLength": 128},
+        "origin_registry": {"enum": ["domains", "variables", "assumptions"]},
+        "match_kind": {"type": "string", "minLength": 1, "maxLength": 128},
+        "match_name": {"anyOf": [{"type": "string", "minLength": 1, "maxLength": 255}, {"type": "null"}]},
+        "arity": {"anyOf": [{"type": "integer", "minimum": 0, "maximum": 64}, {"type": "null"}]},
+        "fact_kind": {"type": "string", "minLength": 1, "maxLength": 128},
+        "supported": {"type": "boolean"},
+        "description": {"type": "string", "minLength": 1, "maxLength": 512},
+        "mathematical_authority": {"const": false}
+      },
+      "required": [
+        "rule_id",
+        "origin_registry",
+        "match_kind",
+        "match_name",
+        "arity",
+        "fact_kind",
+        "supported",
+        "description",
+        "mathematical_authority"
+      ]
+    }
+  }
+}

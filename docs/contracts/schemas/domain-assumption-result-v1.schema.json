@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/domain-assumption-result-v1.schema.json",
+  "title": "MathHead domain and assumption normalization result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.domain-assumption-result.v1"},
+    "contract_id": {"const": "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "reading_analysis_contract_id": {"const": "MH-C-READING-ANALYSIS-002"},
+    "reading_analysis_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_intake_contract_id": {"const": "MH-C-PROBLEM-INTAKE-001"},
+    "problem_intake_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_ir_contract_id": {"const": "MH-C-PROBLEM-IR-002"},
+    "problem_ir_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "rule_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"enum": ["normalized", "invalid", "exhausted"]},
+    "reason_code": {
+      "enum": [
+        "NORMALIZED",
+        "BUDGET_EXHAUSTED",
+        "INVALID_FACT",
+        "INVALID_READING_ANALYSIS",
+        "INVALID_RULE_CATALOGUE",
+        "INVALID_TYPE"
+      ]
+    },
+    "input_result_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "readings_result": {"anyOf": [{"$ref": "problem-readings-result-v2.schema.json"}, {"type": "null"}]},
+    "ambiguity_status": {"enum": ["unambiguous", "unresolved", "resolved", null]},
+    "selected_reading_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "candidates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate"},
+      "maxItems": 100000
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/diagnostic"},
+      "maxItems": 32
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "reading_analysis_contract_id",
+    "reading_analysis_contract_sha256",
+    "problem_intake_contract_id",
+    "problem_intake_contract_sha256",
+    "problem_ir_contract_id",
+    "problem_ir_contract_sha256",
+    "rule_catalogue_sha256",
+    "status",
+    "reason_code",
+    "input_result_sha256",
+    "readings_result",
+    "ambiguity_status",
+    "selected_reading_id",
+    "candidates",
+    "diagnostics",
+    "mathematical_authority"
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "status": {"const": "normalized"},
+        "reason_code": {"const": "NORMALIZED"},
+        "input_result_sha256": {"$ref": "#/$defs/sha256"},
+        "readings_result": {"$ref": "problem-readings-result-v2.schema.json"},
+        "ambiguity_status": {"enum": ["unambiguous", "unresolved", "resolved"]},
+        "candidates": {"minItems": 1},
+        "diagnostics": {"maxItems": 0}
+      }
+    },
+    {
+      "properties": {
+        "status": {"const": "invalid"},
+        "reason_code": {"enum": ["INVALID_FACT", "INVALID_READING_ANALYSIS", "INVALID_RULE_CATALOGUE", "INVALID_TYPE"]},
+        "input_result_sha256": {"type": "null"},
+        "readings_result": {"type": "null"},
+        "ambiguity_status": {"type": "null"},
+        "selected_reading_id": {"type": "null"},
+        "candidates": {"maxItems": 0},
+        "diagnostics": {"minItems": 1}
+      }
+    },
+    {
+      "properties": {
+        "status": {"const": "exhausted"},
+        "reason_code": {"const": "BUDGET_EXHAUSTED"},
+        "input_result_sha256": {"type": "null"},
+        "readings_result": {"type": "null"},
+        "ambiguity_status": {"type": "null"},
+        "selected_reading_id": {"type": "null"},
+        "candidates": {"maxItems": 0},
+        "diagnostics": {"minItems": 1}
+      }
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reading_id": {"$ref": "#/$defs/id"},
+        "projection_sha256": {"$ref": "#/$defs/sha256"},
+        "context_sha256": {"$ref": "#/$defs/sha256"},
+        "context": {"$ref": "normalized-domain-context-v1.schema.json"}
+      },
+      "required": ["reading_id", "projection_sha256", "context_sha256", "context"]
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "BUDGET_EXHAUSTED",
+            "INVALID_FACT",
+            "INVALID_READING_ANALYSIS",
+            "INVALID_RULE_CATALOGUE",
+            "INVALID_TYPE"
+          ]
+        },
+        "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "message": {"type": "string", "minLength": 1, "maxLength": 512}
+      },
+      "required": ["code", "path", "message"]
+    }
+  }
+}

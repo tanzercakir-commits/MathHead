@@ -57,6 +57,14 @@ before the critical implementation that they govern.
   `schemas/problem-readings-result-v2.schema.json`, and is accepted under the
   project owner's programme-wide authority at SHA-256
   `0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70`.
+- `MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001.json` governs deterministic,
+  per-reading extraction of explicit domain and assumption facts with complete
+  origin and dependency closure, a frozen exact-match rule catalogue, visible
+  unsupported structures, canonical identities, and no semantic strengthening,
+  selection, solving, or mathematical authority. It binds the fact, context,
+  catalogue, and result schemas and is accepted under the project owner's
+  programme-wide authority at SHA-256
+  `609bc3a0773016f73d4bcee21d6aef034c74bb8edb36fddd9b6df1a4f4ba219a`.
 - `MH-C-THEORY-CONTEXT-001.json` governs canonical theory and local contexts,
   explicit epistemic authority, content-addressed imports and declarations,
   monotonic revisions, bounded consistency claims, and immutable identity. It
@@ -205,7 +213,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 132 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 133 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -244,6 +252,21 @@ python -m unittest discover -s tests/problem_readings -v
 python tools/validate_problem_readings.py
 python tools/contract_artifacts.py verify \
   --contract MH-C-READING-ANALYSIS-002 --require-bound
+```
+
+## Domain and assumption normalization
+
+MH-042 is documented in `docs/DOMAIN_ASSUMPTIONS_V1.md`. The pure
+`mathhead.domain_assumptions` boundary inventories every declared domain,
+variable-domain binding, and assumption independently for each MH-041 reading.
+It preserves exact origin, dependency, source-span, rule, and fragment
+identities; unsupported predicates stay visible and non-authoritative:
+
+```bash
+python -m unittest discover -s tests/domain_assumptions -v
+python tools/validate_domain_assumptions.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001 --require-bound
 ```
 
 ## Immutable proof terms

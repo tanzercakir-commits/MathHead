@@ -396,3 +396,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-READING-ANA
 profiles = ["status", "fast"]
 tasks = ["MH-041"]
 timeout_seconds = 60
+
+[[checks]]
+name = "domain-assumption-tests"
+command = "python -m unittest discover -s tests/domain_assumptions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 180
+
+[[checks]]
+name = "domain-assumption-validator"
+command = "python tools/validate_domain_assumptions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 120
+
+[[checks]]
+name = "domain-assumption-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 60

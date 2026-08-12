@@ -5,119 +5,137 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-051 - Implement a deterministic planner
+### MH-052 - Enforce budgets in isolated workers
 
-**Goal:** transform one validated typed capability-routing result for an exact
-current obligation into a finite, canonical, replayable strategy plan with
-explicit prerequisites, expected evidence, resource requests, success/stop
-conditions, and typed fallback rules. Planning may order already-admitted
-capabilities for later execution, but it must never load or run a plugin, call a
-model, invent a capability, change the selected mathematical reading, claim a
-proof, or upgrade producer output into checker authority.
+**Goal:** execute already-planned producer work only inside supervised isolated
+workers whose complete process trees are bounded by the accepted parent and
+child resource budgets. The supervisor may enforce effects and report exact
+outcomes, but process exit, returned bytes, logs, elapsed time, or successful
+cleanup never grant mathematical authority.
 
-**Scope:** implement a dependency-minimal pure planner over canonical bytes. It
-must independently validate the accepted capability-route result and bind the
-route, registry, request, session head, TheoryContext, obligation, fragment,
-availability, descriptor, capability, component, dependency, evidence-format,
-certificate-format, replay, effect, priority, and exact integer cost identities
-used by every planned strategy. A non-routed, stale, incomplete, ambiguous,
-invalid, exhausted, or repaired route produces no executable plan or partial
-strategy set.
+**Scope:** implement a dependency-minimal worker protocol and supervisor for
+SymPy, pure-Python enumeration, SMT, and external-process strategies. Consume
+exact canonical planner output and reserve the selected child request from an
+accepted parent `ResourceBudget` before process creation. The worker request
+must bind the plan, strategy, capability and plugin descriptor identities,
+operation, payload and artifact identities, argv/environment policy, working
+directory policy, expected evidence formats, child lease, and implementation
+protocol without accepting callables, live plugin objects, implicit imports,
+shell text, inherited secrets, or unbound ambient configuration.
 
-Represent a plan as an immutable content-addressed directed acyclic graph. Each
-strategy has a stable identity, the exact candidate it derives from, ordered
-prerequisites, expected Evidence and Certificate contracts/formats, declared
-effects, replay mode, an integer resource request derived without floats, and
-closed success, refusal, exhaustion, cancellation, verifier-failure, and
-fallback transitions. Every transition names one typed outcome and one exact
-next strategy or terminal state; all nodes are reachable, every fallback target
-is later in the canonical order, and cycles, hidden branches, duplicate
-capability use, dangling targets, or implicit exception fallbacks fail closed.
+Keep policy validation pure and process control effect-only. Define a closed
+canonical worker request, platform-capability record, usage/accounting record,
+bounded artifact record, diagnostic record, and terminal worker result. The
+result must distinguish completed producer output from refusal, unsupported
+isolation, wall-time exhaustion, CPU exhaustion, memory exhaustion, output or
+diagnostic exhaustion, cancellation, signal/exit failure, protocol failure,
+invalid artifacts, launch failure, cleanup failure, and internal supervisor
+failure. No failure may retain partial evidence as a successful result.
 
-Preserve the registry's deterministic cost/priority ordering as the default
-strategy order. Any permitted policy transformation must be an explicit closed
-canonical input, must not make an incompatible candidate eligible, and must
-have a completely specified deterministic comparison key. Define whether
-unsupported, exhausted, cancelled, producer error, checker inconclusive,
-checker disagreement, verifier failure, and invalid evidence stop or fall back;
-never treat any of them as success. Make counterexample-first behavior explicit
-only when the candidate and obligation contracts declare a sound witness path;
-do not infer it from names, descriptions, prose, or mathematical folklore.
+Enforce hard wall deadlines, CPU and address-space or committed-memory limits,
+bounded stdin/stdout/stderr and protocol frames, exact solver-call/generated-
+object/proof/evidence/output/diagnostic/nesting accounting, and one-time child
+lease reconciliation. Launch every worker in a fresh process containment unit;
+on timeout, exhaustion, cancellation, malformed protocol, parent loss, or
+shutdown, terminate and reap the worker plus every descendant, including
+grandchildren that ignore graceful termination. Prove postcondition checks for
+no live descendant, closed pipes/handles, reconciled budget, and no reusable
+partial result.
 
-The planner outputs intent only. Worker creation, operating-system isolation,
-hard wall/memory enforcement, process-tree termination, plugin import and
-initialization, execution, certificate checking, portfolio concurrency,
-runtime retry, persistent cache, cancellation propagation, refusal UI, and
-public CLI/MCP/SDK exposure remain owned by MH-052 through MH-056 and MH-090
-through MH-093.
+Provide explicit Linux, macOS, and Windows adapters. POSIX supervision must use
+a fresh session/process group, inherited resource ceilings where supported,
+monotonic parent deadlines, group termination and deterministic reaping.
+Windows supervision must use a fresh process group plus a Job Object configured
+to kill the complete tree on close and enforce supported process/job memory
+limits. Every unavailable primitive or unverifiable containment state must be
+reported as a closed unsupported/refused outcome before producer execution;
+portable capability differences may not silently weaken the requested budget.
+
+Use argument vectors only, a minimal allowlisted environment, an explicit
+validated non-root working directory policy, non-inheritable handles, bounded
+binary pipes, and a versioned framed protocol. Reject shell expansion, relative
+executable ambiguity, PATH-based substitution, NUL/non-NFC values, duplicate
+keys, floats, bool-as-int, repaired hashes, surplus artifacts, unbounded output,
+PID reuse assumptions, absolute machine paths in canonical results, clock/PID
+identities, and caller claims about exit, resource use, or cleanup.
+
+MH-052 owns worker launch, containment, hard resource enforcement, exact
+supervisor accounting, and tree cleanup only. It does not choose strategies,
+run portfolios, validate mathematical certificates, promote producer output,
+persist audit histories, cache results, expose public CLI/MCP/SDK entry points,
+or define user-facing cancellation/refusal policy; those remain with MH-053
+through MH-056 and MH-090 through MH-093.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
 `MH-C-RESOURCE-BUDGET-001`, `MH-C-ENGINE-RESULT-001`, `MH-C-EVIDENCE-001`,
 `MH-C-CERTIFICATE-001`, `MH-C-THEORY-PLUGIN-001`,
-`MH-C-CAPABILITY-REGISTRY-001`, `MH-C-PROBLEM-SESSION-001`, and current
-normalization/context identities. Before implementation, propose,
-independently prescreen, and accept a new versioned deterministic-planner
-contract with closed policy, planning-request, prerequisite, evidence
-expectation, resource request, strategy node, transition, and planning-result
-schemas.
+`MH-C-CAPABILITY-REGISTRY-001`, and deterministic-planner contract. Before
+implementation, propose, independently prescreen, and accept a new versioned
+isolated-worker supervisor contract with closed request, platform capability,
+resource usage, artifact, diagnostic, and result schemas.
 
-Freeze exact byte-oriented public signatures; route and current-session
-preconditions; allowed planning policies; canonical node and transition order;
-cost and resource arithmetic; prerequisite and dependency closure; Evidence and
-Certificate expectations; terminal states; fallback outcome matrix; DAG and
-reachability rules; identity preimages; immutable value surfaces; pure effects;
-authority ceilings; and finite ceilings for input/output bytes, candidates,
-strategies, prerequisites, transitions, dependency depth, diagnostics, strings,
-integers, nesting, nodes, planning work, runtime, and memory.
+Freeze byte-oriented public signatures; exact plan/strategy/descriptor and
+artifact preconditions; containment and launch rules; platform capabilities;
+deadline and memory semantics; lease reservation and reconciliation; protocol
+framing; environment, argv and working-directory allowlists; output retention
+and truncation; complete terminal taxonomy; graceful/forced shutdown sequence;
+tree-liveness and handle-cleanup postconditions; canonical result identity;
+authority ceiling; and finite ceilings for requests, artifacts, frames, output,
+diagnostics, processes, descendants, handles, strings, integers, nesting,
+runtime, CPU, memory, and cleanup time.
 
-The contract must forbid keyword, regex, edit-distance, embedding, LLM,
-description, display-name, popularity, import-order, clock, randomness, or
-historical-success planning; dynamic imports, entry-point scans, filesystem,
-environment, network, subprocess, solver, plugin, or checker execution in the
-pure boundary; caller-forged candidates or costs; stale/cross-session route
-reuse; undeclared prerequisites, formats, effects, dependencies, or outcomes;
-fallback to an incompatible or earlier strategy; cycles; exception-to-success;
-partial plans; producer authority; and any result containing an executable
-callable or live plugin handle.
+The contract must forbid in-process producer execution; `shell=True`; dynamic
+entry-point discovery; ambient PATH, locale, proxy, credential, token, home or
+temporary-directory inheritance; caller-selected signals or raw handles;
+unbounded `communicate`; detached or breakaway descendants; success inferred
+from exit code alone; best-effort limits presented as enforced limits;
+wall-clock identities; unreconciled leases; orphaned descendants; exception to
+success conversion; partial evidence promotion; worker self-attestation; and
+any mathematical authority issued by the supervisor.
 
-**Validators:** cover one and many routed candidates; all four capability kinds
-and operations; empty/non-routed input; exact registry order; cost, priority,
-and lexical ordering; explicit policy variants; prerequisite closure; Evidence
-and Certificate requirements; dependencies; effect and replay propagation;
-resource request arithmetic and saturation; every engine/checker outcome;
-single and multi-hop fallback; terminal success/refusal/exhaustion/cancellation/
-verifier-failure; unreachable nodes; cycles; dangling or backward targets;
-duplicate candidate use; and route/session/context changes.
+**Validators:** cover successful bounded producers for all four strategy
+families; unavailable producer/runtime; refusal before launch; exact lease
+reservation and reconciliation; wall and CPU loops; incremental and immediate
+memory pressure; oversized stdin/stdout/stderr/frame/evidence/diagnostics;
+normal exit, nonzero exit, signal, crash, malformed/truncated/duplicate frames,
+startup failure, parent cancellation, parent interruption, cleanup failure, and
+worker attempts to forge accounting or result identities.
 
-Require an independent validator to parse and recompute the accepted route,
-strategy ordering, prerequisites, evidence expectations, resource terms,
-transition matrix, reachability, acyclicity, terminal coverage, node identities,
-and complete plan identity without importing production planner helpers.
-Require byte-identical output across repeated processes, hash seeds, Python 3.10
-through 3.14, and Linux/macOS/Windows. Reject unknown or missing fields,
-duplicate JSON keys, floats, bool-as-int, NUL/non-NFC text, noncanonical bytes,
-stale or repaired hashes, reordered semantic data, mutation, subclassing,
-pickling, oversized/deep values, and budget exhaustion without partial state.
-Add contract, schema, unit, property/adversarial, independent-validator,
-frozen-report, documentation, trust-inventory, clean-wheel, Ruff, compileall,
-project-status, core, coverage, and exact-head remote gates.
+Exercise child and grandchild trees, ignored graceful termination, rapid exit,
+PID/handle churn, pipe backpressure, descendant-held pipes, inherited-handle
+attacks, shell metacharacters, hostile environment values, executable and cwd
+substitution, concurrent supervisors, fork/spawn behavior, and repeated cleanup.
+Platform tests must assert actual tree death and memory/wall containment using
+Linux process groups and limits, macOS process groups and available limits, and
+Windows Job Objects; unsupported platform primitives must produce the exact
+closed capability outcome rather than a skipped or weakened success.
 
-**Done when:** the accepted planner contract and closed schemas are
-content-addressed and implementation-bound; a routed exact current obligation
-produces one deterministic canonical acyclic plan whose every strategy,
-prerequisite, expected artifact, resource term, terminal, and fallback is
-independently reproducible; non-routed or stale input yields no partial plan;
-no hidden model, plugin execution, keyword selection, or authority escalation is
-possible; frozen reports and trust inventories are current; and every local and
-exact-head gate passes.
+Require an independent validator to reconstruct the request, protocol frames,
+lease arithmetic, resource totals, terminal status, artifact inventory,
+diagnostics and canonical result identity without importing production
+supervisor helpers. Require byte-identical semantic results across repeated
+processes, hash seeds, Python 3.10 through 3.14, and Linux/macOS/Windows after
+excluding explicitly nonsemantic PID, handle and monotonic-clock observations.
+Add contract, schema, unit, adversarial, independent-validator, frozen-report,
+documentation, trust-inventory, clean-wheel, Ruff, compileall, project-status,
+core, coverage, and exact-head remote gates.
 
-**Dependencies:** MH-050 supplies validated compatible candidates, explicit
-incompatibilities, exact costs, registry order, and current route identity;
-MH-040 through MH-046 supply canonical obligations, context, normalization, and
-session freshness. MH-052 enforces the resource requests in isolated workers,
-MH-053 executes proof/search portfolios, MH-054 audits producer/checker
-separation, MH-055 owns cache and deterministic replay, MH-056 owns cancellation
-and refusal behavior, and MH-060 through MH-067 supply real theory strategies.
+**Done when:** the accepted isolated-worker contract and closed schemas are
+content-addressed and implementation-bound; SymPy, pure-Python enumeration,
+SMT and external commands can execute only under an exact reserved child lease;
+hard wall and supported hard memory ceilings are demonstrably enforced; timeout,
+exhaustion, cancellation, failure and parent loss leave no live descendant or
+unreconciled budget; canonical results never contain machine-specific authority;
+no output bypasses later checkers; frozen reports and trust inventories are
+current; and every local and exact-head gate passes.
+
+**Dependencies:** MH-023 defines accepted conserved resource arithmetic and
+MH-051 supplies exact deterministic plans and child requests. MH-025 through
+MH-028 define result, evidence, certificate and plugin authority ceilings;
+MH-050 supplies typed capability and lifecycle declarations. MH-053 consumes
+the supervisor for portfolio execution, MH-054 records its audit events, MH-055
+keys reusable outcomes, MH-056 owns public cancellation/refusal semantics, and
+MH-060 through MH-067 provide the first real supervised theory producers.
 
 ## Next
 

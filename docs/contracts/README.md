@@ -308,6 +308,23 @@ python tools/contract_artifacts.py verify \
   --contract MH-C-CANONICAL-NORMALIZATION-001 --require-bound
 ```
 
+## Structured unsupported explanations
+
+MH-045 is documented in `docs/UNSUPPORTED_EXPLANATIONS_V1.md`. The pure
+`mathhead.unsupported_explanations` boundary covers every MH-044
+`supported: false` occurrence with one source-backed target, exact frozen
+owner-fragment match, and conservative caller-confirmed formalization step.
+Fully supported readings receive a content-addressed empty explanation set;
+neither exact matches nor the ownerless generic fallback claim capability,
+equivalence, truth, or mathematical authority:
+
+```bash
+python -m unittest discover -s tests/unsupported_explanations -v
+python tools/validate_unsupported_explanations.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-UNSUPPORTED-EXPLANATION-001 --require-bound
+```
+
 ## Immutable proof terms
 
 MH-031 is documented in `docs/PROOF_TERMS_V1.md`. The implementation lives in

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/unsupported-explanation-catalogue-v1.schema.json",
+  "title": "MathHead unsupported explanation catalogue v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.unsupported-explanation-catalogue.v1"},
+    "catalogue_id": {"const": "mh.unsupported.catalogue.v1"},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/entry"}
+    },
+    "fallback_rule_id": {"const": "mh.unsupported.rule.generic-fallback"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": ["schema", "catalogue_id", "entries", "fallback_rule_id", "mathematical_authority"],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rule_id": {"type": "string", "pattern": "^mh[.]unsupported[.]rule[.][a-z0-9_.-]+$", "maxLength": 128},
+    "construct_code": {"type": "string", "pattern": "^mh[.]unsupported[.]construct[.][a-z0-9_.-]+$", "maxLength": 128},
+    "fragment_code": {"type": "string", "pattern": "^mh[.]fragment[.][a-z0-9_.-]+$", "maxLength": 128},
+    "template_id": {"type": "string", "pattern": "^mh[.]unsupported[.]template[.][a-z0-9_.-]+$", "maxLength": 128},
+    "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "maxLength": 128},
+    "code_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/code"}
+    },
+    "parameter_names": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64}
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/rule_id"},
+        "priority": {"type": "integer", "minimum": 0, "maximum": 127},
+        "match_surface": {"enum": ["normal_form", "obligation", "any"]},
+        "match_form_kind": {
+          "enum": [
+            "domain",
+            "variable",
+            "expression",
+            "relation",
+            "statement",
+            "definition",
+            "assumption_fact",
+            "local_context",
+            "obligation",
+            null
+          ]
+        },
+        "match_fact_kind": {
+          "enum": [
+            "opaque_predicate_assumption",
+            "opaque_relation_assumption",
+            "logical_assumption",
+            "quantified_assumption",
+            null
+          ]
+        },
+        "match_obligation_kind": {
+          "anyOf": [
+            {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 128},
+            {"type": "null"}
+          ]
+        },
+        "construct_code": {"$ref": "#/$defs/construct_code"},
+        "fragment_code": {"$ref": "#/$defs/fragment_code"},
+        "owner_boundary": {
+          "enum": [
+            "problem_ir",
+            "domain_assumptions",
+            "proof_obligations",
+            "canonical_normalization",
+            "none"
+          ]
+        },
+        "owner_contract_id": {
+          "anyOf": [
+            {"type": "string", "pattern": "^MH-C-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]{3}$", "maxLength": 128},
+            {"type": "null"}
+          ]
+        },
+        "owner_contract_sha256": {
+          "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "owner_kind": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$", "maxLength": 128},
+        "match_basis": {"enum": ["exact_fact_kind", "exact_obligation_kind", "generic_fallback"]},
+        "action_code": {
+          "enum": [
+            "DECLARE_EXACT_PREDICATE_DEFINITION",
+            "EXPRESS_WITH_OWNED_RELATION",
+            "SPLIT_LOGICAL_ASSUMPTION_EXPLICITLY",
+            "CONTRACT_QUANTIFIED_ASSUMPTION_RULE",
+            "REFORMALIZE_UNSUPPORTED_OBLIGATION",
+            "RETAIN_FOR_SEPARATE_CAPABILITY"
+          ]
+        },
+        "summary_template_id": {"$ref": "#/$defs/template_id"},
+        "detail_template_id": {"$ref": "#/$defs/template_id"},
+        "summary_template": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "detail_template": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "parameter_names": {"$ref": "#/$defs/parameter_names"},
+        "required_input_codes": {"$ref": "#/$defs/code_list"},
+        "safety_condition_codes": {"$ref": "#/$defs/code_list"},
+        "generic_fallback": {"type": "boolean"}
+      },
+      "required": [
+        "rule_id",
+        "priority",
+        "match_surface",
+        "match_form_kind",
+        "match_fact_kind",
+        "match_obligation_kind",
+        "construct_code",
+        "fragment_code",
+        "owner_boundary",
+        "owner_contract_id",
+        "owner_contract_sha256",
+        "owner_kind",
+        "match_basis",
+        "action_code",
+        "summary_template_id",
+        "detail_template_id",
+        "summary_template",
+        "detail_template",
+        "parameter_names",
+        "required_input_codes",
+        "safety_condition_codes",
+        "generic_fallback"
+      ]
+    }
+  }
+}

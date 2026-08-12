@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/owned-fragment-v1.schema.json",
+  "title": "MathHead nearest owned fragment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.owned-fragment.v1"},
+    "fragment_code": {"type": "string", "pattern": "^mh[.]fragment[.][a-z0-9_.-]+$", "maxLength": 128},
+    "owner_boundary": {
+      "enum": [
+        "problem_ir",
+        "domain_assumptions",
+        "proof_obligations",
+        "canonical_normalization",
+        "none"
+      ]
+    },
+    "owner_contract_id": {
+      "anyOf": [
+        {"type": "string", "pattern": "^MH-C-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]{3}$", "maxLength": 128},
+        {"type": "null"}
+      ]
+    },
+    "owner_contract_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "owner_kind": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$", "maxLength": 128},
+    "match_basis": {
+      "enum": [
+        "exact_fact_kind",
+        "exact_obligation_kind",
+        "generic_fallback"
+      ]
+    },
+    "catalogue_rule_id": {"$ref": "#/$defs/rule_id"},
+    "generic_fallback": {"type": "boolean"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "fragment_code",
+    "owner_boundary",
+    "owner_contract_id",
+    "owner_contract_sha256",
+    "owner_kind",
+    "match_basis",
+    "catalogue_rule_id",
+    "generic_fallback",
+    "mathematical_authority"
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"owner_boundary": {"const": "none"}}, "required": ["owner_boundary"]},
+      "then": {
+        "properties": {
+          "owner_contract_id": {"type": "null"},
+          "owner_contract_sha256": {"type": "null"},
+          "generic_fallback": {"const": true},
+          "match_basis": {"const": "generic_fallback"}
+        }
+      },
+      "else": {
+        "properties": {
+          "owner_contract_id": {"type": "string"},
+          "owner_contract_sha256": {"$ref": "#/$defs/sha256"},
+          "generic_fallback": {"const": false}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rule_id": {"type": "string", "pattern": "^mh[.]unsupported[.]rule[.][a-z0-9_.-]+$", "maxLength": 128}
+  }
+}

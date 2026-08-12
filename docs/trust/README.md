@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 135 Python modules, 35 non-`mathhead` import
+The static boundary contains 136 Python modules, 35 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -52,6 +52,8 @@ The important current distinctions are:
 | `problem_readings.py` | no mathematical authority | deterministic structural reading projector; compares only accepted ProblemIR declarations and cannot infer, select, normalize, solve, or issue evidence |
 | `domain_assumptions.py` | no mathematical authority | deterministic per-reading structural inventory; exact-match rules preserve declared domains and assumptions but cannot infer, merge, simplify, solve, or promote evidence |
 | `proof_obligations.py` | no mathematical authority | deterministic per-reading typed obligation graphs; exact syntax rules preserve contexts, choices, dependencies, and symbolic witness duties but cannot plan, execute, solve, check, or promote evidence |
+| `canonical_normalization.py` | no mathematical authority | capture-safe representation and exact catalogue-authorized ordering only; source topology and reversible traces stay intact |
+| `unsupported_explanations.py` | no mathematical authority | pure exact-match support diagnostics; owner fragments and caller-confirmed steps cannot rewrite input, discover capability, execute a backend, or promote evidence |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:

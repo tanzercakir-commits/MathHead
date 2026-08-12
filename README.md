@@ -105,7 +105,10 @@ under `docs/PROOF_OBLIGATIONS_V1.md`; choices and symbolic witness duties stay
 explicit. Those graphs then receive capture-safe, catalogue-limited comparison
 identities and reversible occurrence traces under
 `docs/CANONICAL_NORMALIZATION_V1.md`. Source topology remains exact, readings
-remain separate, and no stage grants mathematical authority.
+remain separate. Explicitly unsupported occurrences then receive exact,
+source-backed owner boundaries and conservative caller-confirmed next steps
+under `docs/UNSUPPORTED_EXPLANATIONS_V1.md`. No stage grants mathematical
+authority or promises a runtime capability.
 
 ### Version vocabulary (separate on purpose)
 

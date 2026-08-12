@@ -221,3 +221,9 @@ id = "MH-C-CANONICAL-NORMALIZATION-001"
 path = "docs/contracts/MH-C-CANONICAL-NORMALIZATION-001.json"
 sha256 = "ad2a58afc455fed01310b125f3ae7e0597642e849fd10b86149c31a13b9249c8"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-UNSUPPORTED-EXPLANATION-001"
+path = "docs/contracts/MH-C-UNSUPPORTED-EXPLANATION-001.json"
+sha256 = "35248c92eea2253c153b4cc0d1be2cffead624c417c74ca5562696e8d07786f9"
+state = "accepted"

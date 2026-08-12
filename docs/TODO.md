@@ -5,98 +5,113 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-042 - Normalize domains and assumptions
+### MH-043 - Build proof-obligation decomposition
 
-**Goal:** turn every accepted MH-041 reading projection into one explicit,
-bounded, content-addressed domain-and-assumption context without strengthening,
-weakening, solving, or merging the declared mathematics. Number systems,
-variable domains, interval bounds, modular carriers, finite enumerations,
-collection finiteness, products, total or partial function spaces,
-theory-structure parameters, dimensions, regularity or graph-class predicates,
-nonzero restrictions, side conditions, and other declared assumptions must
-remain machine-readable facts with exact origin and applicability.
+**Goal:** turn every accepted MH-042 per-reading domain-and-assumption context
+and its ordered goals into one explicit, bounded, content-addressed proof-
+obligation graph. Each obligation must expose exactly what must be established,
+which local context and declarations apply, which other obligations it depends
+on, why it has its current structural status, and which reviewed strategy
+families are admissible, without executing a solver, checker, or proof search.
 
-**Scope:** consume only canonical successful MH-041 result bytes and revalidate
-their embedded accepted intake and reading analysis before use. Normalize each
-candidate independently; never combine unresolved alternatives or transfer a
-fact between readings. Define a closed fact algebra that distinguishes domain
-declarations, memberships, bounds, exclusions, equalities and disequalities,
-finiteness, cardinality, modular, shape/dimension, regularity, theory-class,
-function-totality, given, domain-constraint, side-condition, and explicitly
-unsupported predicates. Every fact must bind its reading, originating domain
-or assumption and statement/expression IDs, source spans, exact canonical
-fragment digest, dependency IDs, and a derivation rule from a frozen rule
-catalogue. Preserve declaration order where semantic and use only contractually
-safe structural normalization; record unsupported or opaque constructs rather
-than guessing. Do not perform alpha-renaming, commutative or algebraic
-rewriting, assumption sorting for context identity, satisfiability checking,
-logical implication, equivalence, proof-obligation decomposition, solving, or
-proof checking; MH-043 and MH-044 own those later boundaries.
+**Scope:** consume only canonical successful MH-042 result bytes and revalidate
+the complete accepted MH-040 through MH-042 chain before use. Build one graph
+per reading and preserve reading and goal order; unresolved alternatives remain
+separate and no graph may select, compare, merge, or transfer context between
+readings. Every declared goal receives a root obligation bound to its goal,
+statement, exact canonical fragment, source spans, normalized fact context,
+definition closure, binder scope, and dependency closure. Define a closed
+obligation algebra for atomic propositions and relations, conjunction parts,
+disjunction choices, implication conclusions under local hypotheses,
+biconditional directions, universal bodies under bound variables, existential
+witness construction and verification, unique-existence existence and
+uniqueness components, domain and well-definedness side conditions, and
+explicitly unsupported structures. Use only reviewed syntax-directed rules;
+retain order and logical choice points, preserve symbolic witness placeholders,
+and record non-decomposed or opaque nodes rather than guessing. Derive `ready`,
+`waiting`, `choice_required`, and `unsupported` structural statuses solely from
+the graph and local context; these statuses are workflow metadata, never truth
+or proof verdicts. Attach admissible strategy-family IDs from a frozen
+capability catalogue using exact structural and domain predicates, with reasons
+and prerequisites; never claim that an admissible strategy will succeed. Do
+not alpha-rename, reorder commutative operands or assumptions, simplify
+expressions, infer implications, check satisfiability, synthesize witnesses,
+solve obligations, run proof producers or checkers, or grant mathematical
+authority; MH-044 and later planner/kernel tasks own those boundaries.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
-`MH-C-PROBLEM-IR-002`, `MH-C-PROBLEM-INTAKE-001`, and
-`MH-C-READING-ANALYSIS-002` identities. Before implementation, propose,
-independently prescreen, and accept
-`MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001` plus closed input/result, normalized context, fact, and
-rule-catalogue schemas. Freeze the exact byte-oriented public
-signature; accepted upstream status and identity checks; per-reading topology;
-all eight ProblemIR domain variants and six builtin carriers; assumption-role
-semantics; permitted structural extraction and normalization rules; origin,
-dependency, and source-span preservation; ordering and duplicate policy;
-unsupported and diagnostic taxonomy; canonical serialization and SHA-256
-identities; immutable result surface; non-authority statement; dependency
-closure; and finite ceilings for bytes, readings, domains, assumptions,
-statements, expressions, facts, dependencies, strings, integers, nesting,
-graph work, runtime, and memory. The contract must forbid default-domain
-inference, undeclared assumptions, heuristic operator interpretation,
-cross-reading fact leakage, semantic strengthening or weakening, hidden
-deduplication, contradiction-to-success conversion, producer/solver/checker
-calls, adapter fallback, partial identities, and exception-to-success behavior.
+`MH-C-PROBLEM-IR-002`, `MH-C-PROBLEM-INTAKE-001`,
+`MH-C-READING-ANALYSIS-002`, and
+`MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001` identities. Before implementation,
+propose, independently prescreen, and accept a new versioned proof-obligation
+decomposition contract plus closed obligation, local-context, dependency-graph,
+strategy-catalogue, and top-level result schemas. Freeze the exact byte-oriented
+public signature; accepted upstream status and identity checks; per-reading and
+ordered-goal topology; syntax-directed decomposition rules; obligation types,
+status transitions, choice and witness placeholder semantics; local-context,
+definition, binder, fact, origin, dependency, and source-span closure;
+strategy-admissibility matching and non-success semantics; duplicate and
+ordering policy; unsupported and diagnostic taxonomy; canonical serialization
+and SHA-256 identities; immutable result surface; non-authority statement; and
+finite ceilings for bytes, readings, goals, statements, expressions, binders,
+facts, definitions, obligations, edges, contexts, strategies, choices, strings,
+integers, nesting, graph work, runtime, and memory. The contract must forbid
+cross-reading leakage, silent goal omission, circular dependencies, erased
+choice points, implicit witness construction, heuristic strategy selection,
+semantic normalization, contradiction-to-success conversion, producer,
+solver, checker, adapter, filesystem, process, or network calls, partial
+identities, and exception-to-success behavior.
 
-**Validators:** cover boolean, natural, integer, rational, real, and complex
-builtin domains; finite domains; open, closed, half-open, and unbounded integer,
-rational, and real intervals; modular domains; finite, infinite, and unknown
-sets, sequences, and multisets; nested products; nullary and higher-arity total
-and partial function spaces; parameterized theory structures; and variables,
-definitions, expressions, and quantifier binders that reference them. Cover
-given, domain-constraint, and side-condition assumptions, including explicit
-membership, nonzero, lower/upper bounds, equality/disequality, finiteness,
-cardinality, dimension/shape, graph class, regularity, and opaque theory
-predicates where present in the accepted operator vocabulary. Independently
-recompute every extracted fact, rule ID, origin link, dependency closure,
-fragment digest, ordering decision, candidate/context identity, unsupported
-record, and top-level result digest. Require identical outputs across repeated
-processes, hash seeds, Python 3.10 through 3.14, and Linux/macOS/Windows. Reject
-invalid or exhausted upstream results, unresolved-selection forgery,
-noncanonical bytes, stale hashes, missing or extra candidates, dangling or
-cross-reading origins, unknown rule IDs, false derivations, omitted or surplus
-facts, illegal duplicate collapse, reordered semantic inputs, NUL/non-NFC text,
-unknown fields, floats, bool-as-int, subclasses, pickling, mutation, cycles,
-oversized/deep data, and validation-work exhaustion without returning a partial
-context. Prove the production module imports no natural-language or legacy
-parser, NLP/LLM, solver, CAS, discovery producer, checker, filesystem, process,
-environment, network, clock, randomness, dynamic-import, CLI, or MCP owner. Add
-contract, schema, unit, property/adversarial, independent validator and frozen
-report, documentation, trust inventory, clean-wheel, Ruff, compileall,
-project-status, core, coverage, and exact-head remote gates.
+**Validators:** cover atomic truth and every relation kind; nested `not`, `and`,
+`or`, `implies`, and `iff`; ordered and nested `forall`, `exists`, and
+`exists_unique`; multiple ordered goals; reading-specific definitions and all
+three assumption roles; builtin, finite, interval, modular, collection,
+product, function, and theory-structure contexts; domain restrictions and
+well-definedness conditions; supported exact strategy matches; multiple
+admissible strategies; no-match and opaque unsupported cases; shared
+substructure without illegal semantic deduplication; and unresolved and
+resolved alternative readings. Independently recompute every root and child
+obligation, decomposition-rule ID, local-context closure, definition and fact
+reference, binder scope, source fragment digest, dependency edge and
+topological order, structural status, choice or witness placeholder,
+strategy-family match and reason, graph identity, unsupported record, and
+top-level result digest. Require identical outputs across repeated processes,
+hash seeds, Python 3.10 through 3.14, and Linux/macOS/Windows. Reject invalid or
+exhausted upstream results, forged or noncanonical bytes, stale hashes, missing
+or surplus goals or obligations, cross-reading references, dangling or cyclic
+edges, false local contexts, escaped binders, unknown rules or strategies,
+wrong statuses, erased alternatives, fabricated witnesses, reordered semantic
+inputs, NUL/non-NFC text, unknown fields, floats, bool-as-int, subclasses,
+pickling, mutation, oversized/deep data, and validation-work exhaustion without
+returning a partial graph. Prove the production module imports no natural-
+language or legacy parser, NLP/LLM, solver, CAS, discovery or proof producer,
+checker, filesystem, process, environment, network, clock, randomness, dynamic
+import, CLI, or MCP owner. Add contract, schema, unit, property/adversarial,
+independent validator and frozen report, documentation, trust inventory,
+clean-wheel, Ruff, compileall, project-status, core, coverage, and exact-head
+remote gates.
 
-**Done when:** the accepted contract, schemas, and frozen rule catalogue are
-content-addressed and bound; every successful reading receives one independently
-reproducible context; every emitted fact is complete, source-backed, and
-derivable only by a reviewed structural rule; all declared domain variants and
-assumption roles remain explicit; unsupported predicates remain visible and
-non-authoritative; unresolved readings stay separate; no undeclared fact,
-semantic equivalence claim, satisfiability verdict, solver call, hidden merge,
-partial artifact, or mathematical authority is possible; frozen reports and
-trust inventories are current; and every local and exact-head gate passes.
+**Done when:** the accepted contract, schemas, and frozen decomposition and
+strategy catalogues are content-addressed and bound; every goal in every
+successful reading has one independently reproducible root and complete finite
+obligation graph; every child, edge, local context, status, choice, placeholder,
+and strategy match is source-backed and independently derivable by a reviewed
+rule; logical alternatives and witness duties remain explicit; unresolved
+readings remain separate; unsupported structures stay visible; no goal,
+dependency, binder, fact, definition, or source origin is lost; no truth,
+strategy-success, satisfiability, solver, checker, proof, partial artifact, or
+mathematical authority claim is possible; frozen reports and trust inventories
+are current; and every local and exact-head gate passes.
 
-**Dependencies:** MH-041 is done and supplies replay-complete per-reading
-projections and explicit choice state. MH-021 fixes ProblemIR domain and
-assumption wire semantics; MH-027 and MH-028 supply independent conformance and
-reference scenarios. MH-043 owns obligation decomposition and MH-044 owns
-alpha-renaming, commutative normalization, assumption ordering, and context
-hashes, so this task must expose sufficient provenance without pre-empting
-either boundary.
+**Dependencies:** MH-042 is done and supplies complete per-reading normalized
+facts with exact provenance while MH-041 supplies ordered goal projections and
+choice state. MH-021 fixes ProblemIR statement and goal semantics; MH-022 fixes
+TheoryContext vocabulary; MH-023 fixes finite budgets; MH-027 and MH-028 supply
+independent conformance and reference scenarios. MH-044 owns alpha-renaming,
+commutative and assumption normalization and stable semantic context hashes;
+MH-045 owns user-facing unsupported explanations; MH-046 through MH-050 own
+capability discovery, planning, execution, aggregation, and escalation, so this
+task must expose deterministic metadata without pre-empting those decisions.
 
 ## Next
 

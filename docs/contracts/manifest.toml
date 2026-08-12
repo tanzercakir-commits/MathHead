@@ -191,3 +191,15 @@ id = "MH-C-PROBLEM-INTAKE-001"
 path = "docs/contracts/MH-C-PROBLEM-INTAKE-001.json"
 sha256 = "855375a8fb788ff65728d860c16f0ccfa32fe9d058b3fe93534ef11f147794dc"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-READING-ANALYSIS-001"
+path = "docs/contracts/MH-C-READING-ANALYSIS-001.json"
+sha256 = "141694eb2e4b3373257ec5dde070f5366c69aa42ca9f40a5cc062ec8d8bf178d"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-READING-ANALYSIS-002"
+path = "docs/contracts/MH-C-READING-ANALYSIS-002.json"
+sha256 = "0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70"
+state = "accepted"

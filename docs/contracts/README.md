@@ -48,6 +48,15 @@ before the critical implementation that they govern.
   `schemas/problem-intake-result-v1.schema.json` and is accepted under the
   project owner's programme-wide authority at SHA-256
   `855375a8fb788ff65728d860c16f0ccfa32fe9d058b3fe93534ef11f147794dc`.
+- `MH-C-READING-ANALYSIS-002.json` governs deterministic projection of every
+  already-declared ProblemIR reading, exact structural delta recomputation,
+  explicit unresolved choice state, self-contained result replay, and the
+  prohibition on text inference, semantic normalization, implicit selection,
+  or mathematical authority. It supersedes the non-replayable `001`, binds
+  `schemas/reading-projection-v2.schema.json` and
+  `schemas/problem-readings-result-v2.schema.json`, and is accepted under the
+  project owner's programme-wide authority at SHA-256
+  `0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70`.
 - `MH-C-THEORY-CONTEXT-001.json` governs canonical theory and local contexts,
   explicit epistemic authority, content-addressed imports and declarations,
   monotonic revisions, bounded consistency claims, and immutable identity. It
@@ -196,7 +205,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 131 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 132 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -220,6 +229,21 @@ python -m unittest discover -s tests/problem_intake -v
 python tools/validate_problem_intake.py
 python tools/contract_artifacts.py verify \
   --contract MH-C-PROBLEM-INTAKE-001 --require-bound
+```
+
+## Alternative-reading analysis
+
+MH-041 is documented in `docs/PROBLEM_READINGS_V2.md`. The pure
+`mathhead.problem_readings` boundary projects every already-declared reading,
+recomputes exact structural deltas, and preserves the caller's ambiguity state
+without parsing text, inventing candidates, selecting a reading, normalizing
+meaning, or granting mathematical authority:
+
+```bash
+python -m unittest discover -s tests/problem_readings -v
+python tools/validate_problem_readings.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-READING-ANALYSIS-002 --require-bound
 ```
 
 ## Immutable proof terms

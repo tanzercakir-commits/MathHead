@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/reading-projection-v2.schema.json",
+  "title": "MathHead reading projection v2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.reading-projection.v2"},
+    "problem_ir_sha256": {"$ref": "#/$defs/sha256"},
+    "reading_id": {"$ref": "#/$defs/id"},
+    "label": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "base_reading_id": {"$ref": "#/$defs/id"},
+    "is_base": {"type": "boolean"},
+    "definition_ids": {"$ref": "#/$defs/id_list"},
+    "assumption_ids": {"$ref": "#/$defs/id_list"},
+    "goal_ids": {"$ref": "#/$defs/nonempty_id_list"},
+    "reading_span_ids": {"$ref": "#/$defs/id_list"},
+    "source_span_ids": {"$ref": "#/$defs/id_list"},
+    "entity_ids": {"$ref": "#/$defs/nonempty_id_list"},
+    "entities": {"$ref": "#/$defs/entities"},
+    "extensions": {"$ref": "problem-ir-v1.schema.json#/properties/extensions"}
+  },
+  "required": [
+    "schema",
+    "problem_ir_sha256",
+    "reading_id",
+    "label",
+    "base_reading_id",
+    "is_base",
+    "definition_ids",
+    "assumption_ids",
+    "goal_ids",
+    "reading_span_ids",
+    "source_span_ids",
+    "entity_ids",
+    "entities",
+    "extensions"
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id_list": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "maxItems": 100000,
+      "uniqueItems": true
+    },
+    "nonempty_id_list": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "minItems": 1,
+      "maxItems": 100000,
+      "uniqueItems": true
+    },
+    "entities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_documents": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/source_document"},
+          "maxItems": 100000
+        },
+        "source_spans": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/source_span"},
+          "maxItems": 100000
+        },
+        "domains": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/domain"},
+          "maxItems": 100000
+        },
+        "variables": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/variable"},
+          "maxItems": 100000
+        },
+        "expressions": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/expression"},
+          "maxItems": 100000
+        },
+        "relations": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/relation"},
+          "maxItems": 100000
+        },
+        "statements": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/statement"},
+          "maxItems": 100000
+        },
+        "definitions": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/definition"},
+          "maxItems": 100000
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/assumption"},
+          "maxItems": 100000
+        },
+        "goals": {
+          "type": "array",
+          "items": {"$ref": "problem-ir-v1.schema.json#/$defs/goal"},
+          "maxItems": 100000
+        }
+      },
+      "required": [
+        "source_documents",
+        "source_spans",
+        "domains",
+        "variables",
+        "expressions",
+        "relations",
+        "statements",
+        "definitions",
+        "assumptions",
+        "goals"
+      ]
+    }
+  }
+}
+

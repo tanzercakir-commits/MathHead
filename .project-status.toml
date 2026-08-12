@@ -375,3 +375,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-INT
 profiles = ["status", "fast"]
 tasks = ["MH-040"]
 timeout_seconds = 60
+
+[[checks]]
+name = "problem-readings-tests"
+command = "python -m unittest discover -s tests/problem_readings -v"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-readings-validator"
+command = "python tools/validate_problem_readings.py"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 120
+
+[[checks]]
+name = "problem-readings-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-READING-ANALYSIS-002 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 60

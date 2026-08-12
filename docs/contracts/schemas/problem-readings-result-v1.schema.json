@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-readings-result-v1.schema.json",
+  "title": "MathHead alternative-readings analysis result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-readings-result.v1"},
+    "contract_id": {"const": "MH-C-READING-ANALYSIS-001"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_intake_contract_id": {"const": "MH-C-PROBLEM-INTAKE-001"},
+    "problem_intake_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_ir_contract_id": {"const": "MH-C-PROBLEM-IR-002"},
+    "problem_ir_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "problem_ir_schema_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"enum": ["analyzed", "invalid", "exhausted"]},
+    "reason_code": {
+      "enum": [
+        "ANALYZED",
+        "BUDGET_EXHAUSTED",
+        "INVALID_DIFFERENCE",
+        "INVALID_INTAKE",
+        "INVALID_READING_GRAPH",
+        "INVALID_TYPE"
+      ]
+    },
+    "input_result_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "problem_ir_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "ambiguity_status": {"enum": ["unambiguous", "unresolved", "resolved", null]},
+    "base_reading_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "selected_reading_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "required_choice": {"anyOf": [{"$ref": "#/$defs/required_choice"}, {"type": "null"}]},
+    "candidates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate"},
+      "maxItems": 100000
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/diagnostic"},
+      "maxItems": 32
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "problem_intake_contract_id",
+    "problem_intake_contract_sha256",
+    "problem_ir_contract_id",
+    "problem_ir_contract_sha256",
+    "problem_ir_schema_sha256",
+    "status",
+    "reason_code",
+    "input_result_sha256",
+    "problem_ir_sha256",
+    "ambiguity_status",
+    "base_reading_id",
+    "selected_reading_id",
+    "required_choice",
+    "candidates",
+    "diagnostics",
+    "mathematical_authority"
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "status": {"const": "analyzed"},
+        "reason_code": {"const": "ANALYZED"},
+        "input_result_sha256": {"$ref": "#/$defs/sha256"},
+        "problem_ir_sha256": {"$ref": "#/$defs/sha256"},
+        "ambiguity_status": {"enum": ["unambiguous", "unresolved", "resolved"]},
+        "base_reading_id": {"$ref": "#/$defs/id"},
+        "candidates": {"minItems": 1},
+        "diagnostics": {"maxItems": 0}
+      }
+    },
+    {
+      "properties": {
+        "status": {"const": "invalid"},
+        "reason_code": {
+          "enum": ["INVALID_DIFFERENCE", "INVALID_INTAKE", "INVALID_READING_GRAPH", "INVALID_TYPE"]
+        },
+        "problem_ir_sha256": {"type": "null"},
+        "ambiguity_status": {"type": "null"},
+        "base_reading_id": {"type": "null"},
+        "selected_reading_id": {"type": "null"},
+        "required_choice": {"type": "null"},
+        "candidates": {"maxItems": 0},
+        "diagnostics": {"minItems": 1}
+      }
+    },
+    {
+      "properties": {
+        "status": {"const": "exhausted"},
+        "reason_code": {"const": "BUDGET_EXHAUSTED"},
+        "problem_ir_sha256": {"type": "null"},
+        "ambiguity_status": {"type": "null"},
+        "base_reading_id": {"type": "null"},
+        "selected_reading_id": {"type": "null"},
+        "required_choice": {"type": "null"},
+        "candidates": {"maxItems": 0},
+        "diagnostics": {"minItems": 1}
+      }
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id_list": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "maxItems": 100000,
+      "uniqueItems": true
+    },
+    "path_list": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+      "minItems": 1,
+      "maxItems": 400000,
+      "uniqueItems": true
+    },
+    "required_choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "candidate_reading_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"},
+          "minItems": 2,
+          "maxItems": 100000,
+          "uniqueItems": true
+        },
+        "selection_required": {"const": true}
+      },
+      "required": ["prompt", "candidate_reading_ids", "selection_required"]
+    },
+    "delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 399999},
+        "kind": {"enum": ["domain", "quantifier", "scope", "notation", "parse", "reference", "other"]},
+        "summary": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "affected_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"},
+          "minItems": 1,
+          "maxItems": 100000,
+          "uniqueItems": true
+        },
+        "span_ids": {"$ref": "#/$defs/id_list"},
+        "removed_ids": {"$ref": "#/$defs/id_list"},
+        "added_ids": {"$ref": "#/$defs/id_list"},
+        "retained_ids": {"$ref": "#/$defs/id_list"},
+        "paths": {"$ref": "#/$defs/path_list"},
+        "before_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "after_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]}
+      },
+      "required": [
+        "ordinal",
+        "kind",
+        "summary",
+        "affected_ids",
+        "span_ids",
+        "removed_ids",
+        "added_ids",
+        "retained_ids",
+        "paths",
+        "before_sha256",
+        "after_sha256"
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reading_id": {"$ref": "#/$defs/id"},
+        "difference_from": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "projection_sha256": {"$ref": "#/$defs/sha256"},
+        "projection": {"$ref": "reading-projection-v1.schema.json"},
+        "deltas": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/delta"},
+          "maxItems": 400000
+        }
+      },
+      "required": ["reading_id", "difference_from", "projection_sha256", "projection", "deltas"]
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "BUDGET_EXHAUSTED",
+            "INVALID_DIFFERENCE",
+            "INVALID_INTAKE",
+            "INVALID_READING_GRAPH",
+            "INVALID_TYPE"
+          ]
+        },
+        "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "message": {"type": "string", "minLength": 1, "maxLength": 512}
+      },
+      "required": ["code", "path", "message"]
+    }
+  }
+}

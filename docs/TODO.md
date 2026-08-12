@@ -37,9 +37,9 @@ and interface presentation remain outside this task.
 
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
 `MH-C-PROBLEM-IR-002` and `MH-C-PROBLEM-INTAKE-001`. Before implementation,
-propose, independently prescreen, and accept a new critical
-alternative-readings function contract plus closed result and projection
-schemas. Freeze the exact byte-oriented public signature, accepted intake
+propose, independently prescreen, and accept `MH-C-READING-ANALYSIS-002` plus
+closed result and projection schemas. Freeze the exact byte-oriented public
+signature, accepted intake
 status and identity checks, base/candidate topology, transitive projection
 algorithm, structural path and delta algebra, quantifier/domain classifiers,
 choice-state rules, canonical serialization and hashing, immutable result
@@ -67,7 +67,8 @@ readings, false summaries, omitted or surplus structural deltas, wrong kinds,
 goal-order erasure, dangling paths, irrelevant affected IDs, NUL/non-NFC text,
 unknown fields, floats, bool-as-int, subclasses, pickling, mutation, oversized
 and deeply nested data, and validation-work exhaustion without returning a
-partial identity. Prove the module imports no parser, NLP/LLM, solver, CAS,
+partial identity. Prove the module imports no natural-language or legacy
+parser, NLP/LLM, solver, CAS,
 discovery producer, checker, filesystem, process, environment, network, clock,
 randomness, dynamic-import, CLI, or MCP owner. Add contract, unit,
 property/adversarial, independent validator and frozen report, documentation,

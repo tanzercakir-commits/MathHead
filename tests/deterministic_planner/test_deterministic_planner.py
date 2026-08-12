@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import pickle
 import subprocess
@@ -515,11 +516,14 @@ print(planning_result_bytes(plan_strategies(*inputs)).hex())
         outputs = []
         for seed in ("1", "987654"):
             environment = dict(**planner_module.__dict__.get("_TEST_ENV", {}))
-            environment.update(PYTHONHASHSEED=seed, PYTHONPATH=f"{SRC}:{ROOT}")
+            environment.update(
+                PYTHONHASHSEED=seed,
+                PYTHONPATH=os.pathsep.join((str(SRC), str(ROOT))),
+            )
             completed = subprocess.run(
                 [sys.executable, "-c", code],
                 cwd=ROOT,
-                env={**__import__("os").environ, **environment},
+                env={**os.environ, **environment},
                 check=True,
                 capture_output=True,
                 text=True,

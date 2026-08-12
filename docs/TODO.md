@@ -5,81 +5,94 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-040 - Define a syntax-neutral intake API
+### MH-041 - Represent ambiguity as alternative readings
 
-**Goal:** introduce the first target-architecture problem-analysis boundary:
-one deterministic, dependency-minimal structured Python API that converts
-explicit mathematical declarations into canonical ProblemIR bytes without
-parsing prose, LaTeX, SymPy expressions, solver objects, Python source, or
-interface-specific payloads. Successful intake proves representation validity
-only; it never proves, solves, normalizes semantically, selects an ambiguous
-reading, or grants mathematical authority.
+**Goal:** turn every already-declared ProblemIR reading into one stable,
+content-addressed interpretation projection with exact machine-readable
+differences and an explicit choice state. The boundary consumes only a
+canonical accepted MH-040 intake result, never invents an interpretation from
+text, never treats a label or human summary as evidence of a structural
+difference, and never selects a candidate on the user's behalf.
 
-**Scope:** inventory the accepted ProblemIR v1 schema and every legacy parser,
-natural-language recognizer, MCP/CLI translation path, and fixture producer,
-then freeze the supported structured construction algebra. Provide immutable
-typed declarations or an equally closed public builder surface for source
-identities and spans, domains, variables, expressions, relations, statements,
-definitions, assumptions, goals, readings, ambiguity, and namespaced
-extensions. Resolve symbolic local references into stable explicit IDs,
-preserve every order that ProblemIR declares semantic, sort only registry and
-set-valued data that the accepted contract permits, and return canonical bytes,
-their SHA-256 identity, and bounded structured diagnostics. Keep input objects
-distinct from ProblemIR wire objects so caller mutation, object identity,
-mapping order, dataclass internals, repr output, hash randomization, locale,
-platform, or process state cannot affect the result. Natural-language, LaTeX,
-SymPy, AST/eval, CLI, MCP, files, network, solver, clock, randomness, dynamic
-imports, and discovery code remain outside this boundary; existing legacy
-parsers stay available only as explicitly non-authoritative adapters and are
-not silently routed through the new API.
+**Scope:** inventory the accepted ProblemIR reading, difference, ambiguity,
+domain, variable, statement, assumption, and goal semantics plus every legacy
+discovery reading surface. Implement one dependency-minimal pure analysis API
+that revalidates the canonical accepted intake result, identifies the unique
+base reading, and projects each candidate's definitions, assumptions, ordered
+goals, source spans, and complete transitive entity closure into canonical
+bytes and a stable SHA-256 identity. Compute deterministic structural deltas
+against the declared base rather than trusting `differences` summaries:
+quantifier changes must expose binder order, domains, and bodies; domain
+changes must expose exact domain records and affected variables or
+expressions; membership, scope, reference, goal-order, definition, assumption,
+notation, parse, and other declared differences must retain explicit paths,
+before/after identities, affected IDs, and source spans. Preserve unresolved,
+resolved, and unambiguous states exactly; unresolved results expose one bounded
+required-choice object and no selection, while resolved results retain every
+alternative and the caller-declared selected reading. Reject false, missing,
+duplicate, cyclic, chained, or misclassified differences instead of repairing
+or guessing them. Domain equivalence, assumption normalization,
+alpha-renaming, commutative normalization, parsing, solving, proof checking,
+and interface presentation remain outside this task.
 
-**Contracts:** follow `MH-C-WORKFLOW-001` and bind the already accepted
-`MH-C-PROBLEM-IR-002`. Before implementation, propose, independently
-prescreen, and accept `MH-C-PROBLEM-INTAKE-001` with closed schemas for the
-input envelope and intake result. Freeze the public
-signature, accepted input type algebra, reference and ID rules, canonical
-construction algorithm, diagnostic taxonomy, success/failure algebra,
-ProblemIR schema/contract hashes, dependency closure, non-authority statement,
-and finite limits for bytes, entities, collection sizes, strings, integers,
-numeric literals, nesting, validation work, runtime, and memory. The contract
-must forbid partial ProblemIR success, implicit defaults that alter
-mathematical meaning, unregistered fields, unknown object types, adapter
-fallback, and any exception-to-success conversion.
+**Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted
+`MH-C-PROBLEM-IR-002` and `MH-C-PROBLEM-INTAKE-001`. Before implementation,
+propose, independently prescreen, and accept a new critical
+alternative-readings function contract plus closed result and projection
+schemas. Freeze the exact byte-oriented public signature, accepted intake
+status and identity checks, base/candidate topology, transitive projection
+algorithm, structural path and delta algebra, quantifier/domain classifiers,
+choice-state rules, canonical serialization and hashing, immutable result
+surface, diagnostic taxonomy, non-authority statement, dependency closure,
+and finite ceilings for input/output bytes, candidates, entities, deltas,
+paths, strings, integers, nesting, graph work, runtime, and memory. The
+contract must forbid natural-language inference, candidate synthesis,
+semantic equivalence claims, implicit selection, label-based classification,
+partial success, producer or solver calls, adapter fallback, and
+exception-to-success conversion.
 
-**Validators:** round-trip every supported structured declaration into bytes
-accepted independently by the existing ProblemIR validator; require identical
-bytes and identities across repeated processes, Python hash seeds, Python 3.10
-through 3.14, and Linux/macOS/Windows. Cover all ProblemIR tagged variants plus
-the eight frozen foundation scenarios, multiple ordered goals and binders,
-unresolved and resolved readings, source-span identities, lexical scope, and
-extensions. Reject missing, duplicate, dangling, aliased, cyclic, out-of-scope,
-ill-typed, noncanonical, NUL/non-NFC, bool-as-int, float, oversized, deeply
-nested, mutated, forged, subclassed, pickled, and custom mapping/sequence
-inputs with stable paths and reason codes. Prove caller objects are not retained
-or mutated, failed intake returns no canonical ProblemIR identity, the module
-imports no producer, solver, CAS, discovery, interface, filesystem, process,
-environment, network, clock, randomness, or dynamic-import owner, and all
-legacy text/LaTeX/AST/SymPy payloads are refused rather than guessed. Add
-contract, unit, property/adversarial, independent validator, documentation,
-clean-wheel, Ruff, compileall, project-status, core, coverage, and exact-head
-remote gates.
+**Validators:** cover unambiguous, unresolved, and resolved fixtures; pure
+forall/exists and exists-unique splits; reordered and nested binders; builtin,
+finite, interval, modular, collection, product, function, and theory-structure
+domain alternatives; combined quantifier/domain/scope differences; alternate
+assumption, definition, and ordered-goal sets; and source-backed notation and
+parse differences. Independently recompute every projection closure, canonical
+byte sequence, SHA-256 identity, before/after fragment digest, affected ID,
+path, classification, base link, choice state, and top-level result digest.
+Require identical outputs across repeated processes, hash seeds, Python 3.10
+through 3.14, and Linux/macOS/Windows. Reject invalid or exhausted intake
+results, forged or noncanonical bytes, stale hashes, absent or multiple bases,
+unknown candidates, self/cyclic/chained alternatives, duplicate or empty
+readings, false summaries, omitted or surplus structural deltas, wrong kinds,
+goal-order erasure, dangling paths, irrelevant affected IDs, NUL/non-NFC text,
+unknown fields, floats, bool-as-int, subclasses, pickling, mutation, oversized
+and deeply nested data, and validation-work exhaustion without returning a
+partial identity. Prove the module imports no parser, NLP/LLM, solver, CAS,
+discovery producer, checker, filesystem, process, environment, network, clock,
+randomness, dynamic-import, CLI, or MCP owner. Add contract, unit,
+property/adversarial, independent validator and frozen report, documentation,
+trust inventory, clean-wheel, Ruff, compileall, project-status, core, coverage,
+and exact-head remote gates.
 
 **Done when:** the new accepted contract and schemas are content-addressed and
-bound to the implementation; every supported structured Python construct
-produces independently validated canonical ProblemIR bytes or one complete
-bounded failure result; cross-process and cross-platform identities are stable;
-no implicit ambiguity choice, semantic normalization, solver call, adapter
-fallback, partial artifact, caller mutation, or mathematical authority is
-possible; legacy natural-language and LaTeX routes are documented outside the
-trusted boundary; the frozen intake report and trust inventory are current;
-and all required local and exact-head gates pass.
+bound; every accepted reading has one independently reproducible complete
+projection and every alternative has an exact nonempty structural delta from
+the unique base; quantifier and domain interpretations are explicit without
+semantic normalization; unresolved ambiguity cannot expose a selected
+candidate and always carries the exact required choice; resolved ambiguity
+retains all candidates and only the predeclared selection; false or incomplete
+difference metadata fails closed; no text inference, alternative synthesis,
+silent selection, solver call, partial artifact, or mathematical authority is
+possible; legacy discovery readings are documented as non-authoritative
+adapters; the frozen report and trust inventory are current; and every local
+and exact-head gate passes.
 
-**Dependencies:** MH-020 and MH-021 provide the accepted contract workflow and
-ProblemIR v1 wire semantics; MH-027 and MH-028 provide conformance and reference
-fixtures; MH-030 through MH-037 provide the closed trust and provenance model.
-MH-041 consumes this stable intake result to represent alternative readings,
-while MH-042 through MH-044 own domain/assumption normalization and semantic
-canonicalization that this task must not perform.
+**Dependencies:** MH-040 is done and supplies canonical accepted intake result
+bytes over the accepted ProblemIR v1 representation. MH-021 fixes the reading
+and ambiguity wire semantics, while MH-027 and MH-028 supply independent
+conformance and reference scenarios. MH-042 owns domain and assumption
+normalization, MH-043 owns proof-obligation decomposition, and MH-044 owns
+semantic canonicalization; MH-041 must preserve those boundaries.
 
 ## Next
 

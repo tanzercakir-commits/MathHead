@@ -37,7 +37,7 @@ edges, entry points, or unclassified effect paths fail the frozen report.
 `MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`,
 `MH-C-SAT-REPLAY-001`, `MH-C-PROVENANCE-REPLAY-001`, and
 `MH-C-LEAN-VERIFICATION-001`. Before adding the audit implementation, propose,
-prescreen, and accept MH-C-TRUST-TRANSITION-001 with closed transition-attempt,
+prescreen, and accept `MH-C-TRUST-TRANSITION-001` with closed transition-attempt,
 audit-result, catalogue, and report schemas. It must freeze the tier lattice,
 allowed issuers and preservers, required byte and freshness bindings, downgrade
 and rejection algebra, mutation classes and coverage accounting, deterministic

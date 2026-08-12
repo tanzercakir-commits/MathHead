@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/trust-transition-report-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tier": {
+      "enum": [
+        "none",
+        "producer_report",
+        "solver_verdict",
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:docs|src|tests|tools)/[A-Za-z0-9_./-]+$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalogue_sha256",
+    "contract_id",
+    "contract_sha256",
+    "g3_passed",
+    "generated_by",
+    "issuer_sites",
+    "mutation_results",
+    "schema",
+    "source_snapshot_sha256",
+    "surface_results",
+    "totals",
+    "transition_results"
+  ],
+  "properties": {
+    "catalogue_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "contract_id": {
+      "const": "MH-C-TRUST-TRANSITION-001"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "g3_passed": {
+      "type": "boolean"
+    },
+    "generated_by": {
+      "$ref": "#/$defs/source"
+    },
+    "issuer_sites": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entry_point", "line", "path", "tier"],
+        "properties": {
+          "entry_point": {
+            "$ref": "#/$defs/id"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^src/mathhead/[A-Za-z0-9_./-]+\\.py$"
+          },
+          "tier": {
+            "$ref": "#/$defs/tier"
+          }
+        }
+      }
+    },
+    "mutation_results": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 2048,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "effective_tier",
+          "mutation_id",
+          "outcome",
+          "reason",
+          "result_sha256",
+          "transition_id"
+        ],
+        "properties": {
+          "decision": {
+            "enum": ["downgraded", "rejected"]
+          },
+          "effective_tier": {
+            "$ref": "#/$defs/tier"
+          },
+          "mutation_id": {
+            "$ref": "#/$defs/id"
+          },
+          "outcome": {
+            "enum": ["killed", "survived"]
+          },
+          "reason": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+          },
+          "result_sha256": {
+            "$ref": "#/$defs/digest"
+          },
+          "transition_id": {
+            "type": "string",
+            "pattern": "^transition\\.[a-z][a-z0-9_.-]{0,95}$"
+          }
+        }
+      }
+    },
+    "schema": {
+      "const": "mathhead.trust-transition-report.v1"
+    },
+    "source_snapshot_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "surface_results": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["authority_sites", "surface_id", "violations"],
+        "properties": {
+          "authority_sites": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "surface_id": {
+            "$ref": "#/$defs/id"
+          },
+          "violations": {
+            "type": "array",
+            "maxItems": 256,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            }
+          }
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issuer_sites",
+        "mutants",
+        "mutants_killed",
+        "mutants_survived",
+        "positive_controls",
+        "surfaces",
+        "transitions"
+      ],
+      "properties": {
+        "issuer_sites": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "mutants": {
+          "type": "integer",
+          "minimum": 24,
+          "maximum": 2048
+        },
+        "mutants_killed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2048
+        },
+        "mutants_survived": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2048
+        },
+        "positive_controls": {
+          "type": "integer",
+          "minimum": 6,
+          "maximum": 512
+        },
+        "surfaces": {
+          "type": "integer",
+          "minimum": 11,
+          "maximum": 64
+        },
+        "transitions": {
+          "type": "integer",
+          "minimum": 6,
+          "maximum": 32
+        }
+      }
+    },
+    "transition_results": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "attempt_sha256",
+          "decision",
+          "effective_tier",
+          "result_sha256",
+          "transition_id"
+        ],
+        "properties": {
+          "attempt_sha256": {
+            "$ref": "#/$defs/digest"
+          },
+          "decision": {
+            "const": "allowed"
+          },
+          "effective_tier": {
+            "$ref": "#/$defs/tier"
+          },
+          "result_sha256": {
+            "$ref": "#/$defs/digest"
+          },
+          "transition_id": {
+            "type": "string",
+            "pattern": "^transition\\.[a-z][a-z0-9_.-]{0,95}$"
+          }
+        }
+      }
+    }
+  }
+}

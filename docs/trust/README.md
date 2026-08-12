@@ -12,9 +12,17 @@ SHA-256
 Its current self-identity is
 `3d2a7141186a3fcfb4c6dd31f6a004149d2dd3595544bc71a228c9e40a9151d0`.
 
+MH-037 adds the normative transition catalogue
+`trust-transition-catalogue-v1.json` and frozen G3 report
+`reports/trust-transition-g3-v1.json`. They are governed by accepted contract
+`MH-C-TRUST-TRANSITION-001` at SHA-256
+`7b32e2db85c8aa8c98b9a9c5404d562a909f9ae2435310a79dad04b6c6ed4796`.
+See `../TRUST_TRANSITIONS_V1.md` for every permitted edge, downgrade rule,
+effect ceiling, semantic replay boundary, and regeneration command.
+
 ## Current result
 
-The static boundary contains 129 Python modules, 35 non-`mathhead` import
+The static boundary contains 130 Python modules, 35 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -25,7 +33,7 @@ The important current distinctions are:
 
 | Boundary | Current authority | P3 disposition |
 |---|---|---|
-| Z3 and SymPy | solver verdict | producer-side; independent promotion requires evidence replay |
+| Z3 and SymPy | legacy solver-verdict labels, capped at producer report by G3 | producer-side; independent promotion requires evidence replay |
 | PySAT and nauty | producer report | retain outside the checker and bind exact encodings or output |
 | `certificate.py` | legacy mixed exact and approximate checking; cannot issue the new immutable attestation | separate remaining numerical evidence in MH-033 |
 | `kernel/sat.py` | immutable checker attestation for canonical SAT assignments and RUP-only DRUP | one versioned boundary; DRAT/RAT is explicitly unsupported |
@@ -39,6 +47,7 @@ The important current distinctions are:
 | `proof_assistant/export.py` | no authority | canonical four-rule source, request, and project bytes only |
 | `proof_assistant/lean.py` | external proof-assistant authority after fresh exact replay | pinned Lean 4.33, path-only dependency runtime, bounded shell-free process, exact output artifacts |
 | `proof_assistant/provenance.py` | preserves external authority only after MH-035 replay | byte-identical proof/checker objects followed by another fresh Lean execution |
+| `kernel/trust_transitions.py` | no mathematical authority | pure byte-bound policy audit; its result cannot substitute for a checker or Lean |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:
@@ -70,6 +79,8 @@ Check the frozen report and focused adversarial tests:
 ```bash
 python tools/validate_trust_base.py
 python -m unittest discover -s tests/trust_base -v
+python tools/validate_trust_transitions.py
+python -m unittest discover -s tests/trust_transitions -v
 ```
 
 After a deliberate trust-boundary review, regenerate the report and then

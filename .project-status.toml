@@ -333,3 +333,24 @@ command = "python -m unittest discover -s tests/lean_verification -p test_legacy
 profiles = ["status", "fast"]
 tasks = ["MH-036"]
 timeout_seconds = 180
+
+[[checks]]
+name = "trust-transition-tests"
+command = "python -m unittest discover -s tests/trust_transitions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 180
+
+[[checks]]
+name = "trust-transition-validator"
+command = "python tools/validate_trust_transitions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 120
+
+[[checks]]
+name = "trust-transition-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-TRUST-TRANSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 60

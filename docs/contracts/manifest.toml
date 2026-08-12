@@ -179,3 +179,9 @@ id = "MH-C-LEAN-VERIFICATION-001"
 path = "docs/contracts/MH-C-LEAN-VERIFICATION-001.json"
 sha256 = "b5c8bd2b3f93698d404042e7785d6dc503968481de13a77aee71769079a4b60a"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-TRUST-TRANSITION-001"
+path = "docs/contracts/MH-C-TRUST-TRANSITION-001.json"
+sha256 = "7b32e2db85c8aa8c98b9a9c5404d562a909f9ae2435310a79dad04b6c6ed4796"
+state = "accepted"

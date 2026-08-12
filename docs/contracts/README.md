@@ -188,7 +188,7 @@ python tools/contract_artifacts.py verify \
 
 The MH-030 inventory and its deterministic static import report are under
 `docs/trust/`. Validate the closed schema, exact contract and fixture bytes,
-all 129 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
+all 130 source modules, 35 import roots, 24 trust surfaces, twelve entry-point
 closures, effect boundaries, migrations, and minimal-kernel budget with:
 
 ```bash
@@ -242,6 +242,22 @@ python tools/validate_provenance_replay.py
 python -m unittest discover -s tests/provenance_replay -v
 python tools/contract_artifacts.py verify \
   --contract MH-C-PROVENANCE-REPLAY-001 --require-bound
+```
+
+## Trust-transition red team and G3
+
+MH-037 is documented in `docs/TRUST_TRANSITIONS_V1.md`. The pure
+`mathhead.kernel.trust_transitions` boundary audits exact policy bindings while
+always returning `mathematical_authority: false`; the repository runner applies
+semantic attacks to the real proof, SAT, provenance, and Lean boundaries. The
+canonical catalogue and report under `docs/trust/` freeze eleven permitted
+edges, eleven effect ceilings, five issuer sites, and 45 killed mutants:
+
+```bash
+python tools/validate_trust_transitions.py
+python -m unittest discover -s tests/trust_transitions -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-TRUST-TRANSITION-001 --require-bound
 ```
 
 ## Proposed contracts

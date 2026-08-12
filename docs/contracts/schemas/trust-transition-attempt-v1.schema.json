@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/trust-transition-attempt-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tier": {
+      "enum": [
+        "none",
+        "producer_report",
+        "solver_verdict",
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "media_type", "role", "schema", "sha256"],
+      "properties": {
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "media_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.+-]{0,31}/[a-z0-9][a-z0-9.+-]{0,63}$"
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$"
+        },
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_id",
+        "configuration_sha256",
+        "contract_id",
+        "contract_sha256",
+        "entry_point",
+        "fresh",
+        "implementation_sha256",
+        "independent",
+        "role"
+      ],
+      "properties": {
+        "component_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+        },
+        "configuration_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "contract_id": {
+          "type": "string",
+          "pattern": "^MH-C-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]{3}$"
+        },
+        "contract_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "entry_point": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+        },
+        "fresh": {
+          "type": "boolean"
+        },
+        "implementation_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "independent": {
+          "type": "boolean"
+        },
+        "role": {
+          "enum": [
+            "canonicalizer",
+            "checker",
+            "effect_boundary",
+            "orchestrator",
+            "parser",
+            "producer",
+            "proof_assistant",
+            "transport"
+          ]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bindings",
+    "budget_complete",
+    "claimed_authority",
+    "evidence_complete",
+    "issuer",
+    "operation",
+    "schema",
+    "source_tier",
+    "status",
+    "subject",
+    "target_tier",
+    "transition_id"
+  ],
+  "properties": {
+    "bindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "budget_complete": {
+      "type": "boolean"
+    },
+    "claimed_authority": {
+      "$ref": "#/$defs/tier"
+    },
+    "evidence_complete": {
+      "type": "boolean"
+    },
+    "issuer": {
+      "$ref": "#/$defs/component"
+    },
+    "operation": {
+      "enum": ["downgrade", "issue", "preserve"]
+    },
+    "schema": {
+      "const": "mathhead.trust-transition-attempt.v1"
+    },
+    "source_tier": {
+      "$ref": "#/$defs/tier"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "disagreement",
+        "error",
+        "exhausted",
+        "invalid",
+        "unsupported",
+        "verified"
+      ]
+    },
+    "subject": {
+      "$ref": "#/$defs/artifact"
+    },
+    "target_tier": {
+      "$ref": "#/$defs/tier"
+    },
+    "transition_id": {
+      "type": "string",
+      "pattern": "^transition\\.[a-z][a-z0-9_.-]{0,95}$"
+    }
+  }
+}

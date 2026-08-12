@@ -536,3 +536,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-CAPABILITY-
 profiles = ["status", "fast"]
 tasks = ["MH-050"]
 timeout_seconds = 60
+
+[[checks]]
+name = "deterministic-planner-tests"
+command = "python -m unittest discover -s tests/deterministic_planner -v"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 180
+
+[[checks]]
+name = "deterministic-planner-validator"
+command = "python tools/validate_deterministic_planner.py"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 180
+
+[[checks]]
+name = "deterministic-planner-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-DETERMINISTIC-PLANNER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 60

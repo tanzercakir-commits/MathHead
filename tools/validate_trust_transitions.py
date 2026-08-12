@@ -137,6 +137,10 @@ AUTHORITY_LITERAL_COUNTS = {
         "checker_attestation": 1,
         "producer_report": 1,
     },
+    "src/mathhead/deterministic_planner.py": {
+        "checker_attestation": 2,
+        "producer_report": 4,
+    },
     "src/mathhead/kernel/checkers.py": {"checker_attestation": 2},
     "src/mathhead/kernel/provenance.py": {"checker_attestation": 2},
     "src/mathhead/kernel/sat.py": {"checker_attestation": 1},

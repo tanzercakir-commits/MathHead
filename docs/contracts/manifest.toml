@@ -245,3 +245,9 @@ id = "MH-C-CAPABILITY-REGISTRY-001"
 path = "docs/contracts/MH-C-CAPABILITY-REGISTRY-001.json"
 sha256 = "52cc70945a4e83115c756e5b0a72724676f0e52a89e56c06a0fa8bd42c0e0413"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-DETERMINISTIC-PLANNER-001"
+path = "docs/contracts/MH-C-DETERMINISTIC-PLANNER-001.json"
+sha256 = "72e3c39ea40c599cd709fff590a72bfd096450adbb80689ce934342c3aaaa124"
+state = "accepted"

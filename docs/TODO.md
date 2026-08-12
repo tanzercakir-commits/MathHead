@@ -5,77 +5,84 @@ This is the sole live queue for `MH-RECONSTRUCTION-V1`. Completion authority is
 
 ## Now
 
-### MH-036 - Close the external Lean verification loop
+### MH-037 - Red-team every trust-tier transition
 
-**Goal:** replace the legacy written-only Lean export with one versioned,
-content-addressed external proof-assistant boundary. Exporting source must remain
-non-authoritative; only a successful run of the exact pinned Lean toolchain over
-the exact generated theorem bytes may issue `external_proof_assistant`
-authority, and that authority must survive independent provenance replay.
+**Goal:** close P3 by proving that every supported transition among `none`,
+`producer_report`, `solver_verdict`, `checker_attestation`, and
+`external_proof_assistant` authority is explicit, byte-bound, independently
+checked where promised, and fail-closed under attack. No parser, producer,
+adapter, transport, effect owner, stored artifact, successful process, or
+human-readable label may silently mint or preserve a stronger tier.
 
-**Scope:** define a deterministic exporter for the supported arithmetic
-proof-term fragment, a closed execution request and result algebra, a bounded
-effect adapter for invoking Lean without a shell, and a dependency-minimal pure
-validator that binds the original proof term and checker result to the theorem
-statement, generated source, project files, toolchain lock and binary identity,
-command, sanitized environment policy, exit status, bounded stdout and stderr,
-and output artifacts. Generate stable namespaces and identifiers; reject
-unsupported terms rather than inserting axioms or opaque assumptions; forbid
-`sorry`, `admit`, `axiom`, `unsafe`, native-oracle shortcuts, undeclared imports,
-and unpinned dependencies; separate `export_written`, `check_unavailable`,
-`check_failed`, `check_exhausted`, and `externally_verified` outcomes; persist
-all inputs and observations through the MH-035 run-bundle model; and turn the
-legacy discovery exporter into a clearly non-authoritative compatibility
-adapter. The runner owns process and filesystem effects but never decides
-authority; the pure validator must recompute every identity and apply the
-contracted authority lattice from exact bytes alone.
+**Scope:** build one canonical transition catalogue and deterministic mutation
+runner covering every current authority issuer, preserver, downgrade path, and
+forbidden shortcut. Exercise proof-term construction and parsing, arithmetic
+evidence, kernel checker results, SAT assignments and RUP certificates,
+content-addressed provenance, pinned Lean execution and replay, legacy kernel
+and SAT adapters, solver/CAS reports, approximate arithmetic, discovery
+producers, dynamic imports, nauty processes, workers, clocks, randomness,
+filesystem/process adapters, CLI output, and MCP transport. Mutations must forge
+or copy closed objects, alter normal and hidden state, repair outer hashes after
+semantic substitution, swap domains, assumptions, statements, contracts,
+implementations, configurations, budgets, producer/checker identities, and
+provenance roles, truncate or extend certificates and observations, exhaust
+each finite limit, substitute executables and dependencies, race or mutate
+stored bytes, and force deterministic backend agreement and disagreement.
+Every attack has a named positive control, exact expected downgrade or rejection,
+and stable diagnostic; the harness itself never grants mathematical authority.
+Add a static authority-issuer audit so new call sites, tier strings, transition
+edges, entry points, or unclassified effect paths fail the frozen report.
 
 **Contracts:** `MH-C-WORKFLOW-001`, `MH-C-TRUST-BASE-001`,
-`MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`, and
-`MH-C-PROVENANCE-REPLAY-001`. Before implementation, propose, prescreen, and
-accept one new `MH-C-LEAN-VERIFICATION-001` contract with closed request and
-result schemas. It must freeze the exporter, runner, and pure-validator APIs;
-the supported proof fragment and exact statement correspondence; canonical
-source and project bytes; toolchain and dependency pinning; process,
-environment, filesystem, and artifact rules; authority and status/reason
-algebras; provenance roles and cross-links; and finite limits for source,
-artifacts, output, paths, identifiers, theorem count, integers, elaboration
-heartbeats, memory, and wall time. No new authoritative Lean runtime path may
-precede acceptance of those exact contract bytes.
+`MH-C-PROOF-TERM-001`, `MH-C-KERNEL-CHECKER-002`,
+`MH-C-SAT-REPLAY-001`, `MH-C-PROVENANCE-REPLAY-001`, and
+`MH-C-LEAN-VERIFICATION-001`. Before adding the audit implementation, propose,
+prescreen, and accept MH-C-TRUST-TRANSITION-001 with closed transition-attempt,
+audit-result, catalogue, and report schemas. It must freeze the tier lattice,
+allowed issuers and preservers, required byte and freshness bindings, downgrade
+and rejection algebra, mutation classes and coverage accounting, deterministic
+ordering and identities, dependency-minimal pure audit API, static source audit,
+and finite bounds for artifacts, mutations, diagnostics, nesting, strings,
+integers, aggregate bytes, runtime, and memory. A mutation survivor, missing
+positive control, unknown transition, incomplete coverage, stale report, or
+unclassified authority site must make the contract validator fail.
 
-**Validators:** canonical export and result round trips across processes,
-Python 3.10 through 3.14, and Linux/macOS/Windows; byte-identical source for
-residue, CRT, finite-sum induction, and polynomial-identity proof terms; one
-pinned Linux CI job that installs from the committed lock, records exact Lean
-and dependency identities, compiles every supported positive fixture, and
-imports the successful result through provenance replay; deterministic
-unavailable behavior on platforms without Lean; and clean-wheel import and
-export smoke tests. Adversarially cover forged success, export-only promotion,
-statement substitution, changed assumptions or domains, wrong proof/checker
-identity, toolchain or lock drift, PATH substitution, symlinks and traversal,
-shell injection, hostile names and Unicode, undeclared imports, forbidden Lean
-constructs, stale or truncated logs, exit-code mismatch, missing or extra
-artifacts, tampered object hashes, timeout and output exhaustion, corrupted
-`.olean` data, copied/mutated/pickled/subclassed results, and replay under a
-different provenance bundle. Prove that the pure validator has no filesystem,
-process, network, clock, environment, dynamic-import, solver, CAS, discovery,
-or Lean dependency. Run Ruff, compileall, project status, core, solver,
-discovery, slow, docs, release, clean-wheel smoke, coverage, and exact
-same-head GitHub gates.
+**Validators:** canonical catalogue/result/report round trips and identical
+identities across processes, Python 3.10 through 3.14, and Linux/macOS/Windows;
+complete positive-path preservation for each permitted edge; and a 100-percent
+kill rate for the normative deterministic mutant catalogue. Cover constructor,
+`object.__new__`, field mutation, copying, pickling, subclassing, duplicate and
+unknown JSON fields, noncanonical encodings, Unicode/NUL, oversized values,
+hash-and-length repair, subject and assumption substitution, producer/checker
+aliasing, replay self-attestation, missing/extra/reordered roles, stale bundles,
+certificate truncation and trailing data, forged process success, toolchain and
+PATH substitution, link/path attacks, timeout/output exhaustion, and backend
+disagreement. Prove that approximate, solver, discovery, CLI, MCP, dynamic
+import, worker, clock, random, nauty, filesystem, and process surfaces cannot
+issue checker or Lean authority. Measure the pure auditor closure with zero
+third-party, solver, CAS, discovery, filesystem, process, network, clock,
+environment, randomness, dynamic-import, or transport dependencies. Run Ruff,
+compileall, project status, core, solver, discovery, slow, docs, release,
+clean-wheel smoke, coverage, and exact same-head GitHub gates; freeze a G3 exit
+report binding every tested transition, mutation, expected outcome, source,
+contract, artifact, and validator identity.
 
-**Done when:** the repository owns a reproducible pinned Lean project and every
-supported positive fixture is compiled by Lean in CI; exact successful process
-evidence can be independently validated and replayed as
-`external_proof_assistant` authority; written, unavailable, failed, exhausted,
-unsupported, stale, forged, or mismatched exports deterministically remain
-non-authoritative; generated source contains no trust-widening escape hatch;
-the toolchain, theorem, Python checker, and provenance identities are all bound;
-and every local and same-head remote gate passes.
+**Done when:** the accepted transition contract and schemas are bound; every
+current permitted edge has a passing positive control; every normative mutant
+is killed with the contracted rejection or downgrade; no unclassified issuer,
+preserver, tier label, or effect-to-authority route remains; forced backend
+disagreement, partial evidence, unsupported states, exhaustion, and all forged
+or stale material remain non-authoritative; the trust inventory and docs name
+every remaining Python, arithmetic, hashing, serialization, solver, runtime,
+and Lean primitive precisely; the frozen G3 report is reproducible and current;
+all local and exact-head remote gates pass; and the P3 exit condition in
+`docs/PLAN.md` is satisfied.
 
-**Dependencies:** MH-030 through MH-035 are done and supply the authority
-lattice, immutable proof terms, arithmetic evidence, dependency-minimal
-checkers, SAT replay, and content-addressed provenance. MH-037 will red-team the
-completed Lean boundary together with every remaining trust-tier transition.
+**Dependencies:** MH-030 through MH-036 are done and provide the frozen trust
+lattice, immutable proof terms, explicit arithmetic evidence, dependency-minimal
+checkers, hardened SAT replay, content-addressed provenance, and pinned external
+Lean authority. MH-040 may begin only after this task closes G3 for the supported
+kernel fragment.
 
 ## Next
 

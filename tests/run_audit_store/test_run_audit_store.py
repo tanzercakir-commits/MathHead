@@ -112,8 +112,14 @@ class RunAuditStoreTests(unittest.TestCase):
             root = Path(temporary).resolve() / "audit"
             if self.unsupported_was_closed(root):
                 return
-            first = store.persist_run_audit(root, self.bundle)
-            second = store.persist_run_audit(root, self.bundle)
+            with mock.patch.object(
+                store,
+                "validate_run_audit_bundle",
+                wraps=store.validate_run_audit_bundle,
+            ) as validate:
+                first = store.persist_run_audit(root, self.bundle)
+                second = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(validate.call_count, 2)
             self.assertEqual((first.status, second.status), ("stored", "existing"))
             self.assertEqual(store.list_run_audits(root), (self.bundle.manifest_sha256,))
             loaded = store.load_run_audit(root, self.bundle.manifest_sha256)

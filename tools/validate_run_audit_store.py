@@ -179,6 +179,7 @@ def _source_checks() -> dict[str, object]:
         "_validate_root_path",
         "_guard_root",
         "_open_child_directory",
+        "_record_bytes_from_validated",
         "_read_bounded",
         "_write_immutable_locked",
         "_quarantine_uncommitted",
@@ -200,6 +201,35 @@ def _source_checks() -> dict[str, object]:
             >= helper_calls["_descriptor_store_supported"]
         ):
             _fail(f"store path validation no longer precedes capability classification: {owner}")
+    validated_record_callers = {
+        owner
+        for owner, function in functions.items()
+        if any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "_record_bytes_from_validated"
+            for node in ast.walk(function)
+        )
+    }
+    if validated_record_callers != {"_record_bytes", "persist_run_audit"}:
+        _fail("validated record projection gained an unchecked caller")
+    for owner in validated_record_callers:
+        ordered_calls = {
+            node.func.id: node.lineno
+            for node in ast.walk(functions[owner])
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {"validate_run_audit_bundle", "_record_bytes_from_validated"}
+        }
+        if (
+            set(ordered_calls) != {
+                "validate_run_audit_bundle",
+                "_record_bytes_from_validated",
+            }
+            or ordered_calls["validate_run_audit_bundle"]
+            >= ordered_calls["_record_bytes_from_validated"]
+        ):
+            _fail(f"validated record projection lost its validation guard: {owner}")
     dir_fd_calls = [
         node
         for node in ast.walk(tree)

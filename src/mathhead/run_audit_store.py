@@ -17,10 +17,6 @@ from .run_audit import (
     RunAuditBundle,
     RunAuditValidationError,
     _bundle_from_replayed_bytes,
-    run_audit_bundle_sha256,
-    run_audit_logical_report_bytes,
-    run_audit_manifest_bytes,
-    run_audit_object_bytes,
     validate_run_audit_bundle,
 )
 
@@ -169,17 +165,16 @@ def _self_hash(value: dict[str, object], field: str) -> str:
     return _sha(_canonical(preimage))
 
 
-def _record_bytes(bundle: RunAuditBundle) -> tuple[bytes, str]:
-    manifest = run_audit_manifest_bytes(bundle)
-    object_digests = sorted({_sha(raw) for raw in (*run_audit_object_bytes(bundle), manifest)})
+def _record_bytes_from_validated(bundle: RunAuditBundle) -> tuple[bytes, str]:
+    manifest = bundle.manifest
+    object_digests = sorted({_sha(raw) for raw in (*bundle.objects, manifest)})
     if len(object_digests) > MAX_OBJECTS:
         _fail("budget", "store object inventory exceeds the schema bound")
-    logical = run_audit_logical_report_bytes(bundle)
     value: dict[str, object] = {
         "schema": STORE_RECORD_SCHEMA,
         "store_contract_sha256": STORE_CONTRACT_SHA256,
         "manifest_sha256": _sha(manifest),
-        "logical_report_sha256": _sha(logical),
+        "logical_report_sha256": _sha(bundle.logical_report),
         "object_sha256s": object_digests,
         "record_sha256": None,
         "mathematical_authority": False,
@@ -187,6 +182,11 @@ def _record_bytes(bundle: RunAuditBundle) -> tuple[bytes, str]:
     value["record_sha256"] = _self_hash(value, "record_sha256")
     raw = _canonical(value)
     return raw, str(value["record_sha256"])
+
+
+def _record_bytes(bundle: RunAuditBundle) -> tuple[bytes, str]:
+    validate_run_audit_bundle(bundle)
+    return _record_bytes_from_validated(bundle)
 
 
 def _parse_record(data: bytes, expected_manifest: str) -> dict[str, object]:
@@ -729,9 +729,9 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             record_sha256=None,
             object_count=0,
         )
-    manifest = run_audit_manifest_bytes(bundle)
-    manifest_digest = run_audit_bundle_sha256(bundle)
-    object_values = {_sha(raw): raw for raw in (*run_audit_object_bytes(bundle), manifest)}
+    manifest = bundle.manifest
+    manifest_digest = bundle.manifest_sha256
+    object_values = {_sha(raw): raw for raw in (*bundle.objects, manifest)}
     if (
         len(object_values) > MAX_OBJECTS
         or sum(len(raw) for raw in object_values.values()) > MAX_AGGREGATE_BYTES
@@ -744,7 +744,7 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             object_count=0,
         )
     try:
-        record, record_identity = _record_bytes(bundle)
+        record, record_identity = _record_bytes_from_validated(bundle)
     except RunAuditStoreError as exc:
         if exc.kind != "budget":
             raise
@@ -789,7 +789,7 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
         finally:
             os.close(run_bucket)
         loaded = _load_from_root(store, manifest_digest)
-        if run_audit_bundle_sha256(loaded) != manifest_digest:
+        if loaded.manifest_sha256 != manifest_digest:
             _fail("corrupt", "freshly loaded run identity differs")
         _guard_root(store)
         return _new_result(

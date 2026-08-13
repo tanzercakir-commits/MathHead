@@ -347,3 +347,15 @@ id = "MH-C-RUN-AUDIT-STORE-005"
 path = "docs/contracts/MH-C-RUN-AUDIT-STORE-005.json"
 sha256 = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-SAFE-CACHE-001"
+path = "docs/contracts/MH-C-SAFE-CACHE-001.json"
+sha256 = "ec1c056023d8d966ed3a143a12e8c1726849d491800b175a3e807ca9a260cbb9"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-SAFE-CACHE-STORE-001"
+path = "docs/contracts/MH-C-SAFE-CACHE-STORE-001.json"
+sha256 = "1f1dba767275ce066a977fe5eda2e499da7faf6135e1f11ac8db3587e2337cd1"
+state = "accepted"

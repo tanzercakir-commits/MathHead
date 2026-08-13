@@ -35,7 +35,8 @@ from mathhead.safe_cache_store import (  # noqa: E402
     persist_safe_cache,
     safe_cache_store_result_bytes,
 )
-from tests.run_audit.fixtures import single_bundle, success_bundle  # noqa: E402
+from tests.run_audit.fixtures import single_bundle  # noqa: E402
+from tests.safe_cache.audited_fixtures import success_bundle  # noqa: E402
 
 
 SCHEMAS = ROOT / "docs/contracts/schemas"
@@ -109,8 +110,38 @@ class SafeCacheStoreTests(unittest.TestCase):
         selected = self.audited if audited is None else audited
         cache_root, audit_root = self.roots(base)
         audit = persist_run_audit(audit_root, selected.bundle)
+        if audit.status == "unsupported":
+            self.skipTest("host cannot provide the descriptor-relative audit store")
         self.assertIn(audit.status, {"stored", "existing"})
         return cache_root, audit_root, selected
+
+    def test_unsupported_cache_store_is_explicit_and_effect_free(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mh055-cache-unsupported-", dir=ROOT) as raw:
+            cache_root, audit_root = self.roots(Path(raw).resolve())
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=False),
+                mock.patch.object(
+                    store, "load_run_audit", return_value=self.audited.bundle
+                ) as load,
+            ):
+                lookup = lookup_safe_cache(cache_root, audit_root, *self.current)
+                persisted = persist_safe_cache(
+                    cache_root,
+                    audit_root,
+                    *self.current,
+                    self.audited.bundle.manifest_sha256,
+                )
+            self.assertEqual(
+                (lookup.status, lookup.reason_code),
+                ("unsupported", "CACHE_STORE_UNSUPPORTED"),
+            )
+            self.assertEqual(
+                (persisted.status, persisted.reason_code),
+                ("unsupported", "CACHE_STORE_UNSUPPORTED"),
+            )
+            self.assertEqual(load.call_count, 1)
+            self.assertFalse(cache_root.exists())
+            self.assertFalse(audit_root.exists())
 
     def test_missing_write_repeat_lookup_and_listing_are_exact(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mh055-cache-store-", dir=ROOT) as raw:

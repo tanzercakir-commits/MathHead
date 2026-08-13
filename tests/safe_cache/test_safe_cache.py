@@ -37,7 +37,11 @@ from mathhead.safe_cache import (  # noqa: E402
     safe_cache_decision_bytes,
     safe_cache_entry_bytes,
 )
-from tests.run_audit.fixtures import single_bundle, success_bundle  # noqa: E402
+from tests.run_audit.fixtures import single_bundle  # noqa: E402
+from tests.safe_cache.audited_fixtures import (  # noqa: E402
+    EXPECTED_LOOKUP_KEYS,
+    success_bundle,
+)
 
 
 SCHEMAS = ROOT / "docs" / "contracts" / "schemas"
@@ -197,7 +201,7 @@ class SafeCacheTests(unittest.TestCase):
     def test_closed_non_success_outcomes_are_ineligible(self) -> None:
         for audited in (
             single_bundle(evidence_status="unsupported"),
-            success_bundle(agreement=False),
+            single_bundle(agreement=False),
         ):
             result = decide_safe_cache(*cache_inputs(audited), audited.bundle)
             self.assertEqual(
@@ -358,6 +362,7 @@ class SafeCacheTests(unittest.TestCase):
             )
             outputs.append(json.loads(completed.stdout))
         self.assertEqual(outputs[0], outputs[1])
+        self.assertEqual(outputs[0], EXPECTED_LOOKUP_KEYS)
         self.assertNotEqual(outputs[0]["proved"], outputs[0]["refuted"])
 
 

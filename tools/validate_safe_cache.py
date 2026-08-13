@@ -223,7 +223,8 @@ def _cache_inputs(audited: object) -> tuple[object, ...]:
 
 
 def _runtime_checks(module: object) -> dict[str, object]:
-    from tests.run_audit.fixtures import single_bundle, success_bundle
+    from tests.run_audit.fixtures import single_bundle
+    from tests.safe_cache.audited_fixtures import EXPECTED_LOOKUP_KEYS, success_bundle
 
     results: dict[str, object] = {}
     for claim in ("proved", "refuted"):
@@ -240,8 +241,10 @@ def _runtime_checks(module: object) -> dict[str, object]:
             or module.parse_safe_cache_entry(module.safe_cache_entry_bytes(hit.entry)) != hit.entry
         ):
             _fail(f"{claim} fixture did not produce one exact hit")
+        if hit.lookup_key_sha256 != EXPECTED_LOOKUP_KEYS[claim]:
+            _fail(f"{claim} cross-platform lookup key differs")
         results[claim] = {
-            "lookup_key_sha256": hit.lookup_key_sha256,
+            "cross_platform_key_verified": True,
             "fresh_hit_verified": True,
             "entry_codec_verified": True,
             "decision_codec_verified": True,

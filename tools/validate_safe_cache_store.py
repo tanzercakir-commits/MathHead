@@ -218,7 +218,7 @@ def _private_file(path: Path) -> None:
 
 def _runtime_checks(module: object) -> dict[str, object]:
     from mathhead.run_audit_store import persist_run_audit
-    from tests.run_audit.fixtures import success_bundle
+    from tests.safe_cache.audited_fixtures import EXPECTED_LOOKUP_KEYS, success_bundle
 
     if not module._descriptor_store_supported():
         return {"platform_supported": False}
@@ -262,6 +262,8 @@ def _runtime_checks(module: object) -> dict[str, object]:
         ):
             _fail("store miss/write/repeat/hit/list cycle differs")
         key = str(hit.lookup_key_sha256)
+        if key != EXPECTED_LOOKUP_KEYS["proved"]:
+            _fail("cross-platform lookup key differs")
         current_root = cache_root / STORE_NAMESPACE
         record_path = current_root / "keys" / key[:2] / key
         _private_directory(current_root)
@@ -315,7 +317,7 @@ def _runtime_checks(module: object) -> dict[str, object]:
             _fail("unreachable exact content changed listing")
         return {
             "platform_supported": True,
-            "lookup_key_sha256": key,
+            "cross_platform_key_verified": True,
             "first_write_verified": True, "repeat_write_verified": True,
             "fresh_lookup_verified": True, "listing_verified": True,
             "persist_decisions": 4, "persist_audit_loads": 2,

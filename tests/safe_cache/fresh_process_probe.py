@@ -4,7 +4,7 @@ import hashlib
 import json
 
 from mathhead.safe_cache import decide_safe_cache
-from tests.run_audit.fixtures import success_bundle
+from tests.safe_cache.audited_fixtures import success_bundle
 
 
 def sha(raw: bytes) -> str:

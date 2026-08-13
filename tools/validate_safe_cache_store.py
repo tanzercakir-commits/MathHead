@@ -12,21 +12,25 @@ import stat
 import sys
 import tempfile
 import tomllib
+from unittest import mock
 from typing import NoReturn
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/mathhead/safe_cache_store.py"
-REPORT = ROOT / "docs/planning/reports/safe-cache-store-v1.json"
-CONTRACT_ID = "MH-C-SAFE-CACHE-STORE-001"
-CONTRACT_SHA256 = "1f1dba767275ce066a977fe5eda2e499da7faf6135e1f11ac8db3587e2337cd1"
-PURE_ID = "MH-C-SAFE-CACHE-001"
-PURE_SHA256 = "ec1c056023d8d966ed3a143a12e8c1726849d491800b175a3e807ca9a260cbb9"
+REPORT = ROOT / "docs/planning/reports/safe-cache-store-v2.json"
+CONTRACT_ID = "MH-C-SAFE-CACHE-STORE-002"
+CONTRACT_SHA256 = "4ed580fcb08191bfc7caa8901a4f5b74456cd9fc178f17b8a2530b0599368ed2"
+PURE_ID = "MH-C-SAFE-CACHE-002"
+PURE_SHA256 = "35cd004a1ed91f2c3969a6b295722b8099ee9fc36f3fc15170d5d1082d2bfab4"
+AUDIT_STORE_ID = "MH-C-RUN-AUDIT-STORE-006"
+AUDIT_STORE_SHA256 = "327f5d55b86433b803f22ba019b8adf5fe3a4bf8bc0dbdf4b1472c276bedff5e"
 SCHEMAS = {
-    "safe-cache-store-record-v1.schema.json": "959e5f08b002479753fa14210e39dbc594c529177e6923866b0c6911c29ef001",
-    "safe-cache-store-result-v1.schema.json": "0c9a2c429522b44fb51728e5c6491e6f2379e2fcd544a6c4c7eca552a2a9a4ca",
+    "safe-cache-store-record-v2.schema.json": "9caba023663c86e8917cb3560ed5d56fd04178fc123bc04cc6da2d0449767dda",
+    "safe-cache-store-result-v2.schema.json": "6c00b6c21692bc79b5a355e27c40563524e190ab544f05024330513b427acd75",
 }
-REPORT_SCHEMA = "mathhead.safe-cache-store-validation-report.v1"
+REPORT_SCHEMA = "mathhead.safe-cache-store-validation-report.v2"
+STORE_NAMESPACE = ".mathhead-safe-cache-store-v2"
 
 
 class StoreValidationFailure(RuntimeError):
@@ -61,7 +65,10 @@ def _binding_checks() -> dict[str, object]:
         for item in manifest.get("contracts", [])
         if item.get("state") == "accepted"
     }
-    for contract_id, digest in ((CONTRACT_ID, CONTRACT_SHA256), (PURE_ID, PURE_SHA256)):
+    for contract_id, digest in (
+        (CONTRACT_ID, CONTRACT_SHA256), (PURE_ID, PURE_SHA256),
+        (AUDIT_STORE_ID, AUDIT_STORE_SHA256),
+    ):
         raw = (ROOT / f"docs/contracts/{contract_id}.json").read_bytes()
         proposed = (ROOT / f"docs/contracts/proposed/{contract_id}.json").read_bytes()
         if _sha(raw) != digest or raw != proposed or accepted.get(contract_id) != digest:
@@ -79,6 +86,16 @@ def _binding_checks() -> dict[str, object]:
         ):
             _fail(f"closed store schema binding drift: {name}")
         schemas[name] = digest
+    result_schema = json.loads(
+        (ROOT / "docs/contracts/schemas/safe-cache-store-result-v2.schema.json").read_bytes()
+    )
+    branches = result_schema.get("allOf", [{}])[0].get("oneOf", [])
+    rows = sum(
+        len(branch.get("properties", {}).get("reason_code", {}).get("enum", [None]))
+        for branch in branches
+    )
+    if len(branches) != 27 or rows != 31:
+        _fail("closed store result operation matrix differs")
     return {
         "contracts": {CONTRACT_ID: CONTRACT_SHA256, PURE_ID: PURE_SHA256},
         "schemas": schemas,
@@ -136,6 +153,19 @@ def _source_checks() -> dict[str, object]:
     )
     if any(index < 0 for index in text_order) or tuple(sorted(text_order)) != text_order:
         _fail("persist validation, capability, content and commit order drift")
+    if (
+        "_historical_inputs" in functions
+        or STORE_NAMESPACE not in source
+        or "verified = lookup_safe_cache(" not in source[persist_start:]
+    ):
+        _fail("v2 namespace, public post-lookup, or listing purity drift")
+    list_calls = [
+        node.func.id
+        for node in ast.walk(functions["list_safe_cache"])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    ]
+    if list_calls.count("decide_safe_cache") != 0 or list_calls.count("load_run_audit") != 1:
+        _fail("listing decision/load budget drift")
     return {
         "path": "src/mathhead/safe_cache_store.py",
         "sha256": _sha(SOURCE.read_bytes()),
@@ -201,26 +231,42 @@ def _runtime_checks(module: object) -> dict[str, object]:
         if audit.status not in {"stored", "existing"}:
             _fail("audit fixture did not persist")
         miss = module.lookup_safe_cache(cache_root, audit_root, *current)
-        first = module.persist_safe_cache(
-            cache_root, audit_root, *current, audited.bundle.manifest_sha256
-        )
+        with (
+            mock.patch.object(module, "load_run_audit", wraps=module.load_run_audit) as persist_load,
+            mock.patch.object(module, "decide_safe_cache", wraps=module.decide_safe_cache) as persist_decide,
+        ):
+            first = module.persist_safe_cache(
+                cache_root, audit_root, *current, audited.bundle.manifest_sha256
+            )
         repeat = module.persist_safe_cache(
             cache_root, audit_root, *current, audited.bundle.manifest_sha256
         )
-        hit = module.lookup_safe_cache(cache_root, audit_root, *current)
-        listing = module.list_safe_cache(cache_root, audit_root)
+        with (
+            mock.patch.object(module, "load_run_audit", wraps=module.load_run_audit) as lookup_load,
+            mock.patch.object(module, "decide_safe_cache", wraps=module.decide_safe_cache) as lookup_decide,
+        ):
+            hit = module.lookup_safe_cache(cache_root, audit_root, *current)
+        with (
+            mock.patch.object(module, "load_run_audit", wraps=module.load_run_audit) as list_load,
+            mock.patch.object(module, "decide_safe_cache", wraps=module.decide_safe_cache) as list_decide,
+        ):
+            listing = module.list_safe_cache(cache_root, audit_root)
         if (
             miss.status != "miss" or first.status != "stored"
             or repeat.status != "existing" or hit.status != "hit"
             or listing != (hit.lookup_key_sha256,)
             or first.record_sha256 != repeat.record_sha256
+            or (persist_load.call_count, persist_decide.call_count) != (2, 4)
+            or (lookup_load.call_count, lookup_decide.call_count) != (1, 2)
+            or (list_load.call_count, list_decide.call_count) != (1, 0)
         ):
             _fail("store miss/write/repeat/hit/list cycle differs")
         key = str(hit.lookup_key_sha256)
-        record_path = cache_root / "keys" / key[:2] / key
-        _private_directory(cache_root)
-        _private_directory(cache_root / "keys")
-        _private_directory(cache_root / "keys" / key[:2])
+        current_root = cache_root / STORE_NAMESPACE
+        record_path = current_root / "keys" / key[:2] / key
+        _private_directory(current_root)
+        _private_directory(current_root / "keys")
+        _private_directory(current_root / "keys" / key[:2])
         _private_file(record_path)
         record_raw = record_path.read_bytes()
         record = json.loads(record_raw)
@@ -229,12 +275,22 @@ def _runtime_checks(module: object) -> dict[str, object]:
             or record.get("record_sha256") != _self_hash(record, "record_sha256")
             or record.get("lookup_key_sha256") != key
             or record.get("audit_manifest_sha256") != audited.bundle.manifest_sha256
+            or record.get("execution_provenance_sha256") is None
         ):
             _fail("visible key record identity differs")
         object_digest = str(record["entry_object_sha256"])
-        object_path = cache_root / "objects" / object_digest[:2] / object_digest
+        object_path = current_root / "objects" / object_digest[:2] / object_digest
         _private_file(object_path)
-        if _sha(object_path.read_bytes()) != object_digest:
+        object_raw = object_path.read_bytes()
+        entry = json.loads(object_raw)
+        if (
+            _sha(object_raw) != object_digest
+            or entry.get("execution_provenance_sha256")
+            != record.get("execution_provenance_sha256")
+            or entry.get("lookup_key_sha256") != key
+            or entry.get("audit_manifest_sha256")
+            != audited.bundle.manifest_sha256
+        ):
             _fail("entry object content address differs")
         relocated = base / "relocated"
         relocated.mkdir(mode=0o700)
@@ -246,12 +302,12 @@ def _runtime_checks(module: object) -> dict[str, object]:
             _fail("relocated store changed logical hit")
         corrupt = base / "corrupt"
         shutil.copytree(cache_root, corrupt)
-        corrupt_record = corrupt / "keys" / key[:2] / key
+        corrupt_record = corrupt / STORE_NAMESPACE / "keys" / key[:2] / key
         corrupt_record.write_bytes(corrupt_record.read_bytes() + b"x")
         rejected = module.lookup_safe_cache(corrupt, audit_root, *current)
         if (rejected.status, rejected.reason_code) != ("corrupt", "CACHE_ENTRY_CORRUPT"):
             _fail("corrupt visible record did not fail closed")
-        orphan = cache_root / "objects" / "ff" / ("f" * 64)
+        orphan = current_root / "objects" / "ff" / ("f" * 64)
         orphan.parent.mkdir(mode=0o700, exist_ok=True)
         orphan.write_bytes(b"orphan\n")
         orphan.chmod(0o600)
@@ -262,6 +318,9 @@ def _runtime_checks(module: object) -> dict[str, object]:
             "lookup_key_sha256": key,
             "first_write_verified": True, "repeat_write_verified": True,
             "fresh_lookup_verified": True, "listing_verified": True,
+            "persist_decisions": 4, "persist_audit_loads": 2,
+            "lookup_decisions": 2, "lookup_audit_loads": 1,
+            "listing_decisions": 0, "listing_audit_loads": 1,
             "relocation_verified": True, "corruption_rejected": True,
             "orphan_content_ignored": True, "mathematical_authority": False,
         }

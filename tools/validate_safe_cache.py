@@ -9,20 +9,21 @@ import json
 from pathlib import Path
 import sys
 import tomllib
+from types import MappingProxyType
 from typing import NoReturn
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/mathhead/safe_cache.py"
-REPORT = ROOT / "docs/planning/reports/safe-cache-v1.json"
-CONTRACT_ID = "MH-C-SAFE-CACHE-001"
-CONTRACT_SHA256 = "ec1c056023d8d966ed3a143a12e8c1726849d491800b175a3e807ca9a260cbb9"
+REPORT = ROOT / "docs/planning/reports/safe-cache-v2.json"
+CONTRACT_ID = "MH-C-SAFE-CACHE-002"
+CONTRACT_SHA256 = "35cd004a1ed91f2c3969a6b295722b8099ee9fc36f3fc15170d5d1082d2bfab4"
 SCHEMAS = {
-    "safe-cache-request-v1.schema.json": "d99738d351f5d17292953cf45021bdbd61d65544a3f18f65ba7acaee64032cb8",
-    "safe-cache-entry-v1.schema.json": "36d770882c274962f6a168177d804e3f28b461bd9d2cef1a8c1907c505d9e093",
-    "safe-cache-decision-result-v1.schema.json": "9888e1e8d7ecea9e5a21b6b60b0a26f3f573305484344d4827fec6a37bd69ed2",
+    "safe-cache-request-v2.schema.json": "3ad6e7111ceb0c6336315a0bbbe6950e60abd2331e9ce0c9dbb52e60f285a18a",
+    "safe-cache-entry-v2.schema.json": "ce1100b9326d04a07c4f22286f28814f1a3bcef9091ca7b13f6ee9ebd57f9234",
+    "safe-cache-decision-result-v2.schema.json": "30df479781c7f022da8ffaee8686118fa7613b6e49f522da88362db46f48965d",
 }
-REPORT_SCHEMA = "mathhead.safe-cache-validation-report.v1"
+REPORT_SCHEMA = "mathhead.safe-cache-validation-report.v2"
 
 
 class SafeCacheValidationFailure(RuntimeError):
@@ -85,7 +86,7 @@ def _contract_and_schema_checks() -> dict[str, object]:
 
 def _inventory_checks(module: object) -> dict[str, int]:
     request_schema = json.loads(
-        (ROOT / "docs/contracts/schemas/safe-cache-request-v1.schema.json").read_text()
+        (ROOT / "docs/contracts/schemas/safe-cache-request-v2.schema.json").read_text()
     )
     manifest = tomllib.loads((ROOT / "docs/contracts/manifest.toml").read_text())
     manifest_by_id = {
@@ -118,8 +119,6 @@ def _inventory_checks(module: object) -> dict[str, int]:
             "deterministic_planner": "src/mathhead/deterministic_planner.py",
             "isolated_worker": "src/mathhead/isolated_worker.py",
             "proof_search_portfolio": "src/mathhead/proof_search_portfolio.py",
-            "run_audit": "src/mathhead/run_audit.py",
-            "run_audit_store": "src/mathhead/run_audit_store.py",
             "trust_transition": "src/mathhead/kernel/trust_transitions.py",
         }.items()
     }
@@ -130,8 +129,6 @@ def _inventory_checks(module: object) -> dict[str, int]:
             "deterministic_planner_report": "docs/planning/reports/deterministic-planner-v1.json",
             "isolated_worker_report": "docs/planning/reports/isolated-worker-v1.json",
             "proof_search_portfolio_report": "docs/planning/reports/proof-search-portfolio-v1.json",
-            "run_audit_report": "docs/planning/reports/run-audit-v4.json",
-            "run_audit_store_report": "docs/planning/reports/run-audit-store-v5.json",
         }.items()
     }
     configurations["trust_transition_policy"] = (
@@ -145,6 +142,23 @@ def _inventory_checks(module: object) -> dict[str, int]:
     ):
         if getattr(module, name) != expected:
             _fail(f"compiled {name} drift")
+    if tuple(map(len, (contracts, schemas, implementations, configurations))) != (
+        20, 65, 5, 5
+    ):
+        _fail("compiled provenance inventory count differs")
+    provenance = {
+        "schema": "mathhead.run-execution-provenance.v1",
+        "dependency_contracts": contracts,
+        "dependency_schemas": schemas,
+        "implementation_bindings": implementations,
+        "configuration_bindings": configurations,
+        "trust_policy_sha256": configurations["trust_transition_policy"],
+        "provenance_sha256": None,
+        "mathematical_authority": False,
+    }
+    expected_provenance = _sha(_canonical(provenance))
+    if module._expected_execution_provenance_sha256() != expected_provenance:
+        _fail("current expected provenance null-own identity differs")
     return {
         "contracts": len(contracts), "schemas": len(schemas),
         "implementations": len(implementations), "configurations": len(configurations),
@@ -239,17 +253,30 @@ def _runtime_checks(module: object) -> dict[str, object]:
     invalid = module.decide_safe_cache(
         b"{}\n", *_cache_inputs(success_bundle())[1:], None
     )
+    audited = success_bundle()
+    current = _cache_inputs(audited)
+    original_implementations = module.IMPLEMENTATION_BINDINGS
+    changed = dict(original_implementations)
+    changed["capability_registry"] = "f" * 64
+    module.IMPLEMENTATION_BINDINGS = MappingProxyType(changed)
+    try:
+        old_candidate = module.decide_safe_cache(*current, audited.bundle)
+    finally:
+        module.IMPLEMENTATION_BINDINGS = original_implementations
     if (
         (ineligible.status, ineligible.reason_code)
         != ("ineligible", "CACHE_OUTCOME_INELIGIBLE")
         or (invalid.status, invalid.reason_code, invalid.lookup_key_sha256)
         != ("invalid", "CACHE_CURRENT_REQUEST_INVALID", None)
+        or (old_candidate.status, old_candidate.reason_code)
+        != ("invalid", "CACHE_IMPLEMENTATION_MISMATCH")
     ):
         _fail("closed non-hit classifications differ")
     return {
         "eligible": results,
         "ineligible_outcome_verified": True,
         "invalid_current_verified": True,
+        "old_provenance_candidate_rejected": True,
         "mathematical_authority": False,
     }
 

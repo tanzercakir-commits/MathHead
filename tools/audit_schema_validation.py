@@ -22,18 +22,22 @@ _KEYWORDS = frozenset(
         "$ref",
         "$schema",
         "additionalProperties",
+        "allOf",
         "const",
         "enum",
         "items",
         "maxItems",
         "maxLength",
+        "maxProperties",
         "maximum",
         "minItems",
         "minLength",
+        "minProperties",
         "minimum",
         "oneOf",
         "pattern",
         "properties",
+        "propertyNames",
         "required",
         "title",
         "type",
@@ -124,16 +128,31 @@ def _check_schema(schema: object, path: str) -> None:
             _fail(f"{path}.additionalProperties", "must be a boolean or schema")
     if "items" in schema:
         _check_schema(schema["items"], f"{path}.items")
-    if "oneOf" in schema:
-        choices = schema["oneOf"]
+    if "propertyNames" in schema:
+        _check_schema(schema["propertyNames"], f"{path}.propertyNames")
+    for keyword in ("allOf", "oneOf"):
+        if keyword not in schema:
+            continue
+        choices = schema[keyword]
         if type(choices) is not list or not choices:
-            _fail(f"{path}.oneOf", "must be a non-empty array")
+            _fail(f"{path}.{keyword}", "must be a non-empty array")
         for index, choice in enumerate(choices):
-            _check_schema(choice, f"{path}.oneOf[{index}]")
-    for keyword in ("minItems", "maxItems", "minLength", "maxLength"):
+            _check_schema(choice, f"{path}.{keyword}[{index}]")
+    for keyword in (
+        "minItems",
+        "maxItems",
+        "minLength",
+        "maxLength",
+        "minProperties",
+        "maxProperties",
+    ):
         if keyword in schema:
             _nonnegative_integer(schema[keyword], f"{path}.{keyword}")
-    for minimum, maximum in (("minItems", "maxItems"), ("minLength", "maxLength")):
+    for minimum, maximum in (
+        ("minItems", "maxItems"),
+        ("minLength", "maxLength"),
+        ("minProperties", "maxProperties"),
+    ):
         if minimum in schema and maximum in schema and schema[minimum] > schema[maximum]:
             _fail(path, f"{minimum} exceeds {maximum}")
     for keyword in ("minimum", "maximum"):
@@ -211,8 +230,20 @@ def _check_references(
     child = schema.get("items")
     if isinstance(child, Mapping):
         _check_references(child, resource, base_uri, registry, f"{path}.items")
-    for index, choice in enumerate(schema.get("oneOf", ())):
-        _check_references(choice, resource, base_uri, registry, f"{path}.oneOf[{index}]")
+    child = schema.get("propertyNames")
+    if isinstance(child, Mapping):
+        _check_references(
+            child, resource, base_uri, registry, f"{path}.propertyNames"
+        )
+    for keyword in ("allOf", "oneOf"):
+        for index, choice in enumerate(schema.get(keyword, ())):
+            _check_references(
+                choice,
+                resource,
+                base_uri,
+                registry,
+                f"{path}.{keyword}[{index}]",
+            )
     additional = schema.get("additionalProperties")
     if isinstance(additional, Mapping):
         _check_references(additional, resource, base_uri, registry, f"{path}.additionalProperties")
@@ -276,6 +307,8 @@ def _validate(
         _fail(path, "value differs from const")
     if "enum" in schema and not any(_exact_json_equal(value, choice) for choice in schema["enum"]):
         _fail(path, "value is outside enum")
+    for choice in schema.get("allOf", ()):
+        _validate(value, choice, resource, base_uri, registry, path)
     if "oneOf" in schema:
         matches = 0
         for choice in schema["oneOf"]:
@@ -287,6 +320,20 @@ def _validate(
         if matches != 1:
             _fail(path, f"oneOf matched {matches} branches")
     if type(value) is dict:
+        if "minProperties" in schema and len(value) < schema["minProperties"]:
+            _fail(path, "object is smaller than minProperties")
+        if "maxProperties" in schema and len(value) > schema["maxProperties"]:
+            _fail(path, "object is larger than maxProperties")
+        if "propertyNames" in schema:
+            for name in value:
+                _validate(
+                    name,
+                    schema["propertyNames"],
+                    resource,
+                    base_uri,
+                    registry,
+                    f"{path}.<propertyName>",
+                )
         required = schema.get("required", ())
         missing = [name for name in required if name not in value]
         if missing:

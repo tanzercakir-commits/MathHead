@@ -161,8 +161,8 @@ AUTHORITY_LITERAL_COUNTS = {
         "external_proof_assistant": 2,
     },
     "src/mathhead/run_audit.py": {
-        "checker_attestation": 1,
-        "external_proof_assistant": 1,
+        "checker_attestation": 2,
+        "external_proof_assistant": 2,
     },
     "src/mathhead/safe_cache.py": {
         "checker_attestation": 3,

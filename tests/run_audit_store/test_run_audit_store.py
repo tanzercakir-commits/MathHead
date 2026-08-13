@@ -23,13 +23,15 @@ if str(SRC) not in sys.path:
 
 from tests.run_audit.fixtures import success_bundle  # noqa: E402
 
+STORE_NAMESPACE = ".mathhead-run-audit-store-v6"
+
 
 def sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
 def committed_run_files(root: Path) -> tuple[Path, ...]:
-    runs = root / "runs"
+    runs = root / STORE_NAMESPACE / "runs"
     if not runs.exists():
         return ()
     return tuple(
@@ -45,11 +47,12 @@ class RunAuditStoreContractTests(unittest.TestCase):
 
         self.assertEqual(
             store.STORE_CONTRACT_SHA256,
-            sha((ROOT / "docs/contracts/MH-C-RUN-AUDIT-STORE-005.json").read_bytes()),
+            sha((ROOT / "docs/contracts/MH-C-RUN-AUDIT-STORE-006.json").read_bytes()),
         )
+        self.assertEqual(store.STORE_NAMESPACE, STORE_NAMESPACE)
         for name in (
-            "run-audit-store-record-v2.schema.json",
-            "run-audit-store-result-v5.schema.json",
+            "run-audit-store-record-v3.schema.json",
+            "run-audit-store-result-v6.schema.json",
         ):
             raw = (ROOT / "docs/contracts/schemas" / name).read_bytes()
             value = json.loads(raw)
@@ -68,7 +71,7 @@ class RunAuditStoreContractTests(unittest.TestCase):
                 "tools/contract_artifacts.py",
                 "verify",
                 "--contract",
-                "MH-C-RUN-AUDIT-STORE-005",
+                "MH-C-RUN-AUDIT-STORE-006",
                 "--require-bound",
             ],
             cwd=ROOT,
@@ -128,14 +131,14 @@ class RunAuditStoreTests(unittest.TestCase):
                 (self.bundle.manifest, self.bundle.objects),
             )
             schema = json.loads(
-                (ROOT / "docs/contracts/schemas/run-audit-store-result-v5.schema.json").read_bytes()
+                (ROOT / "docs/contracts/schemas/run-audit-store-result-v6.schema.json").read_bytes()
             )
             from tools.audit_schema_validation import validate_schema_instance
 
             validate_schema_instance(
                 schema,
                 json.loads(store.run_audit_store_result_bytes(first)),
-                {"run-audit-store-result-v5.schema.json": schema},
+                {"run-audit-store-result-v6.schema.json": schema},
             )
 
     def test_multiple_and_different_run_concurrent_writers_are_independent(self) -> None:
@@ -168,6 +171,69 @@ class RunAuditStoreTests(unittest.TestCase):
             loaded = store.load_run_audit(target, self.bundle.manifest_sha256)
             self.assertEqual(loaded.manifest_sha256, self.bundle.manifest_sha256)
             self.assertEqual(loaded.logical_report, self.bundle.logical_report)
+
+    def test_current_namespace_isolated_from_legacy_siblings(self) -> None:
+        from mathhead import run_audit_store as store
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve() / "audit"
+            if self.unsupported_was_closed(root):
+                return
+            legacy_runs = root / "runs" / self.bundle.manifest_sha256[:2]
+            legacy_runs.mkdir(parents=True, mode=0o700)
+            legacy_runs.chmod(0o700)
+            legacy = legacy_runs / self.bundle.manifest_sha256
+            legacy.write_bytes(b"legacy\n")
+            legacy.chmod(0o600)
+            self.assertEqual(store.list_run_audits(root), ())
+            stored = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(stored.status, "stored")
+            self.assertEqual(legacy.read_bytes(), b"legacy\n")
+            current = (
+                root
+                / STORE_NAMESPACE
+                / "runs"
+                / self.bundle.manifest_sha256[:2]
+                / self.bundle.manifest_sha256
+            )
+            self.assertTrue(current.is_file())
+            self.assertEqual(store.list_run_audits(root), (self.bundle.manifest_sha256,))
+
+    def test_store_record_binds_exact_execution_provenance(self) -> None:
+        from mathhead import run_audit_store as store
+
+        manifest = json.loads(self.bundle.manifest)
+        report = json.loads(self.bundle.logical_report)
+        record_raw, _record_identity = store._record_bytes(self.bundle)
+        record = json.loads(record_raw)
+        self.assertEqual(
+            {
+                record["execution_provenance_sha256"],
+                manifest["execution_provenance_sha256"],
+                report["execution_provenance_sha256"],
+            },
+            {manifest["execution_provenance_sha256"]},
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve() / "audit"
+            if self.unsupported_was_closed(root):
+                return
+            self.assertEqual(store.persist_run_audit(root, self.bundle).status, "stored")
+            path = (
+                root
+                / STORE_NAMESPACE
+                / "runs"
+                / self.bundle.manifest_sha256[:2]
+                / self.bundle.manifest_sha256
+            )
+            forged = json.loads(path.read_bytes())
+            forged["execution_provenance_sha256"] = "0" * 64
+            forged["record_sha256"] = store._self_hash(forged, "record_sha256")
+            path.write_bytes(store._canonical(forged))
+            path.chmod(0o600)
+            with self.assertRaises(store.RunAuditStoreError) as caught:
+                store.load_run_audit(root, self.bundle.manifest_sha256)
+            self.assertEqual(caught.exception.kind, "corrupt")
 
     def test_same_run_concurrent_writers_converge(self) -> None:
         from mathhead import run_audit_store as store
@@ -211,8 +277,11 @@ class RunAuditStoreTests(unittest.TestCase):
                 )
 
             with mock.patch.object(store, "_write_immutable", side_effect=fail_record):
-                with self.assertRaises(store.RunAuditStoreError):
-                    store.persist_run_audit(root, self.bundle)
+                result = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(
+                (result.status, result.reason_code),
+                ("io_error", "STORE_IO_ERROR"),
+            )
             self.assertEqual(committed_run_files(root), ())
             self.assertEqual(store.list_run_audits(root), ())
             self.assertEqual(store.persist_run_audit(root, self.bundle).status, "stored")
@@ -245,8 +314,11 @@ class RunAuditStoreTests(unittest.TestCase):
                     mock.patch.object(store, "_descriptor_store_supported", return_value=True),
                     mock.patch.object(owner, attribute, side_effect=effect),
                 ):
-                    with self.assertRaises(store.RunAuditStoreError):
-                        store.persist_run_audit(root, self.bundle)
+                    result = store.persist_run_audit(root, self.bundle)
+                self.assertEqual(
+                    (result.status, result.reason_code),
+                    ("io_error", "STORE_IO_ERROR"),
+                )
                 self.assertEqual(committed_run_files(root), ())
                 self.assertFalse(tuple(root.rglob("*.tmp")))
 
@@ -317,9 +389,9 @@ class RunAuditStoreTests(unittest.TestCase):
             with (
                 mock.patch.object(store, "_descriptor_store_supported", return_value=True),
                 mock.patch.object(store.os, "unlink", side_effect=reject_record_temporary),
-                self.assertRaises(store.RunAuditStoreError),
             ):
-                store.persist_run_audit(root, self.bundle)
+                result = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(result.status, "io_error")
             self.assertEqual(committed_run_files(root), ())
             self.assertEqual(store.list_run_audits(root), ())
 
@@ -349,16 +421,16 @@ class RunAuditStoreTests(unittest.TestCase):
             with (
                 mock.patch.object(store, "_descriptor_store_supported", return_value=True),
                 mock.patch.object(store.os, "unlink", side_effect=reject_record_cleanup),
-                self.assertRaises(store.RunAuditStoreError),
             ):
-                store.persist_run_audit(root, self.bundle)
+                result = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(result.status, "io_error")
             with self.assertRaises(store.RunAuditStoreError) as listed:
                 store.list_run_audits(root)
             self.assertEqual(listed.exception.kind, "link")
             with self.assertRaises(store.RunAuditStoreError) as loaded:
                 store.load_run_audit(root, manifest)
             self.assertEqual(loaded.exception.kind, "link")
-            pending = next((root / "runs" / manifest[:2]).glob(".*.tmp"))
+            pending = next((root / STORE_NAMESPACE / "runs" / manifest[:2]).glob(".*.tmp"))
             os.unlink(pending)
             with self.assertRaises(store.RunAuditStoreError) as listed:
                 store.list_run_audits(root)
@@ -391,7 +463,7 @@ class RunAuditStoreTests(unittest.TestCase):
 
             def reject_final_run_sync(descriptor: int) -> None:
                 nonlocal sync_failed
-                run_bucket = root / "runs" / manifest[:2]
+                run_bucket = root / STORE_NAMESPACE / "runs" / manifest[:2]
                 descriptor_info = os.fstat(descriptor)
                 bucket_info = run_bucket.stat() if run_bucket.exists() else None
                 if (
@@ -415,11 +487,10 @@ class RunAuditStoreTests(unittest.TestCase):
                 mock.patch.object(store.os, "link", side_effect=note_link),
                 mock.patch.object(store.os, "fsync", side_effect=reject_final_run_sync),
                 mock.patch.object(store.os, "unlink", side_effect=reject_record_rollback),
-                self.assertRaises(store.RunAuditStoreError) as persisted,
             ):
-                store.persist_run_audit(root, self.bundle)
-            self.assertEqual(persisted.exception.kind, "io")
-            target = root / "runs" / manifest[:2] / manifest
+                result = store.persist_run_audit(root, self.bundle)
+            self.assertEqual(result.status, "io_error")
+            target = root / STORE_NAMESPACE / "runs" / manifest[:2] / manifest
             self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o000)
             for accessor, arguments in (
                 (store.list_run_audits, (root,)),
@@ -439,7 +510,7 @@ class RunAuditStoreTests(unittest.TestCase):
             store.persist_run_audit(root, self.bundle)
             orphan = b'{"schema":"mathhead.orphan.v1"}\n'
             digest = sha(orphan)
-            bucket = root / "objects" / digest[:2]
+            bucket = root / STORE_NAMESPACE / "objects" / digest[:2]
             bucket.mkdir(mode=0o700, exist_ok=True)
             path = bucket / digest
             path.write_bytes(orphan)
@@ -458,13 +529,14 @@ class RunAuditStoreTests(unittest.TestCase):
                 if corrupt_record:
                     target = (
                         root
+                        / STORE_NAMESPACE
                         / "runs"
                         / self.bundle.manifest_sha256[:2]
                         / self.bundle.manifest_sha256
                     )
                 else:
                     object_digest = sha(self.bundle.objects[0])
-                    target = root / "objects" / object_digest[:2] / object_digest
+                    target = root / STORE_NAMESPACE / "objects" / object_digest[:2] / object_digest
                 target.write_bytes(target.read_bytes() + b"x")
                 target.chmod(0o600)
                 with self.assertRaises(store.RunAuditStoreError):
@@ -486,7 +558,7 @@ class RunAuditStoreTests(unittest.TestCase):
             with self.assertRaises(store.RunAuditStoreError):
                 store.persist_run_audit(link, self.bundle)
             digest = sha(self.bundle.objects[0])
-            target = real / "objects" / digest[:2] / digest
+            target = real / STORE_NAMESPACE / "objects" / digest[:2] / digest
             saved = target.read_bytes()
             target.unlink()
             decoy = base / "decoy"
@@ -506,10 +578,11 @@ class RunAuditStoreTests(unittest.TestCase):
                 store.persist_run_audit(root, self.bundle)
                 if content:
                     digest = sha(self.bundle.objects[0])
-                    target = root / "objects" / digest[:2] / digest
+                    target = root / STORE_NAMESPACE / "objects" / digest[:2] / digest
                 else:
                     target = (
                         root
+                        / STORE_NAMESPACE
                         / "runs"
                         / self.bundle.manifest_sha256[:2]
                         / self.bundle.manifest_sha256
@@ -696,15 +769,14 @@ class RunAuditStoreTests(unittest.TestCase):
             )
         with self.assertRaises(store.RunAuditStoreError):
             store.validate_run_audit_store_result(object())  # type: ignore[arg-type]
-        retained = store._new_result(
-            "invalid",
-            "BUNDLE_INVALID",
-            manifest_sha256="0" * 64,
-            record_sha256="1" * 64,
-            object_count=1,
-        )
         with self.assertRaises(store.RunAuditStoreError):
-            store.validate_run_audit_store_result(retained)
+            store._new_result(
+                "invalid",
+                "BUNDLE_INVALID",
+                manifest_sha256="0" * 64,
+                record_sha256="1" * 64,
+                object_count=1,
+            )
 
     def test_descriptor_helpers_reject_types_modes_links_and_conflicts(self) -> None:
         from mathhead import run_audit_store as store
@@ -719,11 +791,11 @@ class RunAuditStoreTests(unittest.TestCase):
             base = Path(temporary).resolve()
             private = base / "private"
             private.mkdir(mode=0o700)
-            pinned = store._open_root(private, create=False)
+            pinned = store._open_root(private, create=True)
             try:
                 with self.assertRaises(store.RunAuditStoreError):
                     store._open_child_directory(pinned, pinned.descriptor, "absent", create=False)
-                empty = private / "empty"
+                empty = private / STORE_NAMESPACE / "empty"
                 empty.write_bytes(b"")
                 empty.chmod(0o600)
                 with self.assertRaises(store.RunAuditStoreError):
@@ -733,7 +805,7 @@ class RunAuditStoreTests(unittest.TestCase):
                         pinned, pinned.descriptor, sha(b"expected"), b"different"
                     )
                 existing_name = sha(b"actual")
-                existing = private / existing_name
+                existing = private / STORE_NAMESPACE / existing_name
                 existing.write_bytes(b"other")
                 existing.chmod(0o600)
                 with self.assertRaises(store.RunAuditStoreError):
@@ -756,6 +828,20 @@ class RunAuditStoreTests(unittest.TestCase):
             public_file.chmod(0o644)
             with self.assertRaises(store.RunAuditStoreError):
                 store._file_info(os.lstat(public_file))
+            if hasattr(os, "geteuid"):
+                directory_fields = list(os.lstat(private))
+                directory_fields[4] = os.geteuid() + 1
+                with self.assertRaises(store.RunAuditStoreError) as wrong_directory_owner:
+                    store._directory_info(
+                        os.stat_result(directory_fields),
+                        private=True,
+                    )
+                self.assertEqual(wrong_directory_owner.exception.kind, "owner")
+                file_fields = list(os.lstat(regular))
+                file_fields[4] = os.geteuid() + 1
+                with self.assertRaises(store.RunAuditStoreError) as wrong_file_owner:
+                    store._file_info(os.stat_result(file_fields))
+                self.assertEqual(wrong_file_owner.exception.kind, "owner")
 
     def test_root_creation_and_open_races_fail_closed(self) -> None:
         from mathhead import run_audit_store as store
@@ -853,10 +939,10 @@ class RunAuditStoreTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve() / "private"
             root.mkdir(mode=0o700)
-            target = root / "record"
+            pinned = store._open_root(root, create=True)
+            target = root / STORE_NAMESPACE / "record"
             target.write_bytes(b"data")
             target.chmod(0o600)
-            pinned = store._open_root(root, create=False)
             real_fstat = os.fstat
             try:
                 with (
@@ -929,7 +1015,9 @@ class RunAuditStoreTests(unittest.TestCase):
             base = Path(temporary).resolve()
             root = base / "listing"
             root.mkdir(mode=0o700)
-            runs = root / "runs"
+            namespace = root / STORE_NAMESPACE
+            namespace.mkdir(mode=0o700)
+            runs = namespace / "runs"
             runs.mkdir(mode=0o700)
 
             with (
@@ -1044,8 +1132,11 @@ class RunAuditStoreTests(unittest.TestCase):
             root = Path(temporary).resolve() / "listing"
             if self.unsupported_was_closed(root):
                 return
-            runs = root / "runs"
-            runs.mkdir(parents=True, mode=0o700)
+            namespace = root / STORE_NAMESPACE
+            namespace.mkdir(parents=True, mode=0o700)
+            namespace.chmod(0o700)
+            runs = namespace / "runs"
+            runs.mkdir(mode=0o700)
             root.chmod(0o700)
             runs.chmod(0o700)
             bad_bucket = runs / "zz"
@@ -1136,7 +1227,9 @@ class RunAuditStoreTests(unittest.TestCase):
             root.mkdir(mode=0o700)
             root.chmod(0o700)
             self.assertEqual(store.list_run_audits(root), ())
-            runs = root / "runs"
+            namespace = root / STORE_NAMESPACE
+            namespace.mkdir(mode=0o700)
+            runs = namespace / "runs"
             runs.mkdir(mode=0o700)
             runs.chmod(0o700)
             with (
@@ -1173,7 +1266,7 @@ class RunAuditStoreTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve() / "audit"
             root.mkdir(mode=0o700)
-            pinned = store._open_root(root, create=False)
+            pinned = store._open_root(root, create=True)
             try:
                 for name in ("", ".", "..", "a/b", "a\\b"):
                     with self.subTest(name=name), self.assertRaises(
@@ -1206,8 +1299,8 @@ class RunAuditStoreTests(unittest.TestCase):
                     mock.patch.object(store, "_descriptor_store_supported", return_value=True),
                     mock.patch.object(owner, attribute, side_effect=failure),
                 ):
-                    with self.assertRaises(store.RunAuditStoreError):
-                        store.persist_run_audit(root, self.bundle)
+                    result = store.persist_run_audit(root, self.bundle)
+                self.assertEqual(result.status, "io_error")
                 self.assertEqual(committed_run_files(root), ())
 
         with tempfile.TemporaryDirectory() as temporary:

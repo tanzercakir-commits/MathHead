@@ -24,11 +24,12 @@ from tests.run_audit.fixtures import (  # noqa: E402
 
 
 SCHEMAS = (
-    "run-audit-object-v2.schema.json",
+    "run-execution-provenance-v1.schema.json",
+    "run-audit-object-v3.schema.json",
     "run-audit-event-v2.schema.json",
-    "run-audit-manifest-v3.schema.json",
-    "run-logical-report-v2.schema.json",
-    "run-audit-replay-result-v4.schema.json",
+    "run-audit-manifest-v4.schema.json",
+    "run-logical-report-v3.schema.json",
+    "run-audit-replay-result-v5.schema.json",
     "run-audit-worker-observation-v3.schema.json",
 )
 
@@ -146,17 +147,62 @@ def changed_manifest_records(
     return canonical(manifest), tuple(physical[item] for item in sorted(physical))
 
 
+def changed_provenance(
+    bundle: Any,
+    mutate: Callable[[dict[str, Any]], None],
+) -> tuple[bytes, tuple[bytes, ...]]:
+    manifest = json.loads(bundle.manifest)
+    physical = {sha(raw): raw for raw in bundle.objects}
+    records = {item["role_id"]: item for item in manifest["objects"]}
+    provenance_record = records["execution_provenance"]
+    old_provenance = provenance_record["sha256"]
+    provenance = json.loads(physical.pop(old_provenance))
+    mutate(provenance)
+    self_hash(provenance, "provenance_sha256")
+    provenance_raw = canonical(provenance)
+    new_provenance = sha(provenance_raw)
+    physical[new_provenance] = provenance_raw
+    provenance_record["sha256"] = new_provenance
+    provenance_record["byte_count"] = len(provenance_raw)
+    self_hash(provenance_record, "record_sha256")
+
+    report_record = records["logical_report"]
+    old_report = report_record["sha256"]
+    report = json.loads(physical.pop(old_report))
+    report["execution_provenance_sha256"] = provenance["provenance_sha256"]
+    self_hash(report, "report_sha256")
+    report_raw = canonical(report)
+    new_report = sha(report_raw)
+    physical[new_report] = report_raw
+    report_record["sha256"] = new_report
+    report_record["byte_count"] = len(report_raw)
+    self_hash(report_record, "record_sha256")
+
+    previous = None
+    for event in manifest["events"]:
+        event["subject_sha256s"] = sorted(
+            {new_report if item == old_report else item for item in event["subject_sha256s"]}
+        )
+        event["previous_event_sha256"] = previous
+        self_hash(event, "event_sha256")
+        previous = event["event_sha256"]
+    manifest["execution_provenance_sha256"] = provenance["provenance_sha256"]
+    manifest["logical_report_sha256"] = new_report
+    self_hash(manifest, "manifest_sha256")
+    return canonical(manifest), tuple(physical[item] for item in sorted(physical))
+
+
 class RunAuditContractTests(unittest.TestCase):
     def test_accepted_contracts_and_schema_hashes_are_exact(self) -> None:
         from mathhead import run_audit
 
         self.assertEqual(
             run_audit.AUDITED_RUN_CONTRACT_SHA256,
-            sha((ROOT / "docs/contracts/MH-C-AUDITED-RUN-004.json").read_bytes()),
+            sha((ROOT / "docs/contracts/MH-C-AUDITED-RUN-005.json").read_bytes()),
         )
         self.assertEqual(
             run_audit.REPLAY_CONTRACT_SHA256,
-            sha((ROOT / "docs/contracts/MH-C-RUN-AUDIT-REPLAY-004.json").read_bytes()),
+            sha((ROOT / "docs/contracts/MH-C-RUN-AUDIT-REPLAY-005.json").read_bytes()),
         )
         for name in SCHEMAS:
             raw = (ROOT / "docs/contracts/schemas" / name).read_bytes()
@@ -167,7 +213,7 @@ class RunAuditContractTests(unittest.TestCase):
             )
 
     def test_contract_bindings_are_implementation_bound(self) -> None:
-        for contract in ("MH-C-AUDITED-RUN-004", "MH-C-RUN-AUDIT-REPLAY-004"):
+        for contract in ("MH-C-AUDITED-RUN-005", "MH-C-RUN-AUDIT-REPLAY-005"):
             result = subprocess.run(
                 [
                     sys.executable,
@@ -201,9 +247,14 @@ class RunAuditContractTests(unittest.TestCase):
         def validate(name: str, value: object) -> None:
             validate_schema_instance(schemas[name], value, schemas, label=name)
 
-        validate("run-audit-manifest-v3.schema.json", manifest)
+        validate("run-audit-manifest-v4.schema.json", manifest)
         for record in manifest["objects"]:
-            validate("run-audit-object-v2.schema.json", record)
+            validate("run-audit-object-v3.schema.json", record)
+            if record["role"] == "execution_provenance":
+                validate(
+                    "run-execution-provenance-v1.schema.json",
+                    json.loads(physical[record["sha256"]]),
+                )
             if record["role"] == "worker_observation":
                 validate(
                     "run-audit-worker-observation-v3.schema.json",
@@ -212,12 +263,12 @@ class RunAuditContractTests(unittest.TestCase):
         for event in manifest["events"]:
             validate("run-audit-event-v2.schema.json", event)
         validate(
-            "run-logical-report-v2.schema.json",
+            "run-logical-report-v3.schema.json",
             json.loads(fixture.bundle.logical_report),
         )
         replay = replay_run_audit(fixture.bundle.manifest, fixture.bundle.objects)
         validate(
-            "run-audit-replay-result-v4.schema.json",
+            "run-audit-replay-result-v5.schema.json",
             json.loads(run_audit_replay_result_bytes(replay)),
         )
 
@@ -262,11 +313,92 @@ class RunAuditTests(unittest.TestCase):
         )
         self.assertGreaterEqual(replay.object_count, 18)
         self.assertGreaterEqual(replay.event_count, 10)
+        self.assertIsNotNone(replay.execution_provenance_sha256)
         raw = run_audit_replay_result_bytes(replay)
         self.assertEqual(
             parse_run_audit_replay_result(raw, bundle.manifest, bundle.objects),
             replay,
         )
+
+    def test_execution_provenance_is_exact_singleton_and_cross_linked(self) -> None:
+        from mathhead.execution_provenance import build_execution_provenance
+        from mathhead.run_audit import replay_run_audit
+
+        bundle = self.fixture.bundle
+        manifest = json.loads(bundle.manifest)
+        report = json.loads(bundle.logical_report)
+        physical = {sha(raw): raw for raw in bundle.objects}
+        records = [
+            item for item in manifest["objects"] if item["role"] == "execution_provenance"
+        ]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(
+            (records[0]["ordinal"], records[0]["role_id"]),
+            (0, "execution_provenance"),
+        )
+        raw = physical[records[0]["sha256"]]
+        current_raw, current_identity = build_execution_provenance()
+        self.assertEqual(raw, current_raw)
+        provenance = json.loads(raw)
+        candidate = copy.deepcopy(provenance)
+        identity = candidate["provenance_sha256"]
+        self_hash(candidate, "provenance_sha256")
+        self.assertEqual(candidate["provenance_sha256"], identity)
+        self.assertEqual(
+            tuple(
+                len(provenance[name])
+                for name in (
+                    "dependency_contracts",
+                    "dependency_schemas",
+                    "implementation_bindings",
+                    "configuration_bindings",
+                )
+            ),
+            (20, 65, 5, 5),
+        )
+        replay = replay_run_audit(bundle.manifest, bundle.objects)
+        self.assertEqual(
+            {
+                current_identity,
+                manifest["execution_provenance_sha256"],
+                report["execution_provenance_sha256"],
+                replay.execution_provenance_sha256,
+            },
+            {identity},
+        )
+
+    def test_repaired_stale_execution_provenance_is_rejected(self) -> None:
+        from mathhead.run_audit import replay_run_audit
+
+        def change_implementation(value: dict[str, Any]) -> None:
+            value["implementation_bindings"]["capability_registry"] = "0" * 64
+
+        manifest, objects = changed_provenance(
+            self.fixture.bundle,
+            change_implementation,
+        )
+        self.assertEqual(replay_run_audit(manifest, objects).status, "invalid")
+
+    def test_missing_and_surplus_execution_provenance_are_rejected(self) -> None:
+        from mathhead.run_audit import replay_run_audit
+
+        def remove(records: list[dict[str, Any]]) -> None:
+            records[:] = [
+                item for item in records if item["role_id"] != "execution_provenance"
+            ]
+
+        def duplicate(records: list[dict[str, Any]]) -> None:
+            source = next(
+                item for item in records if item["role_id"] == "execution_provenance"
+            )
+            extra = copy.deepcopy(source)
+            extra["role_id"] = "execution_provenance_extra"
+            records.insert(1, extra)
+
+        for mutate in (remove, duplicate):
+            with self.subTest(mutate=mutate.__name__):
+                manifest, objects = changed_manifest_records(self.fixture.bundle, mutate)
+                self.assertEqual(replay_run_audit(manifest, objects).status, "invalid")
 
     def test_fallback_is_exactly_ordered_and_replays_refutation(self) -> None:
         from mathhead.run_audit import replay_run_audit

@@ -12,6 +12,16 @@ from typing import Any, Final, NoReturn
 
 from .capability_registry import parse_capability_route_request
 from .deterministic_planner import parse_planning_request, parse_planning_result
+from .execution_provenance import (
+    EXECUTION_CONFIGURATION_BINDINGS,
+    EXECUTION_CONTRACT_BINDINGS,
+    EXECUTION_IMPLEMENTATION_BINDINGS,
+    EXECUTION_SCHEMA_BINDINGS,
+    PROVENANCE_SCHEMA,
+    TRUST_POLICY_SHA256 as EXECUTION_TRUST_POLICY_SHA256,
+    ExecutionProvenanceError,
+    parse_execution_provenance,
+)
 from .isolated_worker import _parse_parent_budget
 from .proof_search_portfolio import (
     make_proof_search_portfolio_request,
@@ -23,17 +33,17 @@ from .proof_search_portfolio import (
 from .run_audit import RunAuditBundle, _fresh_inputs, replay_run_audit
 
 
-CONTRACT_ID: Final = "MH-C-SAFE-CACHE-001"
+CONTRACT_ID: Final = "MH-C-SAFE-CACHE-002"
 CONTRACT_SHA256: Final = (
-    "ec1c056023d8d966ed3a143a12e8c1726849d491800b175a3e807ca9a260cbb9"
+    "35cd004a1ed91f2c3969a6b295722b8099ee9fc36f3fc15170d5d1082d2bfab4"
 )
-REQUEST_SCHEMA: Final = "mathhead.safe-cache-request.v1"
-ENTRY_SCHEMA: Final = "mathhead.safe-cache-entry.v1"
-DECISION_SCHEMA: Final = "mathhead.safe-cache-decision-result.v1"
+REQUEST_SCHEMA: Final = "mathhead.safe-cache-request.v2"
+ENTRY_SCHEMA: Final = "mathhead.safe-cache-entry.v2"
+DECISION_SCHEMA: Final = "mathhead.safe-cache-decision-result.v2"
 SCHEMA_SHA256S: Final = MappingProxyType({
-    REQUEST_SCHEMA: "d99738d351f5d17292953cf45021bdbd61d65544a3f18f65ba7acaee64032cb8",
-    ENTRY_SCHEMA: "36d770882c274962f6a168177d804e3f28b461bd9d2cef1a8c1907c505d9e093",
-    DECISION_SCHEMA: "9888e1e8d7ecea9e5a21b6b60b0a26f3f573305484344d4827fec6a37bd69ed2",
+    REQUEST_SCHEMA: "3ad6e7111ceb0c6336315a0bbbe6950e60abd2331e9ce0c9dbb52e60f285a18a",
+    ENTRY_SCHEMA: "ce1100b9326d04a07c4f22286f28814f1a3bcef9091ca7b13f6ee9ebd57f9234",
+    DECISION_SCHEMA: "30df479781c7f022da8ffaee8686118fa7613b6e49f522da88362db46f48965d",
 })
 
 MAX_INPUT_EACH: Final = 1_073_741_824
@@ -49,119 +59,11 @@ _DIGEST = re.compile(r"[0-9a-f]{64}")
 _ID = re.compile(r"[a-z][a-z0-9_.-]{0,254}")
 _SEMVER = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?")
 
-CONTRACT_BINDINGS: Final = MappingProxyType({
-    "MH-C-AUDITED-RUN-004": "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4",
-    "MH-C-CANONICAL-NORMALIZATION-001": "ad2a58afc455fed01310b125f3ae7e0597642e849fd10b86149c31a13b9249c8",
-    "MH-C-CAPABILITY-REGISTRY-001": "52cc70945a4e83115c756e5b0a72724676f0e52a89e56c06a0fa8bd42c0e0413",
-    "MH-C-CERTIFICATE-001": "0a21aca8058fb5fc9900decb6dcd14e179c7a5171f7653ea965b5d34edd59740",
-    "MH-C-DETERMINISTIC-PLANNER-001": "72e3c39ea40c599cd709fff590a72bfd096450adbb80689ce934342c3aaaa124",
-    "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001": "609bc3a0773016f73d4bcee21d6aef034c74bb8edb36fddd9b6df1a4f4ba219a",
-    "MH-C-ENGINE-RESULT-001": "6c57ba36c78a2e15b27d3e464342b890f71b2d298f6395c7f4b0cd5aa5a09370",
-    "MH-C-EVIDENCE-001": "c68c20ca599cfdd7aabe9b85f2817c6c3f1a121289334136ff048768ee20c3b3",
-    "MH-C-ISOLATED-WORKER-001": "c578d5a75f7a670f55e660147c335dc29709e71b82af8b37eb0033891b81a49b",
-    "MH-C-PROBLEM-INTAKE-001": "855375a8fb788ff65728d860c16f0ccfa32fe9d058b3fe93534ef11f147794dc",
-    "MH-C-PROBLEM-SESSION-001": "822f72c9f41f583e4e0535e83b9dbb10954202acc820192e52eab48a5c2d9c0a",
-    "MH-C-PROOF-OBLIGATION-DECOMPOSITION-001": "ea5d0664611b57da3074e20fce90623318ce04280d38ecce548025a91a7b19ff",
-    "MH-C-PROOF-SEARCH-PORTFOLIO-001": "b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144",
-    "MH-C-READING-ANALYSIS-002": "0a3e2b077c2593af780c11adca12854bc82336911d852d99f251f56602df3d70",
-    "MH-C-RESOURCE-BUDGET-001": "eef46d8e6d37ada50fb9af1ab6a1db5665070896f83c5d9155fc6ee2777f5045",
-    "MH-C-RUN-AUDIT-REPLAY-004": "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b",
-    "MH-C-RUN-AUDIT-STORE-005": "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b",
-    "MH-C-THEORY-CONTEXT-001": "d2cb0e61c33327a6c2d5887872278179b5e11e42b6358b1661b60386e60e888d",
-    "MH-C-THEORY-PLUGIN-001": "2226973b172a3b2ce489aae3baae7820c3b7b57ab76cff089927f68a2759a8e8",
-    "MH-C-TRUST-TRANSITION-001": "7b32e2db85c8aa8c98b9a9c5404d562a909f9ae2435310a79dad04b6c6ed4796",
-    "MH-C-WORKFLOW-001": "99cfdf17371938af65c4203c02cbaac0bf73470e9fab59f7a6d62360fc0b7cca",
-})
-
-SCHEMA_BINDINGS: Final = MappingProxyType({
-    "mathhead.canonical-context.v1": "e43588f34e29eb980efcc2f42600036803d7fb17dad8039aa18d7b1e6f6bf860",
-    "mathhead.canonical-normal-form.v1": "d6dc45e60c9d494a70859631403ee7cf6e454f71d7b78dbffb528ae7550d5e9c",
-    "mathhead.canonical-normalization-result.v1": "37ef5d35dcba90f32b53559719a08ebca12d8ffa9a0075ea99f6ac18efe18952",
-    "mathhead.canonical-obligation.v1": "c6fade940f24fb23f4d16dcb324d3aff5bb35a923748d30b2f93fb302b436d58",
-    "mathhead.canonical-occurrence-trace.v1": "01622e476a2fb3b72a9306cd656db6e7525604b1c6f4e680395e9b12cde74fec",
-    "mathhead.capability-availability.v1": "aea788ecdee20497bb485c371b07a220707dabf1548bdc930e8b6c66877b52e1",
-    "mathhead.capability-candidate.v1": "cc5c231bc11021e155b6390b2682ee63c4c6b2a3d30807f24a9c5d4ae31a75ed",
-    "mathhead.capability-registry-entry.v1": "a20d3bcc4dd5bd5988eac60b6000ea8e92299f2aa13275f77a2306fb68dd8b3c",
-    "mathhead.capability-registry.v1": "37e03e97fcd736b3c75e0c8c33f3d82c735dc57c4463ead8af9d331704761fbc",
-    "mathhead.capability-route-request.v1": "cdf7dd11d0f1048c018c3472f7f0237ac3713db5edbbd1851761ab7388c4cc82",
-    "mathhead.capability-route-result.v1": "11c23f4822be4e531e28bf66f47940fdeb389222305f04162c67ced66e2e49ec",
-    "mathhead.certificate.v1": "cbc8f68469593e1d2b34588b49eaa16e37d597c863457945dd5b9ce5ae138760",
-    "mathhead.domain-assumption-fact.v1": "4d32547bc93a5bb8ddee5424eae9ce4d39c99c0f9df689db317b41dfa5e0f023",
-    "mathhead.domain-assumption-result.v1": "2f391074cfc3eae63933bcf91bb04688fddccf2b67eca6d5904edc635e9643ee",
-    "mathhead.engine-result.v1": "4cd26ad69c6528a7553a429d06f224c79ae6b01b7d9cc0fa41ccb7c4d20cc948",
-    "mathhead.evidence.v1": "4f1d0a4438812bdd7b204d0d0fe0098ff06cc274eb2e4ed7fa66a3f3a76b426f",
-    "mathhead.isolated-worker-request.v1": "5f3f12dcf71bcceb7ca539df90c93887a4048366c5ea05be41b70b6532197a97",
-    "mathhead.isolated-worker-result.v1": "b6172ad7c33908b65ecb74fc39340664b8a4ca8f55d1b69c1e23eacaf281f7df",
-    "mathhead.normalized-domain-context.v1": "066657d0b81e3589c201e1351eeb0e763f0720087864869419f5cd3317fea67e",
-    "mathhead.planning-evidence-expectation.v1": "126c85466c7c0bcda1bf7b10f4a9cdeeacfd8597e1e04b24a08f4c2f39ed34ae",
-    "mathhead.planning-policy.v1": "fa0855768cb0445ab1f8ae67fe55a3851a500603a5757a9da099fe06a653b8f5",
-    "mathhead.planning-prerequisite.v1": "54dd128e23ed57fcf3996fae61c221dd918dfee72c9bb0f160927bf62c5a0499",
-    "mathhead.planning-request.v1": "2d8dff59cec10037f59506102c26f41eca21c0b963c968bcf2366b8dfcbff15a",
-    "mathhead.planning-resource-request.v1": "8f5833b632b99ddf626a7d1fdef03986310636466b34d2cd0633501ca8d94c91",
-    "mathhead.planning-result.v1": "f2e916f669f028eafca56551897e66371114a01f9aa2502e929d0aae90ff30be",
-    "mathhead.planning-strategy.v1": "ca712e4c5f17b58d476537d4658c35c558841378cf7a084ac53cff026a15e1c8",
-    "mathhead.planning-transition.v1": "2f63a40d420c823e5de9eb7fd4af4385dda801af296524ea0063a111a5dbb3f9",
-    "mathhead.portfolio-attempt.v1": "fc12eb424c86d938282fed47ae814f03b9970b32642ccaee3c7226086abf0158",
-    "mathhead.portfolio-checker-decision.v1": "88ab41ac83589290879d390bf4c711583b0366297b2435b73d0208a7ce09f15c",
-    "mathhead.portfolio-execution-binding.v1": "ab39704148ac4de4489dc68b08b726a696a7794db4543b891ad311ec5b594e65",
-    "mathhead.portfolio-inconclusive.v1": "4a2a98d58dfb4182b96b4bcafc01fd95292a1da9e7e8cb29eaa8d36cb784b8c1",
-    "mathhead.problem-intake-result.v1": "0ea174a09391dd7f690bba9df7dfd08d8f1253032c472ca60d45eaf9f47101d3",
-    "mathhead.problem-intake.v1": "e109d5a664849b8122eed13eeb87d73bc47e2d2989b3298e06a697989fb51c04",
-    "mathhead.problem-readings-result.v2": "b05b16d280260ac7854477274852f0273e0a6cb011d740ae827ca172dad72894",
-    "mathhead.problem-session-artifact-link.v1": "562faa38159bc98c4a1fb37c107afc20b933244b7f1cd3257b63c80f849a4133",
-    "mathhead.problem-session-attempt.v1": "e14f6d0a9d1711bca56bfd195430eb081a58a5718c8c987bc7823df5beeeeb4b",
-    "mathhead.problem-session-command.v1": "f395dfd35e14d88b5fd8a8b92613b1fcc355f8d72332483425774e2a8feceac1",
-    "mathhead.problem-session-definition.v1": "d00d200ce97494b08ed7fc1b6b7d32f805f4a6c8ec4bd20d942fa426d586bb46",
-    "mathhead.problem-session-event.v1": "983be63a2ee1096b8e9f550f0c3d3a1fe49fdaab64565927b6fd66e4b2247582",
-    "mathhead.problem-session-invalidation.v1": "fd8dccac3d9437dafdba236d7d40619779661bd32eebbc204da8b08500b6700b",
-    "mathhead.problem-session-lemma.v1": "79a446b77cb45f80eded2af13fda66daccc7445bf817161b2eaa6ab1debd6095",
-    "mathhead.problem-session-obligation-state.v1": "150c0dfb2649fceb7057cd607e17bf8910ba13ffd97c7a1449995d30847c742e",
-    "mathhead.problem-session-result.v1": "4d06b76fb9cca2e646c0a7b95a49d6926b83bf70b54246a40417d9667ba9cd53",
-    "mathhead.problem-session-revision.v1": "02b89fd663f6506a6d993900635acb5ac0cd2c283b2f9d0994378e2d35882311",
-    "mathhead.proof-obligation-graph.v1": "7244ad195f7a55732babda563b7b6d7d7b9b56f37d41874fe137f8b2e1349da3",
-    "mathhead.proof-obligation-local-context.v1": "7ace8271f6ab2839b109208fd0b9686f9a6d3ac1c75c7df60e6febb37a7bd3e5",
-    "mathhead.proof-obligation-result.v1": "449f6bb90edf609532410f6df133cb92e7cae925f0b57d1c527b7e5d453cb9ce",
-    "mathhead.proof-obligation.v1": "55ff62bac3515763773645577c0ba163adbdda726a277a98945002ea82103db4",
-    "mathhead.proof-search-portfolio-request.v1": "61d8d774612de377715e881806a3de8c57a03ee631c50c24400d322ff15a32bd",
-    "mathhead.proof-search-portfolio-result.v1": "336d3b09259e119cd37fa3ffcf2405a6806827adc59edecab4c3dc29030fb99c",
-    "mathhead.reading-projection.v2": "99ce60e50472e4c9d8026e9af361e4d7b11c776e577aa57de46794998fb26241",
-    "mathhead.resource-budget.v1": "e735dee47394bf50c10ac571dfc8923fd1da851e258b1d9f42e1a66bb9d85e78",
-    "mathhead.run-audit-event.v2": "eeb0f4ec975dc8417841f6677100f276d85cd356c3d0f376efa800e2ebbc0239",
-    "mathhead.run-audit-manifest.v3": "784184e21eccd7043e188b776ec5154328860e99015fe87102cc776bd050eabd",
-    "mathhead.run-audit-object.v2": "b81596770c10bac4e192155cd24aea721da2c8dc8b8d8b5f73a3b11570cdd92c",
-    "mathhead.run-audit-replay-result.v4": "ae6f6f60f936a40926cd7942e00088a8f409836182d089b2f9c3cec5b007269d",
-    "mathhead.run-audit-store-record.v2": "614083f9de220b6a780ff35e7ab6cd3c07f1c3371255112e433213ea556ade8f",
-    "mathhead.run-audit-store-result.v5": "bf906f5c01fee05524b4c11cb80a526b5ca72214e8b417d44a3d4191077c11d4",
-    "mathhead.run-audit-worker-observation.v3": "6abfae6c0f1be7811e8e8f3cc3e5de895274226e6834201da8018bc4df685a61",
-    "mathhead.run-logical-report.v2": "d4a2a23426122d0ba64d3fc8a8135bde13c80794d221eaca9d6a49e7b134d2a2",
-    "mathhead.theory-context.v1": "6a6e40070ba0a3209f5bfcfa0cc912d1ec08359a178611a40d61ffadda5819ec",
-    "mathhead.theory-plugin.v1": "c3d234f725e2c3f0e6fa02507be83190bde71f8ddae6f5a08cd6395065d77142",
-    "mathhead.trust-transition-attempt.v1": "570ff6ed9905b9b3c39b45f51693e3f2b157d3f9ce93a12ce7a4cc3a8e4ca29a",
-    "mathhead.trust-transition-audit-result.v1": "8b8b48110d7a2c429b18eec52427e9878bd7c8dde05fb8c9b29dac1a061b89bf",
-    "mathhead.trust-transition-catalogue.v1": "205dfc544f130203ef092dbda050c763b93cbd92b9d2d4606fe95516843f2e1e",
-    "mathhead.trust-transition-report.v1": "e043d8f6c3425f9806512ced28daaa3a66da080388c0e6a37e6f649eaf74d2f3",
-})
-
-IMPLEMENTATION_BINDINGS: Final = MappingProxyType({
-    "capability_registry": "ac40c800f94b98875320e9d2e7a2f9164a7b5efb4d9b3c4064193f9af9dfd350",
-    "deterministic_planner": "c1e269bc7dc9f347ab2ed23df016acd77084026bb0850218372fce3c0041ee45",
-    "isolated_worker": "804a70023bbcb867a269e888eb5540a9c4af7b5987ab6d07613c2726c84d7048",
-    "proof_search_portfolio": "f43b5a547449688f38617c975f2db54f196b8bbbe7a03d603660f9af293581bd",
-    "run_audit": "fb1f78940b4881971adaf78c628de83627ce788402e36439d94b6e621636ffeb",
-    "run_audit_store": "d1a44f1bdaecb2c43827499231d159afe23e247740d8e63bed2578921578a48f",
-    "trust_transition": "74b54f54109cb8b837d368c92e777371aa6b4c8c218ef983ffb95586aadd9ea2",
-})
-
-CONFIGURATION_BINDINGS: Final = MappingProxyType({
-    "capability_registry_report": "dd968cb215317e9c201e8a2776d1615dfe64f1902caa88b2cb4b539abf45a125",
-    "deterministic_planner_report": "db38fdfe9592612656c8ff4ceed678039ed2d991b6c4552bc422ef1afc46ea44",
-    "isolated_worker_report": "d390ff2dbbb26ba038dd9bed7257e408a75cd2953f2d6c0e7a39d63758b20be4",
-    "proof_search_portfolio_report": "08c85ccdbfc1cebaabdec370b2985a306340b260c462e24f7186e1df6b958425",
-    "run_audit_report": "dc354eb1196b996efa1e34e4837032bf9802038fdd85dbfd07b5820c0709c1b4",
-    "run_audit_store_report": "f1a4cad5550832977f178a49e319accc73276216b494da97fa2107731427cc9a",
-    "trust_transition_policy": "1a26d41f546f4a9334442fc7ef7d83eccffef56ed1f7a46d4209c748fb1c4b93",
-})
-TRUST_POLICY_SHA256: Final = CONFIGURATION_BINDINGS["trust_transition_policy"]
+CONTRACT_BINDINGS: Final = EXECUTION_CONTRACT_BINDINGS
+SCHEMA_BINDINGS: Final = EXECUTION_SCHEMA_BINDINGS
+IMPLEMENTATION_BINDINGS: Final = EXECUTION_IMPLEMENTATION_BINDINGS
+CONFIGURATION_BINDINGS: Final = EXECUTION_CONFIGURATION_BINDINGS
+TRUST_POLICY_SHA256: Final = EXECUTION_TRUST_POLICY_SHA256
 
 
 class SafeCacheValidationError(ValueError):
@@ -204,6 +106,7 @@ class SafeCacheEntry(_CacheValue):
     schema: str
     safe_cache_contract_sha256: str
     lookup_key_sha256: str
+    execution_provenance_sha256: str
     audit_manifest_sha256: str
     logical_report_sha256: str
     portfolio_result_sha256: str
@@ -559,6 +462,20 @@ def _new_decision(
     return _decision_from_mapping(mapping)
 
 
+def _expected_execution_provenance_sha256() -> str:
+    preimage: dict[str, object] = {
+        "schema": PROVENANCE_SCHEMA,
+        "dependency_contracts": dict(CONTRACT_BINDINGS),
+        "dependency_schemas": dict(SCHEMA_BINDINGS),
+        "implementation_bindings": dict(IMPLEMENTATION_BINDINGS),
+        "configuration_bindings": dict(CONFIGURATION_BINDINGS),
+        "trust_policy_sha256": TRUST_POLICY_SHA256,
+        "provenance_sha256": None,
+        "mathematical_authority": False,
+    }
+    return _sha(_canonical(preimage))
+
+
 def _current_request(
     planning_request: bytes,
     route_result: bytes,
@@ -660,6 +577,9 @@ def _current_request(
         "dependency_schemas": dict(SCHEMA_BINDINGS),
         "implementation_bindings": dict(IMPLEMENTATION_BINDINGS),
         "configuration_bindings": dict(CONFIGURATION_BINDINGS),
+        "expected_execution_provenance_sha256": (
+            _expected_execution_provenance_sha256()
+        ),
         "planning_request_sha256": _sha(planning_request),
         "route_result_sha256": _sha(route_result),
         "planning_result_sha256": _sha(planning_result),
@@ -701,19 +621,38 @@ def _current_request(
     return value
 
 
-def _relation_reason(manifest: dict[str, object], request: dict[str, object]) -> str | None:
-    if manifest.get("initial_parent_budget_sha256") != request["initial_parent_budget_sha256"]:
-        return "CACHE_BUDGET_MISMATCH"
-    pairs = {
-        "planning_request_sha256": "CACHE_CONTEXT_MISMATCH",
-        "route_result_sha256": "CACHE_CONTEXT_MISMATCH",
-        "planning_result_sha256": "CACHE_CONTEXT_MISMATCH",
-        "portfolio_request_sha256": "CACHE_ARTIFACT_MISMATCH",
-        "normalized_input_sha256": "CACHE_CONTEXT_MISMATCH",
-    }
-    for field, reason in pairs.items():
-        if manifest.get(field) != request[field]:
+def _relation_reason(
+    manifest: dict[str, object],
+    provenance: dict[str, object],
+    request: dict[str, object],
+) -> str | None:
+    for field, reason in (
+        ("dependency_contracts", "CACHE_CONTRACT_MISMATCH"),
+        ("dependency_schemas", "CACHE_CONTRACT_MISMATCH"),
+        ("implementation_bindings", "CACHE_IMPLEMENTATION_MISMATCH"),
+        ("configuration_bindings", "CACHE_CONFIGURATION_MISMATCH"),
+        ("trust_policy_sha256", "CACHE_TRUST_POLICY_MISMATCH"),
+    ):
+        if provenance.get(field) != request[field]:
             return reason
+    if provenance.get("provenance_sha256") != request[
+        "expected_execution_provenance_sha256"
+    ]:
+        return "CACHE_REPLAY_INVALID"
+    for field in (
+        "planning_request_sha256",
+        "route_result_sha256",
+        "planning_result_sha256",
+        "normalized_input_sha256",
+    ):
+        if manifest.get(field) != request[field]:
+            return "CACHE_CONTEXT_MISMATCH"
+    if manifest.get("portfolio_request_sha256") != request["portfolio_request_sha256"]:
+        return "CACHE_ARTIFACT_MISMATCH"
+    if manifest.get("initial_parent_budget_sha256") != request[
+        "initial_parent_budget_sha256"
+    ]:
+        return "CACHE_BUDGET_MISMATCH"
     return None
 
 
@@ -724,7 +663,15 @@ def _record(records: list[object], role: str) -> dict[str, object]:
     return matches[0]
 
 
-def _candidate_view(candidate: RunAuditBundle, request: dict[str, object]) -> tuple[dict[str, object], dict[str, object], dict[str, bytes]]:
+def _candidate_view(
+    candidate: RunAuditBundle,
+    request: dict[str, object],
+) -> tuple[
+    dict[str, object],
+    dict[str, object],
+    dict[str, object],
+    dict[str, bytes],
+]:
     if (
         type(candidate) is not RunAuditBundle
         or type(candidate.manifest) is not bytes
@@ -746,15 +693,34 @@ def _candidate_view(candidate: RunAuditBundle, request: dict[str, object]) -> tu
     objects = {_sha(raw): raw for raw in candidate.objects}
     if len(objects) != len(candidate.objects) or objects.get(candidate.logical_report_sha256) != candidate.logical_report:
         raise _Invalid("candidate object closure differs")
-    reason = _relation_reason(manifest, request)
+    records = manifest.get("objects")
+    if type(records) is not list:
+        raise _Invalid("CACHE_REPLAY_INVALID")
+    provenance_record = _record(records, "execution_provenance")
+    provenance_raw = objects.get(str(provenance_record.get("sha256")))
+    if provenance_raw is None:
+        raise _Invalid("CACHE_REPLAY_INVALID")
+    try:
+        provenance = parse_execution_provenance(provenance_raw)
+    except ExecutionProvenanceError as exc:
+        raise _Invalid("CACHE_REPLAY_INVALID") from exc
+    provenance_sha256 = provenance.get("provenance_sha256")
+    if (
+        provenance_sha256 != manifest.get("execution_provenance_sha256")
+        or provenance_sha256 != report.get("execution_provenance_sha256")
+        or provenance_sha256 != replay.execution_provenance_sha256
+    ):
+        raise _Invalid("CACHE_REPLAY_INVALID")
+    reason = _relation_reason(manifest, provenance, request)
     if reason is not None:
         raise _Invalid(reason)
-    return manifest, report, objects
+    return manifest, report, provenance, objects
 
 
 def _make_entry(
     request: dict[str, object], candidate: RunAuditBundle,
-    manifest: dict[str, object], report: dict[str, object], objects: dict[str, bytes],
+    manifest: dict[str, object], report: dict[str, object],
+    provenance: dict[str, object], objects: dict[str, bytes],
 ) -> SafeCacheEntry:
     records = manifest.get("objects")
     if type(records) is not list:
@@ -823,6 +789,7 @@ def _make_entry(
     mapping: dict[str, object] = {
         "schema": ENTRY_SCHEMA, "safe_cache_contract_sha256": CONTRACT_SHA256,
         "lookup_key_sha256": request["lookup_key_sha256"],
+        "execution_provenance_sha256": provenance["provenance_sha256"],
         "audit_manifest_sha256": candidate.manifest_sha256,
         "logical_report_sha256": candidate.logical_report_sha256,
         "portfolio_result_sha256": portfolio_record["sha256"],
@@ -871,7 +838,7 @@ def decide_safe_cache(
     if candidate is None:
         return _new_decision("miss", "CACHE_CANDIDATE_ABSENT", lookup)
     try:
-        manifest, report, objects = _candidate_view(candidate, current)
+        manifest, report, provenance, objects = _candidate_view(candidate, current)
     except (MemoryError, KeyboardInterrupt, SystemExit):
         raise
     except _Exhausted:
@@ -897,7 +864,14 @@ def decide_safe_cache(
             portfolio=str(portfolio_sha),
         )
     try:
-        entry = _make_entry(current, candidate, manifest, report, objects)
+        entry = _make_entry(
+            current,
+            candidate,
+            manifest,
+            report,
+            provenance,
+            objects,
+        )
     except (MemoryError, KeyboardInterrupt, SystemExit):
         raise
     except Exception:

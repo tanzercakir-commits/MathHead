@@ -31,24 +31,25 @@ from audit_schema_validation import (
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/mathhead/run_audit.py"
-REPORT = ROOT / "docs/planning/reports/run-audit-v4.json"
-AUDIT_CONTRACT = "MH-C-AUDITED-RUN-004"
-AUDIT_SHA256 = "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
-REPLAY_CONTRACT = "MH-C-RUN-AUDIT-REPLAY-004"
-REPLAY_SHA256 = "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
+REPORT = ROOT / "docs/planning/reports/run-audit-v5.json"
+AUDIT_CONTRACT = "MH-C-AUDITED-RUN-005"
+AUDIT_SHA256 = "42e6cfcb704bc1b40b8c0a9143c4bfdaa34b0228a85621d9464e28c8481a39a7"
+REPLAY_CONTRACT = "MH-C-RUN-AUDIT-REPLAY-005"
+REPLAY_SHA256 = "cc1170556ddba8bf4232fff5dc14f1bdb95d7d558540d5066fb4379b9c1c2cde"
 SCHEMAS = {
-    "run-audit-object-v2.schema.json": "b81596770c10bac4e192155cd24aea721da2c8dc8b8d8b5f73a3b11570cdd92c",
+    "run-execution-provenance-v1.schema.json": "4f3bcb68f4c83a49f7be230d04346b7ab4bbe6cfff7fccc6d419ea9d233f643e",
+    "run-audit-object-v3.schema.json": "71a727409a664064b86c22f01356e77967a03e2fc4ebc330c03b4fcefdf6551e",
     "run-audit-event-v2.schema.json": "eeb0f4ec975dc8417841f6677100f276d85cd356c3d0f376efa800e2ebbc0239",
-    "run-audit-manifest-v3.schema.json": "784184e21eccd7043e188b776ec5154328860e99015fe87102cc776bd050eabd",
-    "run-logical-report-v2.schema.json": "d4a2a23426122d0ba64d3fc8a8135bde13c80794d221eaca9d6a49e7b134d2a2",
-    "run-audit-replay-result-v4.schema.json": "ae6f6f60f936a40926cd7942e00088a8f409836182d089b2f9c3cec5b007269d",
+    "run-audit-manifest-v4.schema.json": "b777dfc8778470071b363cd0592384441887827a112c4e9605cf2e523d97a96f",
+    "run-logical-report-v3.schema.json": "f0ca700129d72a132878bd5deba92af7c86eab3c34c9592409afb80822e5fee8",
+    "run-audit-replay-result-v5.schema.json": "50bf3daa5ed566dc6911dae1af345486880e2e37eb63ba29d6784f9d13ba1058",
     "run-audit-worker-observation-v3.schema.json": "6abfae6c0f1be7811e8e8f3cc3e5de895274226e6834201da8018bc4df685a61",
 }
-REPORT_SCHEMA = "mathhead.run-audit-validation-report.v4"
-MANIFEST_SCHEMA = "mathhead.run-audit-manifest.v3"
-OBJECT_SCHEMA = "mathhead.run-audit-object.v2"
+REPORT_SCHEMA = "mathhead.run-audit-validation-report.v5"
+MANIFEST_SCHEMA = "mathhead.run-audit-manifest.v4"
+OBJECT_SCHEMA = "mathhead.run-audit-object.v3"
 EVENT_SCHEMA = "mathhead.run-audit-event.v2"
-LOGICAL_SCHEMA = "mathhead.run-logical-report.v2"
+LOGICAL_SCHEMA = "mathhead.run-logical-report.v3"
 WORKER_OBSERVATION_SCHEMA = "mathhead.run-audit-worker-observation.v3"
 DIGEST = re.compile(r"[0-9a-f]{64}")
 REASON = re.compile(r"[A-Z][A-Z0-9_]{0,63}")
@@ -401,6 +402,7 @@ _MANIFEST_FIELDS = {
     "evidence_contract_sha256",
     "certificate_contract_sha256",
     "theory_plugin_contract_sha256",
+    "execution_provenance_sha256",
     "normalized_input_sha256",
     "planning_request_sha256",
     "route_result_sha256",
@@ -418,6 +420,7 @@ _MANIFEST_FIELDS = {
 _REPORT_FIELDS = {
     "schema",
     "audited_run_contract_sha256",
+    "execution_provenance_sha256",
     "normalized_input_sha256",
     "planning_request_sha256",
     "route_result_sha256",
@@ -462,6 +465,7 @@ def _expected_record_sequence(
     if type(route_request) is not dict:
         _fail("planning request route input is not an object")
     expected: list[tuple[str, str, str | None]] = [
+        ("execution_provenance", "execution_provenance", None),
         ("planning_request", "planning_request", None),
         ("capability_route_result", "capability_route_result", None),
         ("planning_result", "planning_result", None),
@@ -1327,19 +1331,25 @@ def _verify_schema_graph(
         except AuditSchemaValidationError as exc:
             _fail(f"{label} differs from resolved schema graph: {exc}")
 
-    validate("run-audit-manifest-v3.schema.json", manifest, "manifest")
+    validate("run-audit-manifest-v4.schema.json", manifest, "manifest")
     for record in records:
-        validate("run-audit-object-v2.schema.json", record, str(record["role_id"]))
+        validate("run-audit-object-v3.schema.json", record, str(record["role_id"]))
         if record["role"] == "worker_observation":
             validate(
                 "run-audit-worker-observation-v3.schema.json",
                 _parse(physical[record["sha256"]], str(record["role_id"])),
                 str(record["role_id"]),
             )
+        if record["role"] == "execution_provenance":
+            validate(
+                "run-execution-provenance-v1.schema.json",
+                _parse(physical[record["sha256"]], str(record["role_id"])),
+                str(record["role_id"]),
+            )
     for event in manifest["events"]:
         validate("run-audit-event-v2.schema.json", event, "event")
-    validate("run-logical-report-v2.schema.json", report, "logical report")
-    validate("run-audit-replay-result-v4.schema.json", replay, "replay result")
+    validate("run-logical-report-v3.schema.json", report, "logical report")
+    validate("run-audit-replay-result-v5.schema.json", replay, "replay result")
 
 
 def _verify_bundle(sample: dict[str, Any], label: str) -> dict[str, object]:
@@ -1435,6 +1445,45 @@ def _verify_bundle(sample: dict[str, Any], label: str) -> dict[str, object]:
     if raw_events != _expected_events(records, physical):
         _fail(f"{label} lifecycle event sequence differs")
     by_role = {item["role_id"]: item for item in records}
+    provenance_record = by_role.get("execution_provenance")
+    if provenance_record is None:
+        _fail(f"{label} execution provenance record is absent")
+    provenance = _parse(
+        physical[provenance_record["sha256"]], f"{label}.execution_provenance"
+    )
+    _exact_fields(
+        provenance,
+        {
+            "schema", "dependency_contracts", "dependency_schemas",
+            "implementation_bindings", "configuration_bindings",
+            "trust_policy_sha256", "provenance_sha256", "mathematical_authority",
+        },
+        f"{label}.execution_provenance",
+    )
+    provenance_identity = _self_hash(provenance, "provenance_sha256")
+    if (
+        provenance.get("schema") != "mathhead.run-execution-provenance.v1"
+        or provenance.get("provenance_sha256") != provenance_identity
+        or provenance.get("mathematical_authority") is not False
+        or manifest.get("execution_provenance_sha256") != provenance_identity
+        or any(
+            type(provenance.get(name)) is not dict
+            for name in (
+                "dependency_contracts", "dependency_schemas",
+                "implementation_bindings", "configuration_bindings",
+            )
+        )
+        or tuple(
+            len(provenance[name])
+            for name in (
+                "dependency_contracts", "dependency_schemas",
+                "implementation_bindings", "configuration_bindings",
+            )
+        ) != (20, 65, 5, 5)
+        or provenance.get("trust_policy_sha256")
+        != provenance["configuration_bindings"].get("trust_transition_policy")
+    ):
+        _fail(f"{label} execution provenance identity or inventory differs")
     singleton_links = {
         "planning_request_sha256": "planning_request",
         "route_result_sha256": "capability_route_result",
@@ -1456,6 +1505,7 @@ def _verify_bundle(sample: dict[str, Any], label: str) -> dict[str, object]:
     if (
         report["schema"] != LOGICAL_SCHEMA
         or report["audited_run_contract_sha256"] != AUDIT_SHA256
+        or report["execution_provenance_sha256"] != provenance_identity
         or report["mathematical_authority"] is not False
         or report["report_sha256"] != _self_hash(report, "report_sha256")
     ):
@@ -1463,13 +1513,14 @@ def _verify_bundle(sample: dict[str, Any], label: str) -> dict[str, object]:
     _verify_projection(manifest, records, physical, report)
     _verify_worker_observations(manifest, records, physical)
     if (
-        replay.get("schema") != "mathhead.run-audit-replay-result.v4"
+        replay.get("schema") != "mathhead.run-audit-replay-result.v5"
         or replay.get("contract_id") != REPLAY_CONTRACT
         or replay.get("contract_sha256") != REPLAY_SHA256
         or replay.get("status") != "complete"
         or replay.get("reason_code") != "REPLAY_COMPLETE"
         or replay.get("manifest_sha256") != _sha(manifest_raw)
         or replay.get("logical_report_sha256") != _sha(logical_raw)
+        or replay.get("execution_provenance_sha256") != provenance_identity
         or replay.get("object_count") != len(objects)
         or replay.get("event_count") != len(raw_events)
         or replay.get("mathematical_authority") is not False

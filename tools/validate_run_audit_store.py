@@ -27,18 +27,19 @@ from typing import Any, NoReturn
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/mathhead/run_audit_store.py"
-REPORT = ROOT / "docs/planning/reports/run-audit-store-v5.json"
-CONTRACT_ID = "MH-C-RUN-AUDIT-STORE-005"
-CONTRACT_SHA256 = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
-AUDIT_SHA256 = "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
-REPLAY_SHA256 = "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
+REPORT = ROOT / "docs/planning/reports/run-audit-store-v6.json"
+CONTRACT_ID = "MH-C-RUN-AUDIT-STORE-006"
+CONTRACT_SHA256 = "327f5d55b86433b803f22ba019b8adf5fe3a4bf8bc0dbdf4b1472c276bedff5e"
+AUDIT_SHA256 = "42e6cfcb704bc1b40b8c0a9143c4bfdaa34b0228a85621d9464e28c8481a39a7"
+REPLAY_SHA256 = "cc1170556ddba8bf4232fff5dc14f1bdb95d7d558540d5066fb4379b9c1c2cde"
 SCHEMAS = {
-    "run-audit-store-record-v2.schema.json": "614083f9de220b6a780ff35e7ab6cd3c07f1c3371255112e433213ea556ade8f",
-    "run-audit-store-result-v5.schema.json": "bf906f5c01fee05524b4c11cb80a526b5ca72214e8b417d44a3d4191077c11d4",
+    "run-audit-store-record-v3.schema.json": "0d405720427b8128c36088faffa78a5e8b4967dcafd7883503f7b02302cc3156",
+    "run-audit-store-result-v6.schema.json": "e59f14e6c98fb2986a80555c1c6e6315f56a8cef4da50499ab4e1cc796098216",
 }
-REPORT_SCHEMA = "mathhead.run-audit-store-validation-report.v5"
-RECORD_SCHEMA = "mathhead.run-audit-store-record.v2"
-RESULT_SCHEMA = "mathhead.run-audit-store-result.v5"
+REPORT_SCHEMA = "mathhead.run-audit-store-validation-report.v6"
+RECORD_SCHEMA = "mathhead.run-audit-store-record.v3"
+RESULT_SCHEMA = "mathhead.run-audit-store-result.v6"
+STORE_NAMESPACE = ".mathhead-run-audit-store-v6"
 DIGEST = re.compile(r"[0-9a-f]{64}")
 
 
@@ -122,8 +123,8 @@ def _contract_checks() -> dict[str, object]:
         or raw != proposed.read_bytes()
         or raw != _canonical(json.loads(raw))
         or bindings.get(CONTRACT_ID) != CONTRACT_SHA256
-        or bindings.get("MH-C-AUDITED-RUN-004") != AUDIT_SHA256
-        or bindings.get("MH-C-RUN-AUDIT-REPLAY-004") != REPLAY_SHA256
+        or bindings.get("MH-C-AUDITED-RUN-005") != AUDIT_SHA256
+        or bindings.get("MH-C-RUN-AUDIT-REPLAY-005") != REPLAY_SHA256
     ):
         _fail("accepted store/audit/replay contract binding drift")
     schema_report: dict[str, str] = {}
@@ -342,20 +343,13 @@ elif action == "post_probe_fsync_error":
         return real_directory_sync(
             pinned, descriptor, capability_probe=capability_probe
         )
-    try:
-        with mock.patch.object(
-            store_module, "_fsync_directory", side_effect=reject_first_operational
-        ):
-            persist_run_audit(root, bundle)
-    except RunAuditStoreError as exc:
-        rejected = True
-        kind = exc.kind
-    else:
-        rejected = False
-        kind = None
+    with mock.patch.object(
+        store_module, "_fsync_directory", side_effect=reject_first_operational
+    ):
+        result = persist_run_audit(root, bundle)
     print(json.dumps({
-        "rejected": rejected,
-        "kind": kind,
+        "status": result.status,
+        "reason": result.reason_code,
         "failed": failed,
         "listed": list(list_run_audits(root)),
     }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
@@ -371,21 +365,14 @@ elif action == "record_cleanup_failure":
             if matching_temporaries == 2:
                 raise OSError(errno.EACCES, "permission")
         real_unlink(path, dir_fd=dir_fd)
-    try:
-        with (
-            mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
-            mock.patch.object(store_module.os, "unlink", side_effect=reject_record_temporary),
-        ):
-            persist_run_audit(root, bundle)
-    except RunAuditStoreError as exc:
-        rejected = True
-        kind = exc.kind
-    else:
-        rejected = False
-        kind = None
+    with (
+        mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
+        mock.patch.object(store_module.os, "unlink", side_effect=reject_record_temporary),
+    ):
+        result = persist_run_audit(root, bundle)
     print(json.dumps({
-        "rejected": rejected,
-        "kind": kind,
+        "status": result.status,
+        "reason": result.reason_code,
         "listed": list(list_run_audits(root)),
     }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
 elif action == "record_cleanup_cascade":
@@ -404,23 +391,18 @@ elif action == "record_cleanup_cascade":
         if path == identity and matching_temporaries >= 2:
             raise OSError(errno.EACCES, "permission")
         real_unlink(path, dir_fd=dir_fd)
-    try:
-        with (
-            mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
-            mock.patch.object(store_module.os, "unlink", side_effect=reject_record_cleanup),
-        ):
-            persist_run_audit(root, bundle)
-    except RunAuditStoreError as exc:
-        persist_kind = exc.kind
-    else:
-        persist_kind = None
+    with (
+        mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
+        mock.patch.object(store_module.os, "unlink", side_effect=reject_record_cleanup),
+    ):
+        result = persist_run_audit(root, bundle)
     try:
         list_run_audits(root)
     except RunAuditStoreError as exc:
         before_kind = exc.kind
     else:
         before_kind = None
-    pending = next((root / "runs" / identity[:2]).glob(".*.tmp"))
+    pending = next((root / ".mathhead-run-audit-store-v6" / "runs" / identity[:2]).glob(".*.tmp"))
     real_unlink(pending)
     try:
         list_run_audits(root)
@@ -429,7 +411,8 @@ elif action == "record_cleanup_cascade":
     else:
         after_kind = None
     print(json.dumps({
-        "persist_kind": persist_kind,
+        "persist_status": result.status,
+        "persist_reason": result.reason_code,
         "before_kind": before_kind,
         "after_kind": after_kind,
         "matching_temporaries": matching_temporaries,
@@ -438,7 +421,7 @@ elif action == "temporary_link":
     bundle = success_bundle().bundle
     result = persist_run_audit(root, bundle)
     identity = run_audit_bundle_sha256(bundle)
-    bucket = root / "runs" / identity[:2]
+    bucket = root / ".mathhead-run-audit-store-v6" / "runs" / identity[:2]
     os.symlink(bucket / identity, bucket / ".attacker.tmp")
     try:
         list_run_audits(root)
@@ -608,10 +591,11 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
         or _sha(_decode(written.get("loaded_manifest"), "loaded manifest")) != manifest_identity
     ):
         _fail("stored/existing/load/list identities differ")
-    for directory in (root, root / "objects", root / "runs"):
+    current = root / STORE_NAMESPACE
+    for directory in (current, current / "objects", current / "runs"):
         _check_private_directory(directory)
     object_files: dict[str, bytes] = {}
-    for bucket in sorted((root / "objects").iterdir()):
+    for bucket in sorted((current / "objects").iterdir()):
         _check_private_directory(bucket)
         if re.fullmatch(r"[0-9a-f]{2}", bucket.name) is None:
             _fail("object bucket name differs")
@@ -624,7 +608,7 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
                 _fail("object filename/content identity differs")
             object_files[entry.name] = raw
     run_files: list[Path] = []
-    for bucket in sorted((root / "runs").iterdir()):
+    for bucket in sorted((current / "runs").iterdir()):
         _check_private_directory(bucket)
         if re.fullmatch(r"[0-9a-f]{2}", bucket.name) is None:
             _fail("run bucket name differs")
@@ -641,6 +625,7 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
         "store_contract_sha256",
         "manifest_sha256",
         "logical_report_sha256",
+        "execution_provenance_sha256",
         "object_sha256s",
         "record_sha256",
         "mathematical_authority",
@@ -666,6 +651,8 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
         or manifest.get("replay_contract_sha256") != REPLAY_SHA256
         or manifest.get("mathematical_authority") is not False
         or manifest.get("logical_report_sha256") != record["logical_report_sha256"]
+        or manifest.get("execution_provenance_sha256")
+        != record["execution_provenance_sha256"]
     ):
         _fail("stored manifest audit/replay binding differs")
     manifest_objects = manifest.get("objects")
@@ -755,8 +742,8 @@ def _runtime_checks() -> dict[str, object]:
 
         post_probe_sync = _child(base / "post-probe-sync", "post_probe_fsync_error")
         if (
-            post_probe_sync.get("rejected") is not True
-            or post_probe_sync.get("kind") != "io"
+            post_probe_sync.get("status") != "io_error"
+            or post_probe_sync.get("reason") != "STORE_IO_ERROR"
             or post_probe_sync.get("failed") is not True
             or post_probe_sync.get("listed") != []
         ):
@@ -764,15 +751,16 @@ def _runtime_checks() -> dict[str, object]:
 
         cleanup_failure = _child(base / "record-cleanup-failure", "record_cleanup_failure")
         if (
-            cleanup_failure.get("rejected") is not True
-            or cleanup_failure.get("kind") != "io"
+            cleanup_failure.get("status") != "io_error"
+            or cleanup_failure.get("reason") != "STORE_IO_ERROR"
             or cleanup_failure.get("listed") != []
         ):
             _fail("record temporary cleanup failure exposed a visible run")
 
         cleanup_cascade = _child(base / "record-cleanup-cascade", "record_cleanup_cascade")
         if cleanup_cascade != {
-            "persist_kind": "io",
+            "persist_status": "io_error",
+            "persist_reason": "STORE_IO_ERROR",
             "before_kind": "link",
             "after_kind": "mode",
             "matching_temporaries": 2,
@@ -804,7 +792,8 @@ def _runtime_checks() -> dict[str, object]:
         if not relocation_ok:
             _fail("relocated exact store did not preserve load/list identity")
 
-        orphan = relocated / "objects" / ("f" * 2) / ("f" * 64)
+        relocated_current = relocated / STORE_NAMESPACE
+        orphan = relocated_current / "objects" / ("f" * 2) / ("f" * 64)
         orphan.parent.mkdir(mode=0o700, exist_ok=True)
         orphan.write_bytes(b"orphan\n")
         orphan.chmod(0o600)
@@ -815,14 +804,15 @@ def _runtime_checks() -> dict[str, object]:
 
         corrupt = base / "corrupt"
         shutil.copytree(store, corrupt)
-        run_path = corrupt / "runs" / manifest[:2] / manifest
+        corrupt_current = corrupt / STORE_NAMESPACE
+        run_path = corrupt_current / "runs" / manifest[:2] / manifest
         record = _parse(run_path.read_bytes(), "corrupt source record")
         object_identity = next(
             item
             for item in record["object_sha256s"]
             if item not in {manifest, record["logical_report_sha256"]}
         )
-        content = corrupt / "objects" / object_identity[:2] / object_identity
+        content = corrupt_current / "objects" / object_identity[:2] / object_identity
         content.write_bytes(content.read_bytes() + b"corrupt")
         content.chmod(0o600)
         rejected = _child(corrupt, "reject", manifest)
@@ -832,14 +822,15 @@ def _runtime_checks() -> dict[str, object]:
 
         hardlinked = base / "hardlinked"
         shutil.copytree(store, hardlinked)
-        hardlinked_run = hardlinked / "runs" / manifest[:2] / manifest
+        hardlinked_current = hardlinked / STORE_NAMESPACE
+        hardlinked_run = hardlinked_current / "runs" / manifest[:2] / manifest
         hardlinked_record = _parse(hardlinked_run.read_bytes(), "hardlinked record")
         hardlinked_identity = next(
             item
             for item in hardlinked_record["object_sha256s"]
             if item not in {manifest, hardlinked_record["logical_report_sha256"]}
         )
-        hardlinked_content = hardlinked / "objects" / hardlinked_identity[:2] / hardlinked_identity
+        hardlinked_content = hardlinked_current / "objects" / hardlinked_identity[:2] / hardlinked_identity
         os.link(hardlinked_content, base / "external-hardlink")
         hardlink_result = _child(hardlinked, "reject", manifest)
         hardlink_rejected = hardlink_result.get("rejected") is True

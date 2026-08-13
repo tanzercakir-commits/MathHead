@@ -33,6 +33,13 @@ from .deterministic_planner import (
     plan_strategies,
     planning_result_bytes,
 )
+from .execution_provenance import (
+    PROVENANCE_SCHEMA,
+    PROVENANCE_SCHEMA_SHA256,
+    ExecutionProvenanceError,
+    build_execution_provenance,
+    parse_execution_provenance,
+)
 from .isolated_worker import (
     ISOLATED_WORKER_CONTRACT_SHA256,
     parse_isolated_worker_request,
@@ -53,29 +60,30 @@ from .proof_search_portfolio import (
 )
 
 
-AUDITED_RUN_CONTRACT_ID: Final = "MH-C-AUDITED-RUN-004"
+AUDITED_RUN_CONTRACT_ID: Final = "MH-C-AUDITED-RUN-005"
 AUDITED_RUN_CONTRACT_SHA256: Final = (
-    "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
+    "42e6cfcb704bc1b40b8c0a9143c4bfdaa34b0228a85621d9464e28c8481a39a7"
 )
-REPLAY_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-REPLAY-004"
+REPLAY_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-REPLAY-005"
 REPLAY_CONTRACT_SHA256: Final = (
-    "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
+    "cc1170556ddba8bf4232fff5dc14f1bdb95d7d558540d5066fb4379b9c1c2cde"
 )
 
-OBJECT_SCHEMA: Final = "mathhead.run-audit-object.v2"
+OBJECT_SCHEMA: Final = "mathhead.run-audit-object.v3"
 EVENT_SCHEMA: Final = "mathhead.run-audit-event.v2"
-MANIFEST_SCHEMA: Final = "mathhead.run-audit-manifest.v3"
-LOGICAL_REPORT_SCHEMA: Final = "mathhead.run-logical-report.v2"
-REPLAY_RESULT_SCHEMA: Final = "mathhead.run-audit-replay-result.v4"
+MANIFEST_SCHEMA: Final = "mathhead.run-audit-manifest.v4"
+LOGICAL_REPORT_SCHEMA: Final = "mathhead.run-logical-report.v3"
+REPLAY_RESULT_SCHEMA: Final = "mathhead.run-audit-replay-result.v5"
 WORKER_OBSERVATION_SCHEMA: Final = "mathhead.run-audit-worker-observation.v3"
 
 SCHEMA_SHA256S: Final = {
-    OBJECT_SCHEMA: "b81596770c10bac4e192155cd24aea721da2c8dc8b8d8b5f73a3b11570cdd92c",
+    OBJECT_SCHEMA: "71a727409a664064b86c22f01356e77967a03e2fc4ebc330c03b4fcefdf6551e",
     EVENT_SCHEMA: "eeb0f4ec975dc8417841f6677100f276d85cd356c3d0f376efa800e2ebbc0239",
-    MANIFEST_SCHEMA: "784184e21eccd7043e188b776ec5154328860e99015fe87102cc776bd050eabd",
-    LOGICAL_REPORT_SCHEMA: "d4a2a23426122d0ba64d3fc8a8135bde13c80794d221eaca9d6a49e7b134d2a2",
-    REPLAY_RESULT_SCHEMA: "ae6f6f60f936a40926cd7942e00088a8f409836182d089b2f9c3cec5b007269d",
+    MANIFEST_SCHEMA: "b777dfc8778470071b363cd0592384441887827a112c4e9605cf2e523d97a96f",
+    LOGICAL_REPORT_SCHEMA: "f0ca700129d72a132878bd5deba92af7c86eab3c34c9592409afb80822e5fee8",
+    REPLAY_RESULT_SCHEMA: "50bf3daa5ed566dc6911dae1af345486880e2e37eb63ba29d6784f9d13ba1058",
     WORKER_OBSERVATION_SCHEMA: "6abfae6c0f1be7811e8e8f3cc3e5de895274226e6834201da8018bc4df685a61",
+    PROVENANCE_SCHEMA: PROVENANCE_SCHEMA_SHA256,
 }
 
 MAX_OBJECTS: Final = 200_000
@@ -93,6 +101,7 @@ _NAMESPACED = re.compile(r"[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+")
 _REASON = re.compile(r"[A-Z][A-Z0-9_]{0,63}")
 
 _OBJECT_ROLES = {
+    "execution_provenance",
     "planning_request",
     "capability_route_result",
     "planning_result",
@@ -162,6 +171,56 @@ _PORTFOLIO_STATUSES = {
 }
 _VERDICTS = {"proved", "refuted", "inconclusive", "none"}
 _AUTHORITY_TIERS = {"none", "checker_attestation", "external_proof_assistant"}
+_REPORT_NON_SUCCESS_REASONS = {
+    "unsupported": {"ISOLATION_UNSUPPORTED", "EVIDENCE_UNSUPPORTED"},
+    "exhausted": {
+        "BUDGET_INSUFFICIENT",
+        "WALL_TIME_EXHAUSTED",
+        "CPU_TIME_EXHAUSTED",
+        "MEMORY_EXHAUSTED",
+        "OUTPUT_EXHAUSTED",
+        "DIAGNOSTIC_EXHAUSTED",
+        "EVIDENCE_EXHAUSTED",
+        "CHECKER_EXHAUSTED",
+    },
+    "cancelled": {"CANCELLED", "EVIDENCE_CANCELLED", "CHECKER_CANCELLED"},
+    "failed": {
+        "REQUEST_INVALID",
+        "PLAN_INVALID",
+        "STRATEGY_MISMATCH",
+        "BUDGET_INVALID",
+        "EXECUTABLE_INVALID",
+        "LAUNCH_FAILED",
+        "EXIT_FAILED",
+        "PROTOCOL_FAILED",
+        "TREE_CLEANUP_FAILED",
+        "SUPERVISOR_FAILED",
+        "EVIDENCE_ERROR",
+    },
+    "ambiguous": {"EVIDENCE_INCOMPLETE"},
+    "truncated": {"EVIDENCE_TRUNCATED", "CHECKER_TRUNCATED"},
+    "inconclusive": {"ISOLATION_UNSUPPORTED", "CHECKER_INCONCLUSIVE"},
+    "disagreement": {"CHECKER_REJECTED", "CHECKER_DISAGREED"},
+    "verifier_failed": {
+        "REQUEST_INVALID",
+        "PLAN_INVALID",
+        "STRATEGY_MISMATCH",
+        "BUDGET_INVALID",
+        "EXECUTABLE_INVALID",
+        "LAUNCH_FAILED",
+        "EXIT_FAILED",
+        "PROTOCOL_FAILED",
+        "TREE_CLEANUP_FAILED",
+        "SUPERVISOR_FAILED",
+        "CERTIFICATE_INVALID",
+    },
+    "invalid_evidence": {
+        "EVIDENCE_INVALID",
+        "EVIDENCE_PROTOCOL_LIMIT",
+        "CERTIFICATE_INVALID",
+    },
+    "invalid": {"PORTFOLIO_INPUT_INVALID", "PORTFOLIO_EXECUTION_INVALID"},
+}
 
 
 class RunAuditValidationError(ValueError):
@@ -223,6 +282,7 @@ class RunAuditReplayResult(_AuditValue):
     manifest_sha256: str | None
     bundle_sha256: str | None
     logical_report_sha256: str | None
+    execution_provenance_sha256: str | None
     object_count: int
     event_count: int
     portfolio_status: str | None
@@ -1018,6 +1078,7 @@ def _record_inventory_digest(records: list[dict[str, object]], roles: set[str]) 
 
 def _report_mapping(
     *,
+    execution_provenance_sha256: str,
     planning_request: bytes,
     route_result: bytes,
     planning_result: bytes,
@@ -1096,6 +1157,7 @@ def _report_mapping(
     value: dict[str, object] = {
         "schema": LOGICAL_REPORT_SCHEMA,
         "audited_run_contract_sha256": AUDITED_RUN_CONTRACT_SHA256,
+        "execution_provenance_sha256": execution_provenance_sha256,
         "normalized_input_sha256": normalized_input_sha256,
         "planning_request_sha256": _sha(planning_request),
         "route_result_sha256": _sha(route_result),
@@ -1126,6 +1188,7 @@ def _validate_report(value: object) -> dict[str, object]:
         {
             "schema",
             "audited_run_contract_sha256",
+            "execution_provenance_sha256",
             "normalized_input_sha256",
             "planning_request_sha256",
             "route_result_sha256",
@@ -1151,6 +1214,7 @@ def _validate_report(value: object) -> dict[str, object]:
     if item["schema"] != LOGICAL_REPORT_SCHEMA or item["audited_run_contract_sha256"] != AUDITED_RUN_CONTRACT_SHA256 or item["mathematical_authority"] is not False:
         raise _Invalid("logical report contract binding differs")
     for name in (
+        "execution_provenance_sha256",
         "normalized_input_sha256",
         "planning_request_sha256",
         "route_result_sha256",
@@ -1175,6 +1239,39 @@ def _validate_report(value: object) -> dict[str, object]:
         "selected_checker_decision_sha256",
     ):
         _nullable_digest(item[name], f"logical_report.{name}")
+    selected = tuple(
+        item[name]
+        for name in (
+            "selected_strategy_sha256",
+            "selected_evidence_sha256",
+            "selected_certificate_sha256",
+            "selected_checker_decision_sha256",
+        )
+    )
+    if item["status"] == "succeeded":
+        expected_verdict = {
+            "CHECKED_PROOF": "proved",
+            "CHECKED_REFUTATION": "refuted",
+        }.get(str(item["reason_code"]))
+        if (
+            expected_verdict is None
+            or item["mathematical_verdict"] != expected_verdict
+            or item["authority_tier"]
+            not in {"checker_attestation", "external_proof_assistant"}
+            or any(value is None for value in selected)
+        ):
+            raise _Invalid("logical report success projection differs")
+    else:
+        expected_reasons = _REPORT_NON_SUCCESS_REASONS.get(str(item["status"]))
+        expected_verdict = "none" if item["status"] == "invalid" else "inconclusive"
+        if (
+            expected_reasons is None
+            or item["reason_code"] not in expected_reasons
+            or item["mathematical_verdict"] != expected_verdict
+            or item["authority_tier"] != "none"
+            or any(value is not None for value in selected)
+        ):
+            raise _Invalid("logical report non-success projection differs")
     identity = _digest(item["report_sha256"], "logical_report.report_sha256")
     if identity != _self_hash(item, "report_sha256"):
         raise _Invalid("logical report identity differs")
@@ -1503,6 +1600,7 @@ def _expected_record_sequence(
     portfolio: ProofSearchPortfolioResult,
 ) -> tuple[tuple[str, str, str | None], ...]:
     expected: list[tuple[str, str, str | None]] = [
+        ("execution_provenance", "execution_provenance", None),
         ("planning_request", "planning_request", None),
         ("capability_route_result", "capability_route_result", None),
         ("planning_result", "planning_result", None),
@@ -1631,6 +1729,7 @@ def _expected_record_sequence(
 
 
 def _build_bundle(
+    execution_provenance: bytes,
     planning_request: bytes,
     route_result: bytes,
     portfolio_request: bytes,
@@ -1667,6 +1766,12 @@ def _build_bundle(
         physical[digest] = raw
         records.append(record)
 
+    try:
+        provenance_value = parse_execution_provenance(execution_provenance)
+    except ExecutionProvenanceError as exc:
+        raise _Invalid("execution provenance is invalid") from exc
+    provenance_sha256 = str(provenance_value["provenance_sha256"])
+    add("execution_provenance", "execution_provenance", execution_provenance)
     add("planning_request", "planning_request", planning_request)
     add("capability_route_result", "capability_route_result", route_result)
     add("planning_result", "planning_result", planning_result)
@@ -1783,6 +1888,7 @@ def _build_bundle(
     add("reconciled_parent_budget", "final_parent_budget", final_parent)
 
     report_value = _report_mapping(
+        execution_provenance_sha256=provenance_sha256,
         planning_request=planning_request,
         route_result=route_result,
         planning_result=planning_result,
@@ -1827,6 +1933,7 @@ def _build_bundle(
         "evidence_contract_sha256": EVIDENCE_CONTRACT_SHA256,
         "certificate_contract_sha256": CERTIFICATE_CONTRACT_SHA256,
         "theory_plugin_contract_sha256": THEORY_PLUGIN_CONTRACT_SHA256,
+        "execution_provenance_sha256": provenance_sha256,
         "normalized_input_sha256": route_request.normalization_result_sha256,
         "planning_request_sha256": _sha(planning_request),
         "route_result_sha256": _sha(route_result),
@@ -1909,6 +2016,7 @@ def execute_audited_run(
             bindings,
             artifacts,
         )
+        execution_provenance, _provenance_sha256 = build_execution_provenance()
         result, captures = _run_portfolio_audited(
             portfolio_request,
             planning_result,
@@ -1921,6 +2029,7 @@ def execute_audited_run(
             cancel_event,
         )
         bundle = _build_bundle(
+            execution_provenance,
             planning_request,
             route_result,
             portfolio_request,
@@ -1969,6 +2078,7 @@ def _manifest(
         "evidence_contract_sha256",
         "certificate_contract_sha256",
         "theory_plugin_contract_sha256",
+        "execution_provenance_sha256",
         "normalized_input_sha256",
         "planning_request_sha256",
         "route_result_sha256",
@@ -2002,6 +2112,7 @@ def _manifest(
     if any(value[name] != expected for name, expected in constants.items()):
         raise _Invalid("manifest contract bindings differ")
     for name in (
+        "execution_provenance_sha256",
         "normalized_input_sha256",
         "planning_request_sha256",
         "route_result_sha256",
@@ -2027,6 +2138,7 @@ def _manifest(
         raise _Invalid("audit role IDs are not unique")
     by_role_id = {str(item["role_id"]): item for item in records}
     required = {
+        "execution_provenance",
         "planning_request",
         "capability_route_result",
         "planning_result",
@@ -2041,6 +2153,10 @@ def _manifest(
     }
     if not required <= set(by_role_id):
         raise _Invalid("required audit roles are absent")
+    if sum(item["role"] == "execution_provenance" for item in records) != 1:
+        raise _Invalid("execution provenance role is not an exact singleton")
+    if by_role_id["execution_provenance"]["role"] != "execution_provenance":
+        raise _Invalid("execution provenance role binding differs")
     if type(objects) is not tuple or len(objects) > MAX_OBJECTS or any(type(raw) is not bytes for raw in objects):
         raise _Invalid("physical object tuple type or count differs")
     total = 0
@@ -2090,6 +2206,7 @@ def _complete_replay(
         return physical[str(by_role_id[role_id]["sha256"])]
 
     planning_request = raw("planning_request")
+    execution_provenance = raw("execution_provenance")
     route_result = raw("capability_route_result")
     planning_result = raw("planning_result")
     portfolio_request = raw("portfolio_request")
@@ -2097,8 +2214,14 @@ def _complete_replay(
     initial_parent = raw("initial_parent_budget")
     final_parent = raw("final_parent_budget")
     logical_report = raw("logical_report")
+    try:
+        provenance_value = parse_execution_provenance(execution_provenance)
+    except ExecutionProvenanceError as exc:
+        raise _Invalid("execution provenance is invalid") from exc
+    provenance_sha256 = str(provenance_value["provenance_sha256"])
     if (
-        _sha(planning_request) != manifest_value["planning_request_sha256"]
+        provenance_sha256 != manifest_value["execution_provenance_sha256"]
+        or _sha(planning_request) != manifest_value["planning_request_sha256"]
         or _sha(route_result) != manifest_value["route_result_sha256"]
         or _sha(planning_result) != manifest_value["planning_result_sha256"]
         or _sha(portfolio_request) != manifest_value["portfolio_request_sha256"]
@@ -2248,6 +2371,7 @@ def _complete_replay(
         ):
             raise _Invalid("selected checker decision does not agree")
     report_value = _report_mapping(
+        execution_provenance_sha256=provenance_sha256,
         planning_request=planning_request,
         route_result=route_result,
         planning_result=planning_result,
@@ -2258,7 +2382,9 @@ def _complete_replay(
         records=[item for item in records if item["role"] != "logical_report"],
         portfolio=portfolio,
     )
-    _validate_report(_parse(logical_report, "logical_report"))
+    parsed_report = _validate_report(_parse(logical_report, "logical_report"))
+    if parsed_report["execution_provenance_sha256"] != provenance_sha256:
+        raise _Invalid("logical report provenance identity differs")
     if _canonical(report_value) != logical_report:
         raise _Invalid("logical report differs from independent reconstruction")
     expected_events = _events_from_records(records, by_role_id, portfolio)
@@ -2277,6 +2403,7 @@ def _replay_mapping(value: RunAuditReplayResult, *, own_hash: bool = True) -> di
         "manifest_sha256": value.manifest_sha256,
         "bundle_sha256": value.bundle_sha256,
         "logical_report_sha256": value.logical_report_sha256,
+        "execution_provenance_sha256": value.execution_provenance_sha256,
         "object_count": value.object_count,
         "event_count": value.event_count,
         "portfolio_status": value.portfolio_status,
@@ -2294,6 +2421,7 @@ def _new_replay(
     manifest: bytes | None,
     objects: tuple[bytes, ...] | None,
     logical_report: bytes | None = None,
+    execution_provenance_sha256: str | None = None,
     event_count: int = 0,
     portfolio: ProofSearchPortfolioResult | None = None,
 ) -> RunAuditReplayResult:
@@ -2307,6 +2435,9 @@ def _new_replay(
         "manifest_sha256": _sha(manifest) if complete and manifest is not None else None,
         "bundle_sha256": _sha(manifest) if complete and manifest is not None else None,
         "logical_report_sha256": _sha(logical_report) if complete and logical_report is not None else None,
+        "execution_provenance_sha256": (
+            execution_provenance_sha256 if complete else None
+        ),
         "object_count": 0 if objects is None else len(objects),
         "event_count": event_count if complete else 0,
         "portfolio_status": None if portfolio is None or not complete else portfolio.status,
@@ -2341,6 +2472,9 @@ def replay_run_audit(manifest: bytes, objects: tuple[bytes, ...]) -> RunAuditRep
             manifest=retained_manifest,
             objects=retained_objects,
             logical_report=logical_report,
+            execution_provenance_sha256=str(
+                manifest_value["execution_provenance_sha256"]
+            ),
             event_count=len(manifest_value["events"]),
             portfolio=portfolio,
         )
@@ -2438,10 +2572,34 @@ def validate_run_audit_replay_result(value: RunAuditReplayResult) -> None:
         or value.replay_result_sha256 != _self_hash(mapping, "replay_result_sha256")
     ):
         _fail("result", "$", "replay result binding differs")
+    reason_by_status = {
+        "complete": "REPLAY_COMPLETE",
+        "invalid": "REPLAY_INVALID",
+        "exhausted": "REPLAY_BUDGET_EXHAUSTED",
+    }
+    complete = value.status == "complete"
+    success_identities = (
+        value.manifest_sha256,
+        value.bundle_sha256,
+        value.logical_report_sha256,
+        value.execution_provenance_sha256,
+    )
+    semantic_fields = (
+        value.portfolio_status,
+        value.mathematical_verdict,
+        value.authority_tier,
+    )
+    if (
+        value.reason_code != reason_by_status[value.status]
+        or all(type(item) is str for item in success_identities) != complete
+        or any(item is not None for item in semantic_fields) != complete
+        or (not complete and value.event_count != 0)
+    ):
+        _fail("result", "$", "replay result status projection differs")
     if value._input_manifest is None or value._input_objects is None:
         expected = _new_replay(
-            status=value.status,
-            reason_code=value.reason_code,
+            status="invalid",
+            reason_code="REPLAY_INVALID",
             manifest=None,
             objects=None,
         )

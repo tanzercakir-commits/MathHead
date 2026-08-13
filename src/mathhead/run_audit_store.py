@@ -1,4 +1,4 @@
-"""Append-only content-addressed persistence for MH-054 audit bundles."""
+"""Append-only content-addressed persistence for current audit bundles."""
 
 from __future__ import annotations
 
@@ -21,14 +21,15 @@ from .run_audit import (
 )
 
 
-STORE_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-STORE-005"
-STORE_CONTRACT_SHA256: Final = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
-STORE_RECORD_SCHEMA: Final = "mathhead.run-audit-store-record.v2"
-STORE_RESULT_SCHEMA: Final = "mathhead.run-audit-store-result.v5"
+STORE_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-STORE-006"
+STORE_CONTRACT_SHA256: Final = "327f5d55b86433b803f22ba019b8adf5fe3a4bf8bc0dbdf4b1472c276bedff5e"
+STORE_RECORD_SCHEMA: Final = "mathhead.run-audit-store-record.v3"
+STORE_RESULT_SCHEMA: Final = "mathhead.run-audit-store-result.v6"
 SCHEMA_SHA256S: Final = {
-    STORE_RECORD_SCHEMA: "614083f9de220b6a780ff35e7ab6cd3c07f1c3371255112e433213ea556ade8f",
-    STORE_RESULT_SCHEMA: "bf906f5c01fee05524b4c11cb80a526b5ca72214e8b417d44a3d4191077c11d4",
+    STORE_RECORD_SCHEMA: "0d405720427b8128c36088faffa78a5e8b4967dcafd7883503f7b02302cc3156",
+    STORE_RESULT_SCHEMA: "e59f14e6c98fb2986a80555c1c6e6315f56a8cef4da50499ab4e1cc796098216",
 }
+STORE_NAMESPACE: Final = ".mathhead-run-audit-store-v6"
 
 MAX_OBJECT_BYTES: Final = 1_073_741_824
 MAX_AGGREGATE_BYTES: Final = 2_147_483_648
@@ -41,7 +42,14 @@ INTEGER_MAXIMUM: Final = 9_007_199_254_740_991
 
 _DIGEST = re.compile(r"[0-9a-f]{64}")
 _REASON = re.compile(r"[A-Z][A-Z0-9_]{0,63}")
-_RESULT_STATUSES = {"stored", "existing", "loaded", "invalid", "unsupported", "io_error"}
+_RESULT_STATUSES = {"stored", "existing", "invalid", "unsupported", "io_error"}
+_RESULT_REASONS = {
+    "stored": {"RUN_STORED"},
+    "existing": {"RUN_ALREADY_EXISTS"},
+    "invalid": {"BUNDLE_INVALID", "STORE_BUDGET_EXCEEDED"},
+    "unsupported": {"STORE_UNSUPPORTED"},
+    "io_error": {"STORE_IO_ERROR"},
+}
 _INSTALL_LOCK = Lock()
 
 
@@ -167,6 +175,11 @@ def _self_hash(value: dict[str, object], field: str) -> str:
 
 def _record_bytes_from_validated(bundle: RunAuditBundle) -> tuple[bytes, str]:
     manifest = bundle.manifest
+    manifest_value = json.loads(manifest)
+    execution_provenance_sha256 = _digest(
+        manifest_value.get("execution_provenance_sha256"),
+        "execution_provenance_sha256",
+    )
     object_digests = sorted({_sha(raw) for raw in (*bundle.objects, manifest)})
     if len(object_digests) > MAX_OBJECTS:
         _fail("budget", "store object inventory exceeds the schema bound")
@@ -175,6 +188,7 @@ def _record_bytes_from_validated(bundle: RunAuditBundle) -> tuple[bytes, str]:
         "store_contract_sha256": STORE_CONTRACT_SHA256,
         "manifest_sha256": _sha(manifest),
         "logical_report_sha256": _sha(bundle.logical_report),
+        "execution_provenance_sha256": execution_provenance_sha256,
         "object_sha256s": object_digests,
         "record_sha256": None,
         "mathematical_authority": False,
@@ -196,6 +210,7 @@ def _parse_record(data: bytes, expected_manifest: str) -> dict[str, object]:
         "store_contract_sha256",
         "manifest_sha256",
         "logical_report_sha256",
+        "execution_provenance_sha256",
         "object_sha256s",
         "record_sha256",
         "mathematical_authority",
@@ -212,6 +227,7 @@ def _parse_record(data: bytes, expected_manifest: str) -> dict[str, object]:
     if manifest != expected_manifest:
         _fail("record", "store record names another manifest")
     logical = _digest(value["logical_report_sha256"], "logical_report_sha256")
+    _digest(value["execution_provenance_sha256"], "execution_provenance_sha256")
     raw_objects = value["object_sha256s"]
     if type(raw_objects) is not list or not raw_objects or len(raw_objects) > MAX_OBJECTS:
         _fail("budget", "store object inventory is outside bounds")
@@ -274,6 +290,8 @@ def _directory_info(info: os.stat_result, *, private: bool) -> None:
         _fail("link", "store component is not a real directory")
     if private and stat.S_IMODE(info.st_mode) != 0o700:
         _fail("mode", "store directory mode is not exact private 0700")
+    if private and hasattr(os, "geteuid") and info.st_uid != os.geteuid():
+        _fail("owner", "store directory is not owned by the effective user")
 
 
 def _file_info(info: os.stat_result) -> None:
@@ -283,6 +301,8 @@ def _file_info(info: os.stat_result) -> None:
         _fail("link", "store file has an unsafe hardlink count")
     if stat.S_IMODE(info.st_mode) != 0o600:
         _fail("mode", "store file mode is not exact private 0600")
+    if hasattr(os, "geteuid") and info.st_uid != os.geteuid():
+        _fail("owner", "store file is not owned by the effective user")
 
 
 def _guard_root(root: _PinnedRoot) -> None:
@@ -326,8 +346,7 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
         anchor_info = os.fstat(descriptor)
         _directory_info(anchor_info, private=False)
         chain.append(_DirectoryIdentity(current_path, anchor_info.st_dev, anchor_info.st_ino))
-        for index, component in enumerate(root.parts[1:]):
-            is_root = index == len(root.parts[1:]) - 1
+        for component in root.parts[1:]:
             try:
                 linked = os.stat(component, dir_fd=descriptor, follow_symlinks=False)
             except FileNotFoundError:
@@ -346,7 +365,7 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
                     _classify_io(exc, "cannot synchronize store ancestor creation")
             except OSError as exc:
                 _classify_io(exc, "cannot inspect store ancestor")
-            _directory_info(linked, private=is_root)
+            _directory_info(linked, private=False)
             try:
                 opened = os.open(component, flags, dir_fd=descriptor)
             except OSError as exc:
@@ -362,7 +381,25 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
             descriptor = opened
             current_path /= component
             chain.append(_DirectoryIdentity(current_path, opened_info.st_dev, opened_info.st_ino))
-        result = _PinnedRoot(root, descriptor, tuple(chain))
+        caller_root = _PinnedRoot(root, descriptor, tuple(chain))
+        namespace_descriptor = _open_child_directory(
+            caller_root,
+            descriptor,
+            STORE_NAMESPACE,
+            create=create,
+        )
+        os.close(descriptor)
+        descriptor = namespace_descriptor
+        namespace_path = root / STORE_NAMESPACE
+        namespace_info = os.fstat(descriptor)
+        chain.append(
+            _DirectoryIdentity(
+                namespace_path,
+                namespace_info.st_dev,
+                namespace_info.st_ino,
+            )
+        )
+        result = _PinnedRoot(namespace_path, descriptor, tuple(chain))
         _guard_root(result)
         return result
     except BaseException:
@@ -371,7 +408,13 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
         raise
 
 
-def _open_child_directory(root: _PinnedRoot, parent: int, name: str, *, create: bool) -> int:
+def _open_child_directory(
+    root: _PinnedRoot,
+    parent: int,
+    name: str,
+    *,
+    create: bool,
+) -> int:
     if not name or name in {".", ".."} or "/" in name or "\\" in name:
         _fail("path", "derived store component is unsafe")
     _guard_root(root)
@@ -403,6 +446,7 @@ def _open_child_directory(root: _PinnedRoot, parent: int, name: str, *, create: 
     except OSError as exc:
         _classify_io(exc, "cannot open store component")
     opened = os.fstat(descriptor)
+    _directory_info(opened, private=True)
     if (linked.st_dev, linked.st_ino) != (opened.st_dev, opened.st_ino):
         os.close(descriptor)
         _fail("link", "store component changed while opening")
@@ -473,11 +517,19 @@ def _read_exact(root: _PinnedRoot, parent: int, name: str, digest: str, maximum:
     return data
 
 
-def _fsync_directory(root: _PinnedRoot, descriptor: int, *, capability_probe: bool = False) -> None:
+def _fsync_directory(
+    root: _PinnedRoot,
+    descriptor: int,
+    *,
+    capability_probe: bool = False,
+) -> None:
     _guard_root(root)
     try:
         info = os.fstat(descriptor)
-        _directory_info(info, private=True)
+        _directory_info(
+            info,
+            private=(root.path.name == STORE_NAMESPACE or descriptor != root.descriptor),
+        )
         os.fsync(descriptor)
     except OSError as exc:
         if not capability_probe and exc.errno in _UNSUPPORTED_ERRNOS:
@@ -682,7 +734,25 @@ def _new_result(
     record_sha256: str | None,
     object_count: int,
 ) -> RunAuditStoreResult:
-    if status not in _RESULT_STATUSES or _REASON.fullmatch(reason) is None:
+    success = status in {"stored", "existing"}
+    if (
+        status not in _RESULT_STATUSES
+        or reason not in _RESULT_REASONS.get(status, set())
+        or _REASON.fullmatch(reason) is None
+        or (success and (
+            type(manifest_sha256) is not str
+            or _DIGEST.fullmatch(manifest_sha256) is None
+            or type(record_sha256) is not str
+            or _DIGEST.fullmatch(record_sha256) is None
+            or type(object_count) is not int
+            or not 1 <= object_count <= MAX_OBJECTS
+        ))
+        or (not success and (
+            manifest_sha256 is not None
+            or record_sha256 is not None
+            or object_count != 0
+        ))
+    ):
         _fail("result", "store result classification is outside the closed set")
     value: dict[str, object] = {
         "schema": STORE_RESULT_SCHEMA,
@@ -808,6 +878,14 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
                 record_sha256=None,
                 object_count=0,
             )
+        if exc.kind == "io":
+            return _new_result(
+                "io_error",
+                "STORE_IO_ERROR",
+                manifest_sha256=None,
+                record_sha256=None,
+                object_count=0,
+            )
         raise
     except (MemoryError, KeyboardInterrupt, SystemExit):
         raise
@@ -856,6 +934,15 @@ def _load_from_root(store: _PinnedRoot, manifest_sha256: str) -> RunAuditBundle:
     bundle = _bundle_from_replayed_bytes(manifest, objects)
     if bundle.logical_report_sha256 != record["logical_report_sha256"]:
         _fail("corrupt", "stored logical report identity differs")
+    manifest_value = json.loads(bundle.manifest)
+    report_value = json.loads(bundle.logical_report)
+    if (
+        record["execution_provenance_sha256"]
+        != manifest_value.get("execution_provenance_sha256")
+        or record["execution_provenance_sha256"]
+        != report_value.get("execution_provenance_sha256")
+    ):
+        _fail("corrupt", "stored execution provenance identity differs")
     _guard_root(store)
     return bundle
 
@@ -872,7 +959,12 @@ def load_run_audit(root: Path, manifest_sha256: str) -> RunAuditBundle:
 
 def list_run_audits(root: Path) -> tuple[str, ...]:
     """Return digest-sorted visible runs only after fresh complete replay."""
-    store = _open_root(root, create=False)
+    try:
+        store = _open_root(root, create=False)
+    except RunAuditStoreError as exc:
+        if exc.kind == "missing":
+            return ()
+        raise
     runs = -1
     try:
         _fsync_directory(store, store.descriptor, capability_probe=True)
@@ -951,9 +1043,13 @@ def validate_run_audit_store_result(value: RunAuditStoreResult) -> None:
         or value.object_count > MAX_OBJECTS
     ):
         _fail("result", "store result fields or identity differ")
-    if value.status in {"stored", "existing", "loaded"}:
+    if value.reason_code not in _RESULT_REASONS[value.status]:
+        _fail("result", "store result reason projection differs")
+    if value.status in {"stored", "existing"}:
         _digest(value.manifest_sha256, "result.manifest_sha256")
         _digest(value.record_sha256, "result.record_sha256")
+        if value.object_count < 1:
+            _fail("result", "successful store result has no object count")
     elif (
         value.manifest_sha256 is not None
         or value.record_sha256 is not None

@@ -14,7 +14,7 @@ from threading import RLock
 from types import MappingProxyType
 from typing import Any, Final, NoReturn
 
-from .run_audit import RunAuditBundle, RunAuditValidationError
+from .run_audit import RunAuditValidationError
 from .run_audit_store import RunAuditStoreError, load_run_audit
 from .safe_cache import (
     CONTRACT_SHA256 as SAFE_CACHE_CONTRACT_SHA256,
@@ -26,15 +26,16 @@ from .safe_cache import (
 )
 
 
-STORE_CONTRACT_ID: Final = "MH-C-SAFE-CACHE-STORE-001"
+STORE_CONTRACT_ID: Final = "MH-C-SAFE-CACHE-STORE-002"
 STORE_CONTRACT_SHA256: Final = (
-    "1f1dba767275ce066a977fe5eda2e499da7faf6135e1f11ac8db3587e2337cd1"
+    "4ed580fcb08191bfc7caa8901a4f5b74456cd9fc178f17b8a2530b0599368ed2"
 )
-STORE_RECORD_SCHEMA: Final = "mathhead.safe-cache-store-record.v1"
-STORE_RESULT_SCHEMA: Final = "mathhead.safe-cache-store-result.v1"
+STORE_RECORD_SCHEMA: Final = "mathhead.safe-cache-store-record.v2"
+STORE_RESULT_SCHEMA: Final = "mathhead.safe-cache-store-result.v2"
+STORE_NAMESPACE: Final = ".mathhead-safe-cache-store-v2"
 SCHEMA_SHA256S: Final = MappingProxyType({
-    STORE_RECORD_SCHEMA: "959e5f08b002479753fa14210e39dbc594c529177e6923866b0c6911c29ef001",
-    STORE_RESULT_SCHEMA: "0c9a2c429522b44fb51728e5c6491e6f2379e2fcd544a6c4c7eca552a2a9a4ca",
+    STORE_RECORD_SCHEMA: "9caba023663c86e8917cb3560ed5d56fd04178fc123bc04cc6da2d0449767dda",
+    STORE_RESULT_SCHEMA: "6c00b6c21692bc79b5a355e27c40563524e190ab544f05024330513b427acd75",
 })
 
 MAX_OBJECT_BYTES: Final = 67_108_864
@@ -178,6 +179,7 @@ def _record_bytes(entry: SafeCacheEntry) -> tuple[bytes, str, str]:
         "lookup_key_sha256": entry.lookup_key_sha256,
         "entry_sha256": entry.entry_sha256,
         "entry_object_sha256": entry_object,
+        "execution_provenance_sha256": entry.execution_provenance_sha256,
         "audit_manifest_sha256": entry.audit_manifest_sha256,
         "record_sha256": None,
         "mathematical_authority": False,
@@ -191,7 +193,8 @@ def _parse_record(data: bytes, expected_key: str) -> dict[str, object]:
     expected = {
         "schema", "safe_cache_contract_sha256", "safe_cache_store_contract_sha256",
         "lookup_key_sha256", "entry_sha256", "entry_object_sha256",
-        "audit_manifest_sha256", "record_sha256", "mathematical_authority",
+        "execution_provenance_sha256", "audit_manifest_sha256",
+        "record_sha256", "mathematical_authority",
     }
     if set(value) != expected:
         _fail("record", "record field set differs")
@@ -204,7 +207,8 @@ def _parse_record(data: bytes, expected_key: str) -> dict[str, object]:
     ):
         _fail("record", "record contract or key binding differs")
     for name in (
-        "entry_sha256", "entry_object_sha256", "audit_manifest_sha256", "record_sha256"
+        "entry_sha256", "entry_object_sha256", "execution_provenance_sha256",
+        "audit_manifest_sha256", "record_sha256"
     ):
         _digest(value[name], name)
     if value["record_sha256"] != _self_hash(value, "record_sha256"):
@@ -221,73 +225,51 @@ def _result_mapping(value: SafeCacheStoreResult, own_hash: bool = True) -> dict[
 
 def _shape(value: dict[str, object]) -> None:
     operation, status, reason = value["operation"], value["status"], value["reason_code"]
-    lookup, entry = value["lookup_key_sha256"], value["entry_sha256"]
-    manifest, record, tier = (
-        value["audit_manifest_sha256"], value["record_sha256"],
-        value["historical_authority_tier"],
-    )
-    full = all(item is not None for item in (lookup, entry, manifest, record, tier))
-    if operation == "persist" and status in {"stored", "existing"}:
-        if reason != ("CACHE_ENTRY_STORED" if status == "stored" else "CACHE_ENTRY_ALREADY_EXISTS") or not full:
-            _fail("result", "persist success shape differs")
-    elif operation == "lookup" and status == "hit":
-        if reason != "CACHE_HIT" or not full:
-            _fail("result", "lookup hit shape differs")
-    elif operation == "lookup" and status == "miss":
-        if reason != "CACHE_KEY_ABSENT" or lookup is None or any(item is not None for item in (entry, manifest, record, tier)):
-            _fail("result", "lookup miss shape differs")
-    elif operation == "persist" and status == "ineligible":
-        if reason != "CACHE_RUN_INELIGIBLE" or lookup is None or manifest is None or any(item is not None for item in (entry, record, tier)):
-            _fail("result", "persist ineligible shape differs")
-    elif operation == "lookup" and status in {"stale", "corrupt"}:
-        if lookup is None or any(item is not None for item in (entry, record, tier)):
-            _fail("result", "lookup non-hit shape differs")
-        if status == "stale" and (reason != "CACHE_ENTRY_STALE" or manifest is not None):
-            _fail("result", "lookup stale shape differs")
-        if status == "corrupt" and reason == "CACHE_ENTRY_CORRUPT" and manifest is not None:
-            _fail("result", "entry corrupt shape differs")
-        if status == "corrupt" and reason in {"CACHE_AUDIT_RUN_MISSING", "CACHE_AUDIT_REPLAY_INVALID"} and manifest is None:
-            _fail("result", "audit corrupt shape differs")
-        if status == "corrupt" and reason not in {
-            "CACHE_ENTRY_CORRUPT", "CACHE_AUDIT_RUN_MISSING",
-            "CACHE_AUDIT_REPLAY_INVALID",
-        }:
-            _fail("result", "lookup corrupt reason differs")
-    elif operation == "persist" and status == "conflict":
-        if reason != "CACHE_KEY_CONFLICT" or lookup is None or any(item is not None for item in (entry, manifest, record, tier)):
-            _fail("result", "persist conflict shape differs")
-    elif status == "invalid" and reason in {"CACHE_REQUEST_INVALID", "CACHE_PATH_INVALID"}:
-        if any(item is not None for item in (lookup, entry, manifest, record, tier)):
-            _fail("result", "input invalid shape differs")
-    elif operation == "persist" and status == "invalid" and reason in {"CACHE_AUDIT_RUN_MISSING", "CACHE_AUDIT_REPLAY_INVALID"}:
-        if lookup is None or manifest is None or any(item is not None for item in (entry, record, tier)):
-            _fail("result", "persist audit invalid shape differs")
-    elif status == "exhausted":
-        if reason == "CACHE_CURRENT_BUDGET_EXHAUSTED":
-            if any(item is not None for item in (lookup, entry, manifest, record, tier)):
-                _fail("result", "current exhaustion shape differs")
-        elif reason == "CACHE_STORE_BUDGET_EXHAUSTED":
-            if lookup is None or entry is not None or record is not None or tier is not None or (operation == "persist") != (manifest is not None):
-                _fail("result", "store exhaustion shape differs")
-        else:
-            _fail("result", "unknown exhaustion reason")
-    elif status in {"unsupported", "io_error"}:
-        expected = {
-            ("unsupported", "CACHE_STORE_UNSUPPORTED"),
-            ("unsupported", "CACHE_AUDIT_STORE_UNSUPPORTED"),
-            ("io_error", "CACHE_STORE_IO_ERROR"),
-            ("io_error", "CACHE_AUDIT_STORE_IO_ERROR"),
-        }
-        if (status, reason) not in expected or lookup is None or any(item is not None for item in (entry, record, tier)):
-            _fail("result", "capability or I/O shape differs")
-        audit_reason = reason in {
-            "CACHE_AUDIT_STORE_UNSUPPORTED", "CACHE_AUDIT_STORE_IO_ERROR"
-        }
-        needs_manifest = operation == "persist" or audit_reason
-        if needs_manifest != (manifest is not None):
-            _fail("result", "capability or I/O manifest shape differs")
-    else:
+    shapes: dict[tuple[str, str, str], tuple[bool, bool, bool, bool, bool]] = {
+        ("persist", "stored", "CACHE_ENTRY_STORED"): (True, True, True, True, True),
+        ("persist", "existing", "CACHE_ENTRY_ALREADY_EXISTS"): (True, True, True, True, True),
+        ("lookup", "hit", "CACHE_HIT"): (True, True, True, True, True),
+        ("lookup", "miss", "CACHE_KEY_ABSENT"): (True, False, False, False, False),
+        ("persist", "ineligible", "CACHE_RUN_INELIGIBLE"): (True, False, True, False, False),
+        ("lookup", "stale", "CACHE_ENTRY_STALE"): (True, False, False, False, False),
+        ("lookup", "corrupt", "CACHE_ENTRY_CORRUPT"): (True, False, False, False, False),
+        ("lookup", "corrupt", "CACHE_AUDIT_RUN_MISSING"): (True, False, True, False, False),
+        ("lookup", "corrupt", "CACHE_AUDIT_REPLAY_INVALID"): (True, False, True, False, False),
+        ("persist", "conflict", "CACHE_KEY_CONFLICT"): (True, False, False, False, False),
+        ("persist", "invalid", "CACHE_REQUEST_INVALID"): (False, False, False, False, False),
+        ("persist", "invalid", "CACHE_PATH_INVALID"): (False, False, False, False, False),
+        ("lookup", "invalid", "CACHE_REQUEST_INVALID"): (False, False, False, False, False),
+        ("lookup", "invalid", "CACHE_PATH_INVALID"): (False, False, False, False, False),
+        ("persist", "invalid", "CACHE_AUDIT_RUN_MISSING"): (True, False, True, False, False),
+        ("persist", "invalid", "CACHE_AUDIT_REPLAY_INVALID"): (True, False, True, False, False),
+        ("persist", "invalid", "CACHE_CANDIDATE_MISMATCH"): (True, False, True, False, False),
+        ("persist", "exhausted", "CACHE_CURRENT_BUDGET_EXHAUSTED"): (False, False, False, False, False),
+        ("lookup", "exhausted", "CACHE_CURRENT_BUDGET_EXHAUSTED"): (False, False, False, False, False),
+        ("persist", "exhausted", "CACHE_AUDIT_REPLAY_EXHAUSTED"): (True, False, True, False, False),
+        ("lookup", "exhausted", "CACHE_AUDIT_REPLAY_EXHAUSTED"): (True, False, True, False, False),
+        ("persist", "exhausted", "CACHE_STORE_BUDGET_EXHAUSTED"): (True, False, True, False, False),
+        ("lookup", "exhausted", "CACHE_STORE_BUDGET_EXHAUSTED"): (True, False, False, False, False),
+        ("persist", "unsupported", "CACHE_STORE_UNSUPPORTED"): (True, False, True, False, False),
+        ("lookup", "unsupported", "CACHE_STORE_UNSUPPORTED"): (True, False, False, False, False),
+        ("persist", "unsupported", "CACHE_AUDIT_STORE_UNSUPPORTED"): (True, False, True, False, False),
+        ("lookup", "unsupported", "CACHE_AUDIT_STORE_UNSUPPORTED"): (True, False, True, False, False),
+        ("persist", "io_error", "CACHE_STORE_IO_ERROR"): (True, False, True, False, False),
+        ("lookup", "io_error", "CACHE_STORE_IO_ERROR"): (True, False, False, False, False),
+        ("persist", "io_error", "CACHE_AUDIT_STORE_IO_ERROR"): (True, False, True, False, False),
+        ("lookup", "io_error", "CACHE_AUDIT_STORE_IO_ERROR"): (True, False, True, False, False),
+    }
+    expected = shapes.get((str(operation), str(status), str(reason)))
+    if expected is None:
         _fail("result", "operation/status/reason pair differs")
+    actual = tuple(
+        value[name] is not None
+        for name in (
+            "lookup_key_sha256", "entry_sha256", "audit_manifest_sha256",
+            "record_sha256", "historical_authority_tier",
+        )
+    )
+    if actual != expected:
+        _fail("result", "operation/status/reason nullability differs")
 
 
 def _new_result(
@@ -448,6 +430,17 @@ def _validate_roots(cache_root: Path, audit_root: Path) -> None:
         return
     if common in {cache_root, audit_root}:
         _fail("path", "cache and audit roots overlap")
+    try:
+        cache_info = os.stat(cache_root, follow_symlinks=False)
+        audit_info = os.stat(audit_root, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    except OSError as exc:
+        _classify_io(exc, "cannot compare cache and audit roots")
+    if (cache_info.st_dev, cache_info.st_ino) == (
+        audit_info.st_dev, audit_info.st_ino
+    ):
+        _fail("path", "cache and audit roots name one physical authority")
 
 
 def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
@@ -463,9 +456,7 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
         info = os.fstat(descriptor)
         _directory_info(info, private=False)
         chain.append(_DirectoryIdentity(current, info.st_dev, info.st_ino))
-        parts = root.parts[1:]
-        for index, component in enumerate(parts):
-            private = index == len(parts) - 1
+        for component in root.parts[1:]:
             try:
                 linked = os.stat(component, dir_fd=descriptor, follow_symlinks=False)
             except FileNotFoundError:
@@ -484,7 +475,7 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
                     _classify_io(exc, "cannot synchronize root creation")
             except OSError as exc:
                 _classify_io(exc, "cannot inspect cache ancestor")
-            _directory_info(linked, private=private)
+            _directory_info(linked, private=False)
             try:
                 opened = os.open(component, flags, dir_fd=descriptor)
             except OSError as exc:
@@ -497,7 +488,20 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
             descriptor = opened
             current /= component
             chain.append(_DirectoryIdentity(current, opened_info.st_dev, opened_info.st_ino))
-        result = _PinnedRoot(root, descriptor, tuple(chain))
+        caller_root = _PinnedRoot(root, descriptor, tuple(chain))
+        namespace_descriptor = _open_child(
+            caller_root, descriptor, STORE_NAMESPACE, create=create
+        )
+        os.close(descriptor)
+        descriptor = namespace_descriptor
+        namespace_path = root / STORE_NAMESPACE
+        namespace_info = os.fstat(descriptor)
+        chain.append(
+            _DirectoryIdentity(
+                namespace_path, namespace_info.st_dev, namespace_info.st_ino
+            )
+        )
+        result = _PinnedRoot(namespace_path, descriptor, tuple(chain))
         _guard_root(result)
         return result
     except BaseException:
@@ -509,7 +513,10 @@ def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
 def _fsync_directory(root: _PinnedRoot, descriptor: int, *, probe: bool = False) -> None:
     _guard_root(root)
     try:
-        _directory_info(os.fstat(descriptor), private=True)
+        _directory_info(
+            os.fstat(descriptor),
+            private=(root.path.name == STORE_NAMESPACE or descriptor != root.descriptor),
+        )
         os.fsync(descriptor)
     except OSError as exc:
         if not probe and exc.errno in _UNSUPPORTED_ERRNOS:
@@ -548,6 +555,7 @@ def _open_child(root: _PinnedRoot, parent: int, name: str, *, create: bool) -> i
     except OSError as exc:
         _classify_io(exc, "cannot open cache component")
     opened = os.fstat(descriptor)
+    _directory_info(opened, private=True)
     if (linked.st_dev, linked.st_ino) != (opened.st_dev, opened.st_ino):
         os.close(descriptor)
         _fail("link", "cache component changed while opening")
@@ -825,49 +833,78 @@ def _decision_failure(operation: str, decision: SafeCacheDecision) -> SafeCacheS
     return _new_result(operation, "invalid", "CACHE_REQUEST_INVALID")
 
 
-def _historical_inputs(bundle: RunAuditBundle) -> tuple[object, ...]:
-    manifest = json.loads(bundle.manifest)
-    objects = {_sha(raw): raw for raw in bundle.objects}
-    records = manifest.get("objects")
-    if type(records) is not list:
-        _fail("corrupt", "audit manifest object records absent")
-    by_role: dict[str, list[dict[str, object]]] = {}
-    for record in records:
-        if type(record) is not dict or type(record.get("role")) is not str:
-            _fail("corrupt", "audit object record differs")
-        by_role.setdefault(str(record["role"]), []).append(record)
+def _candidate_failure(
+    operation: str,
+    decision: SafeCacheDecision,
+    lookup: str,
+    manifest: str,
+) -> SafeCacheStoreResult:
+    if decision.status == "exhausted" and decision.reason_code == "CACHE_REPLAY_EXHAUSTED":
+        return _new_result(
+            operation, "exhausted", "CACHE_AUDIT_REPLAY_EXHAUSTED",
+            lookup=lookup, manifest=manifest,
+        )
+    if decision.status == "ineligible" and decision.reason_code in {
+        "CACHE_OUTCOME_INELIGIBLE", "CACHE_AUTHORITY_INELIGIBLE",
+    }:
+        if operation == "persist":
+            return _new_result(
+                operation, "ineligible", "CACHE_RUN_INELIGIBLE",
+                lookup=lookup, manifest=manifest,
+            )
+        return _new_result(operation, "stale", "CACHE_ENTRY_STALE", lookup=lookup)
+    if decision.status == "invalid" and decision.reason_code == "CACHE_REPLAY_INVALID":
+        return _new_result(
+            operation, "invalid" if operation == "persist" else "corrupt",
+            "CACHE_AUDIT_REPLAY_INVALID", lookup=lookup, manifest=manifest,
+        )
+    if decision.status == "invalid" and decision.reason_code in {
+        "CACHE_CONTEXT_MISMATCH", "CACHE_CONTRACT_MISMATCH",
+        "CACHE_IMPLEMENTATION_MISMATCH", "CACHE_CONFIGURATION_MISMATCH",
+        "CACHE_ARTIFACT_MISMATCH", "CACHE_BUDGET_MISMATCH",
+        "CACHE_TRUST_POLICY_MISMATCH",
+    }:
+        if operation == "persist":
+            return _new_result(
+                operation, "invalid", "CACHE_CANDIDATE_MISMATCH",
+                lookup=lookup, manifest=manifest,
+            )
+        return _new_result(operation, "stale", "CACHE_ENTRY_STALE", lookup=lookup)
+    _fail("decision", "candidate decision violates the accepted projection")
 
-    def one(role: str) -> bytes:
-        matches = by_role.get(role, [])
-        if len(matches) != 1:
-            _fail("corrupt", f"historical {role} closure differs")
-        raw = objects.get(str(matches[0].get("sha256")))
-        if raw is None:
-            _fail("corrupt", f"historical {role} bytes absent")
-        return raw
 
-    portfolio_request = json.loads(one("portfolio_request"))
-    artifact_bindings = portfolio_request.get("artifact_bindings")
-    if type(artifact_bindings) is not list:
-        _fail("corrupt", "historical artifact bindings absent")
-    artifacts: list[bytes] = []
-    for binding in artifact_bindings:
-        if type(binding) is not dict:
-            _fail("corrupt", "historical artifact binding differs")
-        raw = objects.get(str(binding.get("sha256")))
-        if raw is None:
-            _fail("corrupt", "historical artifact bytes absent")
-        artifacts.append(raw)
-    descriptors = tuple(
-        objects[str(item["sha256"])] for item in by_role.get("plugin_descriptor", [])
-    )
-    bindings = tuple(
-        objects[str(item["sha256"])] for item in by_role.get("execution_binding", [])
-    )
-    return (
-        one("planning_request"), one("capability_route_result"),
-        one("portfolio_request"), one("planning_result"),
-        one("initial_parent_budget"), descriptors, bindings, tuple(artifacts),
+def _post_lookup_failure(
+    result: SafeCacheStoreResult, lookup: str, manifest: str
+) -> SafeCacheStoreResult:
+    reason = result.reason_code
+    if reason == "CACHE_ENTRY_STALE":
+        return _new_result(
+            "persist", "invalid", "CACHE_CANDIDATE_MISMATCH",
+            lookup=lookup, manifest=manifest,
+        )
+    if reason in {"CACHE_AUDIT_RUN_MISSING", "CACHE_AUDIT_REPLAY_INVALID"}:
+        return _new_result(
+            "persist", "invalid", reason, lookup=lookup, manifest=manifest
+        )
+    if reason == "CACHE_AUDIT_REPLAY_EXHAUSTED":
+        return _new_result(
+            "persist", "exhausted", reason, lookup=lookup, manifest=manifest
+        )
+    if reason == "CACHE_STORE_BUDGET_EXHAUSTED":
+        return _new_result(
+            "persist", "exhausted", reason, lookup=lookup, manifest=manifest
+        )
+    if reason in {"CACHE_STORE_UNSUPPORTED", "CACHE_AUDIT_STORE_UNSUPPORTED"}:
+        return _new_result(
+            "persist", "unsupported", reason, lookup=lookup, manifest=manifest
+        )
+    if reason == "CACHE_AUDIT_STORE_IO_ERROR":
+        return _new_result(
+            "persist", "io_error", reason, lookup=lookup, manifest=manifest
+        )
+    return _new_result(
+        "persist", "io_error", "CACHE_STORE_IO_ERROR",
+        lookup=lookup, manifest=manifest,
     )
 
 
@@ -893,6 +930,8 @@ def _load_entry(root: _PinnedRoot, key: str) -> tuple[dict[str, object], SafeCac
     if (
         entry.lookup_key_sha256 != key
         or entry.entry_sha256 != record["entry_sha256"]
+        or entry.execution_provenance_sha256
+        != record["execution_provenance_sha256"]
         or entry.audit_manifest_sha256 != record["audit_manifest_sha256"]
     ):
         _fail("corrupt", "record and entry cross-links differ")
@@ -997,9 +1036,7 @@ def lookup_safe_cache(
             return _map_audit_validation_error("lookup", key, manifest)
         decision = decide_safe_cache(*args, bundle)
         if decision.status != "hit" or decision.entry is None:
-            return _new_result(
-                "lookup", "stale", "CACHE_ENTRY_STALE", lookup=key
-            )
+            return _candidate_failure("lookup", decision, key, manifest)
         if safe_cache_entry_bytes(decision.entry) != safe_cache_entry_bytes(entry):
             return _new_result(
                 "lookup", "stale", "CACHE_ENTRY_STALE", lookup=key
@@ -1063,16 +1100,8 @@ def persist_safe_cache(
     except RunAuditValidationError:
         return _map_audit_validation_error("persist", key, manifest_sha256)
     decision = decide_safe_cache(*args, bundle)
-    if decision.status == "ineligible":
-        return _new_result(
-            "persist", "ineligible", "CACHE_RUN_INELIGIBLE",
-            lookup=key, manifest=manifest_sha256,
-        )
     if decision.status != "hit" or decision.entry is None:
-        return _new_result(
-            "persist", "invalid", "CACHE_AUDIT_REPLAY_INVALID",
-            lookup=key, manifest=manifest_sha256,
-        )
+        return _candidate_failure("persist", decision, key, manifest_sha256)
     entry = decision.entry
     if not _descriptor_store_supported():
         return _new_result(
@@ -1117,27 +1146,25 @@ def persist_safe_cache(
                         or loaded_record["record_sha256"] != record_identity
                     ):
                         _fail("corrupt", "freshly installed cache entry differs")
-                    try:
-                        loaded_bundle = load_run_audit(audit_root, manifest_sha256)
-                    except RunAuditStoreError as exc:
-                        if created:
-                            _rollback_visible_key(store, key)
-                        return _map_audit_error(
-                            "persist", exc, key, manifest_sha256
-                        )
-                    except RunAuditValidationError:
-                        if created:
-                            _rollback_visible_key(store, key)
-                        return _map_audit_validation_error(
-                            "persist", key, manifest_sha256
-                        )
-                    verified = decide_safe_cache(*args, loaded_bundle)
+                    verified = lookup_safe_cache(
+                        cache_root, audit_root, planning_request, route_result,
+                        portfolio_request, planning_result, parent_budget,
+                        descriptors, bindings, artifacts,
+                    )
                     if (
                         verified.status != "hit"
-                        or verified.entry is None
-                        or safe_cache_entry_bytes(verified.entry) != entry_raw
+                        or verified.lookup_key_sha256 != key
+                        or verified.entry_sha256 != entry.entry_sha256
+                        or verified.audit_manifest_sha256 != manifest_sha256
+                        or verified.record_sha256 != record_identity
+                        or verified.historical_authority_tier
+                        != entry.historical_authority_tier
                     ):
-                        _fail("corrupt", "post-install fresh hit differs")
+                        if created:
+                            _rollback_visible_key(store, key)
+                        return _post_lookup_failure(
+                            verified, key, manifest_sha256
+                        )
                     _guard_root(store)
                     return _new_result(
                         "persist", "stored" if created else "existing",
@@ -1183,7 +1210,12 @@ def persist_safe_cache(
 def list_safe_cache(cache_root: Path, audit_root: Path) -> tuple[str, ...]:
     """List structurally and historically valid immutable cache keys."""
     _validate_roots(cache_root, audit_root)
-    store = _open_root(cache_root, create=False)
+    try:
+        store = _open_root(cache_root, create=False)
+    except SafeCacheStoreError as exc:
+        if exc.kind == "missing":
+            return ()
+        raise
     keys_fd = -1
     try:
         _fsync_directory(store, store.descriptor, probe=True)
@@ -1234,8 +1266,12 @@ def list_safe_cache(cache_root: Path, audit_root: Path) -> tuple[str, ...]:
                 _fail("corrupt", f"listed audit run rejected: {exc.kind}")
             except RunAuditValidationError:
                 _fail("corrupt", "listed audit replay rejected")
-            historical = decide_safe_cache(*_historical_inputs(bundle), bundle)
-            if historical.status != "hit" or historical.entry is None or safe_cache_entry_bytes(historical.entry) != safe_cache_entry_bytes(entry):
+            manifest = json.loads(bundle.manifest)
+            if (
+                bundle.manifest_sha256 != entry.audit_manifest_sha256
+                or manifest.get("execution_provenance_sha256")
+                != entry.execution_provenance_sha256
+            ):
                 _fail("corrupt", "listed historical cache relation differs")
         _guard_root(store)
         return result

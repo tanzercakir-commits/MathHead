@@ -24,9 +24,9 @@ try:
 except ImportError:  # dependency-minimal contract profile
     jsonschema = None  # type: ignore[assignment]
 
-from mathhead.run_audit_store import RunAuditStoreError, persist_run_audit
-import mathhead.safe_cache_store as store
-from mathhead.safe_cache_store import (
+from mathhead.run_audit_store import RunAuditStoreError, persist_run_audit  # noqa: E402
+import mathhead.safe_cache_store as store  # noqa: E402
+from mathhead.safe_cache_store import (  # noqa: E402
     SafeCacheStoreError,
     SafeCacheStoreResult,
     list_safe_cache,
@@ -35,7 +35,7 @@ from mathhead.safe_cache_store import (
     persist_safe_cache,
     safe_cache_store_result_bytes,
 )
-from tests.run_audit.fixtures import single_bundle, success_bundle
+from tests.run_audit.fixtures import single_bundle, success_bundle  # noqa: E402
 
 
 SCHEMAS = ROOT / "docs/contracts/schemas"
@@ -73,12 +73,12 @@ def cache_inputs(audited: object) -> tuple[object, ...]:
 class SafeCacheStoreContractTests(unittest.TestCase):
     def test_accepted_contract_schema_hashes_and_signatures_are_exact(self) -> None:
         self.assertEqual(
-            sha((ROOT / "docs/contracts/MH-C-SAFE-CACHE-STORE-001.json").read_bytes()),
+            sha((ROOT / "docs/contracts/MH-C-SAFE-CACHE-STORE-002.json").read_bytes()),
             store.STORE_CONTRACT_SHA256,
         )
         expected = {
-            "mathhead.safe-cache-store-record.v1": "safe-cache-store-record-v1.schema.json",
-            "mathhead.safe-cache-store-result.v1": "safe-cache-store-result-v1.schema.json",
+            "mathhead.safe-cache-store-record.v2": "safe-cache-store-record-v2.schema.json",
+            "mathhead.safe-cache-store-result.v2": "safe-cache-store-result-v2.schema.json",
         }
         self.assertEqual(
             {schema: sha((SCHEMAS / name).read_bytes()) for schema, name in expected.items()},
@@ -134,7 +134,7 @@ class SafeCacheStoreTests(unittest.TestCase):
                 parse_safe_cache_store_result(safe_cache_store_result_bytes(hit)), hit
             )
             if jsonschema is not None:
-                schema = json.loads((SCHEMAS / "safe-cache-store-result-v1.schema.json").read_text())
+                schema = json.loads((SCHEMAS / "safe-cache-store-result-v2.schema.json").read_text())
                 jsonschema.Draft202012Validator(schema).validate(
                     json.loads(safe_cache_store_result_bytes(hit))
                 )
@@ -153,6 +153,37 @@ class SafeCacheStoreTests(unittest.TestCase):
             self.assertEqual(result.status, "hit")
             self.assertEqual(load.call_count, 1)
             self.assertEqual(decide.call_count, 2)
+
+    def test_successful_persist_runs_exact_pre_and_post_validation_cycles(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mh055-cache-persist-cycle-", dir=ROOT) as raw:
+            cache_root, audit_root, audited = self.prepare(Path(raw).resolve())
+            with (
+                mock.patch.object(store, "load_run_audit", wraps=store.load_run_audit) as load,
+                mock.patch.object(store, "decide_safe_cache", wraps=store.decide_safe_cache) as decide,
+            ):
+                result = persist_safe_cache(
+                    cache_root, audit_root, *self.current,
+                    audited.bundle.manifest_sha256,
+                )
+            self.assertEqual(result.status, "stored")
+            self.assertEqual(load.call_count, 2)
+            self.assertEqual(decide.call_count, 4)
+
+    def test_listing_uses_one_audit_load_and_no_safe_cache_decision(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mh055-cache-list-cycle-", dir=ROOT) as raw:
+            cache_root, audit_root, audited = self.prepare(Path(raw).resolve())
+            persisted = persist_safe_cache(
+                cache_root, audit_root, *self.current,
+                audited.bundle.manifest_sha256,
+            )
+            with (
+                mock.patch.object(store, "load_run_audit", wraps=store.load_run_audit) as load,
+                mock.patch.object(store, "decide_safe_cache", wraps=store.decide_safe_cache) as decide,
+            ):
+                listed = list_safe_cache(cache_root, audit_root)
+            self.assertEqual(listed, (persisted.lookup_key_sha256,))
+            self.assertEqual(load.call_count, 1)
+            self.assertEqual(decide.call_count, 0)
 
     def test_invalid_separated_roots_and_invalid_current_input_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mh055-cache-roots-", dir=ROOT) as raw:
@@ -191,10 +222,11 @@ class SafeCacheStoreTests(unittest.TestCase):
                     cache_root, audit_root, *self.current, audited.bundle.manifest_sha256
                 )
                 assert first.lookup_key_sha256 is not None
-                record_path = cache_root / "keys" / first.lookup_key_sha256[:2] / first.lookup_key_sha256
+                current_root = cache_root / store.STORE_NAMESPACE
+                record_path = current_root / "keys" / first.lookup_key_sha256[:2] / first.lookup_key_sha256
                 record = json.loads(record_path.read_bytes())
                 object_digest = record["entry_object_sha256"]
-                object_path = cache_root / "objects" / object_digest[:2] / object_digest
+                object_path = current_root / "objects" / object_digest[:2] / object_digest
                 if target_kind == "record":
                     record_path.write_bytes(record_path.read_bytes() + b"x")
                 elif target_kind == "object":
@@ -205,6 +237,41 @@ class SafeCacheStoreTests(unittest.TestCase):
                 self.assertEqual((result.status, result.reason_code), ("corrupt", "CACHE_ENTRY_CORRUPT"))
                 with self.assertRaises(SafeCacheStoreError):
                     list_safe_cache(cache_root, audit_root)
+
+    def test_repaired_record_provenance_swap_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mh055-cache-provenance-", dir=ROOT) as raw:
+            cache_root, audit_root, audited = self.prepare(Path(raw).resolve())
+            result = persist_safe_cache(
+                cache_root, audit_root, *self.current,
+                audited.bundle.manifest_sha256,
+            )
+            assert result.lookup_key_sha256 is not None
+            record_path = (
+                cache_root / store.STORE_NAMESPACE / "keys"
+                / result.lookup_key_sha256[:2] / result.lookup_key_sha256
+            )
+            record = json.loads(record_path.read_bytes())
+            record["execution_provenance_sha256"] = "f" * 64
+            record["record_sha256"] = None
+            record["record_sha256"] = sha(store._canonical(record))
+            record_path.write_bytes(store._canonical(record))
+            self.assertEqual(
+                lookup_safe_cache(cache_root, audit_root, *self.current).reason_code,
+                "CACHE_ENTRY_CORRUPT",
+            )
+            with self.assertRaises(SafeCacheStoreError):
+                list_safe_cache(cache_root, audit_root)
+
+    def test_legacy_root_level_v1_layout_is_not_current_state(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mh055-cache-legacy-", dir=ROOT) as raw:
+            base = Path(raw).resolve()
+            cache_root, audit_root, _audited = self.prepare(base)
+            cache_root.mkdir(mode=0o700)
+            (cache_root / "keys").mkdir(mode=0o700)
+            (cache_root / "objects").mkdir(mode=0o700)
+            self.assertEqual(list_safe_cache(cache_root, audit_root), ())
+            result = lookup_safe_cache(cache_root, audit_root, *self.current)
+            self.assertEqual((result.status, result.reason_code), ("miss", "CACHE_KEY_ABSENT"))
 
     def test_same_key_concurrent_writers_converge(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mh055-cache-concurrent-", dir=ROOT) as raw:
@@ -380,6 +447,45 @@ class SafeCacheStoreTests(unittest.TestCase):
         forged["result_sha256"] = sha(store._canonical(forged))
         with self.assertRaises(SafeCacheStoreError):
             parse_safe_cache_store_result(store._canonical(forged))
+
+    def test_result_codec_matches_every_closed_v2_schema_row(self) -> None:
+        schema = json.loads(
+            (SCHEMAS / "safe-cache-store-result-v2.schema.json").read_text()
+        )
+        rows = 0
+        for branch in schema["allOf"][0]["oneOf"]:
+            properties = branch["properties"]
+            reason_spec = properties["reason_code"]
+            reasons = reason_spec.get("enum")
+            if reasons is None:
+                reasons = (reason_spec["const"],)
+            for reason in reasons:
+                kwargs: dict[str, object] = {}
+                for field, argument in (
+                    ("lookup_key_sha256", "lookup"),
+                    ("entry_sha256", "entry"),
+                    ("audit_manifest_sha256", "manifest"),
+                    ("record_sha256", "record"),
+                    ("historical_authority_tier", "tier"),
+                ):
+                    spec = properties[field]
+                    if spec.get("type") != "null":
+                        kwargs[argument] = (
+                            "checker_attestation"
+                            if field == "historical_authority_tier"
+                            else "a" * 64
+                        )
+                value = store._new_result(
+                    properties["operation"]["const"],
+                    properties["status"]["const"],
+                    reason,
+                    **kwargs,
+                )
+                validate = json.loads(safe_cache_store_result_bytes(value))
+                if jsonschema is not None:
+                    jsonschema.Draft202012Validator(schema).validate(validate)
+                rows += 1
+        self.assertEqual(rows, 31)
 
 
 if __name__ == "__main__":

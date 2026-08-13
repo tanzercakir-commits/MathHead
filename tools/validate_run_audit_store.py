@@ -176,6 +176,7 @@ def _source_checks() -> dict[str, object]:
         _fail("store source gained dynamic execution")
     descriptor_helpers = {
         "_open_root",
+        "_validate_root_path",
         "_guard_root",
         "_open_child_directory",
         "_read_bounded",
@@ -185,6 +186,20 @@ def _source_checks() -> dict[str, object]:
     }
     if not descriptor_helpers <= set(functions):
         _fail("store source lost a pinned descriptor helper")
+    for owner in ("_open_root", "persist_run_audit"):
+        helper_calls = {
+            node.func.id: node.lineno
+            for node in ast.walk(functions[owner])
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {"_validate_root_path", "_descriptor_store_supported"}
+        }
+        if (
+            set(helper_calls) != {"_validate_root_path", "_descriptor_store_supported"}
+            or helper_calls["_validate_root_path"]
+            >= helper_calls["_descriptor_store_supported"]
+        ):
+            _fail(f"store path validation no longer precedes capability classification: {owner}")
     dir_fd_calls = [
         node
         for node in ast.walk(tree)

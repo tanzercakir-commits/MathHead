@@ -568,15 +568,23 @@ class RunAuditStoreTests(unittest.TestCase):
     def test_root_relative_and_traversal_shaped_paths_are_rejected(self) -> None:
         from mathhead import run_audit_store as store
 
-        candidates = (Path(os.path.sep), Path("relative"))
-        for candidate in candidates:
-            with self.subTest(path=candidate), self.assertRaises(store.RunAuditStoreError):
-                store.persist_run_audit(candidate, self.bundle)
+        candidates = (Path(Path.cwd().anchor), Path("relative"))
+        with mock.patch.object(store, "_descriptor_store_supported", return_value=False):
+            for candidate in candidates:
+                with self.subTest(path=candidate), self.assertRaises(
+                    store.RunAuditStoreError
+                ) as caught:
+                    store.persist_run_audit(candidate, self.bundle)
+                self.assertEqual(caught.exception.kind, "path")
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary).resolve()
             traversal = base / "parent" / ".." / "audit"
-            with self.assertRaises(store.RunAuditStoreError):
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=False),
+                self.assertRaises(store.RunAuditStoreError) as caught,
+            ):
                 store.persist_run_audit(traversal, self.bundle)
+            self.assertEqual(caught.exception.kind, "path")
             result = store.persist_run_audit(base / "typed", object())  # type: ignore[arg-type]
             self.assertEqual(result.status, "invalid")
             self.assertFalse(result.mathematical_authority)

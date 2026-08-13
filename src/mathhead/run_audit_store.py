@@ -299,18 +299,22 @@ def _guard_root(root: _PinnedRoot) -> None:
             _fail("link", "store ancestor identity changed")
 
 
-def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
+def _validate_root_path(root: Path) -> None:
     if type(root) is not type(Path()):
         _fail("type", "store root must be an exact concrete pathlib.Path")
     if (
         not root.is_absolute()
+        or not root.anchor
         or root == Path(root.anchor)
-        or root.anchor != os.path.sep
         or len(root.parts) > MAX_PATH_COMPONENTS
         or len(str(root)) > MAX_PATH_CODEPOINTS
         or root != Path(os.path.normpath(str(root)))
     ):
         _fail("path", "store root is relative, root, non-normalized, or over budget")
+
+
+def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
+    _validate_root_path(root)
     if not _descriptor_store_supported():
         _fail("unsupported", "descriptor-relative no-follow store operations are unavailable")
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
@@ -698,8 +702,7 @@ def _new_result(
 
 def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult:
     """Freshly replay and atomically append one immutable audit run."""
-    if type(root) is not type(Path()):
-        _fail("type", "store root must be an exact concrete pathlib.Path")
+    _validate_root_path(root)
     if type(bundle) is not RunAuditBundle:
         return _new_result(
             "invalid",

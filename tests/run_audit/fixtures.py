@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from threading import Event
+import tempfile
 
 from mathhead.proof_search_portfolio import (
     make_portfolio_execution_binding,
@@ -79,19 +80,20 @@ def single_bundle(
     planning_request, route_result, _descriptors, artifacts = fixture.base.planning_inputs(
         (fixture.descriptor,), availability_changes={"allowed_effects": ("process",)}
     )
-    bundle = execute_audited_run(
-        planning_request,
-        route_result,
-        request,
-        fixture.plan_bytes,
-        fixture.parent,
-        (fixture.descriptor,),
-        (binding,),
-        artifacts,
-        fixture.executable_paths,
-        "/tmp",
-        cancel_event,
-    )
+    with tempfile.TemporaryDirectory(prefix="mathhead-run-audit-fixture-") as workspace:
+        bundle = execute_audited_run(
+            planning_request,
+            route_result,
+            request,
+            fixture.plan_bytes,
+            fixture.parent,
+            (fixture.descriptor,),
+            (binding,),
+            artifacts,
+            fixture.executable_paths,
+            workspace,
+            cancel_event,
+        )
     return AuditedFixture(fixture, planning_request, route_result, bundle)
 
 
@@ -111,16 +113,17 @@ def fallback_bundle() -> AuditedFixture:
         bindings=fixture.bindings,
         artifacts=fixture.input_pairs,
     )
-    bundle = execute_audited_run(
-        planning_request,
-        route_result,
-        request,
-        fixture.plan_bytes,
-        fixture.parent,
-        fixture.descriptors,
-        fixture.bindings,
-        artifacts,
-        fixture.executable_paths,
-        "/tmp",
-    )
+    with tempfile.TemporaryDirectory(prefix="mathhead-run-audit-fixture-") as workspace:
+        bundle = execute_audited_run(
+            planning_request,
+            route_result,
+            request,
+            fixture.plan_bytes,
+            fixture.parent,
+            fixture.descriptors,
+            fixture.bindings,
+            artifacts,
+            fixture.executable_paths,
+            workspace,
+        )
     return AuditedFixture(fixture, planning_request, route_result, bundle)

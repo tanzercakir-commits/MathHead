@@ -1638,11 +1638,12 @@ def _report() -> dict[str, object]:
     if (
         success["logical_report_sha256"] != second_success["logical_report_sha256"]
         or fallback["logical_report_sha256"] != second_fallback["logical_report_sha256"]
-        or prelaunch["status"] != "invalid"
-        or prelaunch["attempts"] != 0
-        or invalid_output["status"] != "invalid_evidence"
     ):
         _fail("fresh-process logical report differs across hash seeds")
+    if prelaunch["status"] != "invalid" or prelaunch["attempts"] != 0:
+        _fail("prelaunch-invalid fixture changed its closed classification")
+    if invalid_output["status"] != "invalid_evidence":
+        _fail("invalid-output fixture changed its closed classification")
     supported = first.get("isolation_supported")
     if type(supported) is not bool or second.get("isolation_supported") != supported:
         _fail("isolated-worker capability classification differs")

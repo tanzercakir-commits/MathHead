@@ -10,6 +10,7 @@ import sys
 from threading import Event
 from typing import Any, Callable
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -319,6 +320,83 @@ class RunAuditTests(unittest.TestCase):
             parse_run_audit_replay_result(raw, bundle.manifest, bundle.objects),
             replay,
         )
+
+    def test_fresh_validation_recomputes_route_once_and_requires_planned_status(self) -> None:
+        from mathhead import deterministic_planner, run_audit
+
+        fixture = self.fixture.source
+        _planning, _route, _descriptors, artifacts = fixture.base.planning_inputs(
+            (fixture.descriptor,),
+            availability_changes={"allowed_effects": ("process",)},
+        )
+        inputs = (
+            self.fixture.planning_request,
+            self.fixture.route_result,
+            fixture.request,
+            fixture.plan_bytes,
+            fixture.parent,
+            (fixture.descriptor,),
+            (fixture.binding,),
+            artifacts,
+        )
+        with (
+            mock.patch.object(
+                deterministic_planner,
+                "route_capabilities",
+                wraps=deterministic_planner.route_capabilities,
+            ) as route,
+            mock.patch.object(
+                run_audit,
+                "plan_strategies",
+                wraps=run_audit.plan_strategies,
+            ) as plan,
+        ):
+            run_audit._fresh_inputs(*inputs)
+        self.assertEqual((plan.call_count, route.call_count), (1, 1))
+        self.assertFalse(hasattr(run_audit, "route_capabilities"))
+
+        with (
+            mock.patch.object(
+                deterministic_planner,
+                "route_capabilities",
+                wraps=deterministic_planner.route_capabilities,
+            ) as route,
+            mock.patch.object(
+                run_audit,
+                "plan_strategies",
+                wraps=run_audit.plan_strategies,
+            ) as plan,
+        ):
+            replay = run_audit.replay_run_audit(
+                self.fixture.bundle.manifest,
+                self.fixture.bundle.objects,
+            )
+        self.assertEqual(replay.status, "complete")
+        self.assertEqual((plan.call_count, route.call_count), (1, 1))
+
+        physical = {sha(raw): raw for raw in self.fixture.bundle.objects}
+        manifest = json.loads(self.fixture.bundle.manifest)
+        planning_record = next(
+            item for item in manifest["objects"] if item["role_id"] == "planning_result"
+        )
+        planning_raw = physical[planning_record["sha256"]]
+        with (
+            mock.patch.object(
+                run_audit,
+                "plan_strategies",
+                return_value=type("InvalidPlan", (), {"status": "invalid"})(),
+            ),
+            mock.patch.object(
+                run_audit,
+                "planning_result_bytes",
+                return_value=planning_raw,
+            ),
+            self.assertRaisesRegex(run_audit._Invalid, "not planned"),
+        ):
+            run_audit._complete_replay(
+                self.fixture.bundle.manifest,
+                self.fixture.bundle.objects,
+            )
 
     def test_execution_provenance_is_exact_singleton_and_cross_linked(self) -> None:
         from mathhead.execution_provenance import build_execution_provenance

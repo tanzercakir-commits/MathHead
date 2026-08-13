@@ -17,10 +17,7 @@ from typing import Any, Final, NoReturn
 
 from .capability_registry import (
     CONTRACT_SHA256 as CAPABILITY_REGISTRY_CONTRACT_SHA256,
-    capability_route_result_bytes,
     parse_capability_route_request,
-    parse_capability_route_result,
-    route_capabilities,
 )
 from .deterministic_planner import (
     CERTIFICATE_CONTRACT_SHA256,
@@ -1976,12 +1973,6 @@ def _fresh_inputs(
         raise _Invalid("audited byte inputs must be exact bytes")
     if any(type(value) is not tuple for value in (descriptors, bindings, artifacts)) or any(type(raw) is not bytes for raw in (*descriptors, *bindings, *artifacts)):
         raise _Invalid("audited inventories must be exact tuples of exact bytes")
-    planning = parse_planning_request(planning_request)
-    parse_capability_route_request(planning.route_request)
-    supplied_route = parse_capability_route_result(route_result)
-    fresh_route = route_capabilities(planning.route_request, descriptors, artifacts)
-    if capability_route_result_bytes(fresh_route) != route_result or fresh_route != supplied_route:
-        raise _Invalid("fresh capability route differs")
     fresh_plan = plan_strategies(planning_request, route_result, descriptors, artifacts)
     supplied_plan = parse_planning_result(planning_result)
     if planning_result_bytes(fresh_plan) != planning_result or fresh_plan != supplied_plan or fresh_plan.status != "planned":
@@ -2263,12 +2254,9 @@ def _complete_replay(
     if set(artifact_map) != set(expected_roles) or len(artifact_map) != len(expected_roles):
         raise _Invalid("portfolio artifact binding closure differs")
     artifacts = tuple(artifact_map[role] for role in expected_roles)
-    fresh_route = route_capabilities(planning.route_request, descriptors, artifacts)
-    if capability_route_result_bytes(fresh_route) != route_result:
-        raise _Invalid("fresh route differs")
     fresh_plan = plan_strategies(planning_request, route_result, descriptors, artifacts)
-    if planning_result_bytes(fresh_plan) != planning_result:
-        raise _Invalid("fresh plan differs")
+    if planning_result_bytes(fresh_plan) != planning_result or fresh_plan.status != "planned":
+        raise _Invalid("fresh plan differs or is not planned")
     if request.planning_result_sha256 != _sha(planning_result) or request.parent_budget_sha256 != _sha(initial_parent):
         raise _Invalid("portfolio request input identities differ")
     selected_evidence_record = None

@@ -265,6 +265,205 @@ class SafeCacheTests(unittest.TestCase):
         with self.assertRaises(SafeCacheValidationError):
             parse_safe_cache_decision(cache._canonical(mismatched))
 
+    def test_codec_and_entry_failure_matrix_is_closed(self) -> None:
+        operations = (
+            lambda: cache._walk(None, nodes=[cache.MAX_JSON_NODES]),
+            lambda: cache._walk(cache.INTEGER_MAXIMUM + 1),
+            lambda: cache._walk("nul\x00"),
+            lambda: cache._walk({1: False}),
+            lambda: cache._walk(object()),
+            lambda: cache._canonical({"value": "large"}, maximum=1),
+            lambda: cache._parse(bytearray(b"{}\n")),
+            lambda: cache._parse(b"{}\n", maximum=1),
+            lambda: cache._parse(b'{"value":1.5}\n'),
+            lambda: cache._digest("A" * 64, "digest"),
+            lambda: cache._text("not valid!", "text"),
+        )
+        for index, operation in enumerate(operations):
+            with self.subTest(codec=index), self.assertRaises(
+                (cache._Invalid, cache._Exhausted)
+            ):
+                operation()
+
+        hit = decide_safe_cache(*self.proved_inputs, self.proved.bundle)
+        assert hit.entry is not None
+        entry = cache._entry_mapping(hit.entry)
+        mutations = (
+            lambda value: value.pop("entry_sha256"),
+            lambda value: value.__setitem__("schema", "mathhead.wrong"),
+            lambda value: value.__setitem__("lookup_key_sha256", "A" * 64),
+            lambda value: value.__setitem__("plugin_id", "not valid!"),
+            lambda value: value.__setitem__("plugin_version", "not-semver"),
+            lambda value: value.__setitem__("historical_authority_tier", "caller"),
+            lambda value: value.__setitem__("eligibility", "caller_eligible"),
+            lambda value: value.__setitem__("mathematical_authority", True),
+            lambda value: value.__setitem__("entry_sha256", "0" * 64),
+        )
+        for index, mutate in enumerate(mutations):
+            value = dict(entry)
+            mutate(value)
+            with self.subTest(entry=index), self.assertRaises(cache._Invalid):
+                cache._entry_from_mapping(value)
+        with self.assertRaises(SafeCacheValidationError):
+            cache.validate_safe_cache_entry(object())  # type: ignore[arg-type]
+
+    def test_decision_shape_and_relation_failure_matrix_is_closed(self) -> None:
+        key = "a" * 64
+        miss = cache._new_decision("miss", "CACHE_CANDIDATE_ABSENT", key)
+        hit = decide_safe_cache(*self.proved_inputs, self.proved.bundle)
+        outcome = cache._new_decision(
+            "ineligible",
+            "CACHE_OUTCOME_INELIGIBLE",
+            key,
+            manifest="b" * 64,
+            report="c" * 64,
+            portfolio="d" * 64,
+        )
+        authority = cache._new_decision(
+            "ineligible",
+            "CACHE_AUTHORITY_INELIGIBLE",
+            key,
+            manifest="b" * 64,
+            report="c" * 64,
+            portfolio="d" * 64,
+            evidence="e" * 64,
+            certificate="f" * 64,
+            checker="1" * 64,
+        )
+        current_invalid = cache._new_decision(
+            "invalid", "CACHE_CURRENT_REQUEST_INVALID", None
+        )
+        candidate_invalid = cache._new_decision(
+            "invalid", "CACHE_CONTEXT_MISMATCH", key
+        )
+        decision_exhausted = cache._new_decision(
+            "exhausted", "CACHE_DECISION_BUDGET_EXHAUSTED", None
+        )
+        replay_exhausted = cache._new_decision(
+            "exhausted", "CACHE_REPLAY_EXHAUSTED", key
+        )
+        cases = (
+            (hit, lambda value: value.__setitem__("reason_code", "NOPE")),
+            (miss, lambda value: value.__setitem__("entry_sha256", "2" * 64)),
+            (outcome, lambda value: value.__setitem__("selected_evidence_sha256", "2" * 64)),
+            (authority, lambda value: value.__setitem__("historical_authority_tier", "checker_attestation")),
+            (current_invalid, lambda value: value.__setitem__("lookup_key_sha256", key)),
+            (candidate_invalid, lambda value: value.__setitem__("lookup_key_sha256", None)),
+            (decision_exhausted, lambda value: value.__setitem__("lookup_key_sha256", key)),
+            (replay_exhausted, lambda value: value.__setitem__("lookup_key_sha256", None)),
+            (miss, lambda value: value.__setitem__("status", "caller_status")),
+        )
+        for index, (source, mutate) in enumerate(cases):
+            value = cache._decision_mapping(source)
+            mutate(value)
+            with self.subTest(shape=index), self.assertRaises(cache._Invalid):
+                cache._decision_shape(value)
+
+        mapping_cases = (
+            (miss, lambda value: value.pop("decision_sha256")),
+            (miss, lambda value: value.__setitem__("schema", "mathhead.wrong")),
+            (miss, lambda value: value.__setitem__("historical_authority_tier", "caller")),
+            (miss, lambda value: value.__setitem__("decision_sha256", "A" * 64)),
+            (miss, lambda value: value.__setitem__("decision_sha256", "0" * 64)),
+            (hit, lambda value: value.__setitem__("lookup_key_sha256", "3" * 64)),
+        )
+        for index, (source, mutate) in enumerate(mapping_cases):
+            value = cache._decision_mapping(source)
+            mutate(value)
+            with self.subTest(mapping=index), self.assertRaises(cache._Invalid):
+                cache._decision_from_mapping(value)
+        with self.assertRaises(SafeCacheValidationError):
+            cache.validate_safe_cache_decision(object())  # type: ignore[arg-type]
+
+    def test_decision_exception_projection_is_exact(self) -> None:
+        key = "a" * 64
+        current = {"lookup_key_sha256": key}
+        candidate = type(
+            "Candidate",
+            (),
+            {
+                "manifest_sha256": "b" * 64,
+                "logical_report_sha256": "c" * 64,
+            },
+        )()
+
+        for effect, expected in (
+            (cache._Exhausted("probe"), ("exhausted", "CACHE_DECISION_BUDGET_EXHAUSTED")),
+            (cache._Invalid("probe"), ("invalid", "CACHE_CURRENT_REQUEST_INVALID")),
+        ):
+            with (
+                self.subTest(current=expected[0]),
+                mock.patch.object(cache, "_current_request", side_effect=effect),
+            ):
+                result = decide_safe_cache(*self.proved_inputs, None)
+            self.assertEqual((result.status, result.reason_code), expected)
+        with (
+            mock.patch.object(cache, "_current_request", side_effect=MemoryError),
+            self.assertRaises(MemoryError),
+        ):
+            decide_safe_cache(*self.proved_inputs, None)
+
+        for effect, expected in (
+            (cache._Exhausted("probe"), ("exhausted", "CACHE_REPLAY_EXHAUSTED")),
+            (cache._Invalid("CACHE_CONTEXT_MISMATCH"), ("invalid", "CACHE_CONTEXT_MISMATCH")),
+            (cache._Invalid("caller reason"), ("invalid", "CACHE_REPLAY_INVALID")),
+        ):
+            with (
+                self.subTest(candidate=expected[1]),
+                mock.patch.object(cache, "_current_request", return_value=current),
+                mock.patch.object(cache, "_candidate_view", side_effect=effect),
+            ):
+                result = decide_safe_cache(*self.proved_inputs, candidate)
+            self.assertEqual((result.status, result.reason_code), expected)
+        with (
+            mock.patch.object(cache, "_current_request", return_value=current),
+            mock.patch.object(cache, "_candidate_view", side_effect=KeyboardInterrupt),
+            self.assertRaises(KeyboardInterrupt),
+        ):
+            decide_safe_cache(*self.proved_inputs, candidate)
+
+        manifest = {"portfolio_result_sha256": "d" * 64}
+        non_success = {"status": "failed", "mathematical_verdict": "inconclusive"}
+        with (
+            mock.patch.object(cache, "_current_request", return_value=current),
+            mock.patch.object(
+                cache,
+                "_candidate_view",
+                return_value=(manifest, non_success, {}, {}),
+            ),
+        ):
+            result = decide_safe_cache(*self.proved_inputs, candidate)
+        self.assertEqual((result.status, result.reason_code), ("ineligible", "CACHE_OUTCOME_INELIGIBLE"))
+
+        for selected, expected in (
+            (
+                {
+                    "status": "succeeded",
+                    "mathematical_verdict": "proved",
+                    "selected_evidence_sha256": "e" * 64,
+                    "selected_certificate_sha256": "f" * 64,
+                    "selected_checker_decision_sha256": "1" * 64,
+                },
+                ("ineligible", "CACHE_AUTHORITY_INELIGIBLE"),
+            ),
+            (
+                {"status": "succeeded", "mathematical_verdict": "proved"},
+                ("invalid", "CACHE_REPLAY_INVALID"),
+            ),
+        ):
+            with (
+                self.subTest(entry=expected[1]),
+                mock.patch.object(cache, "_current_request", return_value=current),
+                mock.patch.object(
+                    cache,
+                    "_candidate_view",
+                    return_value=(manifest, selected, {}, {}),
+                ),
+                mock.patch.object(cache, "_make_entry", side_effect=ValueError("probe")),
+            ):
+                result = decide_safe_cache(*self.proved_inputs, candidate)
+            self.assertEqual((result.status, result.reason_code), expected)
+
     def test_compiled_identity_inventories_are_closed(self) -> None:
         self.assertEqual((len(cache.CONTRACT_BINDINGS), len(cache.SCHEMA_BINDINGS)), (20, 65))
         self.assertEqual((len(cache.IMPLEMENTATION_BINDINGS), len(cache.CONFIGURATION_BINDINGS)), (5, 5))

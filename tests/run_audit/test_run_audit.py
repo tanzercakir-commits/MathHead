@@ -571,8 +571,36 @@ class RunAuditTests(unittest.TestCase):
     def test_worker_observation_field_relations_fail_independently(self) -> None:
         from mathhead.run_audit import replay_run_audit
 
+        manifest_value = json.loads(self.fixture.bundle.manifest)
+        physical = {sha(raw): raw for raw in self.fixture.bundle.objects}
+        observation_record = next(
+            item
+            for item in manifest_value["objects"]
+            if item["role_id"] == "producer_worker_observation_000000"
+        )
+        baseline_observation = json.loads(physical[observation_record["sha256"]])
+
         def artifact(value: dict[str, Any]) -> dict[str, Any]:
             return value["result"]["artifacts"][0]
+
+        def change_status(value: dict[str, Any]) -> None:
+            result = value["result"]
+            result["status"] = "failed" if result["status"] != "failed" else "invalid"
+
+        def add_surplus_artifact(value: dict[str, Any]) -> None:
+            item: dict[str, Any] = {
+                "schema": "mathhead.worker-artifact.v1",
+                "role": "stdout",
+                "media_type": "application/octet-stream",
+                "original_bytes": 0,
+                "retained_bytes": 0,
+                "omitted_bytes": 0,
+                "retained_sha256": None,
+                "artifact_sha256": None,
+                "mathematical_authority": False,
+            }
+            self_hash(item, "artifact_sha256")
+            value["result"]["artifacts"] = [item]
 
         def artifact_role(value: dict[str, Any]) -> None:
             item = artifact(value)
@@ -592,11 +620,11 @@ class RunAuditTests(unittest.TestCase):
         def artifact_self_identity(value: dict[str, Any]) -> None:
             artifact(value)["artifact_sha256"] = "0" * 64
 
-        cases = (
+        cases: list[tuple[str, Callable[[dict[str, Any]], None], bool, bool]] = [
             ("attempt", lambda value: value.__setitem__("attempt_order", 1), True, True),
             ("phase", lambda value: value.__setitem__("phase", "checker"), True, True),
             ("request", lambda value: value.__setitem__("request_sha256", "0" * 64), True, True),
-            ("status", lambda value: value["result"].__setitem__("status", "failed"), True, True),
+            ("status", change_status, True, True),
             (
                 "reason",
                 lambda value: value["result"].__setitem__("reason_code", "CHANGED"),
@@ -622,29 +650,40 @@ class RunAuditTests(unittest.TestCase):
                 True,
                 True,
             ),
+        ]
+        if baseline_observation["result"]["artifacts"]:
+            cases.extend(
+                (
+                    (
+                        "empty-artifacts",
+                        lambda value: value["result"].__setitem__("artifacts", []),
+                        True,
+                        True,
+                    ),
+                    ("artifact-role", artifact_role, True, True),
+                    ("artifact-conservation", artifact_conservation, True, True),
+                    ("artifact-retained-identity", artifact_retained_identity, True, True),
+                    ("artifact-self-identity", artifact_self_identity, True, True),
+                )
+            )
+        else:
+            cases.append(("surplus-artifact", add_surplus_artifact, True, True))
+        cases.extend(
             (
-                "empty-artifacts",
-                lambda value: value["result"].__setitem__("artifacts", []),
-                True,
-                True,
-            ),
-            ("artifact-role", artifact_role, True, True),
-            ("artifact-conservation", artifact_conservation, True, True),
-            ("artifact-retained-identity", artifact_retained_identity, True, True),
-            ("artifact-self-identity", artifact_self_identity, True, True),
-            (
-                "result-identity",
-                lambda value: value["result"].__setitem__("status", "failed"),
-                False,
-                True,
-            ),
-            (
-                "observation-identity",
-                lambda value: value.__setitem__("request_sha256", "0" * 64),
-                True,
-                False,
-            ),
-            ("unknown-field", lambda value: value.__setitem__("unknown", False), True, True),
+                (
+                    "result-identity",
+                    change_status,
+                    False,
+                    True,
+                ),
+                (
+                    "observation-identity",
+                    lambda value: value.__setitem__("request_sha256", "0" * 64),
+                    True,
+                    False,
+                ),
+                ("unknown-field", lambda value: value.__setitem__("unknown", False), True, True),
+            )
         )
         for label, mutate, repair_result, repair_observation in cases:
             with self.subTest(label=label):
@@ -655,6 +694,11 @@ class RunAuditTests(unittest.TestCase):
                     repair_observation=repair_observation,
                 )
                 self.assertEqual(replay_run_audit(manifest, objects).status, "invalid")
+
+        with self.subTest(label="surplus-artifact-on-empty-output"):
+            empty_bundle = single_bundle(malformed_evidence=True).bundle
+            manifest, objects = changed_worker_observation(empty_bundle, add_surplus_artifact)
+            self.assertEqual(replay_run_audit(manifest, objects).status, "invalid")
 
     def test_worker_observation_inventory_and_ledger_are_exact(self) -> None:
         from mathhead.run_audit import replay_run_audit

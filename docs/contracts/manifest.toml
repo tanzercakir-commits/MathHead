@@ -287,3 +287,63 @@ id = "MH-C-RUN-AUDIT-STORE-001"
 path = "docs/contracts/MH-C-RUN-AUDIT-STORE-001.json"
 sha256 = "a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-AUDITED-RUN-002"
+path = "docs/contracts/MH-C-AUDITED-RUN-002.json"
+sha256 = "fac6bacff1cc8e83919096d031054b5d3f7d61b729f567ccd2a066368b6e7642"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-REPLAY-002"
+path = "docs/contracts/MH-C-RUN-AUDIT-REPLAY-002.json"
+sha256 = "53788702e89ad2642f5df731367fc065f3b1d381132de910f7017dba353af9f2"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-STORE-002"
+path = "docs/contracts/MH-C-RUN-AUDIT-STORE-002.json"
+sha256 = "0e55230ae4d7fa430a4fd58ba3e4253a150fbb7d35bc52ce1a09e0baa4c438e4"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-AUDITED-RUN-003"
+path = "docs/contracts/MH-C-AUDITED-RUN-003.json"
+sha256 = "20e14e0ee887d770bd251aa8b5f54d13b7f5c6ce579319cd2e92572796d00a0a"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-REPLAY-003"
+path = "docs/contracts/MH-C-RUN-AUDIT-REPLAY-003.json"
+sha256 = "2da757fb1455f7c63ee60352ef1377d061aead744575c49f56eb99f1ef44bcec"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-STORE-003"
+path = "docs/contracts/MH-C-RUN-AUDIT-STORE-003.json"
+sha256 = "9eb1e44ad59f286abab37fef62a3a3f611df112e6a77ec19a03ac5c94611b462"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-STORE-004"
+path = "docs/contracts/MH-C-RUN-AUDIT-STORE-004.json"
+sha256 = "ba4645fa56e6eca616bf0fa7ee6443c8318006903f34c7b1b0eca1bc1498ee17"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-AUDITED-RUN-004"
+path = "docs/contracts/MH-C-AUDITED-RUN-004.json"
+sha256 = "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-REPLAY-004"
+path = "docs/contracts/MH-C-RUN-AUDIT-REPLAY-004.json"
+sha256 = "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
+state = "accepted"
+
+[[contracts]]
+id = "MH-C-RUN-AUDIT-STORE-005"
+path = "docs/contracts/MH-C-RUN-AUDIT-STORE-005.json"
+sha256 = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
+state = "accepted"

@@ -1790,6 +1790,7 @@ class _PortfolioAuditAttempt:
     strategy_sha256: str
     producer_request_sha256: str
     producer_result_sha256: str
+    producer_result_preimage: bytes
     producer_status: str
     producer_reason_code: str
     producer_parent_before: bytes
@@ -1797,6 +1798,7 @@ class _PortfolioAuditAttempt:
     evidence: bytes | None
     checker_request_sha256: str | None
     checker_result_sha256: str | None
+    checker_result_preimage: bytes | None
     checker_status: str
     checker_reason_code: str
     checker_parent_before: bytes | None
@@ -2065,17 +2067,41 @@ def _supervise_exact(
     return result, next_parent
 
 
-def _portfolio_worker_identity(result: IsolatedWorkerResult) -> str:
+def _portfolio_worker_preimage(
+    result: IsolatedWorkerResult,
+    retained_artifact: bytes | None,
+) -> bytes:
     mapping = _parse(isolated_worker_result_bytes(result), "worker_result")
     stable = {
         name: mapping[name]
         for name in (
             "schema", "contract_id", "contract_sha256", "status", "reason_code",
-            "planning_result_sha256", "strategy_sha256", "capability", "artifacts",
-            "diagnostics", "tree_terminated", "lease_reconciled", "mathematical_authority",
+            "planning_result_sha256", "strategy_sha256",
+            "tree_terminated", "lease_reconciled", "mathematical_authority",
         )
     }
-    return _sha(_canonical(stable))
+    # Host capability and diagnostic prose are effect observations, not
+    # portable portfolio semantics.  Their terminal classification is already
+    # represented by status/reason_code; retaining them would make an audited
+    # logical identity platform- and message-dependent.
+    stable["capability"] = None
+    stable["diagnostics"] = []
+    stable["artifacts"] = []
+    if retained_artifact is not None:
+        if type(retained_artifact) is not bytes:
+            _fail("type", "worker_result.artifact", "retained artifact must be exact bytes")
+        raw_artifacts = mapping["artifacts"]
+        if (
+            type(raw_artifacts) is not list
+            or not raw_artifacts
+            or type(raw_artifacts[0]) is not dict
+            or raw_artifacts[0].get("role") != "stdout"
+            or raw_artifacts[0].get("retained_bytes") != len(retained_artifact)
+            or raw_artifacts[0].get("retained_sha256") != _sha(retained_artifact)
+        ):
+            _fail("result", "worker_result.artifact", "validated artifact link differs")
+        stable["artifacts"] = [raw_artifacts[0]]
+    return _canonical(stable)
 
 
 def _worker_stdout(result: IsolatedWorkerResult) -> bytes:
@@ -2285,7 +2311,6 @@ def _execute_portfolio(
                 cancel_event,
             )
             producer_parent_after = current_parent
-            producer_identity = _portfolio_worker_identity(producer_result)
             outcome, reason_code = _worker_outcome(producer_result, checker=False)
             evidence_data: bytes | None = None
             evidence_value: dict[str, object] | None = None
@@ -2297,6 +2322,7 @@ def _execute_portfolio(
             checker_request_sha256: str | None = None
             checker_parent_before: bytes | None = None
             checker_parent_after: bytes | None = None
+            checker_validated_output: bytes | None = None
             authority = "none"
 
             if outcome == "success":
@@ -2346,12 +2372,12 @@ def _execute_portfolio(
                     cancel_event,
                 )
                 checker_parent_after = current_parent
-                checker_identity = _portfolio_worker_identity(checker_result)
                 outcome, reason_code = _worker_outcome(checker_result, checker=True)
                 if outcome == "success":
                     try:
+                        checker_output = _worker_stdout(checker_result)
                         decision, certificate_data, _, authority = _checker_envelope(
-                            _worker_stdout(checker_result),
+                            checker_output,
                             evidence_data,
                             evidence_value,
                             claim,
@@ -2360,6 +2386,7 @@ def _execute_portfolio(
                             environment_sha,
                             certificate_formats,
                         )
+                        checker_validated_output = checker_output
                         outcome, reason_code = _decision_outcome(decision)
                     except ProofSearchPortfolioValidationError:
                         outcome, reason_code = "invalid_evidence", "CERTIFICATE_INVALID"
@@ -2367,6 +2394,20 @@ def _execute_portfolio(
                         certificate_data = None
                         authority = "none"
 
+            producer_preimage = _portfolio_worker_preimage(
+                producer_result, evidence_data
+            )
+            producer_identity = _sha(producer_preimage)
+            checker_preimage = (
+                None
+                if checker_result is None
+                else _portfolio_worker_preimage(
+                    checker_result, checker_validated_output
+                )
+            )
+            checker_identity = (
+                None if checker_preimage is None else _sha(checker_preimage)
+            )
             selected_transition = _transition(strategy, outcome)
             attempt = _make_attempt(
                 attempt_order=len(attempts),
@@ -2392,6 +2433,7 @@ def _execute_portfolio(
                         strategy_sha256=strategy.strategy_sha256,
                         producer_request_sha256=producer_result.request_sha256,
                         producer_result_sha256=producer_identity,
+                        producer_result_preimage=producer_preimage,
                         producer_status=producer_result.status,
                         producer_reason_code=producer_result.reason_code,
                         producer_parent_before=parent_before,
@@ -2399,6 +2441,7 @@ def _execute_portfolio(
                         evidence=evidence_data,
                         checker_request_sha256=checker_request_sha256,
                         checker_result_sha256=checker_identity,
+                        checker_result_preimage=checker_preimage,
                         checker_status="not_started"
                         if checker_result is None
                         else checker_result.status,

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-audit-store-result-v2.schema.json",
+  "title": "MathHead Run Audit Store Result v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "status",
+    "reason_code",
+    "manifest_sha256",
+    "record_sha256",
+    "object_count",
+    "result_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.run-audit-store-result.v2"
+    },
+    "contract_id": {
+      "const": "MH-C-RUN-AUDIT-STORE-001"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "status": {
+      "enum": [
+        "stored",
+        "existing",
+        "loaded",
+        "invalid",
+        "unsupported",
+        "io_error"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "record_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "object_count": {
+      "$ref": "#/$defs/quantity"
+    },
+    "result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  }
+}

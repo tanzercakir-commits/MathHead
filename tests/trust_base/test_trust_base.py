@@ -80,7 +80,7 @@ class TrustBaseTests(unittest.TestCase):
         self.assertEqual(report["surface_summary"]["count"], 24)
         self.assertEqual(
             report["report_sha256"],
-            "ac31c74d50da4991ed3e6ec2b565036380f635b04afc85dec4810f4a6804f550",
+            "4317bb409992f030965fa4024bd07a1991a88fbdbd80c3ddb397dfdc6bf7ad6b",
         )
 
     def test_dependency_minimal_and_full_schema_profiles_match(self) -> None:

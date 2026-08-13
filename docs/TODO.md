@@ -97,11 +97,13 @@ CLI/MCP/SDK surface (MH-090 through MH-093), or merge the feature branch.
 `MH-C-PROBLEM-SESSION-001`, `MH-C-RESOURCE-BUDGET-001`,
 `MH-C-ENGINE-RESULT-001`, `MH-C-EVIDENCE-001`, `MH-C-CERTIFICATE-001`,
 `MH-C-THEORY-PLUGIN-001`, and applicable trust-transition contracts. Before
-production implementation, separately propose, prescreen, and accept:
+production implementation, separately propose, prescreen, and accept the
+current successor set (earlier accepted versions remain immutable migration
+evidence):
 
-- `MH-C-AUDITED-RUN-001` for the audited orchestration and capture boundary;
-- `MH-C-RUN-AUDIT-REPLAY-001` for hostile-byte replay and logical reporting;
-- `MH-C-RUN-AUDIT-STORE-001` for append-only persistence, loading, and listing.
+- `MH-C-AUDITED-RUN-004` for the audited orchestration and capture boundary;
+- `MH-C-RUN-AUDIT-REPLAY-004` for hostile-byte replay and logical reporting;
+- `MH-C-RUN-AUDIT-STORE-005` for append-only persistence, loading, and listing.
 
 Freeze byte-oriented signatures, exact-type inputs, object roles, lifecycle and
 event order, safe-field policy, excluded ambient data, schema/contract

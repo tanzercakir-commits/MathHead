@@ -206,12 +206,12 @@ python tools/validate_run_audit.py
 python -m unittest discover -s tests/run_audit_store -v
 python tools/validate_run_audit_store.py
 python tools/contract_artifacts.py verify \
-  --contract MH-C-AUDITED-RUN-001 --require-bound
+  --contract MH-C-AUDITED-RUN-004 --require-bound
 python tools/contract_artifacts.py verify \
-  --contract MH-C-RUN-AUDIT-REPLAY-001 --require-bound
+  --contract MH-C-RUN-AUDIT-REPLAY-004 --require-bound
 python tools/contract_artifacts.py verify \
-  --contract MH-C-RUN-AUDIT-STORE-001 --require-bound
+  --contract MH-C-RUN-AUDIT-STORE-005 --require-bound
 ```
 
-The frozen reports are `reports/run-audit-v1.json` and
-`reports/run-audit-store-v1.json`.
+The current frozen reports are `reports/run-audit-v4.json` and
+`reports/run-audit-store-v5.json`; earlier reports remain historical evidence.

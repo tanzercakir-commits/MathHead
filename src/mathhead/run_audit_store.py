@@ -10,7 +10,6 @@ import os
 from pathlib import Path
 import re
 import stat
-import tempfile
 from threading import Lock
 from typing import Any, Final, NoReturn
 
@@ -26,15 +25,13 @@ from .run_audit import (
 )
 
 
-STORE_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-STORE-001"
-STORE_CONTRACT_SHA256: Final = (
-    "a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12"
-)
-STORE_RECORD_SCHEMA: Final = "mathhead.run-audit-store-record.v1"
-STORE_RESULT_SCHEMA: Final = "mathhead.run-audit-store-result.v1"
+STORE_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-STORE-005"
+STORE_CONTRACT_SHA256: Final = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
+STORE_RECORD_SCHEMA: Final = "mathhead.run-audit-store-record.v2"
+STORE_RESULT_SCHEMA: Final = "mathhead.run-audit-store-result.v5"
 SCHEMA_SHA256S: Final = {
-    STORE_RECORD_SCHEMA: "de9127034133d21d23e5d2376a18247da89842b6de65da8555e1ddfc5ec60c05",
-    STORE_RESULT_SCHEMA: "9245bc736376bbb812234d5e0562a8b541e14ad3cbfbe901cd56bbd82e9544d0",
+    STORE_RECORD_SCHEMA: "614083f9de220b6a780ff35e7ab6cd3c07f1c3371255112e433213ea556ade8f",
+    STORE_RESULT_SCHEMA: "bf906f5c01fee05524b4c11cb80a526b5ca72214e8b417d44a3d4191077c11d4",
 }
 
 MAX_OBJECT_BYTES: Final = 1_073_741_824
@@ -126,8 +123,7 @@ def _pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
 def _canonical(value: object) -> bytes:
     try:
         raw = (
-            json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
-            + "\n"
+            json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n"
         ).encode("ascii")
     except (TypeError, ValueError, UnicodeError, RecursionError) as exc:
         _fail("record", f"canonical encoding failed: {type(exc).__name__}")
@@ -175,9 +171,9 @@ def _self_hash(value: dict[str, object], field: str) -> str:
 
 def _record_bytes(bundle: RunAuditBundle) -> tuple[bytes, str]:
     manifest = run_audit_manifest_bytes(bundle)
-    object_digests = sorted(
-        {_sha(raw) for raw in (*run_audit_object_bytes(bundle), manifest)}
-    )
+    object_digests = sorted({_sha(raw) for raw in (*run_audit_object_bytes(bundle), manifest)})
+    if len(object_digests) > MAX_OBJECTS:
+        _fail("budget", "store object inventory exceeds the schema bound")
     logical = run_audit_logical_report_bytes(bundle)
     value: dict[str, object] = {
         "schema": STORE_RECORD_SCHEMA,
@@ -217,7 +213,7 @@ def _parse_record(data: bytes, expected_manifest: str) -> dict[str, object]:
         _fail("record", "store record names another manifest")
     logical = _digest(value["logical_report_sha256"], "logical_report_sha256")
     raw_objects = value["object_sha256s"]
-    if type(raw_objects) is not list or not raw_objects or len(raw_objects) > MAX_OBJECTS + 1:
+    if type(raw_objects) is not list or not raw_objects or len(raw_objects) > MAX_OBJECTS:
         _fail("budget", "store object inventory is outside bounds")
     objects = tuple(_digest(item, "object_sha256") for item in raw_objects)
     if objects != tuple(sorted(set(objects))) or manifest not in objects or logical not in objects:
@@ -230,153 +226,263 @@ def _parse_record(data: bytes, expected_manifest: str) -> dict[str, object]:
 
 def _is_link_like(info: os.stat_result) -> bool:
     reparse = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
-    return stat.S_ISLNK(info.st_mode) or bool(
-        getattr(info, "st_file_attributes", 0) & reparse
+    return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & reparse)
+
+
+@dataclass(frozen=True, slots=True)
+class _DirectoryIdentity:
+    path: Path
+    device: int
+    inode: int
+
+
+@dataclass(frozen=True, slots=True)
+class _PinnedRoot:
+    path: Path
+    descriptor: int
+    chain: tuple[_DirectoryIdentity, ...]
+
+    def close(self) -> None:
+        os.close(self.descriptor)
+
+
+_UNSUPPORTED_ERRNOS = {errno.EINVAL, errno.ENOTSUP, errno.EOPNOTSUPP}
+_TEMP_SEQUENCE = 0
+
+
+def _descriptor_store_supported() -> bool:
+    required_dir_fd = {os.open, os.mkdir, os.stat, os.link, os.unlink}
+    return (
+        os.name == "posix"
+        and hasattr(os, "O_DIRECTORY")
+        and hasattr(os, "O_NOFOLLOW")
+        and hasattr(os, "fchmod")
+        and required_dir_fd <= os.supports_dir_fd
+        and os.stat in os.supports_follow_symlinks
+        and os.link in os.supports_follow_symlinks
     )
 
 
-def _inspect_directory(path: Path, *, private: bool) -> None:
-    try:
-        info = path.lstat()
-    except OSError as exc:
-        _fail("io", f"cannot inspect store directory: {type(exc).__name__}")
+def _classify_io(exc: OSError, detail: str) -> NoReturn:
+    if exc.errno in _UNSUPPORTED_ERRNOS:
+        _fail("unsupported", f"{detail}: {type(exc).__name__}")
+    _fail("io", f"{detail}: {type(exc).__name__}")
+
+
+def _directory_info(info: os.stat_result, *, private: bool) -> None:
     if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
         _fail("link", "store component is not a real directory")
-    if private and os.name == "posix" and stat.S_IMODE(info.st_mode) & 0o077:
-        _fail("mode", "store directory is not private")
+    if private and stat.S_IMODE(info.st_mode) != 0o700:
+        _fail("mode", "store directory mode is not exact private 0700")
 
 
-def _validate_existing_prefix(path: Path) -> None:
-    current = Path(path.anchor)
-    for component in path.parts[1:]:
-        current /= component
+def _file_info(info: os.stat_result) -> None:
+    if _is_link_like(info) or not stat.S_ISREG(info.st_mode):
+        _fail("link", "store file is not a real regular file")
+    if info.st_nlink != 1:
+        _fail("link", "store file has an unsafe hardlink count")
+    if stat.S_IMODE(info.st_mode) != 0o600:
+        _fail("mode", "store file mode is not exact private 0600")
+
+
+def _guard_root(root: _PinnedRoot) -> None:
+    for expected in root.chain:
         try:
-            info = current.lstat()
-        except FileNotFoundError:
-            return
+            info = os.stat(expected.path, follow_symlinks=False)
         except OSError as exc:
-            _fail("io", f"cannot inspect store ancestor: {type(exc).__name__}")
-        if _is_link_like(info) or not stat.S_ISDIR(info.st_mode):
-            _fail("link", "store path contains a link or non-directory")
+            _fail("link", f"store ancestor identity is unavailable: {type(exc).__name__}")
+        if (
+            _is_link_like(info)
+            or not stat.S_ISDIR(info.st_mode)
+            or (info.st_dev, info.st_ino) != (expected.device, expected.inode)
+        ):
+            _fail("link", "store ancestor identity changed")
 
 
-def _root(root: Path, *, create: bool) -> Path:
-    if not isinstance(root, Path):
-        _fail("type", "store root must be an exact pathlib.Path")
+def _open_root(root: Path, *, create: bool) -> _PinnedRoot:
+    if type(root) is not type(Path()):
+        _fail("type", "store root must be an exact concrete pathlib.Path")
     if (
         not root.is_absolute()
         or root == Path(root.anchor)
+        or root.anchor != os.path.sep
         or len(root.parts) > MAX_PATH_COMPONENTS
         or len(str(root)) > MAX_PATH_CODEPOINTS
         or root != Path(os.path.normpath(str(root)))
     ):
         _fail("path", "store root is relative, root, non-normalized, or over budget")
-    _validate_existing_prefix(root)
+    if not _descriptor_store_supported():
+        _fail("unsupported", "descriptor-relative no-follow store operations are unavailable")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    descriptor = -1
+    current_path = Path(root.anchor)
+    chain: list[_DirectoryIdentity] = []
     try:
-        resolved = root.resolve(strict=False)
-    except OSError as exc:
-        _fail("io", f"cannot resolve store root: {type(exc).__name__}")
-    missing: list[Path] = []
-    current = resolved
-    while not current.exists():
-        missing.append(current)
-        if current.parent == current:
-            _fail("path", "store root has no existing parent")
-        current = current.parent
-    if missing and not create:
-        _fail("missing", "store root does not exist")
-    for item in reversed(missing):
+        descriptor = os.open(current_path, flags)
+        anchor_info = os.fstat(descriptor)
+        _directory_info(anchor_info, private=False)
+        chain.append(_DirectoryIdentity(current_path, anchor_info.st_dev, anchor_info.st_ino))
+        for index, component in enumerate(root.parts[1:]):
+            is_root = index == len(root.parts[1:]) - 1
+            try:
+                linked = os.stat(component, dir_fd=descriptor, follow_symlinks=False)
+            except FileNotFoundError:
+                if not create:
+                    _fail("missing", "store root does not exist")
+                try:
+                    os.mkdir(component, mode=0o700, dir_fd=descriptor)
+                except FileExistsError:
+                    pass
+                except OSError as exc:
+                    _classify_io(exc, "cannot create store directory")
+                try:
+                    linked = os.stat(component, dir_fd=descriptor, follow_symlinks=False)
+                    os.fsync(descriptor)
+                except OSError as exc:
+                    _classify_io(exc, "cannot synchronize store ancestor creation")
+            except OSError as exc:
+                _classify_io(exc, "cannot inspect store ancestor")
+            _directory_info(linked, private=is_root)
+            try:
+                opened = os.open(component, flags, dir_fd=descriptor)
+            except OSError as exc:
+                _classify_io(exc, "cannot open store ancestor")
+            opened_info = os.fstat(opened)
+            if (linked.st_dev, linked.st_ino) != (
+                opened_info.st_dev,
+                opened_info.st_ino,
+            ):
+                os.close(opened)
+                _fail("link", "store ancestor changed while opening")
+            os.close(descriptor)
+            descriptor = opened
+            current_path /= component
+            chain.append(_DirectoryIdentity(current_path, opened_info.st_dev, opened_info.st_ino))
+        result = _PinnedRoot(root, descriptor, tuple(chain))
+        _guard_root(result)
+        return result
+    except BaseException:
+        if descriptor >= 0:
+            os.close(descriptor)
+        raise
+
+
+def _open_child_directory(root: _PinnedRoot, parent: int, name: str, *, create: bool) -> int:
+    if not name or name in {".", ".."} or "/" in name or "\\" in name:
+        _fail("path", "derived store component is unsafe")
+    _guard_root(root)
+    try:
+        linked = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except FileNotFoundError:
+        if not create:
+            _fail("missing", "store component is absent")
         try:
-            item.mkdir(mode=0o700)
+            os.mkdir(name, mode=0o700, dir_fd=parent)
         except FileExistsError:
             pass
         except OSError as exc:
-            _fail("io", f"cannot create store directory: {type(exc).__name__}")
-        _inspect_directory(item, private=True)
-    _inspect_directory(resolved, private=True)
-    return resolved
-
-
-def _directory(parent: Path, name: str, *, create: bool) -> Path:
-    child = parent / name
-    if create:
+            _classify_io(exc, "cannot create store component")
         try:
-            child.mkdir(mode=0o700)
-        except FileExistsError:
-            pass
+            linked = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            _fsync_directory(root, parent, capability_probe=True)
         except OSError as exc:
-            _fail("io", f"cannot create store component: {type(exc).__name__}")
-    elif not child.exists():
-        _fail("missing", "store component is absent")
-    _inspect_directory(child, private=True)
-    return child
-
-
-def _content_path(root: Path, digest: str, *, create: bool) -> Path:
-    objects = _directory(root, "objects", create=create)
-    bucket = _directory(objects, digest[:2], create=create)
-    return bucket / digest
-
-
-def _run_path(root: Path, digest: str, *, create: bool) -> Path:
-    runs = _directory(root, "runs", create=create)
-    bucket = _directory(runs, digest[:2], create=create)
-    return bucket / digest
-
-
-def _inspect_file(path: Path) -> os.stat_result:
-    try:
-        info = path.lstat()
+            _classify_io(exc, "cannot synchronize store component creation")
     except OSError as exc:
-        _fail("io", f"cannot inspect store file: {type(exc).__name__}")
-    if _is_link_like(info) or not stat.S_ISREG(info.st_mode):
-        _fail("link", "store file is not a real regular file")
-    if info.st_nlink != 1:
-        _fail("link", "store file has an unsafe hardlink count")
-    if os.name == "posix" and stat.S_IMODE(info.st_mode) & 0o077:
-        _fail("mode", "store file is not private")
-    return info
-
-
-def _read_bounded(path: Path, maximum: int) -> bytes:
-    info = _inspect_file(path)
-    if info.st_size < 1 or info.st_size > maximum:
-        _fail("budget", "store file size is outside bounds")
+        _classify_io(exc, "cannot inspect store component")
+    _directory_info(linked, private=True)
     try:
-        with path.open("rb") as handle:
-            data = handle.read(maximum + 1)
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
     except OSError as exc:
-        _fail("io", f"cannot read store file: {type(exc).__name__}")
-    after = _inspect_file(path)
-    if (
-        len(data) != info.st_size
-        or after.st_size != info.st_size
-        or getattr(after, "st_ino", None) != getattr(info, "st_ino", None)
-    ):
-        _fail("corrupt", "store file changed while it was read")
-    return data
+        _classify_io(exc, "cannot open store component")
+    opened = os.fstat(descriptor)
+    if (linked.st_dev, linked.st_ino) != (opened.st_dev, opened.st_ino):
+        os.close(descriptor)
+        _fail("link", "store component changed while opening")
+    try:
+        _guard_root(root)
+    except BaseException:
+        os.close(descriptor)
+        raise
+    return descriptor
 
 
-def _read_exact(path: Path, digest: str, maximum: int) -> bytes:
-    data = _read_bounded(path, maximum)
+def _open_bucket(root: _PinnedRoot, category: str, digest: str, *, create: bool) -> int:
+    category_fd = _open_child_directory(root, root.descriptor, category, create=create)
+    try:
+        return _open_child_directory(root, category_fd, digest[:2], create=create)
+    finally:
+        os.close(category_fd)
+
+
+def _read_bounded(root: _PinnedRoot, parent: int, name: str, maximum: int) -> bytes:
+    _guard_root(root)
+    try:
+        linked = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        _file_info(linked)
+        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
+    except OSError as exc:
+        _classify_io(exc, "cannot open store file")
+    try:
+        before = os.fstat(descriptor)
+        if (linked.st_dev, linked.st_ino) != (before.st_dev, before.st_ino):
+            _fail("link", "store file changed while opening")
+        _file_info(before)
+        if before.st_size < 1 or before.st_size > maximum:
+            _fail("budget", "store file size is outside bounds")
+        chunks: list[bytes] = []
+        remaining = before.st_size
+        while remaining:
+            try:
+                chunk = os.read(descriptor, min(1_048_576, remaining))
+            except OSError as exc:
+                _classify_io(exc, "cannot read store file")
+            if not chunk:
+                _fail("partial", "store file ended before its recorded size")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        try:
+            if os.read(descriptor, 1):
+                _fail("corrupt", "store file grew while it was read")
+        except OSError as exc:
+            _classify_io(exc, "cannot finish reading store file")
+        after = os.fstat(descriptor)
+        if (before.st_dev, before.st_ino, before.st_size) != (
+            after.st_dev,
+            after.st_ino,
+            after.st_size,
+        ):
+            _fail("corrupt", "store file changed while it was read")
+        _guard_root(root)
+        return b"".join(chunks)
+    finally:
+        os.close(descriptor)
+
+
+def _read_exact(root: _PinnedRoot, parent: int, name: str, digest: str, maximum: int) -> bytes:
+    data = _read_bounded(root, parent, name, maximum)
     if _sha(data) != digest:
         _fail("corrupt", "store file content digest differs")
     return data
 
 
-def _fsync_directory(path: Path) -> None:
-    if os.name == "nt":
-        return
-    descriptor = -1
+def _fsync_directory(root: _PinnedRoot, descriptor: int, *, capability_probe: bool = False) -> None:
+    _guard_root(root)
     try:
-        descriptor = os.open(path, os.O_RDONLY)
+        info = os.fstat(descriptor)
+        _directory_info(info, private=True)
         os.fsync(descriptor)
     except OSError as exc:
-        if exc.errno not in {errno.EINVAL, errno.ENOTSUP, errno.EOPNOTSUPP}:
-            _fail("io", f"cannot fsync store directory: {type(exc).__name__}")
-    finally:
-        if descriptor >= 0:
-            os.close(descriptor)
+        if not capability_probe and exc.errno in _UNSUPPORTED_ERRNOS:
+            _fail(
+                "io",
+                f"store directory synchronization failed after capability probe: {type(exc).__name__}",
+            )
+        _classify_io(exc, "cannot synchronize store directory")
+    _guard_root(root)
 
 
 def _write_all(descriptor: int, data: bytes) -> None:
@@ -392,10 +498,10 @@ def _write_all(descriptor: int, data: bytes) -> None:
         written += count
 
 
-def _read_existing_exact(path: Path, data: bytes) -> None:
+def _read_existing_exact(root: _PinnedRoot, parent: int, name: str, data: bytes) -> None:
     for _attempt in range(10_000):
         try:
-            if _read_bounded(path, max(len(data), MAX_RECORD_BYTES)) != data:
+            if _read_bounded(root, parent, name, max(len(data), MAX_RECORD_BYTES)) != data:
                 _fail("conflict", "existing immutable content differs")
             return
         except RunAuditStoreError as exc:
@@ -405,52 +511,132 @@ def _read_existing_exact(path: Path, data: bytes) -> None:
     _fail("link", "immutable target retained an unsafe hardlink count")
 
 
-def _write_immutable_locked(
-    path: Path, data: bytes, *, name_digest: str | None = None
-) -> bool:
-    content_digest = _sha(data)
-    target_identity = content_digest if name_digest is None else _digest(
-        name_digest, "target identity"
-    )
-    if path.name != target_identity:
-        _fail("path", "immutable target name differs")
+def _quarantine_uncommitted(root: _PinnedRoot, parent: int, target: str) -> None:
+    descriptor = -1
+    _guard_root(root)
     try:
-        existing = path.exists()
+        descriptor = os.open(
+            target,
+            os.O_RDONLY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
+        info = os.fstat(descriptor)
+        if _is_link_like(info) or not stat.S_ISREG(info.st_mode):
+            _fail("link", "uncommitted target is not a regular file")
+        os.fchmod(descriptor, 0o000)
+        os.fsync(descriptor)
     except OSError as exc:
-        _fail("io", f"cannot inspect content target: {type(exc).__name__}")
+        _fail("io", f"cannot quarantine uncommitted target: {type(exc).__name__}")
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+    _guard_root(root)
+
+
+def _write_immutable_locked(
+    root: _PinnedRoot,
+    parent: int,
+    target: str,
+    data: bytes,
+    *,
+    name_digest: str | None = None,
+) -> bool:
+    global _TEMP_SEQUENCE
+    content_digest = _sha(data)
+    target_identity = (
+        content_digest if name_digest is None else _digest(name_digest, "target identity")
+    )
+    if target != target_identity:
+        _fail("path", "immutable target name differs")
+    _guard_root(root)
+    try:
+        os.stat(target, dir_fd=parent, follow_symlinks=False)
+        existing = True
+    except FileNotFoundError:
+        existing = False
+    except OSError as exc:
+        _classify_io(exc, "cannot inspect content target")
     if existing:
-        _read_existing_exact(path, data)
+        _read_existing_exact(root, parent, target, data)
         return False
     descriptor = -1
-    temporary: Path | None = None
+    temporary: str | None = None
     try:
-        descriptor, name = tempfile.mkstemp(
-            prefix=f".{target_identity}.", suffix=".tmp", dir=path.parent
-        )
-        temporary = Path(name)
-        os.fchmod(descriptor, 0o600)
+        for _attempt in range(10_000):
+            sequence = _TEMP_SEQUENCE
+            _TEMP_SEQUENCE += 1
+            candidate = f".{target_identity}.{sequence:016x}.tmp"
+            try:
+                descriptor = os.open(
+                    candidate,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=parent,
+                )
+                temporary = candidate
+                break
+            except FileExistsError:
+                continue
+            except OSError as exc:
+                _classify_io(exc, "cannot create content temporary")
+        if descriptor < 0 or temporary is None:
+            _fail("io", "cannot allocate one bounded content temporary")
+        try:
+            os.fchmod(descriptor, 0o600)
+        except OSError as exc:
+            _classify_io(exc, "cannot set private content mode")
         _write_all(descriptor, data)
-        os.fsync(descriptor)
+        try:
+            os.fsync(descriptor)
+        except OSError as exc:
+            _classify_io(exc, "cannot synchronize content temporary")
         os.close(descriptor)
         descriptor = -1
+        _guard_root(root)
         try:
-            os.link(temporary, path, follow_symlinks=False)
+            os.link(
+                temporary,
+                target,
+                src_dir_fd=parent,
+                dst_dir_fd=parent,
+                follow_symlinks=False,
+            )
             created = True
         except FileExistsError:
             created = False
         except OSError as exc:
-            _fail("io", f"cannot install immutable content: {type(exc).__name__}")
-        temporary.unlink()
+            _classify_io(exc, "cannot install immutable content")
+        try:
+            os.unlink(temporary, dir_fd=parent)
+        except OSError as exc:
+            if created:
+                try:
+                    _quarantine_uncommitted(root, parent, target)
+                    os.unlink(target, dir_fd=parent)
+                    _fsync_directory(root, parent)
+                except (OSError, RunAuditStoreError):
+                    temporary = None
+            _classify_io(exc, "cannot clean content temporary")
         temporary = None
-        _read_existing_exact(path, data)
-        _fsync_directory(path.parent)
+        _read_existing_exact(root, parent, target, data)
+        try:
+            _fsync_directory(root, parent)
+        except RunAuditStoreError:
+            if created:
+                try:
+                    _quarantine_uncommitted(root, parent, target)
+                    os.unlink(target, dir_fd=parent)
+                    _fsync_directory(root, parent)
+                except (OSError, RunAuditStoreError):
+                    pass
+            raise
         return created
     finally:
         if descriptor >= 0:
             os.close(descriptor)
         if temporary is not None:
             try:
-                temporary.unlink()
+                os.unlink(temporary, dir_fd=parent)
             except FileNotFoundError:
                 pass
             except OSError:
@@ -458,10 +644,15 @@ def _write_immutable_locked(
 
 
 def _write_immutable(
-    path: Path, data: bytes, *, name_digest: str | None = None
+    root: _PinnedRoot,
+    parent: int,
+    target: str,
+    data: bytes,
+    *,
+    name_digest: str | None = None,
 ) -> bool:
     with _INSTALL_LOCK:
-        return _write_immutable_locked(path, data, name_digest=name_digest)
+        return _write_immutable_locked(root, parent, target, data, name_digest=name_digest)
 
 
 def _result_mapping(value: RunAuditStoreResult, *, own_hash: bool = True) -> dict[str, object]:
@@ -507,8 +698,8 @@ def _new_result(
 
 def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult:
     """Freshly replay and atomically append one immutable audit run."""
-    if not isinstance(root, Path):
-        _fail("type", "store root must be an exact pathlib.Path")
+    if type(root) is not type(Path()):
+        _fail("type", "store root must be an exact concrete pathlib.Path")
     if type(bundle) is not RunAuditBundle:
         return _new_result(
             "invalid",
@@ -527,13 +718,21 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             record_sha256=None,
             object_count=0,
         )
-    store = _root(root, create=True)
+    if not _descriptor_store_supported():
+        return _new_result(
+            "unsupported",
+            "STORE_UNSUPPORTED",
+            manifest_sha256=None,
+            record_sha256=None,
+            object_count=0,
+        )
     manifest = run_audit_manifest_bytes(bundle)
     manifest_digest = run_audit_bundle_sha256(bundle)
-    object_values = {
-        _sha(raw): raw for raw in (*run_audit_object_bytes(bundle), manifest)
-    }
-    if len(object_values) > MAX_OBJECTS + 1 or sum(len(raw) for raw in object_values.values()) > MAX_AGGREGATE_BYTES:
+    object_values = {_sha(raw): raw for raw in (*run_audit_object_bytes(bundle), manifest)}
+    if (
+        len(object_values) > MAX_OBJECTS
+        or sum(len(raw) for raw in object_values.values()) > MAX_AGGREGATE_BYTES
+    ):
         return _new_result(
             "invalid",
             "STORE_BUDGET_EXCEEDED",
@@ -541,19 +740,55 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             record_sha256=None,
             object_count=0,
         )
-    record, record_identity = _record_bytes(bundle)
     try:
-        for digest in sorted(object_values):
-            target = _content_path(store, digest, create=True)
-            _write_immutable(target, object_values[digest])
-        run_target = _run_path(store, manifest_digest, create=True)
-        created = _write_immutable(
-            run_target, record, name_digest=manifest_digest
+        record, record_identity = _record_bytes(bundle)
+    except RunAuditStoreError as exc:
+        if exc.kind != "budget":
+            raise
+        return _new_result(
+            "invalid",
+            "STORE_BUDGET_EXCEEDED",
+            manifest_sha256=None,
+            record_sha256=None,
+            object_count=0,
         )
-        _fsync_directory(run_target.parent)
-        loaded = load_run_audit(store, manifest_digest)
+    store: _PinnedRoot | None = None
+    try:
+        store = _open_root(root, create=True)
+        _fsync_directory(store, store.descriptor, capability_probe=True)
+        required_buckets = sorted(
+            {
+                *(("objects", digest[:2]) for digest in object_values),
+                ("runs", manifest_digest[:2]),
+            }
+        )
+        for category, prefix in required_buckets:
+            bucket = _open_bucket(store, category, prefix, create=True)
+            try:
+                _fsync_directory(store, bucket, capability_probe=True)
+            finally:
+                os.close(bucket)
+        for digest in sorted(object_values):
+            bucket = _open_bucket(store, "objects", digest, create=False)
+            try:
+                _write_immutable(store, bucket, digest, object_values[digest])
+            finally:
+                os.close(bucket)
+        run_bucket = _open_bucket(store, "runs", manifest_digest, create=False)
+        try:
+            created = _write_immutable(
+                store,
+                run_bucket,
+                manifest_digest,
+                record,
+                name_digest=manifest_digest,
+            )
+        finally:
+            os.close(run_bucket)
+        loaded = _load_from_root(store, manifest_digest)
         if run_audit_bundle_sha256(loaded) != manifest_digest:
             _fail("corrupt", "freshly loaded run identity differs")
+        _guard_root(store)
         return _new_result(
             "stored" if created else "existing",
             "RUN_STORED" if created else "RUN_ALREADY_EXISTS",
@@ -561,7 +796,15 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             record_sha256=record_identity,
             object_count=len(object_values),
         )
-    except RunAuditStoreError:
+    except RunAuditStoreError as exc:
+        if exc.kind == "unsupported":
+            return _new_result(
+                "unsupported",
+                "STORE_UNSUPPORTED",
+                manifest_sha256=None,
+                record_sha256=None,
+                object_count=0,
+            )
         raise
     except (MemoryError, KeyboardInterrupt, SystemExit):
         raise
@@ -573,24 +816,34 @@ def persist_run_audit(root: Path, bundle: RunAuditBundle) -> RunAuditStoreResult
             record_sha256=None,
             object_count=0,
         )
+    finally:
+        if store is not None:
+            store.close()
 
 
-def load_run_audit(root: Path, manifest_sha256: str) -> RunAuditBundle:
-    """Load one visible immutable run and freshly replay its exact bytes."""
+def _load_from_root(store: _PinnedRoot, manifest_sha256: str) -> RunAuditBundle:
     digest = _digest(manifest_sha256, "manifest_sha256")
-    store = _root(root, create=False)
-    run_path = _run_path(store, digest, create=False)
-    record_raw = _read_bounded(run_path, MAX_RECORD_BYTES)
+    run_bucket = _open_bucket(store, "runs", digest, create=False)
+    try:
+        record_raw = _read_bounded(store, run_bucket, digest, MAX_RECORD_BYTES)
+    finally:
+        os.close(run_bucket)
     record = _parse_record(record_raw, digest)
     object_digests = tuple(str(item) for item in record["object_sha256s"])
     values: dict[str, bytes] = {}
     total = 0
     for object_digest in object_digests:
-        raw = _read_exact(
-            _content_path(store, object_digest, create=False),
-            object_digest,
-            MAX_OBJECT_BYTES,
-        )
+        bucket = _open_bucket(store, "objects", object_digest, create=False)
+        try:
+            raw = _read_exact(
+                store,
+                bucket,
+                object_digest,
+                object_digest,
+                MAX_OBJECT_BYTES,
+            )
+        finally:
+            os.close(bucket)
         total += len(raw)
         if total > MAX_AGGREGATE_BYTES:
             _fail("budget", "stored run aggregate exceeds budget")
@@ -600,40 +853,82 @@ def load_run_audit(root: Path, manifest_sha256: str) -> RunAuditBundle:
     bundle = _bundle_from_replayed_bytes(manifest, objects)
     if bundle.logical_report_sha256 != record["logical_report_sha256"]:
         _fail("corrupt", "stored logical report identity differs")
+    _guard_root(store)
     return bundle
+
+
+def load_run_audit(root: Path, manifest_sha256: str) -> RunAuditBundle:
+    """Load one visible immutable run and freshly replay its exact bytes."""
+    store = _open_root(root, create=False)
+    try:
+        _fsync_directory(store, store.descriptor, capability_probe=True)
+        return _load_from_root(store, manifest_sha256)
+    finally:
+        store.close()
 
 
 def list_run_audits(root: Path) -> tuple[str, ...]:
     """Return digest-sorted visible runs only after fresh complete replay."""
-    store = _root(root, create=False)
-    runs = _directory(store, "runs", create=False)
-    identities: list[str] = []
+    store = _open_root(root, create=False)
+    runs = -1
     try:
-        buckets = sorted(runs.iterdir(), key=lambda item: item.name)
-    except OSError as exc:
-        _fail("io", f"cannot enumerate run store: {type(exc).__name__}")
-    for bucket in buckets:
-        if re.fullmatch(r"[0-9a-f]{2}", bucket.name) is None:
-            _fail("corrupt", "run bucket name differs")
-        _inspect_directory(bucket, private=True)
+        _fsync_directory(store, store.descriptor, capability_probe=True)
         try:
-            entries = sorted(bucket.iterdir(), key=lambda item: item.name)
+            runs = _open_child_directory(store, store.descriptor, "runs", create=False)
+        except RunAuditStoreError as exc:
+            if exc.kind != "missing":
+                raise
+            _guard_root(store)
+            return ()
+        _guard_root(store)
+        try:
+            bucket_names = sorted(os.listdir(runs))
         except OSError as exc:
-            _fail("io", f"cannot enumerate run bucket: {type(exc).__name__}")
-        for entry in entries:
-            if entry.name.startswith(".") and entry.name.endswith(".tmp"):
-                continue
-            if _DIGEST.fullmatch(entry.name) is None or entry.name[:2] != bucket.name:
-                _fail("corrupt", "run record filename differs")
-            identities.append(entry.name)
-            if len(identities) > MAX_RUNS:
-                _fail("budget", "run listing exceeds budget")
-    result = tuple(sorted(identities))
-    if len(set(result)) != len(result):
-        _fail("corrupt", "duplicate visible run identity")
-    for digest in result:
-        load_run_audit(store, digest)
-    return result
+            _classify_io(exc, "cannot enumerate run store")
+        identities: list[str] = []
+        for bucket_name in bucket_names:
+            if re.fullmatch(r"[0-9a-f]{2}", bucket_name) is None:
+                _fail("corrupt", "run bucket name differs")
+            bucket = _open_child_directory(store, runs, bucket_name, create=False)
+            try:
+                try:
+                    entries = sorted(os.listdir(bucket))
+                except OSError as exc:
+                    _classify_io(exc, "cannot enumerate run bucket")
+                for entry in entries:
+                    if entry.startswith(".") and entry.endswith(".tmp"):
+                        try:
+                            info = os.stat(entry, dir_fd=bucket, follow_symlinks=False)
+                        except OSError as exc:
+                            _classify_io(exc, "cannot inspect run temporary")
+                        _file_info(info)
+                        match = re.fullmatch(r"\.([0-9a-f]{64})\.[0-9a-f]{16}\.tmp", entry)
+                        if (
+                            match is None
+                            or match.group(1)[:2] != bucket_name
+                            or info.st_size < 1
+                            or info.st_size > MAX_RECORD_BYTES
+                        ):
+                            _fail("corrupt", "run temporary shape differs")
+                        continue
+                    if _DIGEST.fullmatch(entry) is None or entry[:2] != bucket_name:
+                        _fail("corrupt", "run record filename differs")
+                    identities.append(entry)
+                    if len(identities) > MAX_RUNS:
+                        _fail("budget", "run listing exceeds budget")
+            finally:
+                os.close(bucket)
+        result = tuple(sorted(identities))
+        if len(set(result)) != len(result):
+            _fail("corrupt", "duplicate visible run identity")
+        for digest in result:
+            _load_from_root(store, digest)
+        _guard_root(store)
+        return result
+    finally:
+        if runs >= 0:
+            os.close(runs)
+        store.close()
 
 
 def validate_run_audit_store_result(value: RunAuditStoreResult) -> None:
@@ -650,13 +945,17 @@ def validate_run_audit_store_result(value: RunAuditStoreResult) -> None:
         or value.result_sha256 != _self_hash(mapping, "result_sha256")
         or type(value.object_count) is not int
         or value.object_count < 0
-        or value.object_count > MAX_OBJECTS + 1
+        or value.object_count > MAX_OBJECTS
     ):
         _fail("result", "store result fields or identity differ")
     if value.status in {"stored", "existing", "loaded"}:
         _digest(value.manifest_sha256, "result.manifest_sha256")
         _digest(value.record_sha256, "result.record_sha256")
-    elif value.manifest_sha256 is not None or value.record_sha256 is not None or value.object_count != 0:
+    elif (
+        value.manifest_sha256 is not None
+        or value.record_sha256 is not None
+        or value.object_count != 0
+    ):
         _fail("result", "failed store result retains committed identity")
 
 

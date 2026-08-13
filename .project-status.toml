@@ -616,14 +616,14 @@ timeout_seconds = 180
 
 [[checks]]
 name = "run-audit-contract"
-command = "python tools/contract_artifacts.py verify --contract MH-C-AUDITED-RUN-001 --require-bound"
+command = "python tools/contract_artifacts.py verify --contract MH-C-AUDITED-RUN-004 --require-bound"
 profiles = ["status", "fast"]
 tasks = ["MH-054"]
 timeout_seconds = 60
 
 [[checks]]
 name = "run-audit-replay-contract"
-command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-REPLAY-001 --require-bound"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-REPLAY-004 --require-bound"
 profiles = ["status", "fast"]
 tasks = ["MH-054"]
 timeout_seconds = 60
@@ -644,7 +644,7 @@ timeout_seconds = 180
 
 [[checks]]
 name = "run-audit-store-contract"
-command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-STORE-001 --require-bound"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-STORE-005 --require-bound"
 profiles = ["status", "fast"]
 tasks = ["MH-054"]
 timeout_seconds = 60

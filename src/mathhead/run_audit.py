@@ -33,13 +33,17 @@ from .deterministic_planner import (
     plan_strategies,
     planning_result_bytes,
 )
-from .isolated_worker import ISOLATED_WORKER_CONTRACT_SHA256
+from .isolated_worker import (
+    ISOLATED_WORKER_CONTRACT_SHA256,
+    parse_isolated_worker_request,
+)
 from .problem_sessions import PROBLEM_SESSION_CONTRACT_SHA256
 from .proof_search_portfolio import (
     PORTFOLIO_CONTRACT_SHA256,
     ProofSearchPortfolioResult,
     _PortfolioAuditAttempt,
     _run_portfolio_audited,
+    _worker_request,
     parse_portfolio_checker_decision,
     parse_portfolio_execution_binding,
     parse_proof_search_portfolio_request,
@@ -49,27 +53,29 @@ from .proof_search_portfolio import (
 )
 
 
-AUDITED_RUN_CONTRACT_ID: Final = "MH-C-AUDITED-RUN-001"
+AUDITED_RUN_CONTRACT_ID: Final = "MH-C-AUDITED-RUN-004"
 AUDITED_RUN_CONTRACT_SHA256: Final = (
-    "6032b9efac0c1ffa93cc2ee738318f45d8331c8ee25f4d97b51b55ba8aff8c0a"
+    "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
 )
-REPLAY_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-REPLAY-001"
+REPLAY_CONTRACT_ID: Final = "MH-C-RUN-AUDIT-REPLAY-004"
 REPLAY_CONTRACT_SHA256: Final = (
-    "ed130e9099a4308ed2c911e9ad63d2450783d9bff9700ad6ac0e2dd22ede9bc5"
+    "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
 )
 
-OBJECT_SCHEMA: Final = "mathhead.run-audit-object.v1"
-EVENT_SCHEMA: Final = "mathhead.run-audit-event.v1"
-MANIFEST_SCHEMA: Final = "mathhead.run-audit-manifest.v1"
-LOGICAL_REPORT_SCHEMA: Final = "mathhead.run-logical-report.v1"
-REPLAY_RESULT_SCHEMA: Final = "mathhead.run-audit-replay-result.v1"
+OBJECT_SCHEMA: Final = "mathhead.run-audit-object.v2"
+EVENT_SCHEMA: Final = "mathhead.run-audit-event.v2"
+MANIFEST_SCHEMA: Final = "mathhead.run-audit-manifest.v3"
+LOGICAL_REPORT_SCHEMA: Final = "mathhead.run-logical-report.v2"
+REPLAY_RESULT_SCHEMA: Final = "mathhead.run-audit-replay-result.v4"
+WORKER_OBSERVATION_SCHEMA: Final = "mathhead.run-audit-worker-observation.v3"
 
 SCHEMA_SHA256S: Final = {
-    OBJECT_SCHEMA: "03797f8c040c27286fb9bff2a988a7106e3fc6956e9203c90a81714cf8e98f60",
-    EVENT_SCHEMA: "6c1ef20c692220b9c1970620eac220e3a8a1ff3c23148a60a05e9d76b4045ecb",
-    MANIFEST_SCHEMA: "53c4f799ca8a523e01a518069aa1c27483bd9c2f95132281ebdb93fa0c7bd950",
-    LOGICAL_REPORT_SCHEMA: "2db8b0e75d274817201314e853bfe10ed5a6910bf8b6fa74549c1bb30eccbc76",
-    REPLAY_RESULT_SCHEMA: "c60e67b31da35441692ea88caeb09780755be092946d1aa4486dcbd748aad500",
+    OBJECT_SCHEMA: "b81596770c10bac4e192155cd24aea721da2c8dc8b8d8b5f73a3b11570cdd92c",
+    EVENT_SCHEMA: "eeb0f4ec975dc8417841f6677100f276d85cd356c3d0f376efa800e2ebbc0239",
+    MANIFEST_SCHEMA: "784184e21eccd7043e188b776ec5154328860e99015fe87102cc776bd050eabd",
+    LOGICAL_REPORT_SCHEMA: "d4a2a23426122d0ba64d3fc8a8135bde13c80794d221eaca9d6a49e7b134d2a2",
+    REPLAY_RESULT_SCHEMA: "ae6f6f60f936a40926cd7942e00088a8f409836182d089b2f9c3cec5b007269d",
+    WORKER_OBSERVATION_SCHEMA: "6abfae6c0f1be7811e8e8f3cc3e5de895274226e6834201da8018bc4df685a61",
 }
 
 MAX_OBJECTS: Final = 200_000
@@ -104,6 +110,7 @@ _OBJECT_ROLES = {
     "validated_evidence",
     "checker_certificate",
     "checker_decision",
+    "worker_observation",
     "logical_report",
 }
 _EVENT_KINDS = {
@@ -443,6 +450,468 @@ def _parse_record(value: object, ordinal: int) -> dict[str, object]:
     if identity != _self_hash(item, "record_sha256"):
         raise _Invalid("audit object record identity differs")
     return item
+
+
+def _worker_result_preimage(raw: bytes) -> dict[str, object]:
+    item = _keys(
+        _parse(raw, "worker_observation.result"),
+        {
+            "schema",
+            "contract_id",
+            "contract_sha256",
+            "status",
+            "reason_code",
+            "planning_result_sha256",
+            "strategy_sha256",
+            "capability",
+            "artifacts",
+            "diagnostics",
+            "tree_terminated",
+            "lease_reconciled",
+            "mathematical_authority",
+        },
+        "worker_observation.result",
+    )
+    if (
+        (
+            item["schema"],
+            item["contract_id"],
+            item["contract_sha256"],
+            item["status"]
+            in {
+            "completed",
+            "refused",
+            "unsupported",
+            "exhausted",
+            "cancelled",
+            "failed",
+            "invalid",
+            },
+            item["capability"],
+            item["diagnostics"],
+            type(item["tree_terminated"]),
+            type(item["lease_reconciled"]),
+            item["mathematical_authority"],
+        )
+        != (
+            "mathhead.isolated-worker-result.v1",
+            "MH-C-ISOLATED-WORKER-001",
+            ISOLATED_WORKER_CONTRACT_SHA256,
+            True,
+            None,
+            [],
+            bool,
+            bool,
+            False,
+        )
+    ):
+        raise _Invalid("worker observation result constants differ")
+    _reason(item["reason_code"], "worker_observation.result.reason_code")
+    _digest(
+        item["planning_result_sha256"],
+        "worker_observation.result.planning_result_sha256",
+    )
+    _digest(
+        item["strategy_sha256"],
+        "worker_observation.result.strategy_sha256",
+    )
+    raw_artifacts = item["artifacts"]
+    if type(raw_artifacts) is not list or len(raw_artifacts) > 2:
+        raise _Invalid("worker observation artifact inventory differs")
+    roles: list[str] = []
+    for index, raw_artifact in enumerate(raw_artifacts):
+        artifact = _keys(
+            raw_artifact,
+            {
+                "schema",
+                "role",
+                "media_type",
+                "original_bytes",
+                "retained_bytes",
+                "omitted_bytes",
+                "retained_sha256",
+                "artifact_sha256",
+                "mathematical_authority",
+            },
+            f"worker_observation.result.artifacts[{index}]",
+        )
+        role = artifact["role"]
+        if (
+            (
+                artifact["schema"],
+                role in {"stdout", "stderr"},
+                artifact["media_type"],
+                artifact["mathematical_authority"],
+            )
+            != (
+                "mathhead.worker-artifact.v1",
+                True,
+                "application/octet-stream",
+                False,
+            )
+        ):
+            raise _Invalid("worker observation artifact constants differ")
+        original = _quantity(
+            artifact["original_bytes"], "worker_observation.artifact.original"
+        )
+        retained = _quantity(
+            artifact["retained_bytes"], "worker_observation.artifact.retained"
+        )
+        omitted = _quantity(
+            artifact["omitted_bytes"], "worker_observation.artifact.omitted"
+        )
+        if original != retained + omitted:
+            raise _Invalid("worker observation artifact byte conservation differs")
+        if retained:
+            _digest(
+                artifact["retained_sha256"],
+                "worker_observation.artifact.retained_sha256",
+            )
+        elif artifact["retained_sha256"] is not None:
+            raise _Invalid("empty worker observation artifact has an identity")
+        if _digest(
+            artifact["artifact_sha256"],
+            "worker_observation.artifact.artifact_sha256",
+        ) != _self_hash(artifact, "artifact_sha256"):
+            raise _Invalid("worker observation artifact identity differs")
+        roles.append(str(role))
+    if roles not in ([], ["stdout"], ["stdout", "stderr"]):
+        raise _Invalid("worker observation artifact role order differs")
+    return item
+
+
+def _worker_observation(
+    *,
+    attempt_order: int,
+    phase: str,
+    request_sha256: str,
+    result_identity_sha256: str,
+    result_preimage: bytes,
+) -> bytes:
+    if phase not in {"producer", "checker"}:
+        raise _Invalid("worker observation phase differs")
+    _worker_result_preimage(result_preimage)
+    if _sha(result_preimage) != result_identity_sha256:
+        raise _Invalid("worker observation result preimage differs")
+    value: dict[str, object] = {
+        "schema": WORKER_OBSERVATION_SCHEMA,
+        "attempt_order": _quantity(
+            attempt_order, "worker_observation.attempt_order", 100_000
+        ),
+        "phase": phase,
+        "request_sha256": _digest(
+            request_sha256, "worker_observation.request_sha256"
+        ),
+        "result_identity_sha256": _digest(
+            result_identity_sha256,
+            "worker_observation.result_identity_sha256",
+        ),
+        "result": _parse(result_preimage, "worker_observation.result"),
+        "observation_sha256": None,
+        "mathematical_authority": False,
+    }
+    value["observation_sha256"] = _self_hash(value, "observation_sha256")
+    return _canonical(value)
+
+
+def _parse_worker_observation(raw: bytes) -> dict[str, object]:
+    item = _keys(
+        _parse(raw, "worker_observation"),
+        {
+            "schema",
+            "attempt_order",
+            "phase",
+            "request_sha256",
+            "result_identity_sha256",
+            "result",
+            "observation_sha256",
+            "mathematical_authority",
+        },
+        "worker_observation",
+    )
+    if (
+        (
+            item["schema"],
+            item["phase"] in {"producer", "checker"},
+            item["mathematical_authority"],
+        )
+        != (WORKER_OBSERVATION_SCHEMA, True, False)
+    ):
+        raise _Invalid("worker observation constants differ")
+    _quantity(item["attempt_order"], "worker_observation.attempt_order", 100_000)
+    _digest(item["request_sha256"], "worker_observation.request_sha256")
+    identity = _digest(
+        item["result_identity_sha256"],
+        "worker_observation.result_identity_sha256",
+    )
+    result_raw = _canonical(item["result"])
+    _worker_result_preimage(result_raw)
+    if identity != _sha(result_raw):
+        raise _Invalid("worker observation result identity differs")
+    if _digest(
+        item["observation_sha256"], "worker_observation.observation_sha256"
+    ) != _self_hash(item, "observation_sha256"):
+        raise _Invalid("worker observation identity differs")
+    return item
+
+
+def _observation_artifact_link(
+    result: dict[str, object],
+    retained: bytes | None,
+    path: str,
+) -> None:
+    artifacts = result["artifacts"]
+    if type(artifacts) is not list:
+        raise _Invalid(f"{path} artifact inventory differs")
+    if retained is None:
+        if artifacts:
+            raise _Invalid(f"{path} unvalidated output retains artifact metadata")
+        return
+    if len(artifacts) != 1 or type(artifacts[0]) is not dict:
+        raise _Invalid(f"{path} has no retained stdout artifact")
+    artifact = artifacts[0]
+    if (
+        (
+            artifact.get("role"),
+            artifact.get("retained_bytes"),
+            artifact.get("retained_sha256"),
+        )
+        != ("stdout", len(retained), _sha(retained))
+    ):
+        raise _Invalid(f"{path} retained stdout link differs")
+
+
+def _validate_worker_observations(
+    *,
+    planning_result: bytes,
+    plan: Any,
+    bindings: tuple[Any, ...],
+    artifacts_by_role: dict[str, bytes],
+    initial_parent: bytes,
+    final_parent: bytes,
+    records: list[dict[str, object]],
+    by_role_id: dict[str, dict[str, object]],
+    physical: dict[str, bytes],
+    portfolio: ProofSearchPortfolioResult,
+) -> None:
+    by_strategy = {item.strategy_sha256: item for item in plan.strategies}
+    by_plan_order = {item.plan_order: item for item in bindings}
+    if len(by_plan_order) != len(bindings):
+        raise _Invalid("execution binding plan order is not unique")
+    ledger_records = [
+        item
+        for item in records
+        if item["role"] == "reconciled_parent_budget"
+        and str(item["role_id"]).startswith("reconciled_parent_budget_")
+    ]
+    observation_ids = {
+        str(item["role_id"])
+        for item in records
+        if item["role"] == "worker_observation"
+    }
+    if _is_prelaunch_invalid(portfolio):
+        if (
+            ledger_records
+            or observation_ids
+            or initial_parent != final_parent
+            or any(
+                item["role"]
+                in {
+                    "validated_evidence",
+                    "checker_certificate",
+                    "checker_decision",
+                }
+                for item in records
+            )
+        ):
+            raise _Invalid("prelaunch-invalid audit execution closure differs")
+        return
+    expected_observation_ids: set[str] = set()
+    ledger_index = 0
+    current_parent = initial_parent
+    current_strategy = plan.entry_strategy_sha256
+    visited: set[str] = set()
+    for attempt_index, attempt in enumerate(portfolio.attempts):
+        if current_strategy is None:
+            raise _Invalid("portfolio attempt has no planned strategy")
+        if (
+            attempt.attempt_order,
+            current_strategy in visited,
+            attempt.strategy_sha256,
+        ) != (attempt_index, False, current_strategy):
+            raise _Invalid("portfolio attempt strategy visit order differs")
+        strategy = by_strategy.get(current_strategy)
+        binding = None if strategy is None else by_plan_order.get(strategy.plan_order)
+        if (strategy is None, binding is None) != (False, False):
+            raise _Invalid("portfolio attempt plan or execution binding is absent")
+        visited.add(current_strategy)
+        if _sha(current_parent) != attempt.parent_budget_before_sha256:
+            raise _Invalid("portfolio attempt parent-before ledger differs")
+        bound_artifacts = tuple(
+            (item.role, artifacts_by_role[item.role])
+            for item in binding.input_artifacts
+        )
+        producer_request = _worker_request(
+            plan_bytes=planning_result,
+            parent_budget=current_parent,
+            strategy=strategy,
+            binding=binding,
+            phase="producer",
+            arguments=binding.producer_arguments,
+            artifacts=bound_artifacts,
+            executable_sha256=binding.producer_executable_sha256,
+        )
+        producer_request_value = parse_isolated_worker_request(producer_request)
+        producer_role_id = (
+            f"producer_worker_observation_{attempt.attempt_order:06d}"
+        )
+        producer_record = by_role_id.get(producer_role_id)
+        if (producer_record is None, attempt.producer_worker_result_sha256 is None) != (
+            False,
+            False,
+        ):
+            raise _Invalid("producer worker observation closure differs")
+        expected_observation_ids.add(producer_role_id)
+        producer_observation = _parse_worker_observation(
+            physical[str(producer_record["sha256"])]
+        )
+        producer_result = producer_observation["result"]
+        if type(producer_result) is not dict:
+            raise _Invalid("producer worker result preimage differs")
+        if (
+            producer_observation["attempt_order"],
+            producer_observation["phase"],
+            producer_observation["request_sha256"],
+            producer_observation["result_identity_sha256"],
+            producer_result["planning_result_sha256"],
+            producer_result["strategy_sha256"],
+            producer_result["status"],
+            producer_result["reason_code"],
+        ) != (
+            attempt.attempt_order,
+            "producer",
+            producer_request_value.request_sha256,
+            attempt.producer_worker_result_sha256,
+            _sha(planning_result),
+            strategy.strategy_sha256,
+            attempt.producer_status,
+            attempt.producer_reason_code,
+        ):
+            raise _Invalid("producer worker observation link differs")
+        evidence_record = by_role_id.get(
+            f"validated_evidence_{attempt.attempt_order:06d}"
+        )
+        evidence = (
+            None
+            if evidence_record is None
+            else physical[str(evidence_record["sha256"])]
+        )
+        _observation_artifact_link(producer_result, evidence, "producer")
+        if ledger_index >= len(ledger_records):
+            raise _Invalid("producer reconciled ledger is absent")
+        current_parent = physical[str(ledger_records[ledger_index]["sha256"])]
+        ledger_index += 1
+
+        checker_started = attempt.checker_worker_result_sha256 is not None
+        if checker_started:
+            if evidence is None:
+                raise _Invalid("checker worker request has no retained Evidence")
+            checker_artifacts = (*bound_artifacts, ("portfolio_evidence", evidence))
+            checker_arguments = (*binding.checker_arguments, evidence.decode("ascii"))
+            checker_request = _worker_request(
+                plan_bytes=planning_result,
+                parent_budget=current_parent,
+                strategy=strategy,
+                binding=binding,
+                phase="checker",
+                arguments=checker_arguments,
+                artifacts=checker_artifacts,
+                executable_sha256=binding.checker_executable_sha256,
+            )
+            checker_request_value = parse_isolated_worker_request(checker_request)
+            checker_role_id = (
+                f"checker_worker_observation_{attempt.attempt_order:06d}"
+            )
+            checker_record = by_role_id.get(checker_role_id)
+            if checker_record is None:
+                raise _Invalid("checker worker observation closure differs")
+            expected_observation_ids.add(checker_role_id)
+            checker_observation = _parse_worker_observation(
+                physical[str(checker_record["sha256"])]
+            )
+            checker_result = checker_observation["result"]
+            if type(checker_result) is not dict:
+                raise _Invalid("checker worker result preimage differs")
+            if (
+                checker_observation["attempt_order"],
+                checker_observation["phase"],
+                checker_observation["request_sha256"],
+                checker_observation["result_identity_sha256"],
+                checker_result["planning_result_sha256"],
+                checker_result["strategy_sha256"],
+                checker_result["status"],
+                checker_result["reason_code"],
+            ) != (
+                attempt.attempt_order,
+                "checker",
+                checker_request_value.request_sha256,
+                attempt.checker_worker_result_sha256,
+                _sha(planning_result),
+                strategy.strategy_sha256,
+                attempt.checker_status,
+                attempt.checker_reason_code,
+            ):
+                raise _Invalid("checker worker observation link differs")
+            decision_record = by_role_id.get(
+                f"checker_decision_{attempt.attempt_order:06d}"
+            )
+            certificate_record = by_role_id.get(
+                f"checker_certificate_{attempt.attempt_order:06d}"
+            )
+            checker_stdout = None
+            if decision_record is not None and certificate_record is not None:
+                checker_stdout = _canonical(
+                    {
+                        "certificate": _parse(
+                            physical[str(certificate_record["sha256"])],
+                            "checker_certificate",
+                        ),
+                        "decision": _parse(
+                            physical[str(decision_record["sha256"])],
+                            "checker_decision",
+                        ),
+                    }
+                )
+            _observation_artifact_link(checker_result, checker_stdout, "checker")
+            if ledger_index >= len(ledger_records):
+                raise _Invalid("checker reconciled ledger is absent")
+            current_parent = physical[str(ledger_records[ledger_index]["sha256"])]
+            ledger_index += 1
+
+        if _sha(current_parent) != attempt.parent_budget_after_sha256:
+            raise _Invalid("portfolio attempt parent-after ledger differs")
+        transitions = [
+            item for item in strategy.transitions if item.outcome == attempt.outcome
+        ]
+        if len(transitions) != 1:
+            raise _Invalid("portfolio attempt transition count differs")
+        if transitions[0].transition_sha256 != attempt.transition_sha256:
+            raise _Invalid("portfolio attempt transition differs")
+        transition = transitions[0]
+        current_strategy = (
+            transition.target_strategy_sha256
+            if transition.action == "fallback"
+            else None
+        )
+        if current_strategy is None and attempt_index + 1 != len(portfolio.attempts):
+            raise _Invalid("portfolio attempt continues after a terminal transition")
+    if (
+        current_strategy,
+        ledger_index,
+        current_parent,
+        observation_ids,
+    ) != (None, len(ledger_records), final_parent, expected_observation_ids):
+        raise _Invalid("worker observation or ledger closure differs")
 
 
 def _worker_event_outcome(status: str) -> str:
@@ -794,6 +1263,11 @@ def _events_from_records(
             raise _Invalid("attempt parent-before ledger differs")
         if attempt.producer_worker_result_sha256 is None:
             raise _Invalid("attempt has no producer result identity")
+        producer_observation = by_role_id.get(
+            f"producer_worker_observation_{order:06d}"
+        )
+        if producer_observation is None:
+            raise _Invalid("producer worker observation is absent")
         _event(
             events,
             kind="producer_completed",
@@ -802,7 +1276,11 @@ def _events_from_records(
             phase="producer",
             outcome=_worker_event_outcome(attempt.producer_status),
             reason_code=attempt.producer_reason_code,
-            subjects=(strategy, attempt.producer_worker_result_sha256),
+            subjects=(
+                strategy,
+                attempt.producer_worker_result_sha256,
+                str(producer_observation["sha256"]),
+            ),
             parent_before=current_parent,
             parent_after=producer_after,
         )
@@ -850,6 +1328,11 @@ def _events_from_records(
             )
         attempt_after = producer_after
         if checker_started:
+            checker_observation = by_role_id.get(
+                f"checker_worker_observation_{order:06d}"
+            )
+            if checker_observation is None:
+                raise _Invalid("checker worker observation is absent")
             if ledger_index >= len(ledger_records):
                 raise _Invalid("checker reconciled ledger is absent")
             checker_after = str(ledger_records[ledger_index]["sha256"])
@@ -862,7 +1345,11 @@ def _events_from_records(
                 phase="checker",
                 outcome=_worker_event_outcome(attempt.checker_status),
                 reason_code=attempt.checker_reason_code,
-                subjects=(strategy, str(attempt.checker_worker_result_sha256)),
+                subjects=(
+                    strategy,
+                    str(attempt.checker_worker_result_sha256),
+                    str(checker_observation["sha256"]),
+                ),
                 parent_before=producer_after,
                 parent_after=checker_after,
             )
@@ -940,9 +1427,17 @@ def _validate_capture(
             capture.attempt_order != attempt.attempt_order
             or capture.strategy_sha256 != attempt.strategy_sha256
             or capture.producer_result_sha256 != attempt.producer_worker_result_sha256
+            or _sha(capture.producer_result_preimage)
+            != capture.producer_result_sha256
             or capture.producer_status != attempt.producer_status
             or capture.producer_reason_code != attempt.producer_reason_code
             or capture.checker_result_sha256 != attempt.checker_worker_result_sha256
+            or (
+                None
+                if capture.checker_result_preimage is None
+                else _sha(capture.checker_result_preimage)
+            )
+            != capture.checker_result_sha256
             or capture.checker_status != attempt.checker_status
             or capture.checker_reason_code != attempt.checker_reason_code
             or capture.outcome != attempt.outcome
@@ -954,21 +1449,185 @@ def _validate_capture(
             or decision_identity != attempt.checker_decision_sha256
         ):
             raise _Invalid("captured attempt differs from portfolio result")
-        if (capture.checker_result_sha256 is None) != (capture.checker_parent_before is None) or (capture.checker_result_sha256 is None) != (capture.checker_parent_after is None):
+        if (
+            (capture.checker_result_sha256 is None)
+            != (capture.checker_parent_before is None)
+            or (capture.checker_result_sha256 is None)
+            != (capture.checker_parent_after is None)
+            or (capture.checker_result_sha256 is None)
+            != (capture.checker_result_preimage is None)
+        ):
             raise _Invalid("checker ledger presence differs")
         if capture.checker_parent_before is not None and capture.checker_parent_before != capture.producer_parent_after:
             raise _Invalid("producer/checker ledger handoff differs")
         for raw in (
             capture.producer_parent_before,
             capture.producer_parent_after,
+            capture.producer_result_preimage,
             capture.checker_parent_before,
             capture.checker_parent_after,
+            capture.checker_result_preimage,
             capture.evidence,
             capture.checker_decision,
             capture.certificate,
         ):
             if raw is not None and type(raw) is not bytes:
                 raise _Invalid("captured bytes have a non-exact type")
+
+
+def _is_prelaunch_invalid(result: ProofSearchPortfolioResult) -> bool:
+    return (
+        result.status == "invalid"
+        and result.reason_code == "PORTFOLIO_INPUT_INVALID"
+        and result.request_sha256 is None
+        and result.planning_result_sha256 is None
+        and result.initial_parent_budget_sha256 is None
+        and result.final_parent_budget_sha256 is None
+        and not result.attempts
+        and not result.inconclusive_outcomes
+        and result.selected_strategy_sha256 is None
+        and result.selected_evidence_sha256 is None
+        and result.selected_certificate_sha256 is None
+        and result.selected_checker_decision_sha256 is None
+        and result.authority_tier == "none"
+        and result.mathematical_verdict == "none"
+    )
+
+
+def _expected_record_sequence(
+    *,
+    route_request: Any,
+    request: Any,
+    artifacts_by_role: dict[str, bytes],
+    binding_values: tuple[Any, ...],
+    portfolio: ProofSearchPortfolioResult,
+) -> tuple[tuple[str, str, str | None], ...]:
+    expected: list[tuple[str, str, str | None]] = [
+        ("planning_request", "planning_request", None),
+        ("capability_route_result", "capability_route_result", None),
+        ("planning_result", "planning_result", None),
+        ("portfolio_request", "portfolio_request", None),
+        ("portfolio_result", "portfolio_result", None),
+        ("initial_parent_budget", "initial_parent_budget", None),
+    ]
+    event_set = set(route_request.event_sha256s)
+    session_set = set(route_request.session_artifact_sha256s)
+    seen_events: set[str] = set()
+    seen_session: set[str] = set()
+    for binding in request.artifact_bindings:
+        raw = artifacts_by_role.get(binding.role)
+        if raw is None:
+            raise _Invalid("canonical artifact role is absent")
+        digest = _sha(raw)
+        schema, parsed = _schema_of(raw, f"canonical_{binding.role}")
+        event_identity = parsed.get("event_sha256")
+        if schema == "mathhead.problem-session-event.v1" and event_identity in event_set:
+            event = str(event_identity)
+            role = "session_event"
+            role_id = f"session_event_{route_request.event_sha256s.index(event):06d}"
+            seen_events.add(event)
+        elif digest == route_request.normalization_result_sha256:
+            role, role_id = "normalized_input", "normalized_input"
+            seen_session.add(digest)
+        elif digest == route_request.session_context_sha256:
+            role, role_id = "session_context", "session_context"
+            seen_session.add(digest)
+        elif digest == route_request.obligation_artifact_sha256:
+            role, role_id = "session_obligation", "session_obligation"
+            seen_session.add(digest)
+        elif digest in session_set:
+            role = "session_artifact"
+            role_id = (
+                "session_artifact_"
+                f"{route_request.session_artifact_sha256s.index(digest):06d}"
+            )
+            seen_session.add(digest)
+        else:
+            raise _Invalid("canonical artifact is outside the session closure")
+        expected.append((role, role_id, binding.role))
+    if seen_events != event_set or seen_session != session_set:
+        raise _Invalid("canonical session record closure differs")
+    for index, _digest_value in enumerate(sorted(request.descriptor_sha256s)):
+        expected.append(
+            ("plugin_descriptor", f"plugin_descriptor_{index:06d}", None)
+        )
+    if tuple(item.plan_order for item in binding_values) != tuple(
+        range(len(binding_values))
+    ):
+        raise _Invalid("canonical execution binding order differs")
+    expected.extend(
+        (
+            "execution_binding",
+            f"execution_binding_{item.plan_order:06d}",
+            None,
+        )
+        for item in binding_values
+    )
+    for attempt in portfolio.attempts:
+        expected.append(
+            (
+                "worker_observation",
+                f"producer_worker_observation_{attempt.attempt_order:06d}",
+                None,
+            )
+        )
+        if attempt.checker_worker_result_sha256 is not None:
+            expected.append(
+                (
+                    "worker_observation",
+                    f"checker_worker_observation_{attempt.attempt_order:06d}",
+                    None,
+                )
+            )
+    ledger_order = 0
+    for attempt in portfolio.attempts:
+        expected.append(
+            (
+                "reconciled_parent_budget",
+                f"reconciled_parent_budget_{ledger_order:06d}",
+                None,
+            )
+        )
+        ledger_order += 1
+        if attempt.evidence_sha256 is not None:
+            expected.append(
+                (
+                    "validated_evidence",
+                    f"validated_evidence_{attempt.attempt_order:06d}",
+                    None,
+                )
+            )
+        if attempt.checker_worker_result_sha256 is not None:
+            expected.append(
+                (
+                    "reconciled_parent_budget",
+                    f"reconciled_parent_budget_{ledger_order:06d}",
+                    None,
+                )
+            )
+            ledger_order += 1
+        if attempt.checker_decision_sha256 is not None:
+            expected.extend(
+                (
+                    (
+                        "checker_certificate",
+                        f"checker_certificate_{attempt.attempt_order:06d}",
+                        None,
+                    ),
+                    (
+                        "checker_decision",
+                        f"checker_decision_{attempt.attempt_order:06d}",
+                        None,
+                    ),
+                )
+            )
+    expected.extend(
+        (
+            ("reconciled_parent_budget", "final_parent_budget", None),
+            ("logical_report", "logical_report", None),
+        )
+    )
+    return tuple(expected)
 
 
 def _build_bundle(
@@ -987,7 +1646,12 @@ def _build_bundle(
     planning = parse_planning_request(planning_request)
     route_request = parse_capability_route_request(planning.route_request)
     request = parse_proof_search_portfolio_request(portfolio_request)
-    final_parent = proof_search_portfolio_budget_bytes(result)
+    if _is_prelaunch_invalid(result):
+        if captures:
+            raise _Invalid("prelaunch-invalid audit contains worker captures")
+        final_parent = parent_budget
+    else:
+        final_parent = proof_search_portfolio_budget_bytes(result)
     result_raw = proof_search_portfolio_result_bytes(result)
     records: list[dict[str, object]] = []
     physical: dict[str, bytes] = {}
@@ -1065,6 +1729,36 @@ def _build_bundle(
     for item, raw in zip(binding_values, bindings):
         add("execution_binding", f"execution_binding_{item.plan_order:06d}", raw)
 
+    for capture in captures:
+        add(
+            "worker_observation",
+            f"producer_worker_observation_{capture.attempt_order:06d}",
+            _worker_observation(
+                attempt_order=capture.attempt_order,
+                phase="producer",
+                request_sha256=capture.producer_request_sha256,
+                result_identity_sha256=capture.producer_result_sha256,
+                result_preimage=capture.producer_result_preimage,
+            ),
+        )
+        if capture.checker_result_sha256 is not None:
+            if (
+                capture.checker_request_sha256 is None
+                or capture.checker_result_preimage is None
+            ):
+                raise _Invalid("checker observation closure differs")
+            add(
+                "worker_observation",
+                f"checker_worker_observation_{capture.attempt_order:06d}",
+                _worker_observation(
+                    attempt_order=capture.attempt_order,
+                    phase="checker",
+                    request_sha256=capture.checker_request_sha256,
+                    result_identity_sha256=capture.checker_result_sha256,
+                    result_preimage=capture.checker_result_preimage,
+                ),
+            )
+
     ledger_order = 0
     for capture in captures:
         add(
@@ -1101,6 +1795,23 @@ def _build_bundle(
     )
     report_raw = _canonical(report_value)
     add("logical_report", "logical_report", report_raw)
+    artifacts_by_role = {
+        binding.role: raw
+        for binding, raw in zip(request.artifact_bindings, artifacts)
+    }
+    expected_records = _expected_record_sequence(
+        route_request=route_request,
+        request=request,
+        artifacts_by_role=artifacts_by_role,
+        binding_values=tuple(binding_values),
+        portfolio=result,
+    )
+    observed_records = tuple(
+        (str(record["role"]), str(record["role_id"]), record["binding_role"])
+        for record in records
+    )
+    if observed_records != expected_records:
+        raise _Invalid("constructed audit object order differs")
     by_role_id = {str(record["role_id"]): record for record in records}
     events = _events_from_records(records, by_role_id, result)
     manifest_value: dict[str, object] = {
@@ -1411,10 +2122,13 @@ def _complete_replay(
     binding_map: dict[str, bytes] = {}
     for item in binding_records:
         binding_raw = physical[str(item["sha256"])]
-        parse_portfolio_execution_binding(binding_raw)
         binding_map[_sha(binding_raw)] = binding_raw
     if set(binding_map) != set(request.binding_sha256s):
         raise _Invalid("execution binding object closure differs")
+    binding_values = tuple(
+        parse_portfolio_execution_binding(binding_map[digest])
+        for digest in request.binding_sha256s
+    )
     artifact_map: dict[str, bytes] = {}
     for item in records:
         binding_role = item["binding_role"]
@@ -1451,14 +2165,50 @@ def _complete_replay(
         )
     selected_evidence = None if selected_evidence_record is None else physical[str(selected_evidence_record["sha256"])]
     selected_certificate = None if selected_certificate_record is None else physical[str(selected_certificate_record["sha256"])]
+    retained_final_parent = (
+        None
+        if portfolio_value.get("final_parent_budget_sha256") is None
+        else final_parent
+    )
     portfolio = parse_proof_search_portfolio_result(
         portfolio_result,
-        final_parent,
+        retained_final_parent,
         selected_evidence,
         selected_certificate,
     )
-    if portfolio.initial_parent_budget_sha256 != _sha(initial_parent) or portfolio.final_parent_budget_sha256 != _sha(final_parent):
+    if _is_prelaunch_invalid(portfolio):
+        if final_parent != initial_parent:
+            raise _Invalid("prelaunch-invalid forensic ledger changed")
+    elif (
+        portfolio.initial_parent_budget_sha256 != _sha(initial_parent)
+        or portfolio.final_parent_budget_sha256 != _sha(final_parent)
+    ):
         raise _Invalid("portfolio ledger endpoints differ")
+    expected_records = _expected_record_sequence(
+        route_request=route_request,
+        request=request,
+        artifacts_by_role=artifact_map,
+        binding_values=binding_values,
+        portfolio=portfolio,
+    )
+    observed_records = tuple(
+        (str(item["role"]), str(item["role_id"]), item["binding_role"])
+        for item in records
+    )
+    if observed_records != expected_records:
+        raise _Invalid("semantic audit object order differs")
+    _validate_worker_observations(
+        planning_result=planning_result,
+        plan=fresh_plan,
+        bindings=binding_values,
+        artifacts_by_role=artifact_map,
+        initial_parent=initial_parent,
+        final_parent=final_parent,
+        records=records,
+        by_role_id=by_role_id,
+        physical=physical,
+        portfolio=portfolio,
+    )
     for attempt in portfolio.attempts:
         decision_record = by_role_id.get(
             f"checker_decision_{attempt.attempt_order:06d}"

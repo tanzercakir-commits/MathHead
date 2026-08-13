@@ -27,18 +27,18 @@ from typing import Any, NoReturn
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/mathhead/run_audit_store.py"
-REPORT = ROOT / "docs/planning/reports/run-audit-store-v1.json"
-CONTRACT_ID = "MH-C-RUN-AUDIT-STORE-001"
-CONTRACT_SHA256 = "a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12"
-AUDIT_SHA256 = "6032b9efac0c1ffa93cc2ee738318f45d8331c8ee25f4d97b51b55ba8aff8c0a"
-REPLAY_SHA256 = "ed130e9099a4308ed2c911e9ad63d2450783d9bff9700ad6ac0e2dd22ede9bc5"
+REPORT = ROOT / "docs/planning/reports/run-audit-store-v5.json"
+CONTRACT_ID = "MH-C-RUN-AUDIT-STORE-005"
+CONTRACT_SHA256 = "399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b"
+AUDIT_SHA256 = "9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4"
+REPLAY_SHA256 = "04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b"
 SCHEMAS = {
-    "run-audit-store-record-v1.schema.json": "de9127034133d21d23e5d2376a18247da89842b6de65da8555e1ddfc5ec60c05",
-    "run-audit-store-result-v1.schema.json": "9245bc736376bbb812234d5e0562a8b541e14ad3cbfbe901cd56bbd82e9544d0",
+    "run-audit-store-record-v2.schema.json": "614083f9de220b6a780ff35e7ab6cd3c07f1c3371255112e433213ea556ade8f",
+    "run-audit-store-result-v5.schema.json": "bf906f5c01fee05524b4c11cb80a526b5ca72214e8b417d44a3d4191077c11d4",
 }
-REPORT_SCHEMA = "mathhead.run-audit-store-validation-report.v1"
-RECORD_SCHEMA = "mathhead.run-audit-store-record.v1"
-RESULT_SCHEMA = "mathhead.run-audit-store-result.v1"
+REPORT_SCHEMA = "mathhead.run-audit-store-validation-report.v5"
+RECORD_SCHEMA = "mathhead.run-audit-store-record.v2"
+RESULT_SCHEMA = "mathhead.run-audit-store-result.v5"
 DIGEST = re.compile(r"[0-9a-f]{64}")
 
 
@@ -86,9 +86,7 @@ def _parse(raw: bytes, label: str, *, canonical: bool = True) -> dict[str, Any]:
             raw.decode("utf-8"),
             object_pairs_hook=_pairs,
             parse_float=lambda _value: (_ for _ in ()).throw(ValueError("float")),
-            parse_constant=lambda _value: (_ for _ in ()).throw(
-                ValueError("constant")
-            ),
+            parse_constant=lambda _value: (_ for _ in ()).throw(ValueError("constant")),
         )
     except (UnicodeError, ValueError, RecursionError) as exc:
         _fail(f"{label} is not strict JSON: {type(exc).__name__}")
@@ -124,8 +122,8 @@ def _contract_checks() -> dict[str, object]:
         or raw != proposed.read_bytes()
         or raw != _canonical(json.loads(raw))
         or bindings.get(CONTRACT_ID) != CONTRACT_SHA256
-        or bindings.get("MH-C-AUDITED-RUN-001") != AUDIT_SHA256
-        or bindings.get("MH-C-RUN-AUDIT-REPLAY-001") != REPLAY_SHA256
+        or bindings.get("MH-C-AUDITED-RUN-004") != AUDIT_SHA256
+        or bindings.get("MH-C-RUN-AUDIT-REPLAY-004") != REPLAY_SHA256
     ):
         _fail("accepted store/audit/replay contract binding drift")
     schema_report: dict[str, str] = {}
@@ -134,8 +132,7 @@ def _contract_checks() -> dict[str, object]:
         schema = _parse(path.read_bytes(), name, canonical=False)
         if (
             _sha(path.read_bytes()) != digest
-            or schema.get("$schema")
-            != "https://json-schema.org/draft/2020-12/schema"
+            or schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
             or schema.get("type") != "object"
             or schema.get("additionalProperties") is not False
             or set(schema.get("required", [])) != set(schema.get("properties", {}))
@@ -177,15 +174,38 @@ def _source_checks() -> dict[str, object]:
     }
     if name_calls & {"eval", "exec", "__import__"}:
         _fail("store source gained dynamic execution")
+    descriptor_helpers = {
+        "_open_root",
+        "_guard_root",
+        "_open_child_directory",
+        "_read_bounded",
+        "_write_immutable_locked",
+        "_quarantine_uncommitted",
+        "_fsync_directory",
+    }
+    if not descriptor_helpers <= set(functions):
+        _fail("store source lost a pinned descriptor helper")
+    dir_fd_calls = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and any(keyword.arg == "dir_fd" for keyword in node.keywords)
+    ]
+    if len(dir_fd_calls) < 8 or "follow_symlinks=False" not in source:
+        _fail("store source no longer owns descriptor-relative no-follow effects")
     return {
         "path": "src/mathhead/run_audit_store.py",
         "sha256": _sha(SOURCE.read_bytes()),
         "public_functions": sorted(required),
+        "descriptor_helpers": sorted(descriptor_helpers),
+        "descriptor_relative_calls": len(dir_fd_calls),
     }
 
 
-_CHILD = r'''import base64, json, os, sys
+_CHILD = r"""import base64, errno, json, os, sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest import mock
+from mathhead import run_audit_store as store_module
 from mathhead.run_audit import run_audit_bundle_sha256
 from mathhead.run_audit_store import (
     RunAuditStoreError, list_run_audits, load_run_audit, persist_run_audit,
@@ -201,14 +221,222 @@ action = os.environ["MH054_STORE_ACTION"]
 if action == "write":
     bundle = success_bundle().bundle
     first = persist_run_audit(root, bundle)
+    if first.status == "unsupported":
+        print(json.dumps({
+            "supported": False,
+            "first": enc(run_audit_store_result_bytes(first)),
+            "root_exists": root.exists(),
+        }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+        raise SystemExit(0)
     second = persist_run_audit(root, bundle)
     listed = list_run_audits(root)
     loaded = load_run_audit(root, run_audit_bundle_sha256(bundle))
     print(json.dumps({
+        "supported": True,
         "first": enc(run_audit_store_result_bytes(first)),
         "second": enc(run_audit_store_result_bytes(second)),
         "listed": list(listed),
         "loaded_manifest": enc(loaded.manifest),
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "different":
+    bundles = (success_bundle().bundle, success_bundle(claim="refuted").bundle)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(lambda bundle: persist_run_audit(root, bundle), bundles))
+    print(json.dumps({
+        "statuses": sorted(item.status for item in results),
+        "manifests": sorted(item.manifest_sha256 for item in results),
+        "listed": list(list_run_audits(root)),
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "fsync_unsupported":
+    bundle = success_bundle().bundle
+    with mock.patch.object(
+        store_module.os, "fsync", side_effect=OSError(errno.EINVAL, "unsupported")
+    ):
+        result = persist_run_audit(root, bundle)
+    files = sorted(str(path.relative_to(root)) for path in root.rglob("*") if path.is_file()) if root.exists() else []
+    print(json.dumps({
+        "result": enc(run_audit_store_result_bytes(result)),
+        "files": files,
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "late_fsync_unsupported":
+    bundle = success_bundle().bundle
+    real_sync = os.fsync
+    directory_calls = 0
+    def reject_late_directory(descriptor):
+        global directory_calls
+        import stat
+        if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+            directory_calls += 1
+            if directory_calls == 8:
+                raise OSError(errno.EINVAL, "unsupported")
+        real_sync(descriptor)
+    with mock.patch.object(store_module.os, "fsync", side_effect=reject_late_directory):
+        result = persist_run_audit(root, bundle)
+    files = sorted(str(path.relative_to(root)) for path in root.rglob("*") if path.is_file()) if root.exists() else []
+    print(json.dumps({
+        "result": enc(run_audit_store_result_bytes(result)),
+        "directory_calls": directory_calls,
+        "files": files,
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "post_probe_fsync_error":
+    bundle = success_bundle().bundle
+    real_directory_sync = store_module._fsync_directory
+    failed = False
+    def reject_first_operational(pinned, descriptor, *, capability_probe=False):
+        global failed
+        if not capability_probe and not failed:
+            failed = True
+            with mock.patch.object(
+                store_module.os,
+                "fsync",
+                side_effect=OSError(errno.EINVAL, "late operation"),
+            ):
+                return real_directory_sync(
+                    pinned, descriptor, capability_probe=capability_probe
+                )
+        return real_directory_sync(
+            pinned, descriptor, capability_probe=capability_probe
+        )
+    try:
+        with mock.patch.object(
+            store_module, "_fsync_directory", side_effect=reject_first_operational
+        ):
+            persist_run_audit(root, bundle)
+    except RunAuditStoreError as exc:
+        rejected = True
+        kind = exc.kind
+    else:
+        rejected = False
+        kind = None
+    print(json.dumps({
+        "rejected": rejected,
+        "kind": kind,
+        "failed": failed,
+        "listed": list(list_run_audits(root)),
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "record_cleanup_failure":
+    bundle = success_bundle().bundle
+    identity = run_audit_bundle_sha256(bundle)
+    real_unlink = os.unlink
+    matching_temporaries = 0
+    def reject_record_temporary(path, *, dir_fd=None):
+        global matching_temporaries
+        if path.startswith("." + identity + ".") and path.endswith(".tmp"):
+            matching_temporaries += 1
+            if matching_temporaries == 2:
+                raise OSError(errno.EACCES, "permission")
+        real_unlink(path, dir_fd=dir_fd)
+    try:
+        with (
+            mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
+            mock.patch.object(store_module.os, "unlink", side_effect=reject_record_temporary),
+        ):
+            persist_run_audit(root, bundle)
+    except RunAuditStoreError as exc:
+        rejected = True
+        kind = exc.kind
+    else:
+        rejected = False
+        kind = None
+    print(json.dumps({
+        "rejected": rejected,
+        "kind": kind,
+        "listed": list(list_run_audits(root)),
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "record_cleanup_cascade":
+    bundle = success_bundle().bundle
+    identity = run_audit_bundle_sha256(bundle)
+    real_unlink = os.unlink
+    matching_temporaries = 0
+    def reject_record_cleanup(path, *, dir_fd=None):
+        global matching_temporaries
+        if path.startswith("." + identity + ".") and path.endswith(".tmp"):
+            matching_temporaries += 1
+            if matching_temporaries < 2:
+                real_unlink(path, dir_fd=dir_fd)
+                return
+            raise OSError(errno.EACCES, "permission")
+        if path == identity and matching_temporaries >= 2:
+            raise OSError(errno.EACCES, "permission")
+        real_unlink(path, dir_fd=dir_fd)
+    try:
+        with (
+            mock.patch.object(store_module, "_descriptor_store_supported", return_value=True),
+            mock.patch.object(store_module.os, "unlink", side_effect=reject_record_cleanup),
+        ):
+            persist_run_audit(root, bundle)
+    except RunAuditStoreError as exc:
+        persist_kind = exc.kind
+    else:
+        persist_kind = None
+    try:
+        list_run_audits(root)
+    except RunAuditStoreError as exc:
+        before_kind = exc.kind
+    else:
+        before_kind = None
+    pending = next((root / "runs" / identity[:2]).glob(".*.tmp"))
+    real_unlink(pending)
+    try:
+        list_run_audits(root)
+    except RunAuditStoreError as exc:
+        after_kind = exc.kind
+    else:
+        after_kind = None
+    print(json.dumps({
+        "persist_kind": persist_kind,
+        "before_kind": before_kind,
+        "after_kind": after_kind,
+        "matching_temporaries": matching_temporaries,
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "temporary_link":
+    bundle = success_bundle().bundle
+    result = persist_run_audit(root, bundle)
+    identity = run_audit_bundle_sha256(bundle)
+    bucket = root / "runs" / identity[:2]
+    os.symlink(bucket / identity, bucket / ".attacker.tmp")
+    try:
+        list_run_audits(root)
+    except RunAuditStoreError as exc:
+        rejected = True
+        kind = exc.kind
+    else:
+        rejected = False
+        kind = None
+    print(json.dumps({
+        "stored": result.status,
+        "rejected": rejected,
+        "kind": kind,
+    }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+elif action == "ancestor":
+    bundle = success_bundle().bundle
+    base = root.parent.parent
+    replacement = base / "replacement"
+    replacement.mkdir(mode=0o700)
+    original = base / "anchor-original"
+    real_sync = store_module._fsync_directory
+    changed = False
+    def replace_after_probe(pinned, descriptor, *, capability_probe=False):
+        global changed
+        real_sync(pinned, descriptor, capability_probe=capability_probe)
+        if not changed:
+            changed = True
+            os.rename(base / "anchor", original)
+            os.symlink(replacement, base / "anchor", target_is_directory=True)
+    try:
+        with mock.patch.object(store_module, "_fsync_directory", side_effect=replace_after_probe):
+            persist_run_audit(root, bundle)
+    except RunAuditStoreError as exc:
+        rejected = True
+        kind = exc.kind
+    else:
+        rejected = False
+        kind = None
+    replacement_entries = sorted(str(path.relative_to(replacement)) for path in replacement.rglob("*"))
+    print(json.dumps({
+        "rejected": rejected,
+        "kind": kind,
+        "replacement_entries": replacement_entries,
     }, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
 elif action == "load":
     identity = os.environ["MH054_MANIFEST_SHA256"]
@@ -228,7 +456,7 @@ elif action == "reject":
         sys.exit(3)
 else:
     raise SystemExit("unknown action")
-'''
+"""
 
 
 def _child(root: Path, action: str, manifest: str | None = None) -> dict[str, Any]:
@@ -239,9 +467,7 @@ def _child(root: Path, action: str, manifest: str | None = None) -> dict[str, An
         environment["MH054_MANIFEST_SHA256"] = manifest
     roots = (str(ROOT / "src"), str(ROOT))
     inherited = environment.get("PYTHONPATH")
-    environment["PYTHONPATH"] = os.pathsep.join(
-        (*roots, inherited) if inherited else roots
-    )
+    environment["PYTHONPATH"] = os.pathsep.join((*roots, inherited) if inherited else roots)
     completed = subprocess.run(
         [sys.executable, "-c", _CHILD],
         cwd=ROOT,
@@ -253,8 +479,7 @@ def _child(root: Path, action: str, manifest: str | None = None) -> dict[str, An
     )
     if completed.returncode:
         _fail(
-            f"store child {action} failed: "
-            + completed.stderr.decode("utf-8", "replace").strip()
+            f"store child {action} failed: " + completed.stderr.decode("utf-8", "replace").strip()
         )
     try:
         value = json.loads(completed.stdout)
@@ -315,8 +540,15 @@ def _check_result(raw: bytes, status: str) -> dict[str, Any]:
         or value["result_sha256"] != _self_hash(value, "result_sha256")
     ):
         _fail(f"{status} store result binding differs")
-    _digest(value["manifest_sha256"], "result.manifest_sha256")
-    _digest(value["record_sha256"], "result.record_sha256")
+    if status in {"stored", "existing", "loaded"}:
+        _digest(value["manifest_sha256"], "result.manifest_sha256")
+        _digest(value["record_sha256"], "result.record_sha256")
+    elif (
+        value["manifest_sha256"] is not None
+        or value["record_sha256"] is not None
+        or value["object_count"] != 0
+    ):
+        _fail(f"{status} store result retained a committed identity")
     return value
 
 
@@ -328,8 +560,7 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
         second["manifest_sha256"] != manifest_identity
         or first["record_sha256"] != second["record_sha256"]
         or written.get("listed") != [manifest_identity]
-        or _sha(_decode(written.get("loaded_manifest"), "loaded manifest"))
-        != manifest_identity
+        or _sha(_decode(written.get("loaded_manifest"), "loaded manifest")) != manifest_identity
     ):
         _fail("stored/existing/load/list identities differ")
     for directory in (root, root / "objects", root / "runs"):
@@ -389,8 +620,7 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
         manifest.get("audited_run_contract_sha256") != AUDIT_SHA256
         or manifest.get("replay_contract_sha256") != REPLAY_SHA256
         or manifest.get("mathematical_authority") is not False
-        or manifest.get("logical_report_sha256")
-        != record["logical_report_sha256"]
+        or manifest.get("logical_report_sha256") != record["logical_report_sha256"]
     ):
         _fail("stored manifest audit/replay binding differs")
     manifest_objects = manifest.get("objects")
@@ -417,19 +647,115 @@ def _inspect_store(root: Path, written: dict[str, Any]) -> dict[str, object]:
 
 def _runtime_checks() -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="mathhead-audit-store-validator-") as parent:
-        base = Path(parent)
+        base = Path(parent).resolve()
         store = base / "original"
         written = _child(store, "write")
+        if written.get("supported") is False:
+            unsupported = _check_result(
+                _decode(written.get("first"), "unsupported first"),
+                "unsupported",
+            )
+            if (
+                unsupported.get("reason_code") != "STORE_UNSUPPORTED"
+                or written.get("root_exists") is not False
+            ):
+                _fail("unsupported platform created state or returned the wrong result")
+            return {
+                "platform_supported": False,
+                "unsupported_effect_free": True,
+                "fixture": {
+                    "store_verified": True,
+                    "first_write_verified": False,
+                    "repeat_write_verified": False,
+                },
+            }
+        if written.get("supported") is not True:
+            _fail("store child omitted its platform capability classification")
         fixture = _inspect_store(store, written)
         manifest = str(_parse(_decode(written["first"], "first"), "first")["manifest_sha256"])
+
+        different = _child(base / "different", "different")
+        different_manifests = different.get("manifests")
+        if (
+            different.get("statuses") != ["stored", "stored"]
+            or type(different_manifests) is not list
+            or len(different_manifests) != 2
+            or len(set(different_manifests)) != 2
+            or different.get("listed") != sorted(different_manifests)
+        ):
+            _fail("concurrent different-run writers did not remain independent")
+
+        unsupported_sync = _child(base / "unsupported-sync", "fsync_unsupported")
+        unsupported_result = _check_result(
+            _decode(unsupported_sync.get("result"), "unsupported sync result"),
+            "unsupported",
+        )
+        if (
+            unsupported_result.get("reason_code") != "STORE_UNSUPPORTED"
+            or unsupported_sync.get("files") != []
+        ):
+            _fail("unsupported directory synchronization installed content")
+
+        late_unsupported_sync = _child(base / "late-unsupported-sync", "late_fsync_unsupported")
+        late_unsupported_result = _check_result(
+            _decode(late_unsupported_sync.get("result"), "late unsupported sync result"),
+            "unsupported",
+        )
+        if (
+            late_unsupported_result.get("reason_code") != "STORE_UNSUPPORTED"
+            or late_unsupported_sync.get("directory_calls") != 8
+            or late_unsupported_sync.get("files") != []
+        ):
+            _fail("late unsupported directory synchronization installed content")
+
+        post_probe_sync = _child(base / "post-probe-sync", "post_probe_fsync_error")
+        if (
+            post_probe_sync.get("rejected") is not True
+            or post_probe_sync.get("kind") != "io"
+            or post_probe_sync.get("failed") is not True
+            or post_probe_sync.get("listed") != []
+        ):
+            _fail("post-probe synchronization error exposed a visible run")
+
+        cleanup_failure = _child(base / "record-cleanup-failure", "record_cleanup_failure")
+        if (
+            cleanup_failure.get("rejected") is not True
+            or cleanup_failure.get("kind") != "io"
+            or cleanup_failure.get("listed") != []
+        ):
+            _fail("record temporary cleanup failure exposed a visible run")
+
+        cleanup_cascade = _child(base / "record-cleanup-cascade", "record_cleanup_cascade")
+        if cleanup_cascade != {
+            "persist_kind": "io",
+            "before_kind": "link",
+            "after_kind": "mode",
+            "matching_temporaries": 2,
+        }:
+            _fail("cascading record cleanup failure became an accepted run")
+
+        temporary_link = _child(base / "temporary-link", "temporary_link")
+        if (
+            temporary_link.get("stored") != "stored"
+            or temporary_link.get("rejected") is not True
+            or temporary_link.get("kind") != "link"
+        ):
+            _fail("linked run temporary was ignored")
+
+        ancestor = _child(base / "anchor" / "audit", "ancestor")
+        if (
+            ancestor.get("rejected") is not True
+            or ancestor.get("kind") != "link"
+            or ancestor.get("replacement_entries") != []
+        ):
+            _fail("ancestor replacement redirected one store effect")
 
         relocated = base / "relocated"
         shutil.copytree(store, relocated)
         relocated_result = _child(relocated, "load", manifest)
-        relocation_ok = (
-            relocated_result.get("manifest_sha256") == manifest
-            and relocated_result.get("listed") == [manifest]
-        )
+        relocation_ok = relocated_result.get(
+            "manifest_sha256"
+        ) == manifest and relocated_result.get("listed") == [manifest]
         if not relocation_ok:
             _fail("relocated exact store did not preserve load/list identity")
 
@@ -458,11 +784,41 @@ def _runtime_checks() -> dict[str, object]:
         corruption_rejected = rejected.get("rejected") is True
         if not corruption_rejected:
             _fail("corrupted content did not fail closed")
+
+        hardlinked = base / "hardlinked"
+        shutil.copytree(store, hardlinked)
+        hardlinked_run = hardlinked / "runs" / manifest[:2] / manifest
+        hardlinked_record = _parse(hardlinked_run.read_bytes(), "hardlinked record")
+        hardlinked_identity = next(
+            item
+            for item in hardlinked_record["object_sha256s"]
+            if item not in {manifest, hardlinked_record["logical_report_sha256"]}
+        )
+        hardlinked_content = hardlinked / "objects" / hardlinked_identity[:2] / hardlinked_identity
+        os.link(hardlinked_content, base / "external-hardlink")
+        hardlink_result = _child(hardlinked, "reject", manifest)
+        hardlink_rejected = hardlink_result.get("rejected") is True
+        if not hardlink_rejected:
+            _fail("hardlinked content did not fail closed")
     return {
-        "fixture": fixture,
+        "platform_supported": True,
+        "fixture": {
+            "store_verified": True,
+            "first_write_verified": fixture["first_status"] == "stored",
+            "repeat_write_verified": fixture["repeat_status"] == "existing",
+        },
+        "different_run_concurrency_verified": True,
+        "unsupported_sync_effect_free": True,
+        "late_unsupported_sync_effect_free": True,
+        "post_probe_sync_failure_nonvisible": True,
+        "record_cleanup_failure_nonvisible": True,
+        "cascading_cleanup_failure_nonvisible": True,
+        "linked_temporary_rejected": True,
+        "ancestor_replacement_effect_free": True,
         "relocation_preserved": relocation_ok,
         "orphan_content_ignored": orphan_ignored,
         "corruption_rejected": corruption_rejected,
+        "hardlinked_content_rejected": hardlink_rejected,
     }
 
 
@@ -483,6 +839,15 @@ def _report() -> dict[str, object]:
             "relocation-stability",
             "orphan-content-nonvisibility",
             "corrupt-content-fail-closed",
+            "different-run-concurrency",
+            "unsupported-sync-no-install",
+            "late-unsupported-sync-no-install",
+            "post-probe-sync-failure-nonvisibility",
+            "record-cleanup-failure-nonvisibility",
+            "cascading-cleanup-failure-nonvisibility",
+            "linked-temporary-rejection",
+            "ancestor-replacement-no-redirect",
+            "hardlinked-content-rejection",
             "non-authoritative-store-results",
         ],
         "mathematical_authority": False,
@@ -512,8 +877,7 @@ def main() -> int:
         print(f"run-audit-store: FAIL: {exc}", file=sys.stderr)
         return 1
     print(
-        "run-audit-store: PASS "
-        "(append-only commit, exact dedupe, relocation, corruption rejection)"
+        "run-audit-store: PASS (append-only commit, exact dedupe, relocation, corruption rejection)"
     )
     return 0
 

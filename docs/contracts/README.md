@@ -120,20 +120,24 @@ before the critical implementation that they govern.
   trust-transition identities, and is accepted under the project owner's
   programme-wide authority at SHA-256
   `b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144`.
-- `MH-C-AUDITED-RUN-001.json` governs exact audited execution, safe lifecycle
-  capture, content-addressed object closure, deterministic event order, and a
-  machine-independent logical report. It binds the audit object, event,
-  manifest, and report schemas and is accepted at SHA-256
-  `6032b9efac0c1ffa93cc2ee738318f45d8331c8ee25f4d97b51b55ba8aff8c0a`.
-- `MH-C-RUN-AUDIT-REPLAY-001.json` governs hostile-byte logical replay without
-  producer, checker, solver, process, filesystem, environment, or clock
-  effects. It binds the replay-result schema and is accepted at SHA-256
-  `ed130e9099a4308ed2c911e9ad63d2450783d9bff9700ad6ac0e2dd22ede9bc5`.
-- `MH-C-RUN-AUDIT-STORE-001.json` governs the private append-only
-  content-addressed object store, immutable run-record commit point, exact
-  deduplication, relocation, corruption rejection, and freshly replayed
-  loading. It binds the store record/result schemas and is accepted at SHA-256
-  `a28a5f7f0a9f592a2addf0c0a653483fd3198adec112507705567479c17cbc12`.
+- `MH-C-AUDITED-RUN-004.json` governs exact audited execution, safe lifecycle
+  capture, canonical semantic record order, closed worker-result preimages,
+  prelaunch-invalid ledger closure, and digest-free invalid-output handling.
+  It supersedes `003`, binds the active audit graph, and is accepted at SHA-256
+  `9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4`.
+- `MH-C-RUN-AUDIT-REPLAY-004.json` governs effect-free hostile-byte logical
+  replay and independently reconstructs object order, every worker link,
+  lifecycle events, and the logical report. It supersedes `003`, binds the v4
+  replay result, and is accepted at SHA-256
+  `04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b`.
+- `MH-C-RUN-AUDIT-STORE-005.json` governs the pinned descriptor-relative
+  append-only store, immutable run-record commit point, exact deduplication,
+  durable boundaries, ancestor-replacement exclusion, relocation, and fresh
+  replay on read. It supersedes the historical intermediate `004`, binds the
+  v5 store result, and is accepted at SHA-256
+  `399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b`.
+  Accepted audit/replay/store versions `001` through `003` and store `004`
+  remain immutable migration evidence and are not current success identities.
 - `MH-C-TRUST-BASE-001.json` governs the complete static trusted-computing-base
   inventory, authority and role separation, import and effect ownership,
   deterministic entry-point closures, P3 migration ownership, and the closed

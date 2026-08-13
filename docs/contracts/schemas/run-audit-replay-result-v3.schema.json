@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-audit-replay-result-v3.schema.json",
+  "title": "MathHead Run Audit Replay Result v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "status",
+    "reason_code",
+    "manifest_sha256",
+    "bundle_sha256",
+    "logical_report_sha256",
+    "object_count",
+    "event_count",
+    "portfolio_status",
+    "mathematical_verdict",
+    "authority_tier",
+    "replay_result_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.run-audit-replay-result.v3"
+    },
+    "contract_id": {
+      "const": "MH-C-RUN-AUDIT-REPLAY-003"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "invalid",
+        "exhausted"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "bundle_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "logical_report_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "object_count": {
+      "$ref": "#/$defs/quantity"
+    },
+    "event_count": {
+      "$ref": "#/$defs/quantity"
+    },
+    "portfolio_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "succeeded",
+            "unsupported",
+            "exhausted",
+            "cancelled",
+            "failed",
+            "ambiguous",
+            "truncated",
+            "inconclusive",
+            "disagreement",
+            "verifier_failed",
+            "invalid_evidence",
+            "invalid"
+          ]
+        }
+      ]
+    },
+    "mathematical_verdict": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "proved",
+            "refuted",
+            "inconclusive",
+            "none"
+          ]
+        }
+      ]
+    },
+    "authority_tier": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "none",
+            "checker_attestation",
+            "external_proof_assistant"
+          ]
+        }
+      ]
+    },
+    "replay_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  }
+}

@@ -872,15 +872,49 @@ def _report() -> dict[str, object]:
     return report
 
 
+def _verify_frozen_report(report: dict[str, object], rendered: bytes) -> None:
+    if not REPORT.is_file():
+        _fail(f"frozen report missing: {REPORT.relative_to(ROOT)}")
+    frozen_raw = REPORT.read_bytes()
+    frozen = _parse(frozen_raw, "frozen store report")
+    if frozen.get("report_sha256") != _self_hash(frozen, "report_sha256"):
+        _fail("frozen store report self identity differs")
+    runtime = report.get("runtime")
+    if type(runtime) is not dict or type(runtime.get("platform_supported")) is not bool:
+        _fail("live store report omitted its platform classification")
+    if runtime["platform_supported"]:
+        if frozen_raw != rendered:
+            _fail(f"frozen report drift: {REPORT.relative_to(ROOT)}")
+        return
+    stable_fields = (
+        "schema",
+        "status",
+        "binding",
+        "source",
+        "checks",
+        "mathematical_authority",
+    )
+    frozen_runtime = frozen.get("runtime")
+    if (
+        any(frozen.get(field) != report.get(field) for field in stable_fields)
+        or type(frozen_runtime) is not dict
+        or frozen_runtime.get("platform_supported") is not True
+    ):
+        _fail("frozen supported-platform evidence is stale or incomplete")
+
+
 def main() -> int:
     try:
         report = _report()
         rendered = _canonical(report)
         if "--write-report" in sys.argv:
+            runtime = report.get("runtime")
+            if type(runtime) is not dict or runtime.get("platform_supported") is not True:
+                _fail("frozen store evidence can be written only on a supported platform")
             REPORT.parent.mkdir(parents=True, exist_ok=True)
             REPORT.write_bytes(rendered)
-        elif not REPORT.is_file() or REPORT.read_bytes() != rendered:
-            _fail(f"frozen report drift or missing: {REPORT.relative_to(ROOT)}")
+        else:
+            _verify_frozen_report(report, rendered)
     except (
         StoreValidationError,
         OSError,

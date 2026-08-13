@@ -751,6 +751,286 @@ class RunAuditStoreTests(unittest.TestCase):
             with self.assertRaises(store.RunAuditStoreError):
                 store._file_info(os.lstat(public_file))
 
+    def test_root_creation_and_open_races_fail_closed(self) -> None:
+        from mathhead import run_audit_store as store
+
+        if not store._descriptor_store_supported():
+            return
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=True),
+                mock.patch.object(
+                    store.os,
+                    "mkdir",
+                    side_effect=OSError(errno.EIO, "create"),
+                ),
+                self.assertRaises(store.RunAuditStoreError) as create_failure,
+            ):
+                store._open_root(base / "create-failure", create=True)
+            self.assertEqual(create_failure.exception.kind, "io")
+
+            raced = base / "raced"
+            real_mkdir = os.mkdir
+
+            def create_before_reported_collision(
+                path: str,
+                mode: int = 0o777,
+                *,
+                dir_fd: int | None = None,
+            ) -> None:
+                real_mkdir(path, mode=mode, dir_fd=dir_fd)
+                raise FileExistsError(errno.EEXIST, "raced")
+
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=True),
+                mock.patch.object(
+                    store.os,
+                    "mkdir",
+                    side_effect=create_before_reported_collision,
+                ),
+            ):
+                pinned = store._open_root(raced, create=True)
+            pinned.close()
+
+            opened = base / "open-failure"
+            opened.mkdir(mode=0o700)
+            real_open = os.open
+
+            def reject_final_open(
+                path: str | bytes,
+                flags: int,
+                mode: int = 0o777,
+                *,
+                dir_fd: int | None = None,
+            ) -> int:
+                if path == opened.name and dir_fd is not None:
+                    raise OSError(errno.EIO, "open")
+                return real_open(path, flags, mode, dir_fd=dir_fd)
+
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=True),
+                mock.patch.object(store.os, "open", side_effect=reject_final_open),
+                self.assertRaises(store.RunAuditStoreError) as open_failure,
+            ):
+                store._open_root(opened, create=False)
+            self.assertEqual(open_failure.exception.kind, "io")
+
+            changed = base / "identity-race"
+            changed.mkdir(mode=0o700)
+            real_fstat = os.fstat
+            fstat_calls = 0
+
+            def replace_final_identity(descriptor: int) -> os.stat_result:
+                nonlocal fstat_calls
+                fstat_calls += 1
+                info = real_fstat(descriptor)
+                if fstat_calls == len(changed.parts):
+                    fields = list(info)
+                    fields[1] += 1
+                    return os.stat_result(fields)
+                return info
+
+            with (
+                mock.patch.object(store.os, "fstat", side_effect=replace_final_identity),
+                self.assertRaises(store.RunAuditStoreError) as identity_failure,
+            ):
+                store._open_root(changed, create=False)
+            self.assertEqual(identity_failure.exception.kind, "link")
+
+    def test_bounded_read_races_and_io_fail_closed(self) -> None:
+        from mathhead import run_audit_store as store
+
+        if not store._descriptor_store_supported():
+            return
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve() / "private"
+            root.mkdir(mode=0o700)
+            target = root / "record"
+            target.write_bytes(b"data")
+            target.chmod(0o600)
+            pinned = store._open_root(root, create=False)
+            real_fstat = os.fstat
+            try:
+                with (
+                    mock.patch.object(store.os, "open", side_effect=OSError(errno.EIO, "open")),
+                    self.assertRaises(store.RunAuditStoreError) as open_failure,
+                ):
+                    store._read_bounded(pinned, pinned.descriptor, target.name, 4)
+                self.assertEqual(open_failure.exception.kind, "io")
+
+                def changed_inode(descriptor: int) -> os.stat_result:
+                    info = real_fstat(descriptor)
+                    values = list(info)
+                    values[1] += 1
+                    return os.stat_result(values)
+
+                with (
+                    mock.patch.object(store.os, "fstat", side_effect=changed_inode),
+                    self.assertRaises(store.RunAuditStoreError) as open_race,
+                ):
+                    store._read_bounded(pinned, pinned.descriptor, target.name, 4)
+                self.assertEqual(open_race.exception.kind, "link")
+
+                for label, effects, expected in (
+                    ("early-eof", [b""], "partial"),
+                    ("growth", [b"data", b"x"], "corrupt"),
+                    ("final-read", [b"data", OSError(errno.EIO, "read")], "io"),
+                ):
+                    with (
+                        self.subTest(case=label),
+                        mock.patch.object(store.os, "read", side_effect=effects),
+                        self.assertRaises(store.RunAuditStoreError) as caught,
+                    ):
+                        store._read_bounded(pinned, pinned.descriptor, target.name, 4)
+                    self.assertEqual(caught.exception.kind, expected)
+
+                fstat_calls = 0
+
+                def changed_after_read(descriptor: int) -> os.stat_result:
+                    nonlocal fstat_calls
+                    fstat_calls += 1
+                    info = real_fstat(descriptor)
+                    if fstat_calls == 2:
+                        values = list(info)
+                        values[6] += 1
+                        return os.stat_result(values)
+                    return info
+
+                with (
+                    mock.patch.object(store.os, "fstat", side_effect=changed_after_read),
+                    self.assertRaises(store.RunAuditStoreError) as read_race,
+                ):
+                    store._read_bounded(pinned, pinned.descriptor, target.name, 4)
+                self.assertEqual(read_race.exception.kind, "corrupt")
+
+                with (
+                    mock.patch.object(store.os, "stat", side_effect=OSError(errno.EIO, "stat")),
+                    self.assertRaises(store.RunAuditStoreError) as root_unavailable,
+                ):
+                    store._guard_root(pinned)
+                self.assertEqual(root_unavailable.exception.kind, "link")
+            finally:
+                pinned.close()
+
+    def test_listing_load_and_result_corruption_fail_closed(self) -> None:
+        from mathhead import run_audit_store as store
+
+        if not store._descriptor_store_supported():
+            return
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+            root = base / "listing"
+            root.mkdir(mode=0o700)
+            runs = root / "runs"
+            runs.mkdir(mode=0o700)
+
+            with (
+                mock.patch.object(
+                    store,
+                    "_open_child_directory",
+                    side_effect=store.RunAuditStoreError("io", "open"),
+                ),
+                self.assertRaises(store.RunAuditStoreError) as child_open,
+            ):
+                store.list_run_audits(root)
+            self.assertEqual(child_open.exception.kind, "io")
+
+            bucket = runs / "00"
+            bucket.mkdir(mode=0o700)
+            with (
+                mock.patch.object(
+                    store.os,
+                    "listdir",
+                    side_effect=[["00"], OSError(errno.EIO, "list")],
+                ),
+                self.assertRaises(store.RunAuditStoreError) as bucket_list,
+            ):
+                store.list_run_audits(root)
+            self.assertEqual(bucket_list.exception.kind, "io")
+
+            temporary_name = f".{('0' * 64)}.{('0' * 16)}.tmp"
+            pending = bucket / temporary_name
+            pending.write_bytes(b"pending")
+            pending.chmod(0o600)
+            real_stat = os.stat
+
+            def reject_temporary_stat(
+                path: str | bytes | Path,
+                *,
+                dir_fd: int | None = None,
+                follow_symlinks: bool = True,
+            ) -> os.stat_result:
+                if path == temporary_name and dir_fd is not None:
+                    raise OSError(errno.EIO, "stat")
+                return real_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
+
+            with (
+                mock.patch.object(store, "_descriptor_store_supported", return_value=True),
+                mock.patch.object(store.os, "stat", side_effect=reject_temporary_stat),
+                self.assertRaises(store.RunAuditStoreError) as temporary_stat,
+            ):
+                store.list_run_audits(root)
+            self.assertEqual(temporary_stat.exception.kind, "io")
+
+            for label, raw, maximum in (
+                ("empty", b"", store.MAX_RECORD_BYTES),
+                ("over-budget", b"xx", 1),
+            ):
+                pending.write_bytes(raw)
+                pending.chmod(0o600)
+                with (
+                    self.subTest(case=label),
+                    mock.patch.object(store, "MAX_RECORD_BYTES", maximum),
+                    self.assertRaises(store.RunAuditStoreError) as temporary_shape,
+                ):
+                    store.list_run_audits(root)
+                self.assertEqual(temporary_shape.exception.kind, "corrupt")
+            pending.unlink()
+
+            visible = bucket / ("0" * 64)
+            visible.write_bytes(b"record")
+            visible.chmod(0o600)
+            with (
+                mock.patch.object(store, "MAX_RUNS", 0),
+                self.assertRaises(store.RunAuditStoreError) as run_budget,
+            ):
+                store.list_run_audits(root)
+            self.assertEqual(run_budget.exception.kind, "budget")
+
+            stored_root = base / "stored"
+            self.assertEqual(store.persist_run_audit(stored_root, self.bundle).status, "stored")
+            with (
+                mock.patch.object(store, "MAX_AGGREGATE_BYTES", 0),
+                self.assertRaises(store.RunAuditStoreError) as aggregate_budget,
+            ):
+                store.load_run_audit(stored_root, self.bundle.manifest_sha256)
+            self.assertEqual(aggregate_budget.exception.kind, "budget")
+
+            mismatched = mock.Mock(logical_report_sha256="0" * 64)
+            with (
+                mock.patch.object(store, "_bundle_from_replayed_bytes", return_value=mismatched),
+                self.assertRaises(store.RunAuditStoreError) as logical_identity,
+            ):
+                store.load_run_audit(stored_root, self.bundle.manifest_sha256)
+            self.assertEqual(logical_identity.exception.kind, "corrupt")
+
+            valid = store._new_result(
+                "invalid",
+                "BUNDLE_INVALID",
+                manifest_sha256=None,
+                record_sha256=None,
+                object_count=0,
+            )
+            forged = object.__new__(type(valid))
+            for field in fields(valid):
+                object.__setattr__(forged, field.name, getattr(valid, field.name))
+            object.__setattr__(forged, "result_sha256", "0" * 64)
+            with self.assertRaises(store.RunAuditStoreError) as result_identity:
+                store.validate_run_audit_store_result(forged)
+            self.assertEqual(result_identity.exception.kind, "result")
+
     def test_listing_rejects_bad_names_and_ignores_only_private_temporaries(self) -> None:
         from mathhead import run_audit_store as store
 
@@ -980,11 +1260,19 @@ class RunAuditStoreTests(unittest.TestCase):
                 object.__setattr__(forged, field.name, getattr(self.bundle, field.name))
             object.__setattr__(forged, "manifest", b"invalid\n")
             self.assertEqual(store.persist_run_audit(base / "forged", forged).status, "invalid")
-            with mock.patch.object(store, "MAX_OBJECTS", 0):
-                self.assertEqual(
-                    store.persist_run_audit(base / "budget", self.bundle).reason_code,
-                    "STORE_BUDGET_EXCEEDED",
-                )
+            for supported, expected in (
+                (True, "STORE_BUDGET_EXCEEDED"),
+                (False, "STORE_UNSUPPORTED"),
+            ):
+                with (
+                    self.subTest(descriptor_store_supported=supported),
+                    mock.patch.object(store, "_descriptor_store_supported", return_value=supported),
+                    mock.patch.object(store, "MAX_OBJECTS", 0),
+                ):
+                    self.assertEqual(
+                        store.persist_run_audit(base / "budget", self.bundle).reason_code,
+                        expected,
+                    )
             if not store._descriptor_store_supported():
                 return
             with mock.patch.object(store, "_write_immutable", side_effect=OSError("io")):

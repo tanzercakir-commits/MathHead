@@ -304,7 +304,9 @@ def execute(fixture, fallback=False, prelaunch=False):
             bindings=bindings,
             artifacts=fixture.input_pairs,
         )
-    with tempfile.TemporaryDirectory(prefix="mh054-machine-path-do-not-record-") as workspace:
+    with tempfile.TemporaryDirectory(
+        prefix="mh054-machine-path-do-not-record-", dir=Path.cwd()
+    ) as workspace:
         bundle = execute_audited_run(
             planning_request, route_result, portfolio_request, fixture.plan_bytes,
             fixture.parent, descriptors, bindings, artifacts,

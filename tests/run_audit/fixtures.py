@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from threading import Event
 import tempfile
 
@@ -16,6 +17,8 @@ from tests.proof_search_portfolio.fixtures import (
     emit_script,
     nonproduced_evidence_bytes,
 )
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 @dataclass(frozen=True)
@@ -80,7 +83,10 @@ def single_bundle(
     planning_request, route_result, _descriptors, artifacts = fixture.base.planning_inputs(
         (fixture.descriptor,), availability_changes={"allowed_effects": ("process",)}
     )
-    with tempfile.TemporaryDirectory(prefix="mathhead-run-audit-fixture-") as workspace:
+    with tempfile.TemporaryDirectory(
+        prefix="mathhead-run-audit-fixture-",
+        dir=ROOT,
+    ) as workspace:
         bundle = execute_audited_run(
             planning_request,
             route_result,
@@ -113,7 +119,10 @@ def fallback_bundle() -> AuditedFixture:
         bindings=fixture.bindings,
         artifacts=fixture.input_pairs,
     )
-    with tempfile.TemporaryDirectory(prefix="mathhead-run-audit-fixture-") as workspace:
+    with tempfile.TemporaryDirectory(
+        prefix="mathhead-run-audit-fixture-",
+        dir=ROOT,
+    ) as workspace:
         bundle = execute_audited_run(
             planning_request,
             route_result,

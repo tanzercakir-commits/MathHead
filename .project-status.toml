@@ -648,3 +648,45 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-S
 profiles = ["status", "fast"]
 tasks = ["MH-054"]
 timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-tests"
+command = "python -m unittest discover -s tests/safe_cache -v"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-validator"
+command = "python tools/validate_safe_cache.py"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAFE-CACHE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-store-tests"
+command = "python -m unittest discover -s tests/safe_cache_store -v"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 240
+
+[[checks]]
+name = "safe-cache-store-validator"
+command = "python tools/validate_safe_cache_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAFE-CACHE-STORE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60

@@ -10,7 +10,7 @@ The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
 SHA-256
 `2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
 Its current self-identity is
-`5e21336fe4f02a285a7dc1c45b8c7c99ba16163247dd1e3fef5fb10120f09644`.
+`a58253912d77a66aba4ec867b292e1fab9b9e53076737ff7ad0c9d531542ba9b`.
 
 MH-037 adds the normative transition catalogue
 `trust-transition-catalogue-v1.json` and frozen G3 report
@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 144 Python modules, 38 non-`mathhead` import
+The static boundary contains 146 Python modules, 39 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -62,6 +62,8 @@ The important current distinctions are:
 | `proof_search_portfolio.py` | no mathematical authority | effectful deterministic orchestration; only an exact separately checked Evidence/Certificate chain can be selected, while the portfolio envelope itself cannot attest truth |
 | `run_audit.py` | no mathematical authority | safe content-addressed execution capture and pure hostile-byte logical replay; it preserves exact checked artifacts and authority tiers as history without creating or upgrading them |
 | `run_audit_store.py` | no mathematical authority | append-only filesystem adapter with an immutable run-record commit point; every visible run is rehashed and freshly replayed before use |
+| `safe_cache.py` | no mathematical authority | pure exact-context key and reuse decision; a hit requires fresh complete audit replay and preserves the original checked tier without granting authority |
+| `safe_cache_store.py` | no mathematical authority | separate immutable entry-and-key store; every present lookup reloads the accepted audit store and reruns the pure decision without executing producers or checkers |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:
@@ -156,4 +158,27 @@ python tools/validate_run_audit.py
 python tools/validate_run_audit_store.py
 python -m unittest discover -s tests/run_audit -v
 python -m unittest discover -s tests/run_audit_store -v
+```
+
+## Zero-authority safe reuse
+
+MH-055 permits reuse only as a reference to an existing checked history. The
+pure decision recomputes the complete current key, freshly replays the exact
+audited bundle, validates the selected Evidence, Certificate, checker decision,
+and compiled tier permission, and then preserves the historical tier. A cache
+miss, hit, entry, key, record, durable write, or listing never establishes a
+mathematical claim.
+
+The separate store has only filesystem authority beneath its explicit cache
+root and read authority beneath the distinct audit root. A present lookup must
+load through the accepted audit store and rerun the pure decision; it cannot
+invoke a worker, producer, checker, solver, plugin, proof assistant, or normal
+execution fallback. Invalid visible state is an explicit non-hit and is never
+repaired into authority.
+
+```bash
+python tools/validate_safe_cache.py
+python tools/validate_safe_cache_store.py
+python -m unittest discover -s tests/safe_cache -v
+python -m unittest discover -s tests/safe_cache_store -v
 ```

@@ -215,3 +215,43 @@ python tools/contract_artifacts.py verify \
 
 The current frozen reports are `reports/run-audit-v4.json` and
 `reports/run-audit-store-v5.json`; earlier reports remain historical evidence.
+
+## Content-addressed safe cache
+
+MH-055 adds two non-authoritative boundaries without changing audited-run
+execution. `decide_safe_cache` reconstructs a pre-execution lookup key from the
+exact current session, normalized problem, assumptions, obligation, route,
+plan, plugin and executable identities, artifacts, budgets, accepted contracts,
+implementations, configurations, formats, and trust policy. An absent candidate
+is the only miss. A candidate becomes a hit only after complete hostile-byte
+audit replay reconstructs the same key and a permitted checked `proved` or
+`refuted` Evidence/Certificate chain. Cache metadata never grants or raises
+mathematical authority.
+
+`persist_safe_cache` is a separate descriptor-relative filesystem adapter. It
+stores one immutable canonical entry object, then commits one immutable lookup-
+key record last. `lookup_safe_cache` derives the current key before reading and
+loads the referenced history only through `load_run_audit`; both current-key
+validation and the pure cache decision run again before a hit. Listing validates
+every visible record, object, audited run, and historical relation before
+returning a lexical key tuple. Corrupt, stale, conflicting, unsupported,
+over-budget, missing-audit, and I/O states stay distinct non-hits; the boundary
+never executes a worker, producer, checker, solver, or miss fallback.
+
+Validate the accepted pure and store contracts, closed key inventory, strict
+codecs, fresh replay, zero-execution hit, immutable commit order, concurrency,
+relocation, rollback, and corruption controls with:
+
+```bash
+python -m unittest discover -s tests/safe_cache -v
+python tools/validate_safe_cache.py
+python -m unittest discover -s tests/safe_cache_store -v
+python tools/validate_safe_cache_store.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-SAFE-CACHE-001 --require-bound
+python tools/contract_artifacts.py verify \
+  --contract MH-C-SAFE-CACHE-STORE-001 --require-bound
+```
+
+The frozen independent reports are `reports/safe-cache-v1.json` and
+`reports/safe-cache-store-v1.json`.

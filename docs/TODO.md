@@ -97,14 +97,16 @@ theory producers remain outside this task.
 **Contracts:** follow `MH-C-WORKFLOW-001` and bind the accepted current versions
 of the problem-session, canonical-normalization, capability-registry,
 deterministic-planner, isolated-worker, proof-search-portfolio, ResourceBudget,
-EngineResult, Evidence, Certificate, trust-transition, audited-run, audit-replay,
-and run-audit-store contracts. Before production implementation, separately
-propose, independently prescreen, and accept:
+EngineResult, Evidence, Certificate, and trust-transition contracts. The active
+audit and cache supersession graph is `MH-C-AUDITED-RUN-005`,
+`MH-C-RUN-AUDIT-REPLAY-005`, `MH-C-RUN-AUDIT-STORE-006`,
+`MH-C-SAFE-CACHE-002`, and `MH-C-SAFE-CACHE-STORE-002`. Before production
+implementation, separately propose, independently prescreen, and accept:
 
-- a new versioned pure safe-cache contract for the canonical request, key,
-  eligibility table, entry, validation, and reuse decision; and
-- a new versioned safe-cache-store contract for immutable persistence, lookup,
-  listing, capability outcomes, and fresh audited-run replay.
+- `MH-C-SAFE-CACHE-002` for the canonical request, key, eligibility table,
+  entry, validation, and reuse decision; and
+- `MH-C-SAFE-CACHE-STORE-002` for immutable persistence, lookup, listing,
+  capability outcomes, and fresh audited-run replay.
 
 Freeze byte-oriented public signatures; all closed schemas and exact-type
 inputs; complete key dimensions and ordering; contract, source, configuration,

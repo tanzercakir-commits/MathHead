@@ -6,6 +6,7 @@ from mathhead.discovery.provenance import (
     KERNEL_VERSION,
     axioms_used,
     proof_hash,
+    proof_sha256,
     replay,
 )
 
@@ -33,6 +34,13 @@ def test_different_proofs_have_different_hashes():
     h6 = proof_hash(CRT((Residue(2, _N3_MINUS_N), Residue(3, _N3_MINUS_N))))
     h30 = proof_hash(prove_divides(30, _N5_MINUS_N)[1])
     assert h6 != h30
+
+
+def test_legacy_hash_is_not_confused_with_full_canonical_identity():
+    term = Residue(2, _N3_MINUS_N)
+    assert len(proof_hash(term)) == 16
+    assert len(proof_sha256(term)) == 64
+    assert proof_hash(term) != proof_sha256(term)
 
 
 def test_kernel_version_participates_in_the_hash():

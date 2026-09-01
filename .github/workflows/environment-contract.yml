@@ -1,0 +1,70 @@
+name: Reproducible environment contract
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    name: environment · ${{ matrix.os }} · py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Bootstrap core profile
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Check core profile
+        run: python tools/dev.py check --profile core
+      - name: Clean runtime smoke
+        run: python tools/dev.py clean-smoke --profile runtime
+
+  status:
+    name: dependency-free status · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Check status profile without installing dependencies
+        env:
+          PROJECT_STATUS_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python tools/dev.py check --profile status
+
+  release-smoke:
+    name: clean release smoke · ubuntu-latest · py3.11
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Build, validate, install, and smoke the wheel
+        run: python tools/dev.py clean-smoke --profile release

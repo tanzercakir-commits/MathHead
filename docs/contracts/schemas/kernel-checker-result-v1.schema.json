@@ -1,0 +1,368 @@
+{
+  "$defs": {
+    "dividesStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "divides"
+        },
+        "modulus": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "polynomial": {
+          "$ref": "#/$defs/integerPolynomial"
+        }
+      },
+      "required": [
+        "kind",
+        "modulus",
+        "polynomial"
+      ],
+      "type": "object"
+    },
+    "integerPolynomial": {
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "type": "array"
+    },
+    "polynomialIdentityStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "polynomial_identity"
+        },
+        "lhs": {
+          "$ref": "#/$defs/rationalPolynomial"
+        },
+        "rhs": {
+          "$ref": "#/$defs/rationalPolynomial"
+        }
+      },
+      "required": [
+        "kind",
+        "lhs",
+        "rhs"
+      ],
+      "type": "object"
+    },
+    "rational": {
+      "additionalProperties": false,
+      "properties": {
+        "denominator": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "numerator": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "denominator",
+        "numerator"
+      ],
+      "type": "object"
+    },
+    "rationalPolynomial": {
+      "items": {
+        "$ref": "#/$defs/rational"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "type": "array"
+    },
+    "statement": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dividesStatement"
+        },
+        {
+          "$ref": "#/$defs/sumIdentityStatement"
+        },
+        {
+          "$ref": "#/$defs/polynomialIdentityStatement"
+        }
+      ]
+    },
+    "sumIdentityStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_form": {
+          "$ref": "#/$defs/rationalPolynomial"
+        },
+        "kind": {
+          "const": "sum_identity"
+        },
+        "summand": {
+          "$ref": "#/$defs/rationalPolynomial"
+        }
+      },
+      "required": [
+        "closed_form",
+        "kind",
+        "summand"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://mathhead.dev/schemas/kernel-checker-result-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "result": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "checker_attestation"
+              },
+              "proof_term_hex": {
+                "maxLength": 2097152,
+                "minLength": 2,
+                "pattern": "^(?:[0-9a-f]{2})+$",
+                "type": "string"
+              },
+              "proof_term_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "reason_code": {
+                "const": "CHECKER_VALID"
+              },
+              "statement": {
+                "$ref": "#/$defs/statement"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "invalid"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "none"
+              },
+              "reason_code": {
+                "enum": [
+                  "CRT_NON_COPRIME",
+                  "CRT_POLYNOMIAL_MISMATCH",
+                  "CRT_PREMISE_INVALID",
+                  "POLYNOMIAL_MISMATCH",
+                  "RESIDUE_COUNTEREXAMPLE",
+                  "SUM_BASE_MISMATCH",
+                  "SUM_STEP_MISMATCH",
+                  "TERM_INVALID",
+                  "UNSUPPORTED_TERM"
+                ]
+              },
+              "statement": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "exhausted"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "none"
+              },
+              "reason_code": {
+                "const": "BUDGET_EXHAUSTED"
+              },
+              "statement": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "authority": {
+          "enum": [
+            "checker_attestation",
+            "none"
+          ]
+        },
+        "checker": {
+          "additionalProperties": false,
+          "properties": {
+            "checker_id": {
+              "const": "mathhead.kernel.checker.v1"
+            },
+            "contract_id": {
+              "const": "MH-C-KERNEL-CHECKER-001"
+            },
+            "contract_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "checker_id",
+            "contract_id",
+            "contract_sha256"
+          ],
+          "type": "object"
+        },
+        "diagnostic": {
+          "enum": [
+            "CRT moduli are not pairwise coprime",
+            "CRT premises prove different polynomials",
+            "a CRT premise did not verify",
+            "deterministic checker work budget exhausted",
+            "polynomial coefficients differ",
+            "proof term checked exactly",
+            "proof term is structurally invalid",
+            "proof-term rule is unsupported",
+            "residue sweep found a counterexample",
+            "sum induction base case differs",
+            "sum induction step polynomial is nonzero"
+          ]
+        },
+        "exact": {
+          "const": true
+        },
+        "proof_term_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "contract_id": {
+              "const": "MH-C-PROOF-TERM-001"
+            },
+            "contract_sha256": {
+              "const": "20c501b77e370c4258523a291e83b15a99ed6308e002d9a54d0abc3bb18199ac"
+            }
+          },
+          "required": [
+            "contract_id",
+            "contract_sha256"
+          ],
+          "type": "object"
+        },
+        "proof_term_hex": {
+          "oneOf": [
+            {
+              "maxLength": 2097152,
+              "minLength": 2,
+              "pattern": "^(?:[0-9a-f]{2})+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "proof_term_sha256": {
+          "oneOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason_code": {
+          "enum": [
+            "BUDGET_EXHAUSTED",
+            "CHECKER_VALID",
+            "CRT_NON_COPRIME",
+            "CRT_POLYNOMIAL_MISMATCH",
+            "CRT_PREMISE_INVALID",
+            "POLYNOMIAL_MISMATCH",
+            "RESIDUE_COUNTEREXAMPLE",
+            "SUM_BASE_MISMATCH",
+            "SUM_STEP_MISMATCH",
+            "TERM_INVALID",
+            "UNSUPPORTED_TERM"
+          ]
+        },
+        "statement": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/statement"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "steps": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "verdict": {
+          "enum": [
+            "exhausted",
+            "invalid",
+            "verified"
+          ]
+        }
+      },
+      "required": [
+        "authority",
+        "checker",
+        "diagnostic",
+        "exact",
+        "proof_term_contract",
+        "proof_term_hex",
+        "proof_term_sha256",
+        "reason_code",
+        "statement",
+        "steps",
+        "verdict"
+      ],
+      "type": "object"
+    },
+    "result_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema": {
+      "const": "mathhead.kernel-checker-result.v1"
+    }
+  },
+  "required": [
+    "result",
+    "result_sha256",
+    "schema"
+  ],
+  "title": "MathHead dependency-minimal kernel checker result v1",
+  "type": "object"
+}

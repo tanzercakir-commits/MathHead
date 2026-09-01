@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/execution-disposition-classification-v1.schema.json",
+  "title": "MathHead Execution Disposition Classification v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "disposition",
+    "cause",
+    "precedence_row",
+    "precedence_rank",
+    "phase",
+    "origin_source",
+    "observer_source",
+    "observer_cancellation_id",
+    "observer_basis",
+    "resource_dimensions",
+    "classification_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.execution-disposition-classification.v1"
+    },
+    "disposition": {
+      "enum": [
+        "completed",
+        "inconclusive",
+        "cancelled",
+        "exhausted",
+        "refused",
+        "failed",
+        "invalid"
+      ]
+    },
+    "cause": {
+      "enum": [
+        "checked_proof",
+        "checked_refutation",
+        "ambiguity",
+        "user_cancellation",
+        "parent_cancellation",
+        "supervisor_cancellation",
+        "cancellation_origin_unproven",
+        "budget_exhaustion",
+        "unsupported_input",
+        "unsupported_execution_environment",
+        "producer_refusal",
+        "verifier_refusal",
+        "truncation",
+        "inconclusive_execution",
+        "checker_disagreement",
+        "invalid_evidence",
+        "producer_failure",
+        "verifier_failure",
+        "invalid_request",
+        "internal_error"
+      ]
+    },
+    "precedence_row": {
+      "enum": [
+        "00_internal_invariant",
+        "10_prelaunch_invalid",
+        "20_early_route_planner",
+        "30_checked_terminal",
+        "40_observed_cancellation",
+        "50_ledger_exhaustion",
+        "60_environment_refusal",
+        "70_component_refusal",
+        "80_semantic_terminal",
+        "90_phase_failure"
+      ]
+    },
+    "precedence_rank": {
+      "type": "integer",
+      "enum": [
+        0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90
+      ]
+    },
+    "phase": {
+      "enum": [
+        "request",
+        "routing",
+        "planning",
+        "producer",
+        "checker",
+        "cleanup",
+        "audit",
+        "replay",
+        "coordinator",
+        "completed"
+      ]
+    },
+    "origin_source": {
+      "$ref": "#/$defs/nullable_source"
+    },
+    "observer_source": {
+      "$ref": "#/$defs/nullable_source"
+    },
+    "observer_cancellation_id": {
+      "type": "null"
+    },
+    "observer_basis": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "replayed_worker_status_plus_accepted_contract"
+        }
+      ]
+    },
+    "resource_dimensions": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/resource_dimension"
+      }
+    },
+    "classification_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "cause": {"enum": ["checked_proof", "checked_refutation"]},
+            "disposition": {"const": "completed"},
+            "precedence_row": {"const": "30_checked_terminal"},
+            "precedence_rank": {"const": 30},
+            "phase": {"const": "completed"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "ambiguity"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "20_early_route_planner"},
+            "precedence_rank": {"const": 20},
+            "phase": {"const": "routing"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "ambiguity"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "80_semantic_terminal"},
+            "precedence_rank": {"const": 80},
+            "phase": {"const": "producer"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "user_cancellation"},
+            "disposition": {"const": "cancelled"},
+            "precedence_row": {"const": "40_observed_cancellation"},
+            "precedence_rank": {"const": 40},
+            "phase": {"enum": ["producer", "checker"]},
+            "origin_source": {"const": "user"},
+            "observer_source": {"const": "supervisor"},
+            "observer_cancellation_id": {"type": "null"},
+            "observer_basis": {"const": "replayed_worker_status_plus_accepted_contract"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "parent_cancellation"},
+            "disposition": {"const": "cancelled"},
+            "precedence_row": {"const": "40_observed_cancellation"},
+            "precedence_rank": {"const": 40},
+            "phase": {"enum": ["producer", "checker"]},
+            "origin_source": {"const": "parent"},
+            "observer_source": {"const": "supervisor"},
+            "observer_cancellation_id": {"type": "null"},
+            "observer_basis": {"const": "replayed_worker_status_plus_accepted_contract"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "supervisor_cancellation"},
+            "disposition": {"const": "cancelled"},
+            "precedence_row": {"const": "40_observed_cancellation"},
+            "precedence_rank": {"const": 40},
+            "phase": {"enum": ["producer", "checker"]},
+            "origin_source": {"const": "supervisor"},
+            "observer_source": {"const": "supervisor"},
+            "observer_cancellation_id": {"type": "null"},
+            "observer_basis": {"const": "replayed_worker_status_plus_accepted_contract"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "cancellation_origin_unproven"},
+            "disposition": {"const": "cancelled"},
+            "precedence_row": {"const": "40_observed_cancellation"},
+            "precedence_rank": {"const": 40},
+            "phase": {"enum": ["producer", "checker"]},
+            "origin_source": {"type": "null"},
+            "observer_source": {"const": "supervisor"},
+            "observer_cancellation_id": {"type": "null"},
+            "observer_basis": {"const": "replayed_worker_status_plus_accepted_contract"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "budget_exhaustion"},
+            "disposition": {"const": "exhausted"},
+            "precedence_row": {"const": "20_early_route_planner"},
+            "precedence_rank": {"const": 20},
+            "phase": {"enum": ["routing", "planning"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "budget_exhaustion"},
+            "disposition": {"const": "exhausted"},
+            "precedence_row": {"const": "50_ledger_exhaustion"},
+            "precedence_rank": {"const": 50},
+            "phase": {"enum": ["producer", "checker"]},
+            "resource_dimensions": {"minItems": 1}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "unsupported_input"},
+            "disposition": {"const": "refused"},
+            "precedence_row": {"const": "20_early_route_planner"},
+            "precedence_rank": {"const": 20},
+            "phase": {"const": "routing"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "unsupported_execution_environment"},
+            "disposition": {"const": "refused"},
+            "precedence_row": {"const": "20_early_route_planner"},
+            "precedence_rank": {"const": 20},
+            "phase": {"const": "routing"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "unsupported_execution_environment"},
+            "disposition": {"const": "refused"},
+            "precedence_row": {"const": "60_environment_refusal"},
+            "precedence_rank": {"const": 60},
+            "phase": {"enum": ["producer", "checker"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "producer_refusal"},
+            "disposition": {"const": "refused"},
+            "precedence_row": {"const": "70_component_refusal"},
+            "precedence_rank": {"const": 70},
+            "phase": {"const": "producer"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "verifier_refusal"},
+            "disposition": {"const": "refused"},
+            "precedence_row": {"const": "70_component_refusal"},
+            "precedence_rank": {"const": 70},
+            "phase": {"const": "checker"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "truncation"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "80_semantic_terminal"},
+            "precedence_rank": {"const": 80},
+            "phase": {"enum": ["producer", "checker"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "inconclusive_execution"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "80_semantic_terminal"},
+            "precedence_rank": {"const": 80},
+            "phase": {"const": "checker"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "checker_disagreement"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "80_semantic_terminal"},
+            "precedence_rank": {"const": 80},
+            "phase": {"const": "checker"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "invalid_evidence"},
+            "disposition": {"const": "inconclusive"},
+            "precedence_row": {"const": "80_semantic_terminal"},
+            "precedence_rank": {"const": 80},
+            "phase": {"enum": ["producer", "checker"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "producer_failure"},
+            "disposition": {"const": "failed"},
+            "precedence_row": {"const": "90_phase_failure"},
+            "precedence_rank": {"const": 90},
+            "phase": {"const": "producer"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "verifier_failure"},
+            "disposition": {"const": "failed"},
+            "precedence_row": {"const": "90_phase_failure"},
+            "precedence_rank": {"const": 90},
+            "phase": {"const": "checker"},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "invalid_request"},
+            "disposition": {"const": "invalid"},
+            "precedence_row": {"const": "10_prelaunch_invalid"},
+            "precedence_rank": {"const": 10},
+            "phase": {"enum": ["request", "routing", "planning", "coordinator"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        },
+        {
+          "properties": {
+            "cause": {"const": "internal_error"},
+            "disposition": {"const": "failed"},
+            "precedence_row": {"const": "00_internal_invariant"},
+            "precedence_rank": {"const": 0},
+            "phase": {"enum": ["cleanup", "audit", "replay", "coordinator"]},
+            "resource_dimensions": {"maxItems": 0}
+          }
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "cause": {
+            "enum": [
+              "user_cancellation",
+              "parent_cancellation",
+              "supervisor_cancellation",
+              "cancellation_origin_unproven"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "origin_source": {"type": "null"},
+          "observer_source": {"type": "null"},
+          "observer_cancellation_id": {"type": "null"},
+          "observer_basis": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "nullable_source": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "user",
+            "parent",
+            "supervisor"
+          ]
+        }
+      ]
+    },
+    "resource_dimension": {
+      "enum": [
+        "wall_time_us",
+        "cpu_time_us",
+        "memory_bytes",
+        "solver_calls",
+        "generated_objects",
+        "proof_bytes",
+        "evidence_bytes",
+        "output_bytes",
+        "diagnostic_bytes",
+        "nesting_depth"
+      ]
+    }
+  }
+}

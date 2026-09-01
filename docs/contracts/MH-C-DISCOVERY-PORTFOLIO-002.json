@@ -1,0 +1,66 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-DISCOVERY-PORTFOLIO-002",
+  "target": "mathhead.discovery.arithmetic:discover_and_prove",
+  "signature": "discover_and_prove(expr: str, fn: Callable[[int], int], check_upto: int = 60, judge_timeout_ms: int = 2500) -> ArithmeticFinding",
+  "requires": [
+    "expr is a univariate integer polynomial in n accepted by the exact kernel bridge and fn computes that polynomial over integer inputs.",
+    "check_upto and judge_timeout_ms retain their existing positive bounded meanings.",
+    "The immutable legacy baseline and committed discovery SAMPLE-REPORT remain differential oracles."
+  ],
+  "ensures": [
+    "Exact normalized polynomial degree selects the portfolio before timing-sensitive work: degree four or greater uses complete residue exhaustion directly; lower degree retains the induction and CRT-first path with an honest residue fallback.",
+    "In POLY_FAMILY order the canonical methods are induction, modulus-factoring, residue-exhaustion, induction, modulus-factoring, residue-exhaustion, residue-exhaustion on every supported host.",
+    "High-degree canonical laws do not change certainty, method, reason, proof hash, or rendered bytes when host speed changes.",
+    "Every proved finding remains independently checked and kernel verified; strategy selection never upgrades incomplete evidence.",
+    "The committed discovery SAMPLE-REPORT is byte-identical to a fresh render across the supported matrix."
+  ],
+  "raises": [
+    "Inputs outside the required integer-polynomial domain retain the existing parser, kernel, or arithmetic error boundary.",
+    "MemoryError, KeyboardInterrupt, SystemExit, and interpreter defects are not converted into proof outcomes.",
+    "A failed independent or kernel check cannot be represented as verified."
+  ],
+  "effects": {
+    "filesystem": "none",
+    "process": "none beyond existing in-process solver calls on the low-degree path",
+    "network": "none",
+    "cache": "run_arithmetic_discovery may retain returned findings; strategy selection has no cache",
+    "mutation": "does not mutate inputs, contracts, generated reports, trackers, or frozen evidence"
+  },
+  "determinism": {
+    "degree": "len(poly_from_sympy(expr)) minus one after exact coefficient normalization",
+    "high_degree": "degree at least four selects residue-exhaustion before any solver call",
+    "canonical_methods": "induction, modulus-factoring, residue-exhaustion, induction, modulus-factoring, residue-exhaustion, residue-exhaustion",
+    "excluded_inputs": "elapsed time, host speed, architecture, checkout path, and solver scheduling never select the high-degree strategy"
+  },
+  "budget": {
+    "refutation": "at most check_upto plus one exact fn evaluations before proof selection",
+    "high_degree": "at most modulus exact residue evaluations and zero induction solver calls",
+    "low_degree": "existing bounded induction calls use judge_timeout_ms per prime-power part before fallback",
+    "memory": "bounded by polynomial coefficients, prime-power parts, and at most modulus residue results",
+    "cancellation": "KeyboardInterrupt is never swallowed"
+  },
+  "epistemics": {
+    "proved": "a complete universal proof was independently checked and a kernel proof term was minted",
+    "refuted": "an exact integer input violates the divisibility claim",
+    "unknown": "bounded proof work did not establish the claim and no complete fallback established it",
+    "method": "names the deterministically selected checked strategy rather than a timing race"
+  },
+  "invariants": [
+    "No wall-clock race or solver timeout changes the canonical discovery report.",
+    "No method label claims stronger evidence than was checked.",
+    "The seven canonical proof hashes and axiom lists remain unchanged.",
+    "No matrix cell, test, profile command, or coverage threshold is removed or weakened.",
+    "Accepted contracts and frozen legacy evidence remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-DISCOVERY-PORTFOLIO-002.json",
+    "python tools/validate_discovery_portfolio.py",
+    "python -m pytest -q tests/test_discovery_portfolio_contract.py",
+    "python -m pytest -q tests/test_discovery_arithmetic.py tests/test_discovery_strategy.py tests/test_trackers.py",
+    "python scripts/gen_status.py --check",
+    "python tools/dev.py check --profile core",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": "MH-C-DISCOVERY-PORTFOLIO-001"
+}

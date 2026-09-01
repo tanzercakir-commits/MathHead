@@ -1,0 +1,94 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-ENV-002",
+  "target": "tools.dev:main",
+  "signature": "main(argv: Sequence[str] | None = None) -> int",
+  "requires": [
+    "Python is one of the versions explicitly declared by the selected profile.",
+    "The command is executed from, or can discover, the repository root.",
+    "The selected profile is exactly one of status, runtime, core, solver, discovery, docs, live-mcp, slow, or release.",
+    "Network access is required only by bootstrap and clean-install operations.",
+    "Every CI job that replays the frozen legacy source fetches sufficient Git history to resolve its content-addressed source commit."
+  ],
+  "ensures": [
+    "Local and CI callers dispatch through the same repository-owned Python entry point and machine-readable profile manifest.",
+    "Every profile has an explicit purpose, dependency set, command set, supported platform and Python policy, and total and per-command timeout budget.",
+    "status remains dependency-free and validates only governance; runtime installs only the base package.",
+    "core excludes solver-only, discovery-owned, live-MCP, and slow selections and never imports python-sat.",
+    "solver owns tests marked requires_solver, installs the solvers extra, requires nauty where declared, and has a bounded fast-backend preflight.",
+    "discovery owns the dependency-minimal discovery and graph-budget selection without silently enabling solver or slow tests.",
+    "docs owns the pinned strict site build and executable documentation examples.",
+    "live-mcp owns the real subprocess-stdio contract tests and is supported only on the product Python 3.10 through 3.12 matrix.",
+    "slow owns explicitly marked expensive tests and never absorbs unmarked tests by filename or timing inference.",
+    "release owns pinned artifact tooling, wheel validation, clean installation, and installed-product smoke checks.",
+    "Coverage remains an explicit CI-owned command with the existing 85 percent floor; splitting profiles cannot delete, lower, skip, or relabel it green.",
+    "A missing, incompatible, skipped required command, timed-out, or failing command returns a distinct nonzero result and cannot make its profile green.",
+    "Human and JSON summaries identify the selected profile and every executed command without claiming excluded or unrun profiles."
+  ],
+  "raises": [
+    "No Python exception crosses the CLI boundary for an expected profile, dependency, capability, timeout, or subprocess failure.",
+    "An unknown profile or command, malformed manifest, overlap invariant violation, or missing required marker fails before product tests run.",
+    "Programmer defects may produce a traceback only in explicit debug mode."
+  ],
+  "effects": {
+    "filesystem": "bootstrap may create or modify only the selected environment and standard build, test, coverage, and documentation artifacts; checks are read-only except tool-owned caches",
+    "process": "may execute Python, pip, build, ruff, pytest, coverage, mkdocs, twine, and documented smoke subprocesses with bounded timeouts and deterministic cleanup",
+    "network": "bootstrap may contact configured package indexes; check and run operations require no network",
+    "repository": "never edits PLAN, TODO, PROGRESS, accepted contracts, frozen baseline evidence, or product source"
+  },
+  "determinism": {
+    "dependency_resolution": "constraints.txt and explicitly pinned toolchain requirements define the reproducible set",
+    "profile_order": "the nine profile names and every command order are stable and manifest-defined",
+    "selection": "pytest markers and exact paths define ownership; wall-clock duration and collection order never select a profile",
+    "output": "UTF-8 with stable reason codes; elapsed timing and absolute paths are noncanonical diagnostics",
+    "platform_variation": "unsupported optional backends or interpreters are explicit profile refusals, not silent skips"
+  },
+  "budget": {
+    "status_seconds": 180,
+    "runtime_seconds": 180,
+    "core_seconds": 600,
+    "solver_seconds": 600,
+    "discovery_seconds": 600,
+    "docs_seconds": 300,
+    "live_mcp_seconds": 180,
+    "slow_seconds": 1200,
+    "release_seconds": 900,
+    "coverage_seconds": 900,
+    "per_test_seconds": 30,
+    "cancellation": "terminate then kill the active process tree, wait for reaping, and return a distinct timed-out or interrupted result"
+  },
+  "epistemics": {
+    "passed": "every required command in exactly the selected profile returned success",
+    "failed": "at least one required command failed or a profile ownership invariant was violated",
+    "unsupported": "the selected profile is incompatible with the declared platform, interpreter, or required executable policy",
+    "timed_out": "a required command exceeded its manifest budget and its process tree was reaped",
+    "not_run": "the profile was described or excluded but not executed; never equivalent to passed",
+    "coverage_passed": "the explicit coverage command completed and met the unchanged configured floor"
+  },
+  "invariants": [
+    "Profile names and meanings are stable within environment contract v2 and v1 remains immutable historical evidence.",
+    "CI workflow commands call tools/dev.py rather than duplicating dependency, selection, or timeout semantics.",
+    "Every pytest test belongs to at least one declared execution profile and solver, live-MCP, and slow markers are fail-closed.",
+    "Core success never implies solver, discovery, docs, live-MCP, slow, coverage, or release success.",
+    "No profile reports green while one of its required commands is red, skipped, missing, timed out, or interrupted.",
+    "The coverage threshold remains 85 percent or higher and a coverage command is required by CI.",
+    "Supported CI matrix jobs use full Git history when validating the frozen legacy baseline.",
+    "The immutable MH-004 baseline artifact and observations remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-ENV-002.json",
+    "python -m unittest discover -s tests/devtool -v",
+    "python tools/validate_dev_environment.py",
+    "python tools/dev.py check --profile status",
+    "python tools/dev.py check --profile core",
+    "python tools/dev.py check --profile discovery",
+    "python tools/dev.py check --profile live-mcp",
+    "python tools/dev.py check --profile solver",
+    "python tools/dev.py check --profile slow",
+    "python tools/dev.py check --profile docs",
+    "python tools/dev.py clean-smoke --profile runtime",
+    "python tools/dev.py clean-smoke --profile release",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": "MH-C-ENV-001"
+}

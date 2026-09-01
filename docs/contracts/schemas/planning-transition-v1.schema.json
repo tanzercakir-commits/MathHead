@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/planning-transition-v1.schema.json",
+  "title": "MathHead Planning Transition v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "outcome", "action", "target_strategy_sha256", "terminal_state", "transition_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.planning-transition.v1"},
+    "outcome": {"enum": ["success", "unsupported", "exhausted", "cancelled", "producer_error", "ambiguous", "truncated", "checker_inconclusive", "checker_disagreement", "verifier_failure", "invalid_evidence"]},
+    "action": {"enum": ["succeed", "fallback", "stop"]},
+    "target_strategy_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "terminal_state": {"oneOf": [{"type": "null"}, {"enum": ["succeeded", "unsupported", "exhausted", "cancelled", "failed", "ambiguous", "truncated", "inconclusive", "disagreement", "verifier_failed", "invalid_evidence"]}]},
+    "transition_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

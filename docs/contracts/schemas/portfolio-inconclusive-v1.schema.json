@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/portfolio-inconclusive-v1.schema.json",
+  "title": "MathHead Portfolio Inconclusive Outcome v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "attempt_order",
+    "strategy_sha256",
+    "outcome",
+    "reason_code",
+    "producer_worker_result_sha256",
+    "checker_worker_result_sha256",
+    "inconclusive_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.portfolio-inconclusive.v1"},
+    "attempt_order": {"$ref": "#/$defs/quantity"},
+    "strategy_sha256": {"$ref": "#/$defs/sha256"},
+    "outcome": {"enum": ["unsupported", "producer_error", "ambiguous", "truncated", "checker_inconclusive", "checker_disagreement", "invalid_evidence"]},
+    "reason_code": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Z][A-Z0-9_]*$"},
+    "producer_worker_result_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "checker_worker_result_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "inconclusive_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullable_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}
+  }
+}

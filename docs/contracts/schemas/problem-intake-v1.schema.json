@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-intake-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["problem", "schema"],
+  "properties": {
+    "problem": {
+      "$ref": "problem-ir-v1.schema.json"
+    },
+    "schema": {
+      "const": "mathhead.problem-intake.v1"
+    }
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/safe-cache-request-v2.schema.json",
+  "title": "MathHead Safe Cache Request v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "safe_cache_contract_sha256",
+    "dependency_contracts",
+    "dependency_schemas",
+    "implementation_bindings",
+    "configuration_bindings",
+    "expected_execution_provenance_sha256",
+    "planning_request_sha256",
+    "route_result_sha256",
+    "planning_result_sha256",
+    "portfolio_request_sha256",
+    "initial_parent_budget_sha256",
+    "session_id",
+    "session_head_sha256",
+    "event_sha256s",
+    "session_artifact_sha256s",
+    "reading_id",
+    "session_context_sha256",
+    "normalization_result_sha256",
+    "normalized_input_sha256",
+    "obligation_record_id",
+    "obligation_artifact_sha256",
+    "obligation_semantic_sha256",
+    "local_context_semantic_sha256",
+    "capability_kind",
+    "operation",
+    "availability_sha256",
+    "platform",
+    "python_version",
+    "replay_mode",
+    "evidence_format_sha256",
+    "certificate_format_sha256",
+    "descriptor_sha256s",
+    "strategy_sha256s",
+    "execution_binding_sha256s",
+    "input_artifacts",
+    "initial_parent_limits_sha256",
+    "child_resource_request_sha256s",
+    "trust_policy_sha256",
+    "lookup_key_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.safe-cache-request.v2"
+    },
+    "safe_cache_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "dependency_contracts": {
+      "$ref": "#/$defs/contract_bindings"
+    },
+    "dependency_schemas": {
+      "$ref": "#/$defs/schema_bindings"
+    },
+    "implementation_bindings": {
+      "$ref": "#/$defs/implementation_bindings"
+    },
+    "configuration_bindings": {
+      "$ref": "#/$defs/configuration_bindings"
+    },
+    "planning_request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "route_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "planning_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "portfolio_request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "initial_parent_budget_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "session_id": {
+      "$ref": "#/$defs/id"
+    },
+    "session_head_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "event_sha256s": {
+      "$ref": "#/$defs/ordered_sha256s"
+    },
+    "session_artifact_sha256s": {
+      "$ref": "#/$defs/sorted_sha256s"
+    },
+    "reading_id": {
+      "$ref": "#/$defs/id"
+    },
+    "session_context_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "normalization_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "normalized_input_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "obligation_record_id": {
+      "$ref": "#/$defs/id"
+    },
+    "obligation_artifact_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "obligation_semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "local_context_semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "capability_kind": {
+      "enum": [
+        "construction",
+        "decision",
+        "explanation",
+        "verification"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "plan_cost",
+        "solve",
+        "check",
+        "explain"
+      ]
+    },
+    "availability_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "platform": {
+      "enum": [
+        "linux",
+        "macos",
+        "windows"
+      ]
+    },
+    "python_version": {
+      "type": "string",
+      "pattern": "^3\\.(?:10|11|12|13|14)$"
+    },
+    "replay_mode": {
+      "enum": [
+        "deterministic",
+        "seeded",
+        "recorded"
+      ]
+    },
+    "evidence_format_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "certificate_format_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "descriptor_sha256s": {
+      "$ref": "#/$defs/sorted_sha256s"
+    },
+    "strategy_sha256s": {
+      "$ref": "#/$defs/ordered_sha256s"
+    },
+    "execution_binding_sha256s": {
+      "$ref": "#/$defs/ordered_sha256s"
+    },
+    "input_artifacts": {
+      "type": "object",
+      "maxProperties": 200000,
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/artifact_binding"
+      }
+    },
+    "initial_parent_limits_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "child_resource_request_sha256s": {
+      "$ref": "#/$defs/ordered_sha256s"
+    },
+    "trust_policy_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "lookup_key_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    },
+    "expected_execution_provenance_sha256": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^MH-C-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]{3}$"
+    },
+    "schema_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 255,
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "ordered_sha256s": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "sorted_sha256s": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "contract_bindings": {
+      "type": "object",
+      "minProperties": 20,
+      "maxProperties": 20,
+      "propertyNames": {
+        "enum": [
+          "MH-C-AUDITED-RUN-005",
+          "MH-C-CANONICAL-NORMALIZATION-001",
+          "MH-C-CAPABILITY-REGISTRY-001",
+          "MH-C-CERTIFICATE-001",
+          "MH-C-DETERMINISTIC-PLANNER-001",
+          "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001",
+          "MH-C-ENGINE-RESULT-001",
+          "MH-C-EVIDENCE-001",
+          "MH-C-ISOLATED-WORKER-001",
+          "MH-C-PROBLEM-INTAKE-001",
+          "MH-C-PROBLEM-SESSION-001",
+          "MH-C-PROOF-OBLIGATION-DECOMPOSITION-001",
+          "MH-C-PROOF-SEARCH-PORTFOLIO-001",
+          "MH-C-READING-ANALYSIS-002",
+          "MH-C-RESOURCE-BUDGET-001",
+          "MH-C-RUN-AUDIT-REPLAY-005",
+          "MH-C-THEORY-CONTEXT-001",
+          "MH-C-THEORY-PLUGIN-001",
+          "MH-C-TRUST-TRANSITION-001",
+          "MH-C-WORKFLOW-001"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "schema_bindings": {
+      "type": "object",
+      "minProperties": 65,
+      "maxProperties": 65,
+      "propertyNames": {
+        "enum": [
+          "mathhead.canonical-context.v1",
+          "mathhead.canonical-normal-form.v1",
+          "mathhead.canonical-normalization-result.v1",
+          "mathhead.canonical-obligation.v1",
+          "mathhead.canonical-occurrence-trace.v1",
+          "mathhead.capability-availability.v1",
+          "mathhead.capability-candidate.v1",
+          "mathhead.capability-registry-entry.v1",
+          "mathhead.capability-registry.v1",
+          "mathhead.capability-route-request.v1",
+          "mathhead.capability-route-result.v1",
+          "mathhead.certificate.v1",
+          "mathhead.domain-assumption-fact.v1",
+          "mathhead.domain-assumption-result.v1",
+          "mathhead.engine-result.v1",
+          "mathhead.evidence.v1",
+          "mathhead.isolated-worker-request.v1",
+          "mathhead.isolated-worker-result.v1",
+          "mathhead.normalized-domain-context.v1",
+          "mathhead.planning-evidence-expectation.v1",
+          "mathhead.planning-policy.v1",
+          "mathhead.planning-prerequisite.v1",
+          "mathhead.planning-request.v1",
+          "mathhead.planning-resource-request.v1",
+          "mathhead.planning-result.v1",
+          "mathhead.planning-strategy.v1",
+          "mathhead.planning-transition.v1",
+          "mathhead.portfolio-attempt.v1",
+          "mathhead.portfolio-checker-decision.v1",
+          "mathhead.portfolio-execution-binding.v1",
+          "mathhead.portfolio-inconclusive.v1",
+          "mathhead.problem-intake-result.v1",
+          "mathhead.problem-intake.v1",
+          "mathhead.problem-readings-result.v2",
+          "mathhead.problem-session-artifact-link.v1",
+          "mathhead.problem-session-attempt.v1",
+          "mathhead.problem-session-command.v1",
+          "mathhead.problem-session-definition.v1",
+          "mathhead.problem-session-event.v1",
+          "mathhead.problem-session-invalidation.v1",
+          "mathhead.problem-session-lemma.v1",
+          "mathhead.problem-session-obligation-state.v1",
+          "mathhead.problem-session-result.v1",
+          "mathhead.problem-session-revision.v1",
+          "mathhead.proof-obligation-graph.v1",
+          "mathhead.proof-obligation-local-context.v1",
+          "mathhead.proof-obligation-result.v1",
+          "mathhead.proof-obligation.v1",
+          "mathhead.proof-search-portfolio-request.v1",
+          "mathhead.proof-search-portfolio-result.v1",
+          "mathhead.reading-projection.v2",
+          "mathhead.resource-budget.v1",
+          "mathhead.run-audit-event.v2",
+          "mathhead.run-audit-manifest.v4",
+          "mathhead.run-audit-object.v3",
+          "mathhead.run-audit-replay-result.v5",
+          "mathhead.run-audit-worker-observation.v3",
+          "mathhead.run-execution-provenance.v1",
+          "mathhead.run-logical-report.v3",
+          "mathhead.theory-context.v1",
+          "mathhead.theory-plugin.v1",
+          "mathhead.trust-transition-attempt.v1",
+          "mathhead.trust-transition-audit-result.v1",
+          "mathhead.trust-transition-catalogue.v1",
+          "mathhead.trust-transition-report.v1"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "implementation_bindings": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "propertyNames": {
+        "enum": [
+          "capability_registry",
+          "deterministic_planner",
+          "isolated_worker",
+          "proof_search_portfolio",
+          "trust_transition"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "configuration_bindings": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "propertyNames": {
+        "enum": [
+          "capability_registry_report",
+          "deterministic_planner_report",
+          "isolated_worker_report",
+          "proof_search_portfolio_report",
+          "trust_transition_policy"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "$ref": "#/$defs/quantity"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Keep repository evidence byte-stable across Linux and Windows checkouts.
+* text=auto eol=lf
+
+# Markdown uses two trailing spaces for intentional hard line breaks.
+*.md text eol=lf whitespace=-trailing-space

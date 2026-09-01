@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/canonical-obligation-v1.schema.json",
+  "title": "MathHead canonical proof obligation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "mathhead.canonical-obligation.v1"
+    },
+    "reading_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_obligation_id": {
+      "type": "string",
+      "pattern": "^obligation_[0-9]{6}$"
+    },
+    "source_obligation_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "ordinal": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 799999
+    },
+    "root_goal_id": {
+      "$ref": "#/$defs/id"
+    },
+    "parent_ordinal": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 799999
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^mh[.]obligation[.][a-z0-9_.-]+$",
+      "maxLength": 128
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "goal_mode": {
+      "enum": [
+        "prove",
+        "refute",
+        "find_witness",
+        "compute",
+        "classify",
+        "optimize"
+      ]
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "waiting",
+        "choice_required",
+        "unsupported"
+      ]
+    },
+    "source_statement_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_relation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "statement_semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "statement_normal_form": {
+      "$ref": "#/$defs/canonical_value"
+    },
+    "local_context_semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "child_ordinals": {
+      "$ref": "#/$defs/ordinals"
+    },
+    "prerequisite_ordinals": {
+      "$ref": "#/$defs/ordinals"
+    },
+    "alternative_group_ordinal": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 799999
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "alternative_index": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 399999
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "witness_slots": {
+      "type": "array",
+      "maxItems": 400000,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 399999
+      }
+    },
+    "strategy_ids": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "string",
+        "pattern": "^mh[.]strategy[.][a-z0-9_.-]+$",
+        "maxLength": 128
+      }
+    },
+    "strategy_record_sha256s": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "dependency_semantic_sha256s": {
+      "type": "array",
+      "maxItems": 2400000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "source_span_ids": {
+      "type": "array",
+      "maxItems": 1200000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "trace_ids": {
+      "type": "array",
+      "maxItems": 2400000,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^trace_[0-9]{8}$"
+      }
+    },
+    "semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "semantic_value": {
+      "$ref": "#/$defs/canonical_value"
+    },
+    "supported": {
+      "type": "boolean"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "reading_id",
+    "source_obligation_id",
+    "source_obligation_sha256",
+    "ordinal",
+    "root_goal_id",
+    "parent_ordinal",
+    "rule_id",
+    "kind",
+    "goal_mode",
+    "status",
+    "source_statement_id",
+    "source_relation_id",
+    "statement_semantic_sha256",
+    "statement_normal_form",
+    "local_context_semantic_sha256",
+    "child_ordinals",
+    "prerequisite_ordinals",
+    "alternative_group_ordinal",
+    "alternative_index",
+    "witness_slots",
+    "strategy_ids",
+    "strategy_record_sha256s",
+    "dependency_semantic_sha256s",
+    "source_span_ids",
+    "trace_ids",
+    "semantic_sha256",
+    "semantic_value",
+    "supported",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 64
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ordinals": {
+      "type": "array",
+      "maxItems": 800000,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 799999
+      }
+    },
+    "canonical_value": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        {
+          "type": "array",
+          "maxItems": 800000,
+          "items": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 400000,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "maxLength": 64
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        }
+      ]
+    }
+  }
+}

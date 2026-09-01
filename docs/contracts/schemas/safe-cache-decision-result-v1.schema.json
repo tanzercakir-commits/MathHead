@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/safe-cache-decision-result-v1.schema.json",
+  "title": "MathHead Safe Cache Decision Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "status",
+    "reason_code",
+    "lookup_key_sha256",
+    "entry",
+    "entry_sha256",
+    "audit_manifest_sha256",
+    "logical_report_sha256",
+    "portfolio_result_sha256",
+    "selected_evidence_sha256",
+    "selected_certificate_sha256",
+    "selected_checker_decision_sha256",
+    "historical_authority_tier",
+    "decision_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.safe-cache-decision-result.v1"},
+    "contract_id": {"const": "MH-C-SAFE-CACHE-001"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"enum": ["hit", "miss", "ineligible", "invalid", "exhausted"]},
+    "reason_code": {
+      "enum": [
+        "CACHE_HIT",
+        "CACHE_CANDIDATE_ABSENT",
+        "CACHE_OUTCOME_INELIGIBLE",
+        "CACHE_AUTHORITY_INELIGIBLE",
+        "CACHE_CONTEXT_MISMATCH",
+        "CACHE_CONTRACT_MISMATCH",
+        "CACHE_IMPLEMENTATION_MISMATCH",
+        "CACHE_CONFIGURATION_MISMATCH",
+        "CACHE_ARTIFACT_MISMATCH",
+        "CACHE_BUDGET_MISMATCH",
+        "CACHE_TRUST_POLICY_MISMATCH",
+        "CACHE_REPLAY_INVALID",
+        "CACHE_REPLAY_EXHAUSTED",
+        "CACHE_CURRENT_REQUEST_INVALID",
+        "CACHE_DECISION_BUDGET_EXHAUSTED"
+      ]
+    },
+    "lookup_key_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "entry": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "safe-cache-entry-v1.schema.json"}
+      ]
+    },
+    "entry_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "audit_manifest_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "logical_report_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "portfolio_result_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_evidence_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_certificate_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "selected_checker_decision_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "historical_authority_tier": {
+      "oneOf": [
+        {"type": "null"},
+        {"enum": ["checker_attestation", "external_proof_assistant"]}
+      ]
+    },
+    "decision_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "status": {"const": "hit"},
+            "reason_code": {"const": "CACHE_HIT"},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"$ref": "safe-cache-entry-v1.schema.json"},
+            "entry_sha256": {"$ref": "#/$defs/sha256"},
+            "audit_manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "logical_report_sha256": {"$ref": "#/$defs/sha256"},
+            "portfolio_result_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_evidence_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_certificate_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_checker_decision_sha256": {"$ref": "#/$defs/sha256"},
+            "historical_authority_tier": {"enum": ["checker_attestation", "external_proof_assistant"]}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "miss"},
+            "reason_code": {"const": "CACHE_CANDIDATE_ABSENT"},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"type": "null"},
+            "logical_report_sha256": {"type": "null"},
+            "portfolio_result_sha256": {"type": "null"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "ineligible"},
+            "reason_code": {"const": "CACHE_OUTCOME_INELIGIBLE"},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "logical_report_sha256": {"$ref": "#/$defs/sha256"},
+            "portfolio_result_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "ineligible"},
+            "reason_code": {"const": "CACHE_AUTHORITY_INELIGIBLE"},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "logical_report_sha256": {"$ref": "#/$defs/sha256"},
+            "portfolio_result_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_evidence_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_certificate_sha256": {"$ref": "#/$defs/sha256"},
+            "selected_checker_decision_sha256": {"$ref": "#/$defs/sha256"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "invalid"},
+            "reason_code": {"const": "CACHE_CURRENT_REQUEST_INVALID"},
+            "lookup_key_sha256": {"type": "null"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"type": "null"},
+            "logical_report_sha256": {"type": "null"},
+            "portfolio_result_sha256": {"type": "null"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "invalid"},
+            "reason_code": {"enum": ["CACHE_CONTEXT_MISMATCH", "CACHE_CONTRACT_MISMATCH", "CACHE_IMPLEMENTATION_MISMATCH", "CACHE_CONFIGURATION_MISMATCH", "CACHE_ARTIFACT_MISMATCH", "CACHE_BUDGET_MISMATCH", "CACHE_TRUST_POLICY_MISMATCH", "CACHE_REPLAY_INVALID"]},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"type": "null"},
+            "logical_report_sha256": {"type": "null"},
+            "portfolio_result_sha256": {"type": "null"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "exhausted"},
+            "reason_code": {"const": "CACHE_DECISION_BUDGET_EXHAUSTED"},
+            "lookup_key_sha256": {"type": "null"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"type": "null"},
+            "logical_report_sha256": {"type": "null"},
+            "portfolio_result_sha256": {"type": "null"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "exhausted"},
+            "reason_code": {"const": "CACHE_REPLAY_EXHAUSTED"},
+            "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+            "entry": {"type": "null"},
+            "entry_sha256": {"type": "null"},
+            "audit_manifest_sha256": {"type": "null"},
+            "logical_report_sha256": {"type": "null"},
+            "portfolio_result_sha256": {"type": "null"},
+            "selected_evidence_sha256": {"type": "null"},
+            "selected_certificate_sha256": {"type": "null"},
+            "selected_checker_decision_sha256": {"type": "null"},
+            "historical_authority_tier": {"type": "null"}
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullable_sha256": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/sha256"}
+      ]
+    }
+  }
+}

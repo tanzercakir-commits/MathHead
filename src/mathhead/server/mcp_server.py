@@ -27,6 +27,7 @@ except ImportError as exc:  # guardrail: a clear message if the dependency is mi
     ) from exc
 
 from mathhead import profiles as _profiles
+from mathhead.output import safe_print as print
 from mathhead.router import route
 
 mcp = FastMCP("MathHead")

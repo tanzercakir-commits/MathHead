@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/lean-verification-request-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "media_type", "role", "sha256"],
+      "properties": {
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "application/toml",
+            "application/vnd.mathhead.lean+text",
+            "text/plain"
+          ]
+        },
+        "role": {
+          "enum": [
+            "checker_result",
+            "generated_source",
+            "lake_manifest",
+            "lakefile",
+            "proof_term",
+            "toolchain_lock",
+            "toolchain_selector"
+          ]
+        },
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifacts",
+    "checker_result_sha256",
+    "command",
+    "contract_id",
+    "environment_policy",
+    "limits",
+    "project_sha256",
+    "proof_term_sha256",
+    "schema",
+    "source_sha256",
+    "statement_kind",
+    "statement_sha256",
+    "theorem_name",
+    "toolchain"
+  ],
+  "properties": {
+    "artifacts": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "checker_result_sha256": {"$ref": "#/$defs/digest"},
+    "command": {
+      "const": [
+        "lake",
+        "env",
+        "lean",
+        "-o",
+        ".lake/build/lib/lean/MathHead/Generated.olean",
+        "MathHead/Generated.lean"
+      ]
+    },
+    "contract_id": {"const": "MH-C-LEAN-VERIFICATION-001"},
+    "environment_policy": {"const": "mathhead.lean-hermetic.v1"},
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_bytes",
+        "diagnostic_codepoints",
+        "integer_bits",
+        "output_bytes",
+        "source_bytes",
+        "theorems",
+        "total_seconds"
+      ],
+      "properties": {
+        "artifact_bytes": {"const": 67108864},
+        "diagnostic_codepoints": {"const": 512},
+        "integer_bits": {"const": 4096},
+        "output_bytes": {"const": 1048576},
+        "source_bytes": {"const": 4194304},
+        "theorems": {"const": 1},
+        "total_seconds": {"const": 600}
+      }
+    },
+    "project_sha256": {"$ref": "#/$defs/digest"},
+    "proof_term_sha256": {"$ref": "#/$defs/digest"},
+    "schema": {"const": "mathhead.lean-verification-request.v1"},
+    "source_sha256": {"$ref": "#/$defs/digest"},
+    "statement_kind": {
+      "enum": ["divides", "polynomial_identity", "sum_identity"]
+    },
+    "statement_sha256": {"$ref": "#/$defs/digest"},
+    "theorem_name": {
+      "type": "string",
+      "pattern": "^mathhead_[0-9a-f]{16}$",
+      "maxLength": 25
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lean_commit",
+        "lean_release_asset_sha256",
+        "lean_toolchain",
+        "mathlib_commit",
+        "platform"
+      ],
+      "properties": {
+        "lean_commit": {
+          "const": "d8b18978322de05a8f3dba51ef03cf5461676c17"
+        },
+        "lean_release_asset_sha256": {
+          "const": "4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c"
+        },
+        "lean_toolchain": {"const": "leanprover/lean4:v4.33.0"},
+        "mathlib_commit": {
+          "const": "db584cd6d46c92f209a44c0f1c829460d327499d"
+        },
+        "platform": {"const": "x86_64-unknown-linux-gnu"}
+      }
+    }
+  }
+}

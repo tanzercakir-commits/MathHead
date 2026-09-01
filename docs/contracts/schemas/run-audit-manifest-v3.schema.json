@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-audit-manifest-v3.schema.json",
+  "title": "MathHead Run Audit Manifest v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "audited_run_contract_sha256",
+    "replay_contract_sha256",
+    "capability_registry_contract_sha256",
+    "deterministic_planner_contract_sha256",
+    "isolated_worker_contract_sha256",
+    "proof_search_portfolio_contract_sha256",
+    "problem_session_contract_sha256",
+    "resource_budget_contract_sha256",
+    "evidence_contract_sha256",
+    "certificate_contract_sha256",
+    "theory_plugin_contract_sha256",
+    "normalized_input_sha256",
+    "planning_request_sha256",
+    "route_result_sha256",
+    "planning_result_sha256",
+    "portfolio_request_sha256",
+    "portfolio_result_sha256",
+    "initial_parent_budget_sha256",
+    "final_parent_budget_sha256",
+    "logical_report_sha256",
+    "objects",
+    "events",
+    "manifest_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.run-audit-manifest.v3"
+    },
+    "audited_run_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "replay_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "capability_registry_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "deterministic_planner_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "isolated_worker_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "proof_search_portfolio_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "problem_session_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "resource_budget_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "evidence_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "certificate_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "theory_plugin_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "normalized_input_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "planning_request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "route_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "planning_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "portfolio_request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "portfolio_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "initial_parent_budget_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "final_parent_budget_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "logical_report_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "objects": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 200000,
+      "items": {
+        "$ref": "run-audit-object-v2.schema.json"
+      }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 1000000,
+      "items": {
+        "$ref": "run-audit-event-v2.schema.json"
+      }
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/normalized-domain-context-v1.schema.json",
+  "title": "MathHead normalized domain and assumption context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.normalized-domain-context.v1"},
+    "reading_id": {"$ref": "#/$defs/id"},
+    "projection_sha256": {"$ref": "#/$defs/sha256"},
+    "rule_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "domain_ids": {"$ref": "#/$defs/id_list"},
+    "variable_ids": {"$ref": "#/$defs/id_list"},
+    "assumption_ids": {"$ref": "#/$defs/id_list"},
+    "facts": {
+      "type": "array",
+      "items": {"$ref": "domain-assumption-fact-v1.schema.json"},
+      "maxItems": 400000
+    },
+    "fact_sha256s": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/sha256"},
+      "maxItems": 400000,
+      "uniqueItems": true
+    },
+    "unsupported_fact_sha256s": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/sha256"},
+      "maxItems": 400000,
+      "uniqueItems": true
+    },
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "reading_id",
+    "projection_sha256",
+    "rule_catalogue_sha256",
+    "domain_ids",
+    "variable_ids",
+    "assumption_ids",
+    "facts",
+    "fact_sha256s",
+    "unsupported_fact_sha256s",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id_list": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "maxItems": 100000,
+      "uniqueItems": true
+    }
+  }
+}

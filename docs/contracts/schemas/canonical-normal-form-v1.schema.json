@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/canonical-normal-form-v1.schema.json",
+  "title": "MathHead canonical normal form v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "mathhead.canonical-normal-form.v1"
+    },
+    "form_kind": {
+      "enum": [
+        "domain",
+        "variable",
+        "expression",
+        "relation",
+        "statement",
+        "definition",
+        "assumption_fact",
+        "local_context",
+        "obligation"
+      ]
+    },
+    "source_registry": {
+      "enum": [
+        "domains",
+        "variables",
+        "expressions",
+        "relations",
+        "statements",
+        "definitions",
+        "assumption_facts",
+        "local_contexts",
+        "obligations"
+      ]
+    },
+    "source_ref": {
+      "$ref": "#/$defs/ref"
+    },
+    "semantic_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "rule_ids": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/rule_id"
+      }
+    },
+    "value": {
+      "$ref": "#/$defs/canonical_value"
+    },
+    "supported": {
+      "type": "boolean"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "form_kind",
+    "source_registry",
+    "source_ref",
+    "semantic_sha256",
+    "rule_ids",
+    "value",
+    "supported",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^mh[.]canonical[.][a-z0-9_.-]+$",
+      "maxLength": 128
+    },
+    "canonical_value": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        {
+          "type": "array",
+          "maxItems": 400000,
+          "items": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 400000,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "maxLength": 64
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/canonical_value"
+          }
+        }
+      ]
+    }
+  }
+}

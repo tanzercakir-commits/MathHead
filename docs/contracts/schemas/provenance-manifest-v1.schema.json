@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/provenance-manifest-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "byte_count",
+        "contract_id",
+        "contract_sha256",
+        "depends_on_sha256",
+        "media_type",
+        "role",
+        "schema",
+        "sha256"
+      ],
+      "properties": {
+        "byte_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "contract_id": {
+          "type": ["string", "null"],
+          "pattern": "^MH-C-[A-Z0-9-]+$",
+          "maxLength": 128
+        },
+        "contract_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/digest"},
+            {"type": "null"}
+          ]
+        },
+        "depends_on_sha256": {
+          "type": "array",
+          "maxItems": 13,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/digest"}
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "application/octet-stream",
+            "text/x-python"
+          ]
+        },
+        "role": {
+          "enum": [
+            "certificate",
+            "checker_configuration",
+            "checker_contract",
+            "checker_implementation",
+            "checker_result",
+            "cnf",
+            "engine_result",
+            "evidence",
+            "problem_ir",
+            "proof_term",
+            "resource_budget",
+            "sat_certificate",
+            "theory_context",
+            "theory_plugin"
+          ]
+        },
+        "schema": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "objects",
+    "plugin",
+    "replay",
+    "schema"
+  ],
+  "properties": {
+    "objects": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 13,
+      "items": {"$ref": "#/$defs/object"}
+    },
+    "plugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plugin_id", "plugin_version"],
+      "properties": {
+        "plugin_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "plugin_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+          "maxLength": 64
+        }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checker_configuration_sha256",
+        "checker_contract_id",
+        "checker_contract_sha256",
+        "checker_id",
+        "checker_implementation_sha256",
+        "recorded_result_sha256"
+      ],
+      "properties": {
+        "checker_configuration_sha256": {"$ref": "#/$defs/digest"},
+        "checker_contract_id": {
+          "enum": ["MH-C-KERNEL-CHECKER-002", "MH-C-SAT-REPLAY-001"]
+        },
+        "checker_contract_sha256": {"$ref": "#/$defs/digest"},
+        "checker_id": {
+          "enum": ["mathhead.kernel.checker.v2", "mathhead.kernel.sat-replay.v1"]
+        },
+        "checker_implementation_sha256": {"$ref": "#/$defs/digest"},
+        "recorded_result_sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "schema": {"const": "mathhead.provenance-manifest.v1"}
+  }
+}

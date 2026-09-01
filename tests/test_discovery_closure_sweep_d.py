@@ -17,8 +17,10 @@ import re
 import shlex
 import shutil
 import subprocess
-import sys
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 uses the pinned compatibility package.
+    import tomli as tomllib
 from importlib import util as importlib_util
 from pathlib import Path
 
@@ -64,12 +66,12 @@ def test_af0_catch_rate_and_tool_selection_extend_to_the_discovery_surface():
     # the measurement is deterministic: a re-run of a slice reproduces the verdicts exactly
     assert [check(s) for s, _ in battery[:10]] == results[:10]
 
-    # tool-selection base (♻️ MathHead): the benchmark runs live and its honest floors hold …
-    sys.path.insert(0, str(_ROOT / "benchmarks"))
-    import run_tool_selection as ts
-    summary = ts.summarize(ts.run())
-    assert summary["cases"] >= 15                               # a substantial case set
-    assert summary["top3_rate"] >= 0.85 and summary["top1_rate"] >= 0.70
+    # Legacy recommendation is exact-name-only; prose similarity has no routing authority.
+    from mathhead.router import route
+    assert route("recommend_tool", {"query": "verify_equality"}).status == "ok"
+    assert route(
+        "recommend_tool", {"query": "verify that two expressions are equal"}
+    ).status == "unknown"
     # … and the discovery side selects the strongest instrument first (X2 map)
     from mathhead.discovery.technique_map import suggest_techniques
     assert suggest_techniques("6 | n^3 - n")[0][1] == "kernel.prove_divides"
@@ -235,6 +237,7 @@ def test_ag1_parallel_sweep_equals_serial_and_the_disk_cache_never_changes_an_an
     assert list((tmp_path / "c").glob("*.json")) == []
 
 
+@pytest.mark.requires_solver
 def test_ag1_parallel_ramsey_decisions_merge_deterministically():
     pytest.importorskip("pysat.solvers", reason="pysat not installed")
     from mathhead.discovery.parallel_search import sweep_ramsey
@@ -309,21 +312,29 @@ def test_ag2_resource_fence_inventory_and_threat_model_cover_the_discovery_surfa
 
 def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
     ci = (_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    for job in ("trackers:", "test:", "test-solvers:", "reproducible:", "build:"):
+    for job in (
+        "trackers:", "test:", "test-discovery:", "test-docs:", "test-live-mcp:",
+        "test-solvers:", "test-slow:", "coverage:", "reproducible:", "build:",
+    ):
         assert f"\n  {job}" in ci, f"CI job missing: {job}"
     assert "os: [ubuntu-latest, macos-latest, windows-latest]" in ci     # 3-OS matrix
     assert 'python: ["3.10", "3.11", "3.12"]' in ci                      # 3-Python matrix
-    assert "ruff check ." in ci and "--cov=mathhead" in ci               # lint + coverage gate
-    assert "python -m build" in ci and "twine check dist/*" in ci        # wheel build validated
-    assert 'pip install -e ".[dev]"' in ci and 'pip install -e ".[dev,solvers]"' in ci
-    assert "-c constraints.txt" in ci                                    # reproducible install
-    assert "gen_status.py --check" in ci                                 # tracker integrity job
+    for profile in ("core", "solver", "discovery", "docs", "live-mcp", "slow"):
+        assert f"check --profile {profile}" in ci
+    assert "clean-smoke --profile release" in ci                         # wheel build validated
+    for profile in ("core", "solver", "discovery", "docs", "live-mcp", "slow"):
+        assert f"bootstrap --profile {profile}" in ci
+    assert "run --profile slow --command coverage-gate" in ci            # coverage retained
+    assert "legacy-full" not in ci                                        # no monolithic duplicate
+    assert "run --profile core --command tracker-integrity" in ci        # tracker integrity job
+    assert ci.count("actions/checkout@v7") == ci.count("fetch-depth: 0")  # baseline resolvable
+    assert "pip install" not in ci and "pytest " not in ci               # no CI-only semantics
 
     rel = (_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     assert 'tags: [ "v*" ]' in rel and "pypa/gh-action-pypi-publish" in rel
-    assert "id-token: write" in rel and "twine check dist/*" in rel      # trusted publishing
+    assert "id-token: write" in rel and "--artifact-dir dist" in rel     # trusted publishing
     docs = (_ROOT / ".github" / "workflows" / "docs.yml").read_text(encoding="utf-8")
-    assert "mkdocs gh-deploy" in docs and "mkdocs-material" in docs
+    assert "mkdocs gh-deploy" in docs and "bootstrap --profile docs" in docs
 
     # packaging: every declared console script resolves to a real callable, versions cohere
     import importlib
@@ -335,9 +346,15 @@ def test_ag3_ci_matrix_release_and_packaging_are_pinned(capsys):
     for target in scripts.values():
         mod, attr = target.split(":")
         assert callable(getattr(importlib.import_module(mod), attr)), target
-    assert proj["project"]["version"] == mathhead.__version__
+    assert "version" not in proj["project"] and "version" in proj["project"]["dynamic"]
+    version_path = proj["tool"]["hatch"]["version"]["path"]
+    assert version_path == "src/mathhead/_version.py"
+    namespace = {}
+    exec((_ROOT / version_path).read_text(encoding="utf-8"), namespace)
+    assert namespace["__version__"] == mathhead.__version__
     assert proj["project"]["requires-python"] == ">=3.10"                # matches the matrix floor
     assert proj["build-system"]["build-backend"] == "hatchling.build"
+    assert proj["build-system"]["requires"] == ["hatchling==1.32.0"]
 
     # the in-process equivalent of the wheel-smoke the build job runs on every push
     from mathhead import cli as core_cli
@@ -484,7 +501,7 @@ def test_ag5_cli_stats_epilogue_survives_exceptions_and_never_leaks(capsys, monk
     ins.reset()
     ins.disable()
 
-    def boom(statement, max_n=7):
+    def boom(statement, max_n=6):
         raise RuntimeError("engine exploded mid-call")
     monkeypatch.setattr(product, "check", boom)
 

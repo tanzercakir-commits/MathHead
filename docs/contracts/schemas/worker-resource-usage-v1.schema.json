@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/worker-resource-usage-v1.schema.json",
+  "title": "MathHead Worker Resource Usage v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "wall_time_us", "cpu_time_us", "memory_peak_bytes", "solver_calls", "generated_objects", "proof_bytes", "evidence_bytes", "output_bytes", "diagnostic_bytes", "nesting_peak", "exit_code", "termination_signal", "usage_complete", "usage_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.worker-resource-usage.v1"},
+    "wall_time_us": {"$ref": "#/$defs/quantity"}, "cpu_time_us": {"$ref": "#/$defs/quantity"}, "memory_peak_bytes": {"$ref": "#/$defs/quantity"}, "solver_calls": {"$ref": "#/$defs/quantity"}, "generated_objects": {"$ref": "#/$defs/quantity"}, "proof_bytes": {"$ref": "#/$defs/quantity"}, "evidence_bytes": {"$ref": "#/$defs/quantity"}, "output_bytes": {"$ref": "#/$defs/quantity"}, "diagnostic_bytes": {"$ref": "#/$defs/quantity"}, "nesting_peak": {"$ref": "#/$defs/quantity"},
+    "exit_code": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": -2147483648, "maximum": 2147483647}]},
+    "termination_signal": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 1, "maximum": 255}]},
+    "usage_complete": {"type": "boolean"},
+    "usage_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}}
+}

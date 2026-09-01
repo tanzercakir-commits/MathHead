@@ -1,0 +1,1913 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/execution-disposition-result-v1.schema.json",
+  "title": "MathHead Execution Disposition Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "request_input_sha256",
+    "disposition_request_sha256",
+    "invocation_sha256",
+    "cancellation_armed",
+    "cancellation_intent_sha256",
+    "base_parent_budget_sha256",
+    "anchored_parent_budget_sha256",
+    "planning_result_sha256",
+    "portfolio_request_sha256",
+    "audit_manifest_sha256",
+    "logical_report_sha256",
+    "replay_result_sha256",
+    "portfolio_result_sha256",
+    "execution_provenance_sha256",
+    "execution_state",
+    "portfolio_relation",
+    "portfolio_outcome_kind",
+    "route_status",
+    "route_reason_code",
+    "planning_status",
+    "planning_reason_code",
+    "portfolio_status",
+    "portfolio_reason_code",
+    "replay_status",
+    "replay_reason_code",
+    "classification",
+    "diagnostics",
+    "selected_strategy_sha256",
+    "selected_evidence_sha256",
+    "selected_certificate_sha256",
+    "selected_checker_decision_sha256",
+    "linked_authority_tier",
+    "authority_ceiling",
+    "result_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.execution-disposition-result.v1"
+    },
+    "contract_id": {
+      "const": "MH-C-EXECUTION-DISPOSITION-001"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "request_input_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "disposition_request_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "invocation_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "cancellation_armed": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "cancellation_intent_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "base_parent_budget_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "anchored_parent_budget_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "planning_result_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "portfolio_request_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "audit_manifest_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "logical_report_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "replay_result_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "portfolio_result_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "execution_provenance_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "execution_state": {
+      "enum": [
+        "not_started",
+        "attempted_no_bundle",
+        "bundle_replay_failed",
+        "replayed_complete"
+      ]
+    },
+    "portfolio_relation": {
+      "enum": [
+        "not_available",
+        "exact",
+        "invalid"
+      ]
+    },
+    "portfolio_outcome_kind": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "enum": [
+            "launch_refused",
+            "executable_refused",
+            "executable_invalid",
+            "certificate_unsupported",
+            "certificate_inconclusive"
+          ]
+        }
+      ]
+    },
+    "route_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "routed",
+            "unsupported",
+            "ambiguous",
+            "exhausted",
+            "invalid"
+          ]
+        }
+      ]
+    },
+    "route_reason_code": {
+      "$ref": "#/$defs/nullable_reason"
+    },
+    "planning_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "planned",
+            "unsupported",
+            "ambiguous",
+            "exhausted",
+            "invalid"
+          ]
+        }
+      ]
+    },
+    "planning_reason_code": {
+      "$ref": "#/$defs/nullable_reason"
+    },
+    "portfolio_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "succeeded",
+            "unsupported",
+            "exhausted",
+            "cancelled",
+            "failed",
+            "ambiguous",
+            "truncated",
+            "inconclusive",
+            "disagreement",
+            "verifier_failed",
+            "invalid_evidence",
+            "invalid"
+          ]
+        }
+      ]
+    },
+    "portfolio_reason_code": {
+      "$ref": "#/$defs/nullable_reason"
+    },
+    "replay_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "complete",
+            "invalid",
+            "exhausted"
+          ]
+        }
+      ]
+    },
+    "replay_reason_code": {
+      "$ref": "#/$defs/nullable_reason"
+    },
+    "classification": {
+      "$ref": "execution-disposition-classification-v1.schema.json"
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "execution-disposition-diagnostic-v1.schema.json"
+      }
+    },
+    "selected_strategy_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "selected_evidence_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "selected_certificate_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "selected_checker_decision_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "linked_authority_tier": {
+      "enum": [
+        "none",
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    },
+    "authority_ceiling": {
+      "const": "none"
+    },
+    "result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "execution_state": {
+              "const": "not_started"
+            },
+            "portfolio_relation": {
+              "const": "not_available"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "logical_report_sha256": {
+              "type": "null"
+            },
+            "replay_result_sha256": {
+              "type": "null"
+            },
+            "portfolio_result_sha256": {
+              "type": "null"
+            },
+            "execution_provenance_sha256": {
+              "type": "null"
+            },
+            "portfolio_status": {
+              "type": "null"
+            },
+            "portfolio_reason_code": {
+              "type": "null"
+            },
+            "replay_status": {
+              "type": "null"
+            },
+            "replay_reason_code": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "execution_state": {
+              "const": "attempted_no_bundle"
+            },
+            "portfolio_relation": {
+              "const": "not_available"
+            },
+            "disposition_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "invocation_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "anchored_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "base_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "planning_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "route_status": {
+              "const": "routed"
+            },
+            "route_reason_code": {
+              "const": "ROUTED"
+            },
+            "planning_status": {
+              "const": "planned"
+            },
+            "planning_reason_code": {
+              "const": "PLANNED"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "logical_report_sha256": {
+              "type": "null"
+            },
+            "replay_result_sha256": {
+              "type": "null"
+            },
+            "portfolio_result_sha256": {
+              "type": "null"
+            },
+            "execution_provenance_sha256": {
+              "type": "null"
+            },
+            "portfolio_status": {
+              "type": "null"
+            },
+            "portfolio_reason_code": {
+              "type": "null"
+            },
+            "replay_status": {
+              "type": "null"
+            },
+            "replay_reason_code": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "execution_state": {
+              "const": "bundle_replay_failed"
+            },
+            "portfolio_relation": {
+              "const": "not_available"
+            },
+            "disposition_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "invocation_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "anchored_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "base_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "planning_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "route_status": {
+              "const": "routed"
+            },
+            "route_reason_code": {
+              "const": "ROUTED"
+            },
+            "planning_status": {
+              "const": "planned"
+            },
+            "planning_reason_code": {
+              "const": "PLANNED"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "logical_report_sha256": {
+              "type": "null"
+            },
+            "replay_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_result_sha256": {
+              "type": "null"
+            },
+            "execution_provenance_sha256": {
+              "type": "null"
+            },
+            "portfolio_status": {
+              "type": "null"
+            },
+            "portfolio_reason_code": {
+              "type": "null"
+            },
+            "replay_status": {
+              "enum": [
+                "invalid",
+                "exhausted"
+              ]
+            },
+            "replay_reason_code": {
+              "$ref": "#/$defs/reason"
+            }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "replay_status": {"const": "invalid"},
+                "replay_reason_code": {"const": "REPLAY_INVALID"}
+              }
+            },
+            {
+              "properties": {
+                "replay_status": {"const": "exhausted"},
+                "replay_reason_code": {"const": "REPLAY_BUDGET_EXHAUSTED"}
+              }
+            }
+          ]
+        },
+        {
+          "properties": {
+            "execution_state": {
+              "const": "replayed_complete"
+            },
+            "portfolio_relation": {
+              "enum": ["exact", "invalid"]
+            },
+            "disposition_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "invocation_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "anchored_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "base_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "planning_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "route_status": {
+              "const": "routed"
+            },
+            "route_reason_code": {
+              "const": "ROUTED"
+            },
+            "planning_status": {
+              "const": "planned"
+            },
+            "planning_reason_code": {
+              "const": "PLANNED"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "logical_report_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "replay_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_result_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "execution_provenance_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "portfolio_status": {
+              "not": {
+                "type": "null"
+              }
+            },
+            "portfolio_reason_code": {
+              "$ref": "#/$defs/reason"
+            },
+            "replay_status": {
+              "const": "complete"
+            },
+            "replay_reason_code": {
+              "const": "REPLAY_COMPLETE"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "disposition_request_sha256": {
+              "type": "null"
+            },
+            "invocation_sha256": {
+              "type": "null"
+            },
+            "cancellation_armed": {
+              "type": "null"
+            },
+            "cancellation_intent_sha256": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "disposition_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "invocation_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "cancellation_armed": {
+              "const": false
+            },
+            "cancellation_intent_sha256": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "disposition_request_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "invocation_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "cancellation_armed": {
+              "const": true
+            },
+            "cancellation_intent_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "portfolio_relation": {"const": "exact"},
+            "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+            "portfolio_reason_code": {"const": "LAUNCH_FAILED"},
+            "portfolio_outcome_kind": {"const": "launch_refused"}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_relation": {"const": "exact"},
+            "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+            "portfolio_reason_code": {"const": "EXECUTABLE_INVALID"},
+            "portfolio_outcome_kind": {
+              "enum": ["executable_refused", "executable_invalid"]
+            }
+          }
+        },
+        {
+          "properties": {
+            "portfolio_relation": {"const": "exact"},
+            "portfolio_status": {"const": "inconclusive"},
+            "portfolio_reason_code": {"const": "CHECKER_INCONCLUSIVE"},
+            "portfolio_outcome_kind": {
+              "enum": ["certificate_unsupported", "certificate_inconclusive"]
+            }
+          }
+        },
+        {
+          "properties": {
+            "portfolio_outcome_kind": {"type": "null"}
+          },
+          "allOf": [
+            {
+              "not": {
+                "properties": {
+                  "portfolio_relation": {"const": "exact"},
+                  "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                  "portfolio_reason_code": {"const": "LAUNCH_FAILED"}
+                }
+              }
+            },
+            {
+              "not": {
+                "properties": {
+                  "portfolio_relation": {"const": "exact"},
+                  "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                  "portfolio_reason_code": {"const": "EXECUTABLE_INVALID"}
+                }
+              }
+            },
+            {
+              "not": {
+                "properties": {
+                  "portfolio_relation": {"const": "exact"},
+                  "portfolio_status": {"const": "inconclusive"},
+                  "portfolio_reason_code": {"const": "CHECKER_INCONCLUSIVE"}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "classification": {
+            "properties": {
+              "cause": {
+                "enum": [
+                  "checked_proof",
+                  "checked_refutation"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "execution_state": {
+            "const": "replayed_complete"
+          },
+          "selected_strategy_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "selected_evidence_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "selected_certificate_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "selected_checker_decision_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "linked_authority_tier": {
+            "enum": [
+              "checker_attestation",
+              "external_proof_assistant"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "selected_strategy_sha256": {
+            "type": "null"
+          },
+          "selected_evidence_sha256": {
+            "type": "null"
+          },
+          "selected_certificate_sha256": {
+            "type": "null"
+          },
+          "selected_checker_decision_sha256": {
+            "type": "null"
+          },
+          "linked_authority_tier": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "oneOf": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "checked_proof"}}},
+                "portfolio_status": {"const": "succeeded"},
+                "portfolio_reason_code": {"const": "CHECKED_PROOF"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "checked_refutation"}}},
+                "portfolio_status": {"const": "succeeded"},
+                "portfolio_reason_code": {"const": "CHECKED_REFUTATION"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {
+                      "enum": [
+                        "user_cancellation",
+                        "parent_cancellation",
+                        "supervisor_cancellation"
+                      ]
+                    }
+                  }
+                },
+                "cancellation_intent_sha256": {"$ref": "#/$defs/sha256"},
+                "portfolio_status": {"const": "cancelled"},
+                "portfolio_reason_code": {"const": "CANCELLED"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/early_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "ambiguity"},
+                    "precedence_row": {"const": "20_early_route_planner"},
+                    "phase": {"const": "routing"}
+                  }
+                },
+                "route_status": {"const": "ambiguous"},
+                "route_reason_code": {
+                  "enum": ["NON_UNIQUE_SELECTION", "READING_AMBIGUOUS"]
+                },
+                "planning_status": {"const": "ambiguous"},
+                "planning_reason_code": {"const": "ROUTE_AMBIGUOUS"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "ambiguity"},
+                    "precedence_row": {"const": "80_semantic_terminal"},
+                    "phase": {"const": "producer"}
+                  }
+                },
+                "portfolio_status": {"const": "ambiguous"},
+                "portfolio_reason_code": {"const": "EVIDENCE_INCOMPLETE"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/early_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "budget_exhaustion"},
+                    "precedence_row": {"const": "20_early_route_planner"},
+                    "phase": {"const": "routing"}
+                  }
+                },
+                "route_status": {"const": "exhausted"},
+                "route_reason_code": {"const": "BUDGET_EXHAUSTED"},
+                "planning_status": {"const": "exhausted"},
+                "planning_reason_code": {"const": "ROUTE_EXHAUSTED"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/early_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "budget_exhaustion"},
+                    "precedence_row": {"const": "20_early_route_planner"},
+                    "phase": {"const": "planning"}
+                  }
+                },
+                "route_status": {"const": "routed"},
+                "route_reason_code": {"const": "ROUTED"},
+                "planning_status": {"const": "exhausted"},
+                "planning_reason_code": {"const": "PLANNING_EXHAUSTED"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "budget_exhaustion"},
+                    "precedence_row": {"const": "50_ledger_exhaustion"}
+                  }
+                },
+                "portfolio_status": {"const": "exhausted"}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "portfolio_reason_code": {"const": "BUDGET_INSUFFICIENT"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {
+                      "properties": {
+                        "resource_dimensions": {"const": ["wall_time_us"]}
+                      }
+                    },
+                    "portfolio_reason_code": {"const": "WALL_TIME_EXHAUSTED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {
+                      "properties": {
+                        "resource_dimensions": {"const": ["cpu_time_us"]}
+                      }
+                    },
+                    "portfolio_reason_code": {"const": "CPU_TIME_EXHAUSTED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {
+                      "properties": {
+                        "resource_dimensions": {"const": ["memory_bytes"]}
+                      }
+                    },
+                    "portfolio_reason_code": {"const": "MEMORY_EXHAUSTED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {
+                      "properties": {
+                        "resource_dimensions": {"const": ["output_bytes"]}
+                      }
+                    },
+                    "portfolio_reason_code": {"const": "OUTPUT_EXHAUSTED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {
+                      "properties": {
+                        "resource_dimensions": {"const": ["diagnostic_bytes"]}
+                      }
+                    },
+                    "portfolio_reason_code": {"const": "DIAGNOSTIC_EXHAUSTED"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/early_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "unsupported_input"},
+                    "precedence_row": {"const": "20_early_route_planner"},
+                    "phase": {"const": "routing"}
+                  }
+                },
+                "route_status": {"const": "unsupported"},
+                "route_reason_code": {"const": "NO_COMPATIBLE_CAPABILITY"},
+                "planning_status": {"const": "unsupported"},
+                "planning_reason_code": {"const": "ROUTE_UNSUPPORTED"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/early_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "unsupported_execution_environment"},
+                    "precedence_row": {"const": "20_early_route_planner"},
+                    "phase": {"const": "routing"}
+                  }
+                },
+                "route_status": {"const": "unsupported"},
+                "route_reason_code": {"const": "NO_COMPATIBLE_CAPABILITY"},
+                "planning_status": {"const": "unsupported"},
+                "planning_reason_code": {"const": "ROUTE_UNSUPPORTED"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {
+                  "properties": {
+                    "cause": {"const": "unsupported_execution_environment"},
+                    "precedence_row": {"const": "60_environment_refusal"}
+                  }
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "producer"}}},
+                    "portfolio_status": {"const": "unsupported"},
+                    "portfolio_reason_code": {"const": "ISOLATION_UNSUPPORTED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "checker"}}},
+                    "portfolio_status": {"const": "inconclusive"},
+                    "portfolio_reason_code": {"const": "ISOLATION_UNSUPPORTED"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "producer_refusal"}}}
+              },
+              "oneOf": [
+                {"properties": {"portfolio_status": {"const": "unsupported"}, "portfolio_reason_code": {"const": "EVIDENCE_UNSUPPORTED"}}},
+                {"properties": {"portfolio_status": {"const": "exhausted"}, "portfolio_reason_code": {"const": "EVIDENCE_EXHAUSTED"}}},
+                {"properties": {"portfolio_status": {"const": "cancelled"}, "portfolio_reason_code": {"const": "EVIDENCE_CANCELLED"}}},
+                {
+                  "properties": {
+                    "portfolio_status": {"const": "failed"},
+                    "portfolio_reason_code": {"const": "EXECUTABLE_INVALID"},
+                    "portfolio_outcome_kind": {"const": "executable_refused"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "verifier_refusal"}}}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "portfolio_status": {"const": "inconclusive"},
+                    "portfolio_reason_code": {"const": "CHECKER_INCONCLUSIVE"},
+                    "portfolio_outcome_kind": {"const": "certificate_unsupported"}
+                  }
+                },
+                {"properties": {"portfolio_status": {"const": "exhausted"}, "portfolio_reason_code": {"const": "CHECKER_EXHAUSTED"}}},
+                {"properties": {"portfolio_status": {"const": "cancelled"}, "portfolio_reason_code": {"const": "CHECKER_CANCELLED"}}},
+                {
+                  "properties": {
+                    "portfolio_status": {"const": "verifier_failed"},
+                    "portfolio_reason_code": {"const": "EXECUTABLE_INVALID"},
+                    "portfolio_outcome_kind": {"const": "executable_refused"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "truncation"}}},
+                "portfolio_status": {"const": "truncated"}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "producer"}}},
+                    "portfolio_reason_code": {"const": "EVIDENCE_TRUNCATED"}
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "checker"}}},
+                    "portfolio_reason_code": {"const": "CHECKER_TRUNCATED"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "inconclusive_execution"}}},
+                "portfolio_status": {"const": "inconclusive"},
+                "portfolio_reason_code": {"const": "CHECKER_INCONCLUSIVE"},
+                "portfolio_outcome_kind": {"const": "certificate_inconclusive"}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "checker_disagreement"}}},
+                "portfolio_status": {"const": "disagreement"},
+                "portfolio_reason_code": {"enum": ["CHECKER_REJECTED", "CHECKER_DISAGREED"]}
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "invalid_evidence"}}},
+                "portfolio_status": {"const": "invalid_evidence"}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "producer"}}},
+                    "portfolio_reason_code": {
+                      "enum": ["EVIDENCE_INVALID", "EVIDENCE_PROTOCOL_LIMIT"]
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "checker"}}},
+                    "portfolio_reason_code": {"const": "CERTIFICATE_INVALID"}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "producer_failure"}}},
+                "portfolio_status": {"const": "failed"},
+                "portfolio_reason_code": {
+                  "enum": ["LAUNCH_FAILED", "EXIT_FAILED", "PROTOCOL_FAILED", "EVIDENCE_ERROR"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/audited_normal_result"},
+            {
+              "properties": {
+                "classification": {"properties": {"cause": {"const": "verifier_failure"}}},
+                "portfolio_status": {"const": "verifier_failed"},
+                "portfolio_reason_code": {
+                  "enum": ["LAUNCH_FAILED", "EXIT_FAILED", "PROTOCOL_FAILED", "CERTIFICATE_INVALID"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "properties": {
+            "classification": {"properties": {"cause": {"const": "invalid_request"}}},
+            "execution_state": {"const": "not_started"},
+            "diagnostics": {"minItems": 1}
+          },
+          "oneOf": [
+            {
+              "allOf": [
+                {"$ref": "#/$defs/empty_preflight_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "request"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "REQUEST_INVALID"},
+                          "phase": {"const": "request"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/validated_pre_route_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "request"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {
+                            "enum": [
+                              "INTENT_EVENT_MISMATCH",
+                              "BINDING_INPUT_INVALID",
+                              "ARTIFACT_INPUT_INVALID"
+                            ]
+                          },
+                          "phase": {"const": "request"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/validated_pre_route_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "routing"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "ROUTE_INPUT_INVALID"},
+                          "phase": {"const": "routing"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/invalid_route_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "routing"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "ROUTE_INPUT_INVALID"},
+                          "phase": {"const": "routing"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/invalid_planning_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "planning"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {
+                            "enum": [
+                              "PLANNING_INPUT_INVALID",
+                              "ARTIFACT_INPUT_INVALID"
+                            ]
+                          },
+                          "phase": {"const": "planning"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/planned_no_budget_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "planning"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "BINDING_INPUT_INVALID"},
+                          "phase": {"const": "planning"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/planned_no_budget_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "coordinator"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "EXECUTION_INPUT_INVALID"},
+                          "phase": {"const": "coordinator"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/planned_unanchored_result"},
+                {
+                  "properties": {
+                    "classification": {"properties": {"phase": {"const": "coordinator"}}},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "RESERVED_EXTENSION_COLLISION"},
+                          "phase": {"const": "coordinator"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "properties": {
+            "classification": {"properties": {"cause": {"const": "internal_error"}}},
+            "diagnostics": {"minItems": 1, "maxItems": 1}
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "classification": {"properties": {"phase": {"const": "cleanup"}}},
+                "execution_state": {"const": "replayed_complete"},
+                "portfolio_relation": {"const": "exact"},
+                "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                "portfolio_reason_code": {"const": "TREE_CLEANUP_FAILED"},
+                "diagnostics": {
+                  "items": {
+                    "properties": {
+                      "code": {"const": "CLEANUP_INVARIANT"},
+                      "phase": {"const": "cleanup"}
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "properties": {
+                "classification": {"properties": {"phase": {"const": "audit"}}},
+                "execution_state": {
+                  "enum": ["attempted_no_bundle", "replayed_complete"]
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "execution_state": {"const": "attempted_no_bundle"},
+                    "portfolio_relation": {"const": "not_available"},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "AUDITED_EXECUTION_INVALID"},
+                          "phase": {"const": "audit"}
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "allOf": [
+                    {"$ref": "#/$defs/portfolio_pair"},
+                    {
+                      "properties": {
+                        "execution_state": {"const": "replayed_complete"},
+                        "portfolio_relation": {"const": "invalid"},
+                        "diagnostics": {
+                          "items": {
+                            "properties": {
+                              "code": {"const": "AUDIT_RELATION_INVALID"},
+                              "phase": {"const": "audit"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "properties": {
+                "classification": {"properties": {"phase": {"const": "replay"}}},
+                "execution_state": {"const": "bundle_replay_failed"},
+                "portfolio_relation": {"const": "not_available"}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "execution_state": {"const": "bundle_replay_failed"},
+                    "replay_status": {"const": "invalid"},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "AUDIT_REPLAY_INVALID"},
+                          "phase": {"const": "replay"}
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "bundle_replay_failed"},
+                    "replay_status": {"const": "exhausted"},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "AUDIT_REPLAY_EXHAUSTED"},
+                          "phase": {"const": "replay"}
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "properties": {
+                "classification": {"properties": {"phase": {"const": "coordinator"}}},
+                "diagnostics": {
+                  "items": {
+                    "properties": {
+                      "phase": {"const": "coordinator"}
+                    }
+                  }
+                }
+              },
+              "oneOf": [
+                {
+                  "allOf": [
+                    {"$ref": "#/$defs/planned_unanchored_result"},
+                    {
+                      "properties": {
+                        "execution_state": {"const": "not_started"},
+                        "diagnostics": {
+                          "items": {
+                            "properties": {
+                              "code": {"const": "BUDGET_ANCHOR_INVALID"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {"$ref": "#/$defs/planned_anchored_result"},
+                    {
+                      "properties": {
+                        "execution_state": {"const": "not_started"},
+                        "diagnostics": {
+                          "items": {
+                            "properties": {
+                              "code": {"const": "PORTFOLIO_REQUEST_INVALID"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {"$ref": "#/$defs/empty_preflight_result"},
+                    {
+                      "properties": {
+                        "execution_state": {"const": "not_started"},
+                        "diagnostics": {
+                          "items": {
+                            "properties": {
+                              "code": {"const": "COORDINATOR_LIMIT_EXHAUSTED"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "REQUEST_INVALID"},
+                    "diagnostics": {
+                      "items": {
+                        "properties": {
+                          "code": {"const": "WORKER_REQUEST_INVARIANT"}
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "PLAN_INVALID"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "WORKER_PLAN_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "STRATEGY_MISMATCH"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "WORKER_STRATEGY_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "BUDGET_INVALID"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "WORKER_BUDGET_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "EXECUTABLE_INVALID"},
+                    "portfolio_outcome_kind": {"const": "executable_invalid"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "WORKER_EXECUTABLE_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"enum": ["failed", "verifier_failed"]},
+                    "portfolio_reason_code": {"const": "SUPERVISOR_FAILED"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "SUPERVISOR_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"const": "invalid"},
+                    "portfolio_reason_code": {"const": "PORTFOLIO_INPUT_INVALID"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "PORTFOLIO_INPUT_INVARIANT"}}}}
+                  }
+                },
+                {
+                  "properties": {
+                    "execution_state": {"const": "replayed_complete"},
+                    "portfolio_relation": {"const": "exact"},
+                    "portfolio_status": {"const": "invalid"},
+                    "portfolio_reason_code": {"const": "PORTFOLIO_EXECUTION_INVALID"},
+                    "diagnostics": {"items": {"properties": {"code": {"const": "PORTFOLIO_EXECUTION_INVARIANT"}}}}
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{0,127}$",
+      "maxLength": 128
+    },
+    "nullable_reason": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/reason"
+        }
+      ]
+    },
+    "portfolio_pair": {
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": {
+            "portfolio_status": {"const": "succeeded"},
+            "portfolio_reason_code": {"enum": ["CHECKED_PROOF", "CHECKED_REFUTATION"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "unsupported"},
+            "portfolio_reason_code": {"enum": ["ISOLATION_UNSUPPORTED", "EVIDENCE_UNSUPPORTED"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "exhausted"},
+            "portfolio_reason_code": {
+              "enum": [
+                "BUDGET_INSUFFICIENT",
+                "WALL_TIME_EXHAUSTED",
+                "CPU_TIME_EXHAUSTED",
+                "MEMORY_EXHAUSTED",
+                "OUTPUT_EXHAUSTED",
+                "DIAGNOSTIC_EXHAUSTED",
+                "EVIDENCE_EXHAUSTED",
+                "CHECKER_EXHAUSTED"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "cancelled"},
+            "portfolio_reason_code": {"enum": ["CANCELLED", "EVIDENCE_CANCELLED", "CHECKER_CANCELLED"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "failed"},
+            "portfolio_reason_code": {
+              "enum": [
+                "REQUEST_INVALID",
+                "PLAN_INVALID",
+                "STRATEGY_MISMATCH",
+                "BUDGET_INVALID",
+                "EXECUTABLE_INVALID",
+                "LAUNCH_FAILED",
+                "EXIT_FAILED",
+                "PROTOCOL_FAILED",
+                "TREE_CLEANUP_FAILED",
+                "SUPERVISOR_FAILED",
+                "EVIDENCE_ERROR"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "ambiguous"},
+            "portfolio_reason_code": {"const": "EVIDENCE_INCOMPLETE"}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "truncated"},
+            "portfolio_reason_code": {"enum": ["EVIDENCE_TRUNCATED", "CHECKER_TRUNCATED"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "inconclusive"},
+            "portfolio_reason_code": {"enum": ["ISOLATION_UNSUPPORTED", "CHECKER_INCONCLUSIVE"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "disagreement"},
+            "portfolio_reason_code": {"enum": ["CHECKER_REJECTED", "CHECKER_DISAGREED"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "verifier_failed"},
+            "portfolio_reason_code": {
+              "enum": [
+                "REQUEST_INVALID",
+                "PLAN_INVALID",
+                "STRATEGY_MISMATCH",
+                "BUDGET_INVALID",
+                "EXECUTABLE_INVALID",
+                "LAUNCH_FAILED",
+                "EXIT_FAILED",
+                "PROTOCOL_FAILED",
+                "TREE_CLEANUP_FAILED",
+                "SUPERVISOR_FAILED",
+                "CERTIFICATE_INVALID"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "invalid_evidence"},
+            "portfolio_reason_code": {"enum": ["EVIDENCE_INVALID", "EVIDENCE_PROTOCOL_LIMIT", "CERTIFICATE_INVALID"]}
+          }
+        },
+        {
+          "properties": {
+            "portfolio_status": {"const": "invalid"},
+            "portfolio_reason_code": {"enum": ["PORTFOLIO_INPUT_INVALID", "PORTFOLIO_EXECUTION_INVALID"]}
+          }
+        }
+      ]
+    },
+    "valid_request_result": {
+      "type": "object",
+      "properties": {
+        "disposition_request_sha256": {"$ref": "#/$defs/sha256"},
+        "invocation_sha256": {"$ref": "#/$defs/sha256"},
+        "cancellation_armed": {"type": "boolean"}
+      }
+    },
+    "empty_preflight_result": {
+      "type": "object",
+      "properties": {
+        "disposition_request_sha256": {"type": "null"},
+        "invocation_sha256": {"type": "null"},
+        "cancellation_armed": {"type": "null"},
+        "cancellation_intent_sha256": {"type": "null"},
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"type": "null"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"type": "null"},
+        "route_reason_code": {"type": "null"},
+        "planning_status": {"type": "null"},
+        "planning_reason_code": {"type": "null"}
+      }
+    },
+    "validated_pre_route_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"type": "null"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"type": "null"},
+        "route_reason_code": {"type": "null"},
+        "planning_status": {"type": "null"},
+        "planning_reason_code": {"type": "null"}
+      }
+    },
+    "invalid_route_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"type": "null"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"const": "invalid"},
+        "route_reason_code": {"const": "INVALID_INPUT"},
+        "planning_status": {"type": "null"},
+        "planning_reason_code": {"type": "null"}
+      }
+    },
+    "invalid_planning_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "invalid"},
+        "planning_reason_code": {"const": "INVALID_INPUT"}
+      }
+    },
+    "reached_early_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "cancellation_armed": {"const": false},
+        "cancellation_intent_sha256": {"type": "null"}
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "route_status": {"const": "ambiguous"},
+            "route_reason_code": {
+              "enum": ["NON_UNIQUE_SELECTION", "READING_AMBIGUOUS"]
+            },
+            "planning_status": {"const": "ambiguous"},
+            "planning_reason_code": {"const": "ROUTE_AMBIGUOUS"}
+          }
+        },
+        {
+          "properties": {
+            "route_status": {"const": "exhausted"},
+            "route_reason_code": {"const": "BUDGET_EXHAUSTED"},
+            "planning_status": {"const": "exhausted"},
+            "planning_reason_code": {"const": "ROUTE_EXHAUSTED"}
+          }
+        },
+        {
+          "properties": {
+            "route_status": {"const": "unsupported"},
+            "route_reason_code": {"const": "NO_COMPATIBLE_CAPABILITY"},
+            "planning_status": {"const": "unsupported"},
+            "planning_reason_code": {"const": "ROUTE_UNSUPPORTED"}
+          }
+        },
+        {
+          "properties": {
+            "route_status": {"const": "routed"},
+            "route_reason_code": {"const": "ROUTED"},
+            "planning_status": {"const": "exhausted"},
+            "planning_reason_code": {"const": "PLANNING_EXHAUSTED"}
+          }
+        }
+      ]
+    },
+    "planned_no_budget_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "planned"},
+        "planning_reason_code": {"const": "PLANNED"}
+      }
+    },
+    "planned_unanchored_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "planned"},
+        "planning_reason_code": {"const": "PLANNED"}
+      }
+    },
+    "planned_anchored_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "anchored_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "planned"},
+        "planning_reason_code": {"const": "PLANNED"}
+      }
+    },
+    "planned_portfolio_ready_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "base_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "anchored_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"$ref": "#/$defs/sha256"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "planned"},
+        "planning_reason_code": {"const": "PLANNED"}
+      }
+    },
+    "early_normal_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "execution_state": {"const": "not_started"},
+        "base_parent_budget_sha256": {"type": "null"},
+        "anchored_parent_budget_sha256": {"type": "null"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"type": "null"},
+        "cancellation_armed": {"const": false},
+        "cancellation_intent_sha256": {"type": "null"},
+        "diagnostics": {"maxItems": 0}
+      }
+    },
+    "audited_normal_result": {
+      "type": "object",
+      "allOf": [
+        {"$ref": "#/$defs/valid_request_result"}
+      ],
+      "properties": {
+        "execution_state": {"const": "replayed_complete"},
+        "portfolio_relation": {"const": "exact"},
+        "base_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "anchored_parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+        "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+        "portfolio_request_sha256": {"$ref": "#/$defs/sha256"},
+        "route_status": {"const": "routed"},
+        "route_reason_code": {"const": "ROUTED"},
+        "planning_status": {"const": "planned"},
+        "planning_reason_code": {"const": "PLANNED"},
+        "replay_status": {"const": "complete"},
+        "replay_reason_code": {"const": "REPLAY_COMPLETE"},
+        "diagnostics": {"maxItems": 0}
+      }
+    }
+  }
+}

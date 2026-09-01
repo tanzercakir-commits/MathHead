@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/planning-policy-v1.schema.json",
+  "title": "MathHead Planning Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "mode", "maximum_strategies", "policy_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.planning-policy.v1"},
+    "mode": {"enum": ["registry_order", "deterministic_first"]},
+    "maximum_strategies": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "policy_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

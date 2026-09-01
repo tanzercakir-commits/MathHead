@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/planning-resource-request-v1.schema.json",
+  "title": "MathHead Planning Resource Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "estimated_cost", "requested", "saturated_dimensions", "fits_parent", "resource_request_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.planning-resource-request.v1"},
+    "estimated_cost": {"$ref": "#/$defs/quantity"},
+    "requested": {"$ref": "#/$defs/resource_vector"},
+    "saturated_dimensions": {"type": "array", "maxItems": 10, "uniqueItems": true, "items": {"enum": ["wall_time_us", "cpu_time_us", "memory_bytes", "solver_calls", "generated_objects", "proof_bytes", "evidence_bytes", "output_bytes", "diagnostic_bytes", "nesting_depth"]}},
+    "fits_parent": {"type": "boolean"},
+    "resource_request_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "resource_vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_time_us", "cpu_time_us", "memory_bytes", "solver_calls", "generated_objects", "proof_bytes", "evidence_bytes", "output_bytes", "diagnostic_bytes", "nesting_depth"],
+      "properties": {
+        "wall_time_us": {"$ref": "#/$defs/quantity"}, "cpu_time_us": {"$ref": "#/$defs/quantity"}, "memory_bytes": {"$ref": "#/$defs/quantity"}, "solver_calls": {"$ref": "#/$defs/quantity"}, "generated_objects": {"$ref": "#/$defs/quantity"}, "proof_bytes": {"$ref": "#/$defs/quantity"}, "evidence_bytes": {"$ref": "#/$defs/quantity"}, "output_bytes": {"$ref": "#/$defs/quantity"}, "diagnostic_bytes": {"$ref": "#/$defs/quantity"}, "nesting_depth": {"$ref": "#/$defs/quantity"}
+      }
+    }
+  }
+}

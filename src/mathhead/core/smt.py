@@ -35,6 +35,7 @@ import z3
 
 from mathhead.core.logic import DEFAULT_SEED, DEFAULT_TIMEOUT_MS, ReasoningResult
 from mathhead.guardrails import GuardrailError, solver_config, validate_input
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
 
 _U = z3.DeclareSort("U")  # shared uninterpreted sort (same name → same sort)
 
@@ -57,9 +58,9 @@ def _parse(expr: str) -> ast.AST:
     if not isinstance(expr, str) or not expr.strip():
         raise SmtParseError("expression must be a non-empty string")
     try:
-        return ast.parse(expr, mode="eval").body
-    except SyntaxError as exc:
-        raise SmtParseError(f"syntax error: {exc.msg}") from exc
+        return parse_expression(expr).body
+    except ExpressionSyntaxError as exc:
+        raise SmtParseError(f"syntax error: {exc}") from exc
 
 
 def _decide(

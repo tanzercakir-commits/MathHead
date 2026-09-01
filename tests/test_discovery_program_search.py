@@ -1,4 +1,6 @@
 """Discovery AA0/AA1/AA2 — the FunSearch skeleton: DSL, evolution, conjecture → kernel proof."""
+import pytest
+
 from mathhead.discovery.program_search import (
     conjecture_and_prove,
     evaluate_program,
@@ -34,6 +36,7 @@ def test_full_loop_program_to_kernel_proof():
     assert cp.status == "kernel_verified" and cp.proof_hash             # SumInduction, hashed
 
 
+@pytest.mark.slow
 def test_honest_not_found_is_reported():
     cp = conjecture_and_prove((0, 0, 1))                                # Σi² — beyond this budget/DSL
     assert cp.status in {"not_found_within_budget", "kernel_verified"}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-audit-object-v1.schema.json",
+  "title": "MathHead Run Audit Object v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "ordinal",
+    "role",
+    "role_id",
+    "binding_role",
+    "artifact_schema",
+    "sha256",
+    "byte_count",
+    "record_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.run-audit-object.v1"},
+    "ordinal": {"$ref": "#/$defs/quantity"},
+    "role": {
+      "enum": [
+        "planning_request",
+        "capability_route_result",
+        "planning_result",
+        "portfolio_request",
+        "portfolio_result",
+        "initial_parent_budget",
+        "reconciled_parent_budget",
+        "session_event",
+        "normalized_input",
+        "session_context",
+        "session_obligation",
+        "session_artifact",
+        "plugin_descriptor",
+        "execution_binding",
+        "validated_evidence",
+        "checker_certificate",
+        "checker_decision",
+        "logical_report"
+      ]
+    },
+    "role_id": {"$ref": "#/$defs/id"},
+    "binding_role": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/id"}
+      ]
+    },
+    "artifact_schema": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/namespaced"}
+      ]
+    },
+    "sha256": {"$ref": "#/$defs/sha256"},
+    "byte_count": {"$ref": "#/$defs/quantity"},
+    "record_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z][a-z0-9_]*$"},
+    "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"}
+  }
+}

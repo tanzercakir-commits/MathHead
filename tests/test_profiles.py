@@ -52,11 +52,13 @@ def test_describe_tool():
     assert route("describe_tool", {"name": "no_such_tool"}).status == "error"
 
 
-def test_recommend_tool_finds_the_right_verifier():
-    r = route("recommend_tool", {"query": "verify that a derivative claim is correct"})
+def test_recommend_tool_is_exact_name_only_and_non_authoritative():
+    r = route("recommend_tool", {"query": "verify_derivative"})
     assert r.status == "ok"
-    names = [x["tool"] for x in r.recommendations]
-    assert "verify_derivative" in names                  # the on-target tool is surfaced
+    assert [x["tool"] for x in r.recommendations] == ["verify_derivative"]
+    assert "no typed eligibility" in r.explanation
+    prose = route("recommend_tool", {"query": "verify that a derivative claim is correct"})
+    assert prose.status == "unknown" and prose.reason_code == "EXACT_NAME_NOT_FOUND"
 
 
 def test_recommend_tool_guardrail():

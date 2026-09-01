@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/proof-search-portfolio-request-v1.schema.json",
+  "title": "MathHead Proof Search Portfolio Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "planning_result_sha256",
+    "parent_budget_sha256",
+    "descriptor_sha256s",
+    "binding_sha256s",
+    "artifact_bindings",
+    "preference_policy",
+    "request_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.proof-search-portfolio-request.v1"},
+    "planning_result_sha256": {"$ref": "#/$defs/sha256"},
+    "parent_budget_sha256": {"$ref": "#/$defs/sha256"},
+    "descriptor_sha256s": {"$ref": "#/$defs/sha_array"},
+    "binding_sha256s": {"$ref": "#/$defs/sha_array"},
+    "artifact_bindings": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {"$ref": "#/$defs/artifact_binding"}
+    },
+    "preference_policy": {"const": "planner_order_no_sound_witness_declaration"},
+    "request_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha_array": {"type": "array", "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$"},
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "sha256", "bytes"],
+      "properties": {
+        "role": {"$ref": "#/$defs/id"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {"$ref": "#/$defs/quantity"}
+      }
+    }
+  }
+}

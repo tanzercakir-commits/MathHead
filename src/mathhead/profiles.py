@@ -1,23 +1,22 @@
 """
 mathhead.profiles — Capability packs + tool triage (ROADMAP L3).
 
-168 tools is a large surface for an LLM to choose from (the external review's #3): it
+The full catalog is a large surface for an LLM to choose from (the external review's #3): it
 hurts tool-selection accuracy and inflates context. This module:
 
   * groups every tool into a **capability pack** (core / logic / symbolic / numerical /
     frontier / observability);
   * lets a server expose only the packs a user wants via `MATHHEAD_PROFILE`
     (default `core` — the verification differentiator ~20 tools; `full` = everything);
-  * adds three always-present **triage tools** — `list_capabilities`, `describe_tool`,
-    `recommend_tool` — so an AI can discover what exists and pick the right tool (and
-    learn how to enable more) even from a small default profile.
+  * keeps three always-present **triage tools** — `list_capabilities`, `describe_tool`,
+    and the legacy exact-name-only `recommend_tool` compatibility surface — so an AI can
+    inspect what exists without treating prose similarity as routing authority.
 
 The full catalog is snapshotted at import (before any profile filtering), so the triage
 tools always describe every tool, including ones the current profile has hidden.
 """
 from __future__ import annotations
 
-import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -147,7 +146,7 @@ def _meta(t0: float) -> dict[str, Any]:
 
 
 def list_capabilities() -> CapabilitiesResult:
-    """The capability packs, each with its tool count and a sample — how to navigate 168 tools."""
+    """Return capability packs with live counts and samples for catalog navigation."""
     t0 = time.perf_counter()
     _ensure_catalog()
     by_pack: dict[str, list[str]] = {}
@@ -162,7 +161,8 @@ def list_capabilities() -> CapabilitiesResult:
         "ok", "CAPABILITIES",
         "Tools are grouped into capability packs. The default server profile exposes the `core` "
         "pack (verification); set MATHHEAD_PROFILE=full (or e.g. core,symbolic) to expose more. "
-        "Use describe_tool / recommend_tool to pick a tool.",
+        "Use list_capabilities to browse and describe_tool for exact tool metadata; "
+        "recommend_tool is retained only as a non-authoritative exact-name lookup.",
         packs, len(_CATALOG), _meta(t0))
 
 
@@ -174,38 +174,32 @@ def describe_tool(name: str) -> ToolInfoResult:
     info = _CATALOG.get(name)
     if info is None:
         return ToolInfoResult("error", "UNKNOWN_TOOL",
-                              f"no tool named {name!r}; try recommend_tool or list_capabilities.",
+                              f"no tool named {name!r}; use list_capabilities to browse.",
                               meta=_meta(t0))
     return ToolInfoResult("ok", "TOOL_INFO", f"{name}: {info['description']}",
                           {"name": name, **info}, _meta(t0))
 
 
 def recommend_tool(query: str, limit: int = 5) -> RecommendResult:
-    """Given a natural-language task, suggest the best-matching tools (name + why + how to enable).
-    A keyword-overlap heuristic over tool names and descriptions — a navigation aid, not a solver."""
+    """Retain the legacy surface as a non-authoritative exact-name lookup only."""
     t0 = time.perf_counter()
     _ensure_catalog()
     if not isinstance(query, str) or not query.strip():
         return RecommendResult("error", "GUARDRAIL_VIOLATION", "query must be a non-empty string",
                                meta=_meta(t0))
-    tokens = [w for w in re.split(r"[^a-z0-9]+", query.lower()) if len(w) > 2]
-    scored = []
-    for name, info in _CATALOG.items():
-        hay = (name + " " + info["description"]).lower()
-        score = sum(1 for w in set(tokens) if w in hay)
-        if name.lower() in query.lower():
-            score += 3
-        if score:
-            scored.append((score, name, info))
-    scored.sort(key=lambda s: (-s[0], s[1]))
-    recs = [{"tool": n, "pack": i["pack"], "stability": i["stability"],
-             "description": i["description"], "score": sc} for sc, n, i in scored[:max(1, limit)]]
-    if not recs:
-        return RecommendResult("unknown", "NO_MATCH",
-                               "No tool matched; call list_capabilities to browse the packs.",
+    del limit
+    name = query.strip()
+    info = _CATALOG.get(name)
+    if info is None:
+        return RecommendResult("unknown", "EXACT_NAME_NOT_FOUND",
+                               "No exact tool name matched; use list_capabilities to browse. "
+                               "Prose similarity is intentionally not a routing mechanism.",
                                meta=_meta(t0))
+    recs = [{"tool": name, "pack": info["pack"], "stability": info["stability"],
+             "description": info["description"], "score": 1}]
     return RecommendResult("ok", "RECOMMENDATIONS",
-                           f"{len(recs)} candidate tool(s) for {query!r} (best first).",
+                           "One exact-name compatibility result; this carries no typed "
+                           "eligibility, ranking, execution, or mathematical authority.",
                            recs, _meta(t0))
 
 

@@ -27,3 +27,11 @@ scratch/
 /discovery_report.html
 /kg_proof_axiom.html
 site/
+
+# Pinned Lean toolchain, dependency cache, and generated verification outputs
+/lean/.toolchain/
+/lean/.lake/
+/lean/.hermetic-home/
+/lean/.hermetic-lake-home/
+/lean/MathHead/Generated.lean
+/lean/MathHead/Generated.olean

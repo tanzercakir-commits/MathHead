@@ -42,7 +42,7 @@ def _count_compositions(n):
 
 
 def test_perm_true_bound_is_open_never_proved():
-    r = check("all perms of n: inversions <= n*(n-1)/2")           # a THEOREM — the scan cannot know
+    r = check("all perms of n: inversions <= n*(n-1)/2", max_n=7)  # a THEOREM — scan cannot know
     assert (r.structure, r.verdict, r.tier) == ("permutation_inequality", "open",
                                                 "no_counterexample_within_bound")
     assert "a finite scan never proves the universal claim" in r.notes

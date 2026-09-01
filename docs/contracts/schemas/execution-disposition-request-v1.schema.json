@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/execution-disposition-request-v1.schema.json",
+  "title": "MathHead Execution Disposition Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "invocation_id",
+    "planning_request_sha256",
+    "route_result_sha256",
+    "planning_result_sha256",
+    "base_parent_budget_sha256",
+    "descriptor_sha256s",
+    "binding_sha256s",
+    "artifact_bindings",
+    "cancellation_armed",
+    "cancellation_intent",
+    "invocation_sha256",
+    "request_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.execution-disposition-request.v1"
+    },
+    "contract_id": {
+      "const": "MH-C-EXECUTION-DISPOSITION-001"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "invocation_id": {
+      "$ref": "#/$defs/id"
+    },
+    "planning_request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "route_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "planning_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "base_parent_budget_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "descriptor_sha256s": {
+      "type": "array",
+      "maxItems": 10000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "binding_sha256s": {
+      "type": "array",
+      "maxItems": 100000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "artifact_bindings": {
+      "type": "array",
+      "maxItems": 200000,
+      "items": {
+        "$ref": "#/$defs/artifact_binding"
+      }
+    },
+    "cancellation_armed": {
+      "type": "boolean"
+    },
+    "cancellation_intent": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "cancellation-intent-v1.schema.json"
+        }
+      ]
+    },
+    "invocation_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "cancellation_armed": {
+              "const": false
+            },
+            "cancellation_intent": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "base_parent_budget_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "cancellation_armed": {
+              "const": true
+            },
+            "cancellation_intent": {
+              "$ref": "cancellation-intent-v1.schema.json"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,254}$",
+      "maxLength": 255
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "sha256",
+        "byte_count"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,254}$",
+          "maxLength": 255
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byte_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1073741824
+        }
+      }
+    }
+  }
+}

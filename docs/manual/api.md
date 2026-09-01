@@ -2,16 +2,21 @@
 
 ## The single door
 
+<!-- mathhead-non-executable: api-single-door | typed API signature synopsis rather than executable Python -->
 ```python
 from mathhead.discovery import check
-check(statement: str, max_n: int = 7) -> CheckResult
+check(statement: str, max_n: int = 6) -> CheckResult
 ```
-`CheckResult`: `verdict` (proved/refuted/open/unsupported) · `tier` · `witness` · `checked_up_to` ·
+`CheckResult`: `verdict` (proved/refuted/open/unsupported/error) · `tier` · `witness` · `checked_up_to` ·
 `proof_hash` · `instruments` · `notes` · `readings` — the candidate quantifier readings, each an
 entry `{label, statement_formal, assumption_delta, verdict, tier, witness_summary}`. On graph
 bounds: the three domain readings (A connected — the main verdict itself / B all graphs / C fixed
 order `n = max_n`) with formalize's own honest tiers; empty (with the note saying why) when
-`max_n` is outside the formalization wall `2..7`. On modular/congruence statements: the two
+`max_n` is outside the accepted formalization wall `2..8`. Graph searches use an explicit plan:
+the dependency-minimal pure backend supports orders through 6 with at most 2,000 generated
+objects; orders 7–8 require nauty and a 20,000-object budget. Anything outside the selected
+budget is `unsupported` before generation and is never silently clamped. On
+modular/congruence statements: the two
 quantifier readings (∀ every n — the main verdict itself / ∃ at least one n, decided from the
 same finite residue table — never `open`; an ∃-proof carries the witness n and the solution set
 as residue classes, e.g. `n ≡ 0, ±1 (mod 5)`, at `exact_integer_certificate`). Empty for every
@@ -35,6 +40,7 @@ counts are not yet in the surface — `unsupported` says so. Route-wide guard: a
 
 ## CLI
 
+<!-- mathhead-non-executable: api-cli-grammar | command grammar synopsis rather than a runnable invocation -->
 ```text
 mathhead-discover check STATEMENT [--max-n N] [--json]
 mathhead-discover bracket S T --lo N --hi M [--strengthen]
@@ -42,10 +48,10 @@ mathhead-discover hunt frankl [--universe M] [--steps K] [--seed S]
 mathhead-discover report [--max-n N]
 ```
 
-`check` exit codes: **0** when the engine answered (`proved` / `refuted` / `open`), **3** when
-the verdict is `unsupported` — an honest refusal is non-zero so a script can never mistake it
-for an answer (usage errors exit 2, as usual for argparse). The printed envelope is the same
-either way. A global `--stats` flag prints a local JSON metrics block (durations, verdict
+`check` exit codes: **0** when the engine answered (`proved` / `refuted` / `open`), **1** for an
+execution `error`, and **3** when the verdict is `unsupported` — an honest refusal is non-zero
+so a script can never mistake it for an answer (usage errors exit 2, as usual for argparse).
+The printed envelope is the same either way. A global `--stats` flag prints a local JSON metrics block (durations, verdict
 distribution, solver-call counts) to **stderr**; stdout keeps its documented contract and no
 metrics ever leave the machine.
 
@@ -53,6 +59,7 @@ metrics ever leave the machine.
 
 Problem structure → instruments (each pointer is import-tested against the codebase):
 
+<!-- mathhead-example: api-technique-map -->
 ```python
 from mathhead.discovery import suggest_techniques
 suggest_techniques("6 divides n^3 - n")

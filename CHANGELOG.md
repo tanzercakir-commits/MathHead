@@ -4,7 +4,49 @@ All notable changes are kept here. Versioning follows [SemVer](https://semver.or
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-08-12
+
 ### Added
+- `mathhead.kernel.provenance` now replays closed, content-addressed proof and SAT bundles from
+  canonical manifests. Full SHA-256 identities bind every artifact, dependency edge, checker
+  contract, checker source, configuration, and recorded result before fresh verification.
+- `mathhead.provenance_store` provides an atomic, non-authoritative filesystem adapter with
+  objects-before-manifest publication and fail-closed checks for partial state, links, writable
+  files, digest drift, and unexpected paths.
+- `MH-C-PROVENANCE-REPLAY-001`, closed manifest/result schemas, a dependency-closure validator,
+  and adversarial replay/store tests define the whole-run provenance boundary.
+
+### Changed
+- Discovery provenance retains the historical 16-hex `proof_hash()` compatibility identifier and
+  adds `proof_sha256()`, which adapts legacy proof terms into the canonical kernel representation
+  before computing a full SHA-256 identity.
+
+## [1.4.0] — 2026-08-12
+
+### Added
+- `mathhead.kernel.sat` now provides one dependency-minimal, versioned checker for exact
+  canonical SAT assignments and RUP-only DRUP refutations. Immutable replay results bind the
+  CNF, certificate, checker, accepted contract, deterministic counters, and canonical result
+  bytes by full SHA-256 identities.
+- `MH-C-SAT-REPLAY-001`, a closed Draft 2020-12 result schema, strict ASCII/LF CNF and
+  certificate grammars, deterministic resource ceilings, adversarial tests, and a measured
+  one-module/five-root checker closure define the public boundary.
+
+### Changed
+- `mathhead.drat` and `mathhead.discovery.rup_check` are compatibility adapters to the single
+  kernel replay implementation. PySAT, DPLL, Ramsey encoders, clocks, and other producers remain
+  outside the authoritative closure.
+- DRUP and DRAT are no longer conflated: the supported RUP-only fragment replays independently;
+  DRAT/RAT and unknown versions fail closed as unsupported.
+
+## [1.3.0] — 2026-08-12
+
+### Added
+- Kernel checker results now expose deterministic, immutable arithmetic evidence for residue,
+  Chinese-remainder, sum-induction, and polynomial-identity proofs. Canonical v2 result bytes bind
+  that evidence by SHA-256 and fail closed on omitted, forged, stale, or legacy-v1 payloads.
+- `MH-C-KERNEL-CHECKER-002`, its closed result schema, trust-base inventory, validator, and
+  adversarial regression suite define and enforce the new public evidence boundary.
 - Readings wave 2 — the ∀/∃ quantifier ambiguity of modular/congruence statements: on
   `m | p(n)` and `p(n) ≡ q(n) (mod m)` the envelope now also carries `readings` — the ∀ reading
   (the main envelope itself, byte-identical to before) and the ∃ reading, DECIDED from the same

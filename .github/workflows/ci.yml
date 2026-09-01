@@ -6,28 +6,25 @@ on:
     branches: [ main ]
 
 jobs:
-  # Tracker integrity — fast early signal that the frozen PLAN (103 phases / 21 tracks) is intact
-  # and SAMPLE-REPORT.md is in sync with the engine. Full enforcement is in tests/test_trackers.py.
+  # Fast governance signal. Profile semantics remain owned by tools/dev_profiles.json.
   trackers:
     name: tracker integrity (plan preserved + sample fresh)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install (core + dev)
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Bootstrap core profile
+        run: python tools/dev.py bootstrap --profile core --current
       - name: Check trackers (plan not shrunk; sample fresh)
-        run: python scripts/gen_status.py --check
+        run: python tools/dev.py run --profile core --command tracker-integrity
 
-  # Cross-platform / cross-Python matrix — CORE + dev only (no optional solvers,
-  # which have no Windows/macOS wheels). Proves the engine installs and passes
-  # everywhere the project claims to support (Python 3.10–3.12 × 3 OSes).
+  # The portable dependency-minimal product surface: 3 operating systems x 3 Pythons.
   test:
-    name: test (py${{ matrix.python }} · ${{ matrix.os }})
+    name: core (py${{ matrix.python }} · ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -35,71 +32,198 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - name: Install (core + dev)
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Lint (ruff)
-        run: ruff check .
-      - name: Test
-        run: pytest -q
+      - name: Bootstrap core profile
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Check portable core profile
+        run: python tools/dev.py check --profile core
 
-  # Linux job WITH the optional high-performance backend — exercises the J3 pysat
-  # path (skipped elsewhere) and enforces the coverage gate on the full surface.
-  test-solvers:
-    name: test + optional solvers + coverage (ubuntu · py3.11)
+  test-discovery:
+    name: discovery (ubuntu · py3.11)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install (dev + solvers)
-        run: |
-          sudo apt-get update && sudo apt-get install -y nauty   # v2A4 scale generator (geng)
-          python -m pip install --upgrade pip
-          pip install -e ".[dev,solvers]"
-      - name: Test with coverage gate
-        run: pytest -q --cov=mathhead --cov-report=term-missing
+      - name: Bootstrap discovery profile
+        run: python tools/dev.py bootstrap --profile discovery --current
+      - name: Check dependency-minimal discovery profile
+        run: python tools/dev.py check --profile discovery
 
-  # Reproducibility check — install the exact tested backend set (constraints.txt).
+  test-docs:
+    name: docs examples + strict build (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Bootstrap docs profile
+        run: python tools/dev.py bootstrap --profile docs --current
+      - name: Check executable docs and strict build
+        run: python tools/dev.py check --profile docs
+
+  test-live-mcp:
+    name: live MCP (py${{ matrix.python }} · ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Bootstrap live MCP profile
+        run: python tools/dev.py bootstrap --profile live-mcp --current
+      - name: Check real subprocess-stdio MCP profile
+        run: python tools/dev.py check --profile live-mcp
+
+  test-solvers:
+    name: solver (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the system scale generator
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap solver profile
+        run: python tools/dev.py bootstrap --profile solver --current
+      - name: Check bounded solver profile
+        run: python tools/dev.py check --profile solver
+
+  test-lean:
+    name: pinned Lean 4.33 external verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Bootstrap the dependency-minimal Python boundary
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Download and verify the exact Lean release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/lean-4.33.0-linux.tar.zst"
+          curl --fail --location --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.33.0/lean-4.33.0-linux.tar.zst \
+            --output "$archive"
+          test "$(wc -c < "$archive")" -eq 574882764
+          echo "4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c  $archive" \
+            | sha256sum --check --strict
+          mkdir -p lean/.toolchain
+          tar --zstd --extract --file "$archive" --directory lean/.toolchain \
+            --strip-components=1
+          echo "60330ab6f07dce20f3fa9ebb08e8b984ea9549eac172afeb15d9d2227060e2b3  lean/.toolchain/bin/lake" \
+            | sha256sum --check --strict
+          echo "e8baaa71855a616dc351028f3ad2200051b0671f423a1696a100e809302d5550  lean/.toolchain/bin/lean" \
+            | sha256sum --check --strict
+          chmod a-w lean/.toolchain/bin/lake lean/.toolchain/bin/lean
+          rm -- "$archive"
+      - name: Acquire the exact locked dependency tree and mathlib cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_lakefile="$RUNNER_TEMP/runtime-lakefile.toml"
+          runtime_manifest="$RUNNER_TEMP/runtime-lake-manifest.json"
+          cp lean/lakefile.toml "$runtime_lakefile"
+          cp lean/lake-manifest.json "$runtime_manifest"
+          cp lean/acquisition-lakefile.toml lean/lakefile.toml
+          cp lean/acquisition-lake-manifest.json lean/lake-manifest.json
+          export PATH="$PWD/lean/.toolchain/bin:$PATH"
+          lean/.toolchain/bin/lake --version
+          (cd lean && ../lean/.toolchain/bin/lake exe cache get)
+          cp "$runtime_lakefile" lean/lakefile.toml
+          cp "$runtime_manifest" lean/lake-manifest.json
+          git diff --exit-code -- lean/lakefile.toml lean/lake-manifest.json
+      - name: Check the contract, adversarial unit suite, and four live rules
+        run: |
+          python tools/contract_artifacts.py verify \
+            --contract MH-C-LEAN-VERIFICATION-001 --require-bound
+          python -m unittest discover -s tests/lean_verification -v
+          python tools/validate_lean_verification.py --require-live
+
+  test-slow:
+    name: explicitly slow (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the system scale generator
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap slow profile
+        run: python tools/dev.py bootstrap --profile slow --current
+      - name: Check explicitly marked slow profile
+        run: python tools/dev.py check --profile slow
+
+  coverage:
+    name: coverage ≥85% (ubuntu · py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the declared slow-profile system capability
+        run: sudo apt-get update && sudo apt-get install -y nauty
+      - name: Bootstrap coverage owner profile
+        run: python tools/dev.py bootstrap --profile slow --current
+      - name: Run the required bounded coverage gate
+        run: python tools/dev.py run --profile slow --command coverage-gate
+
   reproducible:
     name: reproducible install (constraints.txt)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Install pinned + test
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev,solvers]" -c constraints.txt
-          pytest -q
+      - name: Bootstrap the constrained core profile
+        run: python tools/dev.py bootstrap --profile core --current
+      - name: Check the constrained core profile
+        run: python tools/dev.py check --profile core
 
-  # Package build + install-from-wheel + CLI/MCP smoke (the real product surface).
   build:
     name: build + install-from-wheel + smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Build wheel + sdist and validate metadata
-        run: |
-          python -m pip install --upgrade pip build twine
-          python -m build
-          twine check dist/*
-      - name: Install from the built wheel (clean venv) + smoke
-        run: |
-          python -m venv /tmp/smoke
-          /tmp/smoke/bin/pip install --upgrade pip
-          /tmp/smoke/bin/pip install dist/*.whl
-          /tmp/smoke/bin/mathhead --version
-          /tmp/smoke/bin/mathhead entail -p "p" -p "implies(p, q)" -c "q"
-          /tmp/smoke/bin/python -c "import asyncio; from mathhead.server.mcp_server import mcp; n=len(asyncio.run(mcp.list_tools())); print('MCP tools:', n); assert n >= 160"
+      - name: Build, validate, install, and smoke the wheel
+        run: python tools/dev.py clean-smoke --profile release

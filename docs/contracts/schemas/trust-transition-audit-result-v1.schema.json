@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/trust-transition-audit-result-v1.schema.json",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tier": {
+      "enum": [
+        "none",
+        "producer_report",
+        "solver_verdict",
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "attempt_sha256",
+    "bindings_satisfied",
+    "decision",
+    "diagnostics",
+    "edge_allowed",
+    "effective_tier",
+    "freshness_satisfied",
+    "independence_satisfied",
+    "issuer_allowed",
+    "mathematical_authority",
+    "reason",
+    "schema",
+    "status_satisfied",
+    "transition_id"
+  ],
+  "properties": {
+    "attempt_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "bindings_satisfied": {
+      "type": "boolean"
+    },
+    "decision": {
+      "enum": ["allowed", "downgraded", "rejected"]
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+      }
+    },
+    "edge_allowed": {
+      "type": "boolean"
+    },
+    "effective_tier": {
+      "$ref": "#/$defs/tier"
+    },
+    "freshness_satisfied": {
+      "type": "boolean"
+    },
+    "independence_satisfied": {
+      "type": "boolean"
+    },
+    "issuer_allowed": {
+      "type": "boolean"
+    },
+    "mathematical_authority": {
+      "const": false
+    },
+    "reason": {
+      "enum": [
+        "ALLOWED",
+        "ARTIFACT_MISMATCH",
+        "BUDGET_INCOMPLETE",
+        "CATALOGUE_INVALID",
+        "DOWNGRADED",
+        "EVIDENCE_INCOMPLETE",
+        "FRESHNESS_REQUIRED",
+        "INDEPENDENCE_REQUIRED",
+        "ISSUER_FORBIDDEN",
+        "MALFORMED_ATTEMPT",
+        "STATUS_FORBIDDEN",
+        "TIER_CLAIM_MISMATCH",
+        "TRANSITION_FORBIDDEN",
+        "TRANSITION_UNKNOWN"
+      ]
+    },
+    "schema": {
+      "const": "mathhead.trust-transition-audit-result.v1"
+    },
+    "status_satisfied": {
+      "type": "boolean"
+    },
+    "transition_id": {
+      "type": "string",
+      "pattern": "^transition\\.[a-z][a-z0-9_.-]{0,95}$"
+    }
+  }
+}

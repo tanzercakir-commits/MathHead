@@ -1,0 +1,62 @@
+schema = 1
+programme = "MH-RECONSTRUCTION-V1"
+authority = "accepted-reconstruction-decisions"
+append_only = true
+supersession_policy = "new-adr-required"
+required_topics = [
+  "preserve-rebuild-boundary",
+  "package-ownership",
+  "migration-strategy",
+  "compatibility-policy",
+  "trust-terminology",
+]
+
+[[adrs]]
+id = "MH-ADR-0001"
+title = "Controlled reconstruction boundary"
+path = "docs/reconstruction/adrs/0001-controlled-reconstruction-boundary.md"
+status = "accepted"
+accepted_on = "2026-08-11"
+topics = ["preserve-rebuild-boundary"]
+sha256 = "7ec1b65ac19535ce7e0181a29abd5dba91cb0bf7233e88af16615082031f3468"
+supersedes = []
+
+[[adrs]]
+id = "MH-ADR-0002"
+title = "Package ownership and dependency direction"
+path = "docs/reconstruction/adrs/0002-package-ownership-and-dependencies.md"
+status = "accepted"
+accepted_on = "2026-08-11"
+topics = ["package-ownership"]
+sha256 = "f05afff38be5ae240d556e0d0ac9261b53056d0af171a8c339a9eef6c6149d20"
+supersedes = []
+
+[[adrs]]
+id = "MH-ADR-0003"
+title = "Verified vertical-slice migration"
+path = "docs/reconstruction/adrs/0003-verified-vertical-slice-migration.md"
+status = "accepted"
+accepted_on = "2026-08-11"
+topics = ["migration-strategy"]
+sha256 = "0f602cfe545ea34c7a35b8153b1645a5b35ea819ba2aa4d3718d27e86618c44c"
+supersedes = []
+
+[[adrs]]
+id = "MH-ADR-0004"
+title = "Compatibility and deprecation policy"
+path = "docs/reconstruction/adrs/0004-compatibility-and-deprecation.md"
+status = "accepted"
+accepted_on = "2026-08-11"
+topics = ["compatibility-policy"]
+sha256 = "da4295023849d330bb627ab75717dec5f1e5e68448ad536d2be61c567906d0e3"
+supersedes = []
+
+[[adrs]]
+id = "MH-ADR-0005"
+title = "Trust-base and evidence language"
+path = "docs/reconstruction/adrs/0005-trust-base-and-evidence-language.md"
+status = "accepted"
+accepted_on = "2026-08-11"
+topics = ["trust-terminology"]
+sha256 = "734a739a41f0769eacc1c435d22944a3905b41bd7e3e1b5740e32ec383009061"
+supersedes = []

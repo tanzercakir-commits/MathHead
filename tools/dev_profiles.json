@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "contract_id": "MH-C-ENV-003",
+  "contract_sha256": "2093a5cd06ad373d2f7a89d0cc9953eea53a344c2702a2e97efc80c9467e35b8",
+  "constraints": "constraints.txt",
+  "bootstrap_pip": "pip==26.2.1",
+  "profiles": {
+    "status": {
+      "purpose": "Dependency-free reconstruction governance and contract validation.",
+      "python": ["3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 300,
+      "install": [],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "project-status-tests",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "-m", "unittest", "discover", "-s", "tests/project_status", "-v"]
+        },
+        {
+          "id": "project-status-check",
+          "required": true,
+          "timeout_seconds": 300,
+          "argv": ["{python}", "tools/project_status.py", "check"]
+        }
+      ]
+    },
+    "runtime": {
+      "purpose": "Installed base package without development or solver extras.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 180,
+      "install": ["."],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "runtime-import",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "-c", "import mathhead; print(mathhead.__version__)"]
+        },
+        {
+          "id": "runtime-dependencies",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "-m", "pip", "check"]
+        }
+      ]
+    },
+    "core": {
+      "purpose": "Portable dependency-minimal tests excluding solver, discovery, docs, live-MCP, and slow ownership.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 600,
+      "install": [".[dev]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "ruff",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "-m", "ruff", "check", "."]
+        },
+        {
+          "id": "core-tests",
+          "required": true,
+          "timeout_seconds": 480,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "not requires_solver and not discovery and not docs and not live_mcp and not slow"]
+        },
+        {
+          "id": "core-import-boundary",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "-c", "import mathhead, sys; assert not any(name == 'pysat' or name.startswith('pysat.') for name in sys.modules); print(mathhead.__version__)"]
+        },
+        {
+          "id": "optional-dependency-contract",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "core"]
+        },
+        {
+          "id": "legacy-compat-replay",
+          "required": true,
+          "timeout_seconds": 90,
+          "argv": ["{python}", "tools/legacy_compat.py", "--check"]
+        },
+        {
+          "id": "tracker-integrity",
+          "required": false,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "scripts/gen_status.py", "--check"]
+        }
+      ]
+    },
+    "solver": {
+      "purpose": "Linux SAT and nauty capability tests excluding explicitly slow cases.",
+      "python": ["3.10", "3.11", "3.12", "3.13"],
+      "platforms": ["linux"],
+      "timeout_seconds": 600,
+      "install": [".[dev,solvers]"],
+      "required_executables": ["nauty-geng|geng"],
+      "commands": [
+        {
+          "id": "solver-capabilities",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_optional_dependencies.py", "--profile", "solver"]
+        },
+        {
+          "id": "graph-budget-fast-backend",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "-m", "pytest", "-q", "tests/graph_budget/test_fast_backend.py"]
+        },
+        {
+          "id": "solver-tests",
+          "required": true,
+          "timeout_seconds": 480,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "requires_solver and not slow"]
+        }
+      ]
+    },
+    "discovery": {
+      "purpose": "Dependency-minimal discovery and graph-budget tests without solver or slow cases.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 600,
+      "install": [".[dev]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "discovery-tests",
+          "required": true,
+          "timeout_seconds": 540,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "discovery and not requires_solver and not slow"]
+        },
+        {
+          "id": "graph-budget-contract",
+          "required": true,
+          "timeout_seconds": 60,
+          "argv": ["{python}", "tools/validate_graph_budget.py"]
+        }
+      ]
+    },
+    "docs": {
+      "purpose": "Pinned documentation toolchain, executable examples, and strict site build.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 300,
+      "install": [".[dev,docs]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "project-metadata-contract",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "tools/validate_project_metadata.py"]
+        },
+        {
+          "id": "project-facts-check",
+          "required": true,
+          "timeout_seconds": 120,
+          "argv": ["{python}", "tools/project_facts.py", "--check"]
+        },
+        {
+          "id": "docs-examples",
+          "required": true,
+          "timeout_seconds": 180,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "docs and not requires_solver and not slow"]
+        },
+        {
+          "id": "docs-strict-build",
+          "required": true,
+          "timeout_seconds": 300,
+          "argv": ["{python}", "-m", "mkdocs", "build", "--strict", "-q", "-d", "{temp}/site"]
+        }
+      ]
+    },
+    "live-mcp": {
+      "purpose": "Real installed subprocess-stdio MCP tests on the supported product matrix.",
+      "python": ["3.10", "3.11", "3.12"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 180,
+      "install": [".[dev]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "live-mcp-tests",
+          "required": true,
+          "timeout_seconds": 180,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "live_mcp and not requires_solver and not slow"]
+        }
+      ]
+    },
+    "slow": {
+      "purpose": "Explicitly marked expensive Linux tests plus the separately invoked coverage gate.",
+      "python": ["3.10", "3.11", "3.12", "3.13"],
+      "platforms": ["linux"],
+      "timeout_seconds": 1200,
+      "install": [".[dev,solvers]"],
+      "required_executables": ["nauty-geng|geng"],
+      "commands": [
+        {
+          "id": "slow-tests",
+          "required": true,
+          "timeout_seconds": 1200,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "slow"]
+        },
+        {
+          "id": "coverage-gate",
+          "required": false,
+          "timeout_seconds": 900,
+          "argv": ["{python}", "-m", "pytest", "-q", "-m", "not requires_solver and not live_mcp and not slow", "--cov=mathhead", "--cov-report=term-missing", "--cov-fail-under=85"]
+        }
+      ]
+    },
+    "release": {
+      "purpose": "Pinned build tooling, clean wheel installation, and product smoke checks.",
+      "python": ["3.10", "3.11", "3.12", "3.13", "3.14"],
+      "platforms": ["linux", "windows", "darwin"],
+      "timeout_seconds": 900,
+      "install": [".[release]"],
+      "required_executables": [],
+      "commands": [
+        {
+          "id": "release-tooling",
+          "required": true,
+          "timeout_seconds": 30,
+          "argv": ["{python}", "-c", "import build, twine; print(build.__version__); print(twine.__version__)"]
+        }
+      ]
+    }
+  }
+}

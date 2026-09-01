@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/capability-availability-v1.schema.json",
+  "title": "MathHead Capability Availability v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "platform", "python_version", "extension_ids", "available_descriptor_sha256s", "allowed_effects", "replay_modes", "availability_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.capability-availability.v1"},
+    "platform": {"enum": ["linux", "macos", "windows"]},
+    "python_version": {"type": "string", "pattern": "^3\\.(?:10|11|12|13|14)$"},
+    "extension_ids": {"$ref": "#/$defs/namespaced_set"},
+    "available_descriptor_sha256s": {"$ref": "#/$defs/sha_set"},
+    "allowed_effects": {"type": "array", "maxItems": 5, "uniqueItems": true, "items": {"enum": ["environment", "filesystem", "network", "process", "solver"]}},
+    "replay_modes": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["deterministic", "seeded", "recorded"]}},
+    "availability_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha_set": {"type": "array", "maxItems": 10000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"},
+    "namespaced_set": {"type": "array", "maxItems": 100000, "uniqueItems": true, "items": {"$ref": "#/$defs/namespaced"}}
+  }
+}

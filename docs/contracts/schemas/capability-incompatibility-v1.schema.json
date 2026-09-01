@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/capability-incompatibility-v1.schema.json",
+  "title": "MathHead Capability Incompatibility v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "descriptor_sha256", "plugin_id", "plugin_version", "capability_id", "capability_kind", "operation", "reason_codes", "incompatibility_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.capability-incompatibility.v1"}, "descriptor_sha256": {"$ref": "#/$defs/sha256"}, "plugin_id": {"$ref": "#/$defs/namespaced"}, "plugin_version": {"$ref": "#/$defs/semver"}, "capability_id": {"$ref": "#/$defs/id"}, "capability_kind": {"enum": ["construction", "decision", "explanation", "verification"]}, "operation": {"enum": ["plan_cost", "solve", "check", "explain"]},
+    "reason_codes": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"enum": ["AMBIGUITY_UNSUPPORTED", "ARITHMETIC_MISMATCH", "CAPABILITY_KIND_MISMATCH", "CERTIFICATE_FORMAT_MISMATCH", "DEPENDENCY_UNAVAILABLE", "DOMAIN_MISMATCH", "EFFECT_FORBIDDEN", "EVIDENCE_FORMAT_MISMATCH", "EXPRESSION_KIND_MISMATCH", "EXTENSION_UNAVAILABLE", "FEATURE_FORBIDDEN", "FEATURE_REQUIRED", "LIMIT_EXCEEDED", "LIFECYCLE_UNAVAILABLE", "OPERATION_MISMATCH", "PLATFORM_UNAVAILABLE", "PYTHON_VERSION_UNAVAILABLE", "QUANTIFIER_MISMATCH", "RELATION_KIND_MISMATCH", "REPLAY_MODE_UNAVAILABLE", "THEORY_MISMATCH"]}},
+    "incompatibility_sha256": {"$ref": "#/$defs/sha256"}, "mathematical_authority": {"const": false}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$"}, "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"}, "semver": {"type": "string", "minLength": 5, "maxLength": 64, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"}}
+}

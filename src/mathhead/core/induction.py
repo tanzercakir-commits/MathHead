@@ -37,6 +37,7 @@ import z3
 
 from mathhead.core.logic import DEFAULT_SEED, DEFAULT_TIMEOUT_MS
 from mathhead.guardrails import GuardrailError, solver_config, validate_input
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
 
 _MAX_EXPONENT = 12  # cap ** expansion so a request cannot blow up the encoding
 
@@ -145,9 +146,9 @@ def _parse_claim(claim: str, var: str, k: Any) -> Any:
     if not isinstance(claim, str) or not claim.strip():
         raise InductionParseError("claim must be a non-empty string")
     try:
-        tree = ast.parse(claim, mode="eval")
-    except SyntaxError as exc:
-        raise InductionParseError(f"syntax error: {exc.msg}") from exc
+        tree = parse_expression(claim)
+    except ExpressionSyntaxError as exc:
+        raise InductionParseError(f"syntax error: {exc}") from exc
     try:
         expr = _build(tree.body, var, k)
     except z3.Z3Exception as exc:

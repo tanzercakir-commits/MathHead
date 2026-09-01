@@ -36,6 +36,7 @@ import z3
 
 from mathhead.core.logic import DEFAULT_SEED, DEFAULT_TIMEOUT_MS
 from mathhead.guardrails import GuardrailError, solver_config, validate_input
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
 
 _RESERVED = {"box", "dia", "implies", "iff"}
 _MAX_WORLDS = 12  # transitivity is O(W^3); keep the encoding tractable
@@ -120,9 +121,9 @@ def check_modal(
         return ModalResult("error", "GUARDRAIL_VIOLATION", str(exc), system=system,
                            meta=_meta(t0, seed, timeout_ms))
     try:
-        node = ast.parse(formula, mode="eval").body
-    except SyntaxError as exc:
-        return ModalResult("error", "PARSE_ERROR", f"syntax error: {exc.msg}", system=system,
+        node = parse_expression(formula).body
+    except ExpressionSyntaxError as exc:
+        return ModalResult("error", "PARSE_ERROR", f"syntax error: {exc}", system=system,
                            meta=_meta(t0, seed, timeout_ms))
 
     atoms = sorted(_atoms(node))

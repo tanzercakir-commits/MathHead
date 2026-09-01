@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "nullableSha256": {
+      "oneOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stats": {
+      "additionalProperties": false,
+      "properties": {
+        "additions": {
+          "maximum": 2000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "assignments": {
+          "maximum": 500000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "certificate_bytes": {
+          "maximum": 67108864,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "certificate_records": {
+          "maximum": 2000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "clauses": {
+          "maximum": 2000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "cnf_bytes": {
+          "maximum": 67108864,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "deletions": {
+          "maximum": 2000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "literals": {
+          "maximum": 16000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "logical_steps": {
+          "maximum": 1000000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_clause_width": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "propagations": {
+          "maximum": 500000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variables": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "visits": {
+          "maximum": 500000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "watch_occurrences": {
+          "maximum": 4000000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "additions",
+        "assignments",
+        "certificate_bytes",
+        "certificate_records",
+        "clauses",
+        "cnf_bytes",
+        "deletions",
+        "literals",
+        "logical_steps",
+        "max_clause_width",
+        "propagations",
+        "variables",
+        "visits",
+        "watch_occurrences"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://mathhead.dev/schemas/sat-replay-result-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "result": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "checker_attestation"
+              },
+              "certificate_format": {
+                "enum": [
+                  "sat-assignment-v1",
+                  "drup-v1"
+                ]
+              },
+              "certificate_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "claim": {
+                "enum": [
+                  "sat",
+                  "unsat"
+                ]
+              },
+              "cnf_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "reason_code": {
+                "enum": [
+                  "SAT_VERIFIED",
+                  "UNSAT_VERIFIED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "enum": [
+                  "exhausted",
+                  "invalid",
+                  "refuted",
+                  "unsupported"
+                ]
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "none"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "authority": {
+          "enum": [
+            "checker_attestation",
+            "none"
+          ]
+        },
+        "certificate_format": {
+          "enum": [
+            "drat-v1",
+            "drup-v1",
+            "sat-assignment-v1",
+            "unknown",
+            null
+          ]
+        },
+        "certificate_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "checker": {
+          "additionalProperties": false,
+          "properties": {
+            "checker_id": {
+              "const": "mathhead.kernel.sat-replay.v1"
+            },
+            "contract_id": {
+              "const": "MH-C-SAT-REPLAY-001"
+            },
+            "contract_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "checker_id",
+            "contract_id",
+            "contract_sha256"
+          ],
+          "type": "object"
+        },
+        "claim": {
+          "enum": [
+            "sat",
+            "unsat",
+            null
+          ]
+        },
+        "cnf_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "diagnostic": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "exact": {
+          "const": true
+        },
+        "reason_code": {
+          "enum": [
+            "BUDGET_EXHAUSTED",
+            "CERTIFICATE_INVALID",
+            "CLAIM_REFUTED",
+            "CNF_INVALID",
+            "FORMAT_UNSUPPORTED",
+            "INPUT_TYPE_INVALID",
+            "SAT_VERIFIED",
+            "UNSAT_VERIFIED"
+          ]
+        },
+        "stats": {
+          "$ref": "#/$defs/stats"
+        },
+        "verdict": {
+          "enum": [
+            "exhausted",
+            "invalid",
+            "refuted",
+            "unsupported",
+            "verified"
+          ]
+        }
+      },
+      "required": [
+        "authority",
+        "certificate_format",
+        "certificate_sha256",
+        "checker",
+        "claim",
+        "cnf_sha256",
+        "diagnostic",
+        "exact",
+        "reason_code",
+        "stats",
+        "verdict"
+      ],
+      "type": "object"
+    },
+    "result_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema": {
+      "const": "mathhead.sat-replay-result.v1"
+    }
+  },
+  "required": [
+    "result",
+    "result_sha256",
+    "schema"
+  ],
+  "type": "object"
+}

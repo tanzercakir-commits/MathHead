@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/proof-obligation-graph-v1.schema.json",
+  "title": "MathHead per-reading proof-obligation graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "reading_id": {"$ref": "#/$defs/id"},
+    "projection_sha256": {"$ref": "#/$defs/sha256"},
+    "normalized_context_sha256": {"$ref": "#/$defs/sha256"},
+    "decomposition_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "strategy_catalogue_sha256": {"$ref": "#/$defs/sha256"},
+    "goal_ids": {"$ref": "#/$defs/id_array"},
+    "root_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+    "obligations": {"type": "array", "minItems": 1, "maxItems": 800000, "items": {"$ref": "proof-obligation-v1.schema.json"}},
+    "obligation_sha256s": {"type": "array", "minItems": 1, "maxItems": 800000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "local_contexts": {
+      "type": "array", "minItems": 1, "maxItems": 800000, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "local_context_sha256": {"$ref": "#/$defs/sha256"},
+          "context": {"$ref": "proof-obligation-local-context-v1.schema.json"}
+        },
+        "required": ["local_context_sha256", "context"]
+      }
+    },
+    "edges": {
+      "type": "array", "maxItems": 1600000, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "ordinal": {"type": "integer", "minimum": 0, "maximum": 1600000},
+          "from_obligation_id": {"$ref": "#/$defs/obligation_id"},
+          "to_obligation_id": {"$ref": "#/$defs/obligation_id"},
+          "kind": {"enum": ["child", "prerequisite"]}
+        },
+        "required": ["ordinal", "from_obligation_id", "to_obligation_id", "kind"]
+      }
+    },
+    "unsupported_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+    "choice_required_obligation_ids": {"$ref": "#/$defs/obligation_id_array"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": ["reading_id", "projection_sha256", "normalized_context_sha256", "decomposition_catalogue_sha256", "strategy_catalogue_sha256", "goal_ids", "root_obligation_ids", "obligations", "obligation_sha256s", "local_contexts", "edges", "unsupported_obligation_ids", "choice_required_obligation_ids", "mathematical_authority"],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "obligation_id": {"type": "string", "pattern": "^obligation_[0-9]{6}$"},
+    "id_array": {"type": "array", "maxItems": 1200000, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "obligation_id_array": {"type": "array", "maxItems": 800000, "uniqueItems": true, "items": {"$ref": "#/$defs/obligation_id"}}
+  }
+}

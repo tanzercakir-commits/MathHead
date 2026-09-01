@@ -1,0 +1,909 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/safe-cache-store-result-v2.schema.json",
+  "title": "MathHead Safe Cache Store Result v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "operation",
+    "status",
+    "reason_code",
+    "lookup_key_sha256",
+    "entry_sha256",
+    "audit_manifest_sha256",
+    "record_sha256",
+    "historical_authority_tier",
+    "result_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.safe-cache-store-result.v2"
+    },
+    "contract_id": {
+      "const": "MH-C-SAFE-CACHE-STORE-002"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "operation": {
+      "enum": [
+        "persist",
+        "lookup"
+      ]
+    },
+    "status": {
+      "enum": [
+        "stored",
+        "existing",
+        "hit",
+        "miss",
+        "ineligible",
+        "stale",
+        "corrupt",
+        "conflict",
+        "invalid",
+        "exhausted",
+        "unsupported",
+        "io_error"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "CACHE_ENTRY_STORED",
+        "CACHE_ENTRY_ALREADY_EXISTS",
+        "CACHE_HIT",
+        "CACHE_KEY_ABSENT",
+        "CACHE_RUN_INELIGIBLE",
+        "CACHE_ENTRY_STALE",
+        "CACHE_AUDIT_RUN_MISSING",
+        "CACHE_ENTRY_CORRUPT",
+        "CACHE_AUDIT_REPLAY_INVALID",
+        "CACHE_KEY_CONFLICT",
+        "CACHE_REQUEST_INVALID",
+        "CACHE_PATH_INVALID",
+        "CACHE_CANDIDATE_MISMATCH",
+        "CACHE_CURRENT_BUDGET_EXHAUSTED",
+        "CACHE_AUDIT_REPLAY_EXHAUSTED",
+        "CACHE_STORE_BUDGET_EXHAUSTED",
+        "CACHE_STORE_UNSUPPORTED",
+        "CACHE_AUDIT_STORE_UNSUPPORTED",
+        "CACHE_STORE_IO_ERROR",
+        "CACHE_AUDIT_STORE_IO_ERROR"
+      ]
+    },
+    "lookup_key_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "entry_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "audit_manifest_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "record_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "historical_authority_tier": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "checker_attestation",
+            "external_proof_assistant"
+          ]
+        }
+      ]
+    },
+    "result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "stored"
+            },
+            "reason_code": {
+              "const": "CACHE_ENTRY_STORED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "historical_authority_tier": {
+              "enum": [
+                "checker_attestation",
+                "external_proof_assistant"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "invalid"
+            },
+            "reason_code": {
+              "const": "CACHE_CANDIDATE_MISMATCH"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "existing"
+            },
+            "reason_code": {
+              "const": "CACHE_ENTRY_ALREADY_EXISTS"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "historical_authority_tier": {
+              "enum": [
+                "checker_attestation",
+                "external_proof_assistant"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "hit"
+            },
+            "reason_code": {
+              "const": "CACHE_HIT"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "historical_authority_tier": {
+              "enum": [
+                "checker_attestation",
+                "external_proof_assistant"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "miss"
+            },
+            "reason_code": {
+              "const": "CACHE_KEY_ABSENT"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_REPLAY_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_REPLAY_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "ineligible"
+            },
+            "reason_code": {
+              "const": "CACHE_RUN_INELIGIBLE"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "stale"
+            },
+            "reason_code": {
+              "const": "CACHE_ENTRY_STALE"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "corrupt"
+            },
+            "reason_code": {
+              "const": "CACHE_ENTRY_CORRUPT"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "corrupt"
+            },
+            "reason_code": {
+              "enum": [
+                "CACHE_AUDIT_RUN_MISSING",
+                "CACHE_AUDIT_REPLAY_INVALID"
+              ]
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "conflict"
+            },
+            "reason_code": {
+              "const": "CACHE_KEY_CONFLICT"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "invalid"
+            },
+            "reason_code": {
+              "enum": [
+                "CACHE_REQUEST_INVALID",
+                "CACHE_PATH_INVALID"
+              ]
+            },
+            "lookup_key_sha256": {
+              "type": "null"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "invalid"
+            },
+            "reason_code": {
+              "enum": [
+                "CACHE_REQUEST_INVALID",
+                "CACHE_PATH_INVALID"
+              ]
+            },
+            "lookup_key_sha256": {
+              "type": "null"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "invalid"
+            },
+            "reason_code": {
+              "enum": [
+                "CACHE_AUDIT_RUN_MISSING",
+                "CACHE_AUDIT_REPLAY_INVALID"
+              ]
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_CURRENT_BUDGET_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "type": "null"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_CURRENT_BUDGET_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "type": "null"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_BUDGET_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "exhausted"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_BUDGET_EXHAUSTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "unsupported"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_UNSUPPORTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "unsupported"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_UNSUPPORTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "unsupported"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_STORE_UNSUPPORTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "unsupported"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_STORE_UNSUPPORTED"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "io_error"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_IO_ERROR"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "io_error"
+            },
+            "reason_code": {
+              "const": "CACHE_STORE_IO_ERROR"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "persist"
+            },
+            "status": {
+              "const": "io_error"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_STORE_IO_ERROR"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "lookup"
+            },
+            "status": {
+              "const": "io_error"
+            },
+            "reason_code": {
+              "const": "CACHE_AUDIT_STORE_IO_ERROR"
+            },
+            "lookup_key_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "entry_sha256": {
+              "type": "null"
+            },
+            "audit_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "historical_authority_tier": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    }
+  }
+}

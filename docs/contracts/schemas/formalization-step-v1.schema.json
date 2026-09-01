@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/formalization-step-v1.schema.json",
+  "title": "MathHead safe formalization step v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.formalization-step.v1"},
+    "action_code": {
+      "enum": [
+        "DECLARE_EXACT_PREDICATE_DEFINITION",
+        "EXPRESS_WITH_OWNED_RELATION",
+        "SPLIT_LOGICAL_ASSUMPTION_EXPLICITLY",
+        "CONTRACT_QUANTIFIED_ASSUMPTION_RULE",
+        "REFORMALIZE_UNSUPPORTED_OBLIGATION",
+        "RETAIN_FOR_SEPARATE_CAPABILITY"
+      ]
+    },
+    "summary_template_id": {"$ref": "#/$defs/template_id"},
+    "detail_template_id": {"$ref": "#/$defs/template_id"},
+    "parameters": {"$ref": "#/$defs/canonical_object"},
+    "required_input_codes": {"$ref": "#/$defs/code_list"},
+    "safety_condition_codes": {"$ref": "#/$defs/code_list"},
+    "automatic": {"const": false},
+    "requires_user_confirmation": {"const": true},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "action_code",
+    "summary_template_id",
+    "detail_template_id",
+    "parameters",
+    "required_input_codes",
+    "safety_condition_codes",
+    "automatic",
+    "requires_user_confirmation",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "template_id": {"type": "string", "pattern": "^mh[.]unsupported[.]template[.][a-z0-9_.-]+$", "maxLength": 128},
+    "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "maxLength": 128},
+    "code_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/code"}
+    },
+    "canonical_object": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+      "additionalProperties": {"$ref": "#/$defs/canonical_value"}
+    },
+    "canonical_value": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991},
+        {"type": "string", "maxLength": 1048576},
+        {"type": "array", "maxItems": 400000, "items": {"$ref": "#/$defs/canonical_value"}},
+        {
+          "type": "object",
+          "maxProperties": 400000,
+          "propertyNames": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+          "additionalProperties": {"$ref": "#/$defs/canonical_value"}
+        }
+      ]
+    }
+  }
+}

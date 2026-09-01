@@ -8,8 +8,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
         with: {python-version: "3.11"}
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      - name: Bootstrap pinned docs profile
+        run: python tools/dev.py bootstrap --profile docs --current
+      - name: Validate documentation strictly
+        run: python tools/dev.py check --profile docs
+      - name: Deploy validated documentation
+        run: python -m mkdocs gh-deploy --force

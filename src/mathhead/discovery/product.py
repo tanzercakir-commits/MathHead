@@ -56,6 +56,7 @@ digits, and the engine refuses rather than crashes.
 from __future__ import annotations
 
 import re
+import subprocess
 from dataclasses import dataclass, field
 
 _SUM_WITNESS_BOUND = 40          # smallest-n witness scan bound for comparative sum inequalities
@@ -67,12 +68,102 @@ _CONST_LIMIT = 10 ** _MAX_CONST_DIGITS   # CPython int↔str conversion raises p
 _OVERSIZED = (f"a numeric constant exceeds {_MAX_CONST_DIGITS} digits — refused up front "
               "(CPython int↔str conversion overflows past ~4300 digits)")
 
+GRAPH_BUDGET_CONTRACT_ID = "MH-C-GRAPH-BUDGET-001"
+GRAPH_BUDGET_CONTRACT_SHA256 = \
+    "3af2573324b7c485b8b3612cacde764e36bad341ce9ab4f83ebd819b39e7d794"
+
+
+@dataclass(frozen=True)
+class GraphSearchPlan:
+    """Accepted, deterministic resource decision made before graph generation."""
+
+    requested_max_n: int
+    backend: str
+    safe_max_n: int
+    max_objects: int
+    supported: bool
+    reason: str
+    contract_id: str = field(default=GRAPH_BUDGET_CONTRACT_ID, init=False)
+    contract_sha256: str = field(default=GRAPH_BUDGET_CONTRACT_SHA256, init=False)
+
+
+def graph_search_plan(max_n: int, *, fast_backend_available: bool) -> GraphSearchPlan:
+    """Select the accepted graph-search budget without generating any graph."""
+    if isinstance(max_n, bool) or not isinstance(max_n, int):
+        raise TypeError("max_n must be an int but not bool")
+    if not isinstance(fast_backend_available, bool):
+        raise TypeError("fast_backend_available must be bool")
+    backend = "nauty" if fast_backend_available else "pure_python"
+    safe_max_n = 8 if fast_backend_available else 6
+    max_objects = 20_000 if fast_backend_available else 2_000
+    if max_n < 2:
+        reason = "order-below-minimum"
+        supported = False
+    elif max_n <= safe_max_n:
+        reason = ("fast-backend-within-budget" if fast_backend_available
+                  else "pure-backend-within-budget")
+        supported = True
+    elif fast_backend_available:
+        reason = "fast-order-limit-exceeded"
+        supported = False
+    else:
+        reason = "fast-backend-required"
+        supported = False
+    return GraphSearchPlan(max_n, backend, safe_max_n, max_objects, supported, reason)
+
+
+class _GraphSearchFailure(RuntimeError):
+    """Stable internal failure code for a planned graph scan."""
+
+
+def _iter_planned_graphs(plan: GraphSearchPlan, *, min_n: int = 2,
+                         connected: bool) -> object:
+    """Yield one order at a time and enforce the cumulative generated-object budget."""
+    if not plan.supported:
+        raise _GraphSearchFailure("plan-refused")
+    if min_n < 2 or min_n > plan.requested_max_n:
+        raise _GraphSearchFailure("invalid-order-range")
+    generated = 0
+    try:
+        for n in range(min_n, plan.requested_max_n + 1):
+            remaining = plan.max_objects - generated
+            if remaining <= 0:
+                raise _GraphSearchFailure("object-budget-exceeded")
+            if plan.backend == "nauty":
+                from .nauty_scale import geng_graphs
+                graphs = geng_graphs(n, connected=connected, hard_cap=remaining,
+                                     timeout_seconds=30)
+            else:
+                from .generate import generate_graphs
+                graphs = generate_graphs(n)
+            for graph in graphs:
+                generated += 1
+                if generated > plan.max_objects:
+                    raise _GraphSearchFailure("object-budget-exceeded")
+                if connected and plan.backend == "pure_python":
+                    from .invariants import evaluate
+                    if evaluate(graph, "num_components") != 1:
+                        continue
+                yield graph
+    except _GraphSearchFailure:
+        raise
+    except subprocess.TimeoutExpired as exc:
+        raise _GraphSearchFailure("backend-timeout") from exc
+    except subprocess.SubprocessError as exc:
+        raise _GraphSearchFailure("backend-process-failed") from exc
+    except OSError as exc:
+        raise _GraphSearchFailure("backend-unavailable") from exc
+    except (RuntimeError, ValueError) as exc:
+        reason = ("object-budget-exceeded" if "hard_cap" in str(exc)
+                  else "backend-output-invalid")
+        raise _GraphSearchFailure(reason) from exc
+
 
 @dataclass
 class CheckResult:
     statement: str
     structure: str
-    verdict: str                 # "proved" | "refuted" | "open" | "unsupported"
+    verdict: str                 # "proved" | "refuted" | "open" | "unsupported" | "error"
     tier: str                    # the epistemic tier of the verdict (the product's soul)
     witness: dict = field(default_factory=dict)
     checked_up_to: str = ""
@@ -611,7 +702,32 @@ def _attach_readings(res: CheckResult, stmt: str, max_n: int) -> CheckResult:
 
 def _check_graph_bound(stmt: str, max_n: int) -> CheckResult | None:
     res = _graph_bound_verdict(stmt, max_n)
-    return res if res is None else _attach_readings(res, stmt, max_n)
+    if res is None or res.verdict in {"unsupported", "error"}:
+        return res
+    return _attach_readings(res, stmt, max_n)
+
+
+def _graph_refusal_result(stmt: str, structure: str,
+                          plan: GraphSearchPlan) -> CheckResult:
+    return CheckResult(
+        stmt, structure, "unsupported", "none",
+        instruments=("product.graph_search_plan",),
+        notes=(f"graph search refused before enumeration: reason={plan.reason}; "
+               f"requested max_n={plan.requested_max_n}; backend={plan.backend}; "
+               f"safe max_n={plan.safe_max_n}; generated-object budget={plan.max_objects}; "
+               "no graph was checked or silently clamped"),
+    )
+
+
+def _graph_failure_result(stmt: str, structure: str, plan: GraphSearchPlan,
+                          reason: str) -> CheckResult:
+    return CheckResult(
+        stmt, structure, "error", "none",
+        instruments=("product.graph_search_plan", "counterexample-first scan"),
+        notes=(f"graph search failed without a completion claim: reason={reason}; "
+               f"requested max_n={plan.requested_max_n}; backend={plan.backend}; "
+               f"safe max_n={plan.safe_max_n}; generated-object budget={plan.max_objects}"),
+    )
 
 
 def _graph_bound_verdict(stmt: str, max_n: int) -> CheckResult | None:
@@ -625,36 +741,39 @@ def _graph_bound_verdict(stmt: str, max_n: int) -> CheckResult | None:
     invs = graph_invariant_registry()
     if lhs not in invs or rhs not in invs:
         return None
-    from .nauty_scale import geng_available, geng_graphs
-    if geng_available():
-        graphs = [g for n in range(2, max_n + 1) for g in geng_graphs(n, connected=True)]
-    else:
-        from .generate import generate_graphs
-        from .invariants import evaluate
-        graphs = [g for n in range(2, max_n + 1) for g in generate_graphs(n)
-                  if evaluate(g, "num_components") == 1]
+    from .nauty_scale import geng_available
+    plan = graph_search_plan(max_n, fast_backend_available=geng_available())
+    if not plan.supported:
+        return _graph_refusal_result(stmt, structure, plan)
     holds = {"<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b, "==": lambda a, b: a == b}[rel]
     checked = 0
-    for g in graphs:
-        va, vb = invs[lhs](g), invs[rhs](g)
-        checked += 1
-        if not holds(va, k * vb + c):
-            return CheckResult(stmt, structure, "refuted", "exact_integer_certificate",
-                               witness={"n": g.n, "edges": sorted(g.edges), lhs: va, rhs: vb},
-                               checked_up_to=f"first counterexample among connected graphs, n={g.n}",
-                               instruments=("counterexample-first scan",),
-                               notes="smallest-order witness; values computed exactly"
-                                     + ("" if rel != "==" else
-                                        " (equality broken — either direction convicts)"))
+    try:
+        for g in _iter_planned_graphs(plan, connected=True):
+            va, vb = invs[lhs](g), invs[rhs](g)
+            checked += 1
+            if not holds(va, k * vb + c):
+                return CheckResult(
+                    stmt, structure, "refuted", "exact_integer_certificate",
+                    witness={"n": g.n, "edges": sorted(g.edges), lhs: va, rhs: vb},
+                    checked_up_to=f"first counterexample among connected graphs, n={g.n}",
+                    instruments=("product.graph_search_plan", "counterexample-first scan"),
+                    notes="smallest-order witness; values computed exactly"
+                          + ("" if rel != "==" else
+                             " (equality broken — either direction convicts)"),
+                )
+    except _GraphSearchFailure as exc:
+        return _graph_failure_result(stmt, structure, plan, str(exc))
+    except (ArithmeticError, LookupError, TypeError, ValueError):
+        return _graph_failure_result(stmt, structure, plan, "invariant-evaluation-failed")
     if rel == "==":
         return CheckResult(stmt, structure, "open", "no_counterexample_within_bound",
                            checked_up_to=f"ALL {checked} connected graphs with 2 <= n <= {max_n}",
-                           instruments=("counterexample-first scan",),
+                           instruments=("product.graph_search_plan", "counterexample-first scan"),
                            notes=f"universal claim not proved; holds for all connected graphs up to "
                                  f"n={max_n} — a finite scan NEVER proves an equality")
     return CheckResult(stmt, structure, "open", "no_counterexample_within_bound",
                        checked_up_to=f"ALL {checked} connected graphs with 2 <= n <= {max_n}",
-                       instruments=("counterexample-first scan",),
+                       instruments=("product.graph_search_plan", "counterexample-first scan"),
                        notes="survived exhaustive small-order attack; NOT proved — honestly open")
 
 
@@ -892,7 +1011,7 @@ def _check_composition_identity(stmt: str) -> CheckResult | None:
                        instruments=instruments, notes=notes)
 
 
-def check(statement: str, max_n: int = 7) -> CheckResult:
+def check(statement: str, max_n: int = 6) -> CheckResult:
     """The product's single door. Parse deterministically, route to the right instrument, return an
     honest verdict envelope. Unrecognized input → 'unsupported' + suggestions, never a guess."""
     s = statement.strip()

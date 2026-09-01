@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/safe-cache-store-record-v1.schema.json",
+  "title": "MathHead Safe Cache Store Record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "safe_cache_contract_sha256",
+    "safe_cache_store_contract_sha256",
+    "lookup_key_sha256",
+    "entry_sha256",
+    "entry_object_sha256",
+    "audit_manifest_sha256",
+    "record_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.safe-cache-store-record.v1"},
+    "safe_cache_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "safe_cache_store_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "lookup_key_sha256": {"$ref": "#/$defs/sha256"},
+    "entry_sha256": {"$ref": "#/$defs/sha256"},
+    "entry_object_sha256": {"$ref": "#/$defs/sha256"},
+    "audit_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "record_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

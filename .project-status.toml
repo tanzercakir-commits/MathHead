@@ -1,0 +1,734 @@
+schema = 1
+tool_version = "2.0.0"
+plan = "docs/PLAN.md"
+progress = "docs/PROGRESS.md"
+todo = "docs/TODO.md"
+contract_manifest = "docs/contracts/manifest.toml"
+todo_mode = "managed"
+max_todo_items = 5
+
+[[checks]]
+name = "project-status-unit-tests"
+command = "python -m unittest discover -s tests/project_status -v"
+profiles = ["status"]
+timeout_seconds = 120
+
+[[checks]]
+name = "reconstruction-plan"
+command = "python tools/validate_reconstruction_plan.py"
+profiles = ["status"]
+timeout_seconds = 30
+
+[[checks]]
+name = "adoption-idempotence"
+command = "python tools/project_status.py adopt --dry-run"
+profiles = ["status"]
+tasks = ["MH-000", "MH-001"]
+timeout_seconds = 30
+
+[[checks]]
+name = "task-aware-status-contract"
+command = "python -m unittest discover -s tests/project_status -p test_task_aware_status.py -v"
+profiles = ["status"]
+tasks = ["MH-002"]
+timeout_seconds = 120
+
+[[checks]]
+name = "legacy-index"
+command = "python tools/validate_legacy_index.py"
+profiles = ["status"]
+tasks = ["MH-005"]
+timeout_seconds = 30
+
+[[checks]]
+name = "reconstruction-adrs"
+command = "python tools/validate_reconstruction_adrs.py"
+profiles = ["status"]
+tasks = ["MH-006"]
+timeout_seconds = 30
+
+[[checks]]
+name = "contract-manifest"
+command = "python tools/validate_contract_manifest.py"
+profiles = ["status"]
+tasks = ["MH-000", "MH-002"]
+timeout_seconds = 30
+
+[[checks]]
+name = "dev-environment-contract"
+command = "python tools/validate_dev_environment.py"
+profiles = ["status", "fast"]
+tasks = ["MH-003", "MH-014"]
+timeout_seconds = 180
+
+[[checks]]
+name = "legacy-baseline"
+command = "python tools/validate_legacy_baseline.py"
+profiles = ["status", "fast"]
+tasks = ["MH-004"]
+timeout_seconds = 300
+
+[[checks]]
+name = "optional-dependency-contract"
+command = "python tools/validate_optional_dependencies.py --profile core"
+profiles = ["status", "fast"]
+tasks = ["MH-010"]
+timeout_seconds = 60
+
+[[checks]]
+name = "graph-budget-contract"
+command = "python tools/validate_graph_budget.py"
+profiles = ["status", "fast"]
+tasks = ["MH-011"]
+timeout_seconds = 60
+
+[[checks]]
+name = "command-encoding-contract"
+command = "python tools/validate_command_encoding.py"
+profiles = ["status", "fast"]
+tasks = ["MH-012"]
+timeout_seconds = 60
+
+[[checks]]
+name = "live-mcp-contract"
+command = "python tools/validate_live_mcp.py"
+profiles = ["status", "fast"]
+tasks = ["MH-013"]
+timeout_seconds = 60
+
+[[checks]]
+name = "project-metadata-contract"
+command = "python tools/validate_project_metadata.py"
+profiles = ["status", "fast"]
+tasks = ["MH-015"]
+timeout_seconds = 30
+
+[[checks]]
+name = "ast-parse-contract"
+command = "python tools/validate_ast_parse.py"
+profiles = ["status", "fast"]
+tasks = ["MH-016"]
+timeout_seconds = 60
+
+[[checks]]
+name = "discovery-portfolio-contract"
+command = "python tools/validate_discovery_portfolio.py"
+profiles = ["status", "fast"]
+tasks = ["MH-016"]
+timeout_seconds = 60
+
+[[checks]]
+name = "legacy-compat-contract"
+command = "python tools/validate_legacy_compat.py"
+profiles = ["status", "fast"]
+tasks = ["MH-017"]
+timeout_seconds = 60
+
+[[checks]]
+name = "contract-artifact-tests"
+command = "python -m unittest discover -s tests/contract_artifacts -v"
+profiles = ["status", "fast"]
+tasks = ["MH-020"]
+timeout_seconds = 120
+
+[[checks]]
+name = "contract-artifact-workflow"
+command = "python tools/contract_artifacts.py verify --all --check-report docs/contracts/reports/verification-v1.json"
+profiles = ["status", "fast"]
+tasks = ["MH-020"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-ir-contract"
+command = "python tools/validate_problem_ir_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-021"]
+timeout_seconds = 60
+
+[[checks]]
+name = "theory-context-contract"
+command = "python tools/validate_theory_context_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-022"]
+timeout_seconds = 60
+
+[[checks]]
+name = "resource-budget-contract"
+command = "python tools/validate_resource_budget_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-023"]
+timeout_seconds = 60
+
+[[checks]]
+name = "engine-result-contract"
+command = "python tools/validate_engine_result_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-024"]
+timeout_seconds = 60
+
+[[checks]]
+name = "evidence-certificate-contracts"
+command = "python tools/validate_evidence_certificate_contracts.py"
+profiles = ["status", "fast"]
+tasks = ["MH-025"]
+timeout_seconds = 60
+
+[[checks]]
+name = "theory-plugin-contract"
+command = "python tools/validate_theory_plugin_contract.py"
+profiles = ["status", "fast"]
+tasks = ["MH-026"]
+timeout_seconds = 60
+
+[[checks]]
+name = "foundation-conformance-tests"
+command = "python -m unittest discover -s tests/contract_conformance -v"
+profiles = ["status", "fast"]
+tasks = ["MH-027"]
+timeout_seconds = 120
+
+[[checks]]
+name = "foundation-conformance-report"
+command = "python tools/validate_contract_conformance.py --check-report docs/contracts/reports/foundation-conformance-v1.json"
+profiles = ["status", "fast"]
+tasks = ["MH-027"]
+timeout_seconds = 120
+
+[[checks]]
+name = "foundation-reference-fixture-tests"
+command = "python -m unittest discover -s tests/reference_fixtures -v"
+profiles = ["status", "fast"]
+tasks = ["MH-028"]
+timeout_seconds = 180
+
+[[checks]]
+name = "foundation-reference-fixtures"
+command = "python tools/validate_reference_fixtures.py"
+profiles = ["status", "fast"]
+tasks = ["MH-028"]
+timeout_seconds = 120
+
+[[checks]]
+name = "trust-base-tests"
+command = "python -m unittest discover -s tests/trust_base -v"
+profiles = ["status", "fast"]
+tasks = ["MH-030"]
+timeout_seconds = 180
+
+[[checks]]
+name = "trust-base-inventory"
+command = "python tools/validate_trust_base.py"
+profiles = ["status", "fast"]
+tasks = ["MH-030"]
+timeout_seconds = 120
+
+[[checks]]
+name = "proof-term-tests"
+command = "python -m unittest discover -s tests/proof_terms -v"
+profiles = ["status", "fast"]
+tasks = ["MH-031"]
+timeout_seconds = 120
+
+[[checks]]
+name = "proof-term-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-TERM-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-031"]
+timeout_seconds = 60
+
+[[checks]]
+name = "kernel-checker-tests"
+command = "python -m unittest discover -s tests/kernel_checker -v"
+profiles = ["status", "fast"]
+tasks = ["MH-032", "MH-033"]
+timeout_seconds = 120
+
+[[checks]]
+name = "kernel-checker-validator"
+command = "python tools/validate_kernel_checker.py"
+profiles = ["status", "fast"]
+tasks = ["MH-032", "MH-033"]
+timeout_seconds = 120
+
+[[checks]]
+name = "kernel-checker-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-KERNEL-CHECKER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-032"]
+timeout_seconds = 60
+
+[[checks]]
+name = "kernel-checker-v2-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-KERNEL-CHECKER-002 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-033"]
+timeout_seconds = 60
+
+[[checks]]
+name = "sat-replay-tests"
+command = "python -m unittest discover -s tests/sat_replay -v"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 180
+
+[[checks]]
+name = "sat-replay-validator"
+command = "python tools/validate_sat_replay.py"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 120
+
+[[checks]]
+name = "sat-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAT-REPLAY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-034"]
+timeout_seconds = 60
+
+[[checks]]
+name = "provenance-replay-tests"
+command = "python -m unittest discover -s tests/provenance_replay -v"
+profiles = ["status", "fast"]
+tasks = ["MH-035"]
+timeout_seconds = 180
+
+[[checks]]
+name = "provenance-replay-validator"
+command = "python tools/validate_provenance_replay.py"
+profiles = ["status", "fast"]
+tasks = ["MH-035"]
+timeout_seconds = 120
+
+[[checks]]
+name = "provenance-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROVENANCE-REPLAY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-035"]
+timeout_seconds = 60
+
+[[checks]]
+name = "lean-verification-tests"
+command = "python -m unittest discover -s tests/lean_verification -v"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 180
+
+[[checks]]
+name = "lean-verification-validator"
+command = "python tools/validate_lean_verification.py"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 120
+
+[[checks]]
+name = "lean-verification-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-LEAN-VERIFICATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 60
+
+[[checks]]
+name = "lean-legacy-adapter-tests"
+command = "python -m unittest discover -s tests/lean_verification -p test_legacy_adapter.py -v"
+profiles = ["status", "fast"]
+tasks = ["MH-036"]
+timeout_seconds = 180
+
+[[checks]]
+name = "trust-transition-tests"
+command = "python -m unittest discover -s tests/trust_transitions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 180
+
+[[checks]]
+name = "trust-transition-validator"
+command = "python tools/validate_trust_transitions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 120
+
+[[checks]]
+name = "trust-transition-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-TRUST-TRANSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-037"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-intake-tests"
+command = "python -m unittest discover -s tests/problem_intake -v"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-intake-validator"
+command = "python tools/validate_problem_intake.py"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 120
+
+[[checks]]
+name = "problem-intake-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-INTAKE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-040"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-readings-tests"
+command = "python -m unittest discover -s tests/problem_readings -v"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-readings-validator"
+command = "python tools/validate_problem_readings.py"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 120
+
+[[checks]]
+name = "problem-readings-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-READING-ANALYSIS-002 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-041"]
+timeout_seconds = 60
+
+[[checks]]
+name = "domain-assumption-tests"
+command = "python -m unittest discover -s tests/domain_assumptions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 180
+
+[[checks]]
+name = "domain-assumption-validator"
+command = "python tools/validate_domain_assumptions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 120
+
+[[checks]]
+name = "domain-assumption-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-042"]
+timeout_seconds = 60
+
+[[checks]]
+name = "proof-obligation-tests"
+command = "python -m unittest discover -s tests/proof_obligations -v"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-obligation-validator"
+command = "python tools/validate_proof_obligations.py"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-obligation-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-OBLIGATION-DECOMPOSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-043"]
+timeout_seconds = 60
+
+[[checks]]
+name = "canonical-normalization-tests"
+command = "python -m unittest discover -s tests/canonical_normalization -v"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 180
+
+[[checks]]
+name = "canonical-normalization-validator"
+command = "python tools/validate_canonical_normalization.py"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 180
+
+[[checks]]
+name = "canonical-normalization-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-CANONICAL-NORMALIZATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-044"]
+timeout_seconds = 60
+
+[[checks]]
+name = "unsupported-explanation-tests"
+command = "python -m unittest discover -s tests/unsupported_explanations -v"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 180
+
+[[checks]]
+name = "unsupported-explanation-validator"
+command = "python tools/validate_unsupported_explanations.py"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 180
+
+[[checks]]
+name = "unsupported-explanation-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-UNSUPPORTED-EXPLANATION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-045"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-session-tests"
+command = "python -m unittest discover -s tests/problem_sessions -v"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-validator"
+command = "python tools/validate_problem_sessions.py"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-store-validator"
+command = "python tools/validate_problem_session_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 180
+
+[[checks]]
+name = "problem-session-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-SESSION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 60
+
+[[checks]]
+name = "problem-session-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROBLEM-SESSION-STORE-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-046"]
+timeout_seconds = 60
+
+[[checks]]
+name = "capability-registry-tests"
+command = "python -m unittest discover -s tests/capability_registry -v"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 180
+
+[[checks]]
+name = "capability-registry-validator"
+command = "python tools/validate_capability_registry.py"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 180
+
+[[checks]]
+name = "capability-registry-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-CAPABILITY-REGISTRY-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-050"]
+timeout_seconds = 60
+
+[[checks]]
+name = "deterministic-planner-tests"
+command = "python -m unittest discover -s tests/deterministic_planner -v"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 180
+
+[[checks]]
+name = "deterministic-planner-validator"
+command = "python tools/validate_deterministic_planner.py"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 180
+
+[[checks]]
+name = "deterministic-planner-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-DETERMINISTIC-PLANNER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-051"]
+timeout_seconds = 60
+
+[[checks]]
+name = "isolated-worker-tests"
+command = "python -m unittest discover -s tests/isolated_worker -v"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 180
+
+[[checks]]
+name = "isolated-worker-validator"
+command = "python tools/validate_isolated_worker.py"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 120
+
+[[checks]]
+name = "isolated-worker-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-ISOLATED-WORKER-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-052"]
+timeout_seconds = 60
+
+[[checks]]
+name = "proof-search-portfolio-tests"
+command = "python -m unittest discover -s tests/proof_search_portfolio -v"
+profiles = ["status", "fast"]
+tasks = ["MH-053"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-search-portfolio-validator"
+command = "python tools/validate_proof_search_portfolio.py"
+profiles = ["status", "fast"]
+tasks = ["MH-053"]
+timeout_seconds = 180
+
+[[checks]]
+name = "proof-search-portfolio-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-PROOF-SEARCH-PORTFOLIO-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-053"]
+timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-tests"
+command = "python -m unittest discover -s tests/run_audit -v"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-validator"
+command = "python tools/validate_run_audit.py"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-AUDITED-RUN-004 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-REPLAY-004 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60
+
+[[checks]]
+name = "run-audit-store-tests"
+command = "python -m unittest discover -s tests/run_audit_store -v"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 240
+
+[[checks]]
+name = "run-audit-store-validator"
+command = "python tools/validate_run_audit_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 180
+
+[[checks]]
+name = "run-audit-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-STORE-005 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-054"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-audited-run-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-AUDITED-RUN-005 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-audit-replay-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-REPLAY-005 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-audit-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-RUN-AUDIT-STORE-006 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-tests"
+command = "python -m unittest discover -s tests/safe_cache -v"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-validator"
+command = "python tools/validate_safe_cache.py"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAFE-CACHE-002 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "safe-cache-store-tests"
+command = "python -m unittest discover -s tests/safe_cache_store -v"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 240
+
+[[checks]]
+name = "safe-cache-store-validator"
+command = "python tools/validate_safe_cache_store.py"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 180
+
+[[checks]]
+name = "safe-cache-store-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-SAFE-CACHE-STORE-002 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-055"]
+timeout_seconds = 60
+
+[[checks]]
+name = "execution-disposition-tests"
+command = "python -m unittest discover -s tests/execution_disposition -v"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 240
+
+[[checks]]
+name = "execution-disposition-validator"
+command = "python tools/validate_execution_disposition.py"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 240
+
+[[checks]]
+name = "execution-disposition-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-EXECUTION-DISPOSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 60

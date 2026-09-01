@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-execution-provenance-v1.schema.json",
+  "title": "MathHead Run Execution Provenance v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "dependency_contracts",
+    "dependency_schemas",
+    "implementation_bindings",
+    "configuration_bindings",
+    "trust_policy_sha256",
+    "provenance_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.run-execution-provenance.v1"
+    },
+    "dependency_contracts": {
+      "$ref": "#/$defs/contract_bindings"
+    },
+    "dependency_schemas": {
+      "$ref": "#/$defs/schema_bindings"
+    },
+    "implementation_bindings": {
+      "$ref": "#/$defs/implementation_bindings"
+    },
+    "configuration_bindings": {
+      "$ref": "#/$defs/configuration_bindings"
+    },
+    "trust_policy_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "provenance_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "contract_bindings": {
+      "type": "object",
+      "minProperties": 20,
+      "maxProperties": 20,
+      "propertyNames": {
+        "enum": [
+          "MH-C-AUDITED-RUN-005",
+          "MH-C-CANONICAL-NORMALIZATION-001",
+          "MH-C-CAPABILITY-REGISTRY-001",
+          "MH-C-CERTIFICATE-001",
+          "MH-C-DETERMINISTIC-PLANNER-001",
+          "MH-C-DOMAIN-ASSUMPTION-NORMALIZATION-001",
+          "MH-C-ENGINE-RESULT-001",
+          "MH-C-EVIDENCE-001",
+          "MH-C-ISOLATED-WORKER-001",
+          "MH-C-PROBLEM-INTAKE-001",
+          "MH-C-PROBLEM-SESSION-001",
+          "MH-C-PROOF-OBLIGATION-DECOMPOSITION-001",
+          "MH-C-PROOF-SEARCH-PORTFOLIO-001",
+          "MH-C-READING-ANALYSIS-002",
+          "MH-C-RESOURCE-BUDGET-001",
+          "MH-C-RUN-AUDIT-REPLAY-005",
+          "MH-C-THEORY-CONTEXT-001",
+          "MH-C-THEORY-PLUGIN-001",
+          "MH-C-TRUST-TRANSITION-001",
+          "MH-C-WORKFLOW-001"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "schema_bindings": {
+      "type": "object",
+      "minProperties": 65,
+      "maxProperties": 65,
+      "propertyNames": {
+        "enum": [
+          "mathhead.canonical-context.v1",
+          "mathhead.canonical-normal-form.v1",
+          "mathhead.canonical-normalization-result.v1",
+          "mathhead.canonical-obligation.v1",
+          "mathhead.canonical-occurrence-trace.v1",
+          "mathhead.capability-availability.v1",
+          "mathhead.capability-candidate.v1",
+          "mathhead.capability-registry-entry.v1",
+          "mathhead.capability-registry.v1",
+          "mathhead.capability-route-request.v1",
+          "mathhead.capability-route-result.v1",
+          "mathhead.certificate.v1",
+          "mathhead.domain-assumption-fact.v1",
+          "mathhead.domain-assumption-result.v1",
+          "mathhead.engine-result.v1",
+          "mathhead.evidence.v1",
+          "mathhead.isolated-worker-request.v1",
+          "mathhead.isolated-worker-result.v1",
+          "mathhead.normalized-domain-context.v1",
+          "mathhead.planning-evidence-expectation.v1",
+          "mathhead.planning-policy.v1",
+          "mathhead.planning-prerequisite.v1",
+          "mathhead.planning-request.v1",
+          "mathhead.planning-resource-request.v1",
+          "mathhead.planning-result.v1",
+          "mathhead.planning-strategy.v1",
+          "mathhead.planning-transition.v1",
+          "mathhead.portfolio-attempt.v1",
+          "mathhead.portfolio-checker-decision.v1",
+          "mathhead.portfolio-execution-binding.v1",
+          "mathhead.portfolio-inconclusive.v1",
+          "mathhead.problem-intake-result.v1",
+          "mathhead.problem-intake.v1",
+          "mathhead.problem-readings-result.v2",
+          "mathhead.problem-session-artifact-link.v1",
+          "mathhead.problem-session-attempt.v1",
+          "mathhead.problem-session-command.v1",
+          "mathhead.problem-session-definition.v1",
+          "mathhead.problem-session-event.v1",
+          "mathhead.problem-session-invalidation.v1",
+          "mathhead.problem-session-lemma.v1",
+          "mathhead.problem-session-obligation-state.v1",
+          "mathhead.problem-session-result.v1",
+          "mathhead.problem-session-revision.v1",
+          "mathhead.proof-obligation-graph.v1",
+          "mathhead.proof-obligation-local-context.v1",
+          "mathhead.proof-obligation-result.v1",
+          "mathhead.proof-obligation.v1",
+          "mathhead.proof-search-portfolio-request.v1",
+          "mathhead.proof-search-portfolio-result.v1",
+          "mathhead.reading-projection.v2",
+          "mathhead.resource-budget.v1",
+          "mathhead.run-audit-event.v2",
+          "mathhead.run-audit-manifest.v4",
+          "mathhead.run-audit-object.v3",
+          "mathhead.run-audit-replay-result.v5",
+          "mathhead.run-audit-worker-observation.v3",
+          "mathhead.run-execution-provenance.v1",
+          "mathhead.run-logical-report.v3",
+          "mathhead.theory-context.v1",
+          "mathhead.theory-plugin.v1",
+          "mathhead.trust-transition-attempt.v1",
+          "mathhead.trust-transition-audit-result.v1",
+          "mathhead.trust-transition-catalogue.v1",
+          "mathhead.trust-transition-report.v1"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "implementation_bindings": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "propertyNames": {
+        "enum": [
+          "capability_registry",
+          "deterministic_planner",
+          "isolated_worker",
+          "proof_search_portfolio",
+          "trust_transition"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "configuration_bindings": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "propertyNames": {
+        "enum": [
+          "capability_registry_report",
+          "deterministic_planner_report",
+          "isolated_worker_report",
+          "proof_search_portfolio_report",
+          "trust_transition_policy"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    }
+  }
+}

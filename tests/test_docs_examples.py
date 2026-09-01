@@ -1,5 +1,8 @@
 """v3P4 — the docs gallery is EXECUTABLE: every claim in the manual runs in CI (docs cannot rot)."""
+import importlib.util
 from pathlib import Path
+
+import pytest
 
 from mathhead.discovery import check
 from mathhead.discovery.cli import main
@@ -78,7 +81,7 @@ def test_example_8_sum_inequality_chain_and_the_sound_direction():  # v4F1
 
 
 def test_example_9_permutation_bounds(capsys):                    # v4F2
-    r = check("all perms of n: inversions <= n*(n-1)/2")          # a true theorem — still OPEN
+    r = check("all perms of n: inversions <= n*(n-1)/2", max_n=7) # a true theorem — still OPEN
     assert (r.verdict, r.tier) == ("open", "no_counterexample_within_bound")
     assert r.checked_up_to == "ALL 5913 permutations over every n <= 7"
     assert "a finite scan never proves the universal claim" in r.notes
@@ -134,11 +137,11 @@ def test_quickstart_three_readings_runs_exactly_as_documented(capsys):   # readi
 
 
 def test_example_7_readings_blocks_run_exactly_as_documented(capsys):    # readings feature
-    assert main(["check", "num_vertices == num_edges"]) == 0             # default max_n=7
+    assert main(["check", "num_vertices == num_edges"]) == 0             # safe default max_n=6
     out = capsys.readouterr().out
     assert "quantifier ambiguity: 3 readings evaluated — all agree (refuted); see readings" in out
     assert "[C] refuted    [exact_integer_certificate]  vs A: drops [connected, "\
-           "2 <= n <= 7 (bounded scan)]; adds [n == 7 (complete finite domain)]" in out
+           "2 <= n <= 6 (bounded scan)]; adds [n == 6 (complete finite domain)]" in out
 
 
 def test_quickstart_forall_exists_runs_exactly_as_documented(capsys):    # readings wave 2
@@ -174,6 +177,9 @@ def test_example_6_readings_blocks_run_exactly_as_documented(capsys):    # readi
     assert "n ≡ 0, 1 (mod 3)" in check("n^2 ≡ n (mod 3)").readings[1]["witness_summary"]
 
 
+@pytest.mark.requires_solver
+@pytest.mark.skipif(importlib.util.find_spec("pysat") is None,
+                    reason="python-sat not installed")
 def test_example_3_bracket_r33(capsys):
     assert main(["bracket", "3", "3", "--lo", "5", "--hi", "6"]) == 0
     assert "R(3,3) = 6" in capsys.readouterr().out

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/safe-cache-entry-v2.schema.json",
+  "title": "MathHead Safe Cache Entry v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "safe_cache_contract_sha256",
+    "lookup_key_sha256",
+    "execution_provenance_sha256",
+    "audit_manifest_sha256",
+    "logical_report_sha256",
+    "portfolio_result_sha256",
+    "selected_strategy_sha256",
+    "selected_descriptor_sha256",
+    "plugin_id",
+    "plugin_version",
+    "producer_component_id",
+    "checker_component_id",
+    "selected_evidence_sha256",
+    "selected_certificate_sha256",
+    "selected_checker_decision_sha256",
+    "evidence_format_sha256",
+    "certificate_format_sha256",
+    "historical_authority_tier",
+    "eligibility",
+    "entry_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.safe-cache-entry.v2"
+    },
+    "safe_cache_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "lookup_key_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "audit_manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "logical_report_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "portfolio_result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "selected_strategy_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "selected_descriptor_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "plugin_id": {
+      "$ref": "#/$defs/id"
+    },
+    "plugin_version": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "producer_component_id": {
+      "$ref": "#/$defs/id"
+    },
+    "checker_component_id": {
+      "$ref": "#/$defs/id"
+    },
+    "selected_evidence_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "selected_certificate_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "selected_checker_decision_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "evidence_format_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "certificate_format_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "historical_authority_tier": {
+      "enum": [
+        "checker_attestation",
+        "external_proof_assistant"
+      ]
+    },
+    "eligibility": {
+      "const": "eligible_checked"
+    },
+    "entry_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    },
+    "execution_provenance_sha256": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    }
+  }
+}

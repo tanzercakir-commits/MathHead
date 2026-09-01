@@ -43,12 +43,13 @@ def _flags(connected: bool, triangle_free: bool, bipartite: bool) -> list:
 
 
 def geng_count(n: int, *, connected: bool = False, triangle_free: bool = False,
-               bipartite: bool = False) -> int:
+               bipartite: bool = False, timeout_seconds: float = 30) -> int:
     """Count of non-isomorphic graphs on n vertices in the given class (geng -u; no object cost)."""
     if n == 0:
         return 1                                          # the empty graph — geng starts at n=1
     proc = subprocess.run([_GENG, "-u", *_flags(connected, triangle_free, bipartite), str(n)],
-                          capture_output=True, text=True, check=True)
+                          capture_output=True, text=True, check=True,
+                          timeout=timeout_seconds)
     for tok in proc.stderr.split():
         if tok.isdigit():
             return int(tok)
@@ -72,17 +73,20 @@ def decode_graph6(line: str) -> Graph:
 
 
 def geng_graphs(n: int, *, connected: bool = False, triangle_free: bool = False,
-                bipartite: bool = False, hard_cap: int = 300_000) -> list:
+                bipartite: bool = False, hard_cap: int = 300_000,
+                timeout_seconds: float = 30) -> list:
     """All non-isomorphic graphs on n vertices in the class, via geng, decoded to Graph objects.
     Refuses (rather than silently truncates) when the class exceeds `hard_cap`."""
     if n == 0:
         return [Graph(0, frozenset())]
-    count = geng_count(n, connected=connected, triangle_free=triangle_free, bipartite=bipartite)
+    count = geng_count(n, connected=connected, triangle_free=triangle_free,
+                       bipartite=bipartite, timeout_seconds=timeout_seconds)
     if count > hard_cap:
         raise ValueError(f"class has {count} graphs > hard_cap={hard_cap}; use geng_count "
                          f"(we refuse to silently truncate)")
     proc = subprocess.run([_GENG, "-q", *_flags(connected, triangle_free, bipartite), str(n)],
-                          capture_output=True, text=True, check=True)
+                          capture_output=True, text=True, check=True,
+                          timeout=timeout_seconds)
     graphs = [decode_graph6(line) for line in proc.stdout.splitlines() if line.strip()]
     if len(graphs) != count:
         raise RuntimeError(f"geng enumeration ({len(graphs)}) disagrees with geng -u count ({count})")

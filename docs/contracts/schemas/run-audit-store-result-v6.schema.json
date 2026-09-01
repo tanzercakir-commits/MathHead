@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/run-audit-store-result-v6.schema.json",
+  "title": "MathHead Run Audit Store Result v6",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_sha256",
+    "status",
+    "reason_code",
+    "manifest_sha256",
+    "record_sha256",
+    "object_count",
+    "result_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.run-audit-store-result.v6"
+    },
+    "contract_id": {
+      "const": "MH-C-RUN-AUDIT-STORE-006"
+    },
+    "contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "status": {
+      "enum": [
+        "stored",
+        "existing",
+        "invalid",
+        "unsupported",
+        "io_error"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "RUN_STORED",
+        "RUN_ALREADY_EXISTS",
+        "BUNDLE_INVALID",
+        "STORE_BUDGET_EXCEEDED",
+        "STORE_UNSUPPORTED",
+        "STORE_IO_ERROR"
+      ]
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "record_sha256": {
+      "$ref": "#/$defs/nullable_sha256"
+    },
+    "object_count": {
+      "$ref": "#/$defs/quantity"
+    },
+    "result_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ]
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "status": {
+              "const": "stored"
+            },
+            "reason_code": {
+              "const": "RUN_STORED"
+            },
+            "manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "object_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200000
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "existing"
+            },
+            "reason_code": {
+              "const": "RUN_ALREADY_EXISTS"
+            },
+            "manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "record_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "object_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200000
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "invalid"
+            },
+            "reason_code": {
+              "enum": [
+                "BUNDLE_INVALID",
+                "STORE_BUDGET_EXCEEDED"
+              ]
+            },
+            "manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "object_count": {
+              "const": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "unsupported"
+            },
+            "reason_code": {
+              "enum": [
+                "STORE_UNSUPPORTED"
+              ]
+            },
+            "manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "object_count": {
+              "const": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "io_error"
+            },
+            "reason_code": {
+              "enum": [
+                "STORE_IO_ERROR"
+              ]
+            },
+            "manifest_sha256": {
+              "type": "null"
+            },
+            "record_sha256": {
+              "type": "null"
+            },
+            "object_count": {
+              "const": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-DISCOVERY-PORTFOLIO-001",
+  "target": "mathhead.discovery.arithmetic:discover_and_prove",
+  "signature": "discover_and_prove(expr: str, fn: Callable[[int], int], check_upto: int = 60, judge_timeout_ms: int = 2500) -> ArithmeticFinding",
+  "requires": [
+    "expr denotes a univariate integer polynomial in n accepted by the existing exact kernel bridge and fn computes that same polynomial over integer inputs.",
+    "check_upto and judge_timeout_ms retain their existing positive bounded meanings; callers do not interpret a bounded refutation sweep alone as a universal proof.",
+    "The immutable legacy baseline and committed discovery SAMPLE-REPORT remain available as differential oracles."
+  ],
+  "ensures": [
+    "The exact polynomial degree selects the proof portfolio before any timing-sensitive solver call: degree four or greater uses complete residue exhaustion directly, while degree three or less retains the legacy induction and CRT-first path with residue exhaustion as its honest fallback.",
+    "The canonical seven-polynomial discovery family emits induction for the two degree-two laws, modulus-factoring for the two degree-three laws, and residue-exhaustion for the three degree-four-or-greater laws on every supported OS and Python version.",
+    "A degree-four-or-greater canonical law never changes certainty, method, reason, proof hash, or rendered report bytes because a solver happened to finish before a wall-clock timeout on one host.",
+    "Every proved finding remains independently checked and kernel verified; deterministic strategy selection never upgrades an empirical survivor or solver timeout into a proof.",
+    "The committed discovery SAMPLE-REPORT is byte-identical to a fresh render on every supported matrix cell."
+  ],
+  "raises": [
+    "Inputs outside the required integer-polynomial domain retain the existing kernel, parser, or arithmetic error boundary rather than receiving a fabricated finding.",
+    "MemoryError, KeyboardInterrupt, SystemExit, and interpreter defects are not converted into proof outcomes.",
+    "A failed independent or kernel check cannot be represented as independently_verified or kernel_verified."
+  ],
+  "effects": {
+    "filesystem": "none",
+    "process": "none beyond the already-declared in-process solver calls on the degree-three-or-less legacy path",
+    "network": "none",
+    "cache": "the caller-owned run_arithmetic_discovery cache may retain the returned immutable-by-convention findings; strategy selection itself has no cache",
+    "mutation": "does not mutate expr, fn, contracts, generated reports, tracker records, or the immutable legacy baseline"
+  },
+  "determinism": {
+    "degree": "len(poly_from_sympy(expr)) minus one after exact canonical coefficient normalization",
+    "high_degree": "degree at least four always selects residue-exhaustion before a solver call",
+    "canonical_methods": "induction, induction, residue-exhaustion, induction, modulus-factoring, residue-exhaustion, residue-exhaustion in POLY_FAMILY order",
+    "report": "method and certainty selection excludes elapsed time, host speed, architecture, checkout path, and solver scheduling"
+  },
+  "budget": {
+    "refutation": "at most check_upto plus one exact fn evaluations before proof selection",
+    "high_degree": "at most modulus exact residue evaluations and zero induction solver calls",
+    "low_degree": "existing bounded induction calls use judge_timeout_ms per prime-power part before the complete residue fallback",
+    "memory": "bounded by the canonical polynomial coefficients, prime-power list, and at most modulus residue results",
+    "cancellation": "KeyboardInterrupt is never swallowed"
+  },
+  "epistemics": {
+    "proved": "a complete universal proof was independently checked and a kernel proof term was successfully minted",
+    "refuted": "an exact integer input violates the proposed divisibility claim",
+    "unknown": "the selected bounded proof path did not establish the claim and no complete fallback established it",
+    "method": "names the deterministic selected proof strategy, not whichever timing-sensitive backend returned first"
+  },
+  "invariants": [
+    "No wall-clock race or solver timeout changes the canonical discovery report.",
+    "No strategy label claims stronger evidence than the proof actually checked.",
+    "The seven canonical proof hashes and their axiom lists remain content-addressed and unchanged.",
+    "No test, supported matrix cell, profile command, or coverage threshold is removed or weakened.",
+    "Accepted contracts and frozen legacy evidence remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-DISCOVERY-PORTFOLIO-001.json",
+    "python tools/validate_discovery_portfolio.py",
+    "python -m pytest -q tests/test_discovery_portfolio_contract.py",
+    "python -m pytest -q tests/test_discovery_arithmetic.py tests/test_discovery_strategy.py tests/test_trackers.py",
+    "python scripts/gen_status.py --check",
+    "python tools/dev.py check --profile core",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

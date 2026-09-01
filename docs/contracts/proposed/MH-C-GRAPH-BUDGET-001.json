@@ -1,0 +1,68 @@
+{
+  "schema": "mathhead.function-contract.v1",
+  "contract_id": "MH-C-GRAPH-BUDGET-001",
+  "target": "mathhead.discovery.product:graph_search_plan",
+  "signature": "graph_search_plan(max_n: int, *, fast_backend_available: bool) -> GraphSearchPlan",
+  "requires": [
+    "max_n is an int but not bool and fast_backend_available is bool.",
+    "The caller uses the returned plan before generating any graph for the product graph-bound surface.",
+    "The immutable MH-004 baseline remains available as the differential oracle."
+  ],
+  "ensures": [
+    "The returned frozen GraphSearchPlan names the requested maximum order, backend mode, maximum generated-object budget, and a stable reason code.",
+    "Orders 2 through 6 are supported by the pure-Python backend with a generated-object budget of 2000 isomorphism classes.",
+    "Orders 2 through 8 are supported by the fast nauty backend with a generated-object budget of 20000 isomorphism classes.",
+    "A request outside the selected backend limit returns a refusal plan before enumeration; it is never silently clamped or reported as a completed scan.",
+    "The public check and discovery CLI defaults use max_n=6 so dependency-minimal execution stays inside the pure-Python budget.",
+    "Graph-bound evaluation consumes graphs incrementally in deterministic increasing-order/backend order and stops at the first counterexample without materializing the full cross-order corpus.",
+    "Successful results preserve the legacy smallest-order witness and honest open-versus-refuted epistemic semantics wherever the frozen baseline overlaps.",
+    "A refusal result names the requested order, selected capability, safe limit, and reason without claiming any unexecuted graph was checked."
+  ],
+  "raises": [
+    "Invalid argument types return or raise the existing documented input-error boundary before graph generation.",
+    "Backend subprocess, malformed graph stream, object-budget, and timeout failures become stable unsupported or error evidence rather than an open or proved result.",
+    "No expected capability or budget failure leaks a Python traceback through the CLI."
+  ],
+  "effects": {
+    "filesystem": "none except caches explicitly owned by the selected backend",
+    "process": "the fast plan may invoke the already-declared nauty executable through bounded subprocesses; the pure plan starts no child process",
+    "network": "none",
+    "repository": "never edits source, baseline evidence, contracts, PLAN, TODO, or PROGRESS"
+  },
+  "determinism": {
+    "plan": "the same arguments and capability availability produce the same frozen plan",
+    "enumeration": "orders increase monotonically and each backend's canonical deterministic order is preserved",
+    "witness": "the first violating graph in deterministic order is returned",
+    "output": "reason codes and checked bounds exclude wall-clock timing and absolute paths"
+  },
+  "budget": {
+    "pure_max_n": 6,
+    "pure_max_objects": 2000,
+    "fast_max_n": 8,
+    "fast_max_objects": 20000,
+    "per_test_seconds": 30,
+    "cancellation": "an interrupted backend is terminated and cannot yield a successful result"
+  },
+  "epistemics": {
+    "refuted": "a concrete graph was generated and its exact invariant values violate the relation",
+    "open": "every graph named by the completed bounded plan was checked and no counterexample was found; never proved",
+    "unsupported": "the requested order or required backend exceeds the accepted plan and no larger-order claim is made",
+    "error": "enumeration or invariant evaluation failed, so no completion claim is made"
+  },
+  "invariants": [
+    "No pure-Python graph scan requests order 7 or larger.",
+    "No plan claims more generated objects than its accepted backend budget.",
+    "No incomplete, interrupted, failed, or refused scan is relabeled open, refuted, or proved.",
+    "Default graph checks terminate within the existing 30-second pytest budget on supported core environments.",
+    "Fast-backend absence is capability evidence, not a silent skip.",
+    "The MH-004 artifact and observation input remain byte-identical."
+  ],
+  "validators": [
+    "python -m json.tool docs/contracts/proposed/MH-C-GRAPH-BUDGET-001.json",
+    "python -m unittest discover -s tests/graph_budget -v",
+    "python tools/validate_graph_budget.py",
+    "python tools/dev.py run --profile core --command legacy-full",
+    "python tools/project_status.py check"
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/proof-obligation-local-context-v1.schema.json",
+  "title": "MathHead proof-obligation local context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "reading_id": {"$ref": "#/$defs/id"},
+    "normalized_context_sha256": {"$ref": "#/$defs/sha256"},
+    "definition_ids": {"$ref": "#/$defs/id_array"},
+    "assumption_fact_sha256s": {"type": "array", "maxItems": 400000, "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "bound_variable_ids": {"$ref": "#/$defs/id_array"},
+    "local_hypothesis_statement_ids": {"$ref": "#/$defs/id_array"},
+    "witness_placeholder_ids": {
+      "type": "array", "maxItems": 100000, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^witness_[a-z0-9_]+$", "maxLength": 192}
+    },
+    "dependency_ids": {"$ref": "#/$defs/id_array"},
+    "source_span_ids": {"$ref": "#/$defs/id_array"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": ["reading_id", "normalized_context_sha256", "definition_ids", "assumption_fact_sha256s", "bound_variable_ids", "local_hypothesis_statement_ids", "witness_placeholder_ids", "dependency_ids", "source_span_ids", "mathematical_authority"],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id_array": {"type": "array", "maxItems": 1200000, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+  }
+}

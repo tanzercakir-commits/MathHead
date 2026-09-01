@@ -10,7 +10,11 @@ from mathhead.discovery.nauty_scale import (
     geng_graphs,
 )
 
-pytestmark = pytest.mark.skipif(not geng_available(), reason="nauty/geng not installed")
+pytestmark = [
+    pytest.mark.requires_solver,
+    pytest.mark.slow,
+    pytest.mark.skipif(not geng_available(), reason="nauty/geng not installed"),
+]
 
 
 def test_geng_agrees_with_the_pure_generator_class_by_class():

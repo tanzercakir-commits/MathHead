@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-session-attempt-v1.schema.json",
+  "title": "MathHead problem-session attempt record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-session-attempt.v1"},
+    "record_id": {"$ref": "#/$defs/id"},
+    "generation": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "attempt_id": {"$ref": "#/$defs/id"},
+    "strategy_id": {"$ref": "#/$defs/id"},
+    "outcome": {
+      "enum": ["succeeded", "failed", "cancelled", "timed_out", "exhausted"]
+    },
+    "context_sha256": {"$ref": "#/$defs/sha256"},
+    "reading_id": {
+      "anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]
+    },
+    "obligation_record_sha256s": {"$ref": "#/$defs/dependencies"},
+    "input_artifact_sha256s": {"$ref": "#/$defs/dependencies"},
+    "observation_artifact_sha256s": {"$ref": "#/$defs/dependencies"},
+    "produced_artifact_sha256s": {"$ref": "#/$defs/dependencies"},
+    "resource_outcome_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "diagnostic_codes": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,63}$"}
+    },
+    "depends_on_record_sha256s": {"$ref": "#/$defs/dependencies"},
+    "record_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "record_id",
+    "generation",
+    "attempt_id",
+    "strategy_id",
+    "outcome",
+    "context_sha256",
+    "reading_id",
+    "obligation_record_sha256s",
+    "input_artifact_sha256s",
+    "observation_artifact_sha256s",
+    "produced_artifact_sha256s",
+    "resource_outcome_sha256",
+    "diagnostic_codes",
+    "depends_on_record_sha256s",
+    "record_sha256",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+    "dependencies": {
+      "type": "array",
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    }
+  }
+}

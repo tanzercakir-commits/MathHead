@@ -18,6 +18,24 @@ from mcp import StdioServerParameters
 from mcp.client.session import ClientSession
 from mcp.client.stdio import stdio_client
 
+from mathhead.server.live import probe_stdio_capability
+
+
+pytestmark = pytest.mark.live_mcp
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _require_stdio_capability():
+    """Skip only a separately proven host-pipe denial; fail every other defect."""
+    capability = probe_stdio_capability()
+    if capability.status == "unsupported":
+        pytest.skip(f"live MCP stdio unsupported: {capability.reason}")
+    if capability.status != "supported":
+        pytest.fail(
+            f"live MCP stdio capability probe failed: "
+            f"{capability.status}:{capability.reason}"
+        )
+
 
 def _params(profile: str) -> StdioServerParameters:
     return StdioServerParameters(
@@ -125,10 +143,22 @@ def test_live_clean_shutdown_on_stdin_eof():
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         env={**os.environ, "MATHHEAD_PROFILE": "core"},
     )
+    assert proc.stdin is not None
     proc.stdin.close()                                     # EOF → the stdio server should stop
     try:
         rc = proc.wait(timeout=15)
     except subprocess.TimeoutExpired:
-        proc.kill()
         pytest.fail("server did not shut down on stdin EOF (hung)")
+    finally:
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=2)
+        for stream in (proc.stdin, proc.stdout, proc.stderr):
+            if stream is not None and not stream.closed:
+                stream.close()
+    assert proc.poll() is not None                         # no leaked child
     assert rc == 0                                         # clean exit

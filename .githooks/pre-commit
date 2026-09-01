@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -n "$staged" ] || exit 0
+
+# A PROGRESS-only record is already append-only evidence. Every other staged
+# path, including TODO consumption, is substantive under the status model.
+progress_path="$(sed -n 's/^progress = "\([^"]*\)"/\1/p' .project-status.toml | head -n 1)"
+if [ -n "$progress_path" ] && ! printf '%s\n' "$staged" | grep -Fqvx "$progress_path"; then
+  exit 0
+fi
+
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 tools/project_status.py check
+fi
+if command -v python >/dev/null 2>&1; then
+  exec python tools/project_status.py check
+fi
+
+echo "project-status: Python 3 is required" >&2
+exit 1

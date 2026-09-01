@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/trust-base-v1.schema.json",
+  "title": "MathHead trusted computing base inventory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract",
+    "foundation",
+    "scope",
+    "authority_tiers",
+    "roles",
+    "entry_points",
+    "import_roots",
+    "surfaces",
+    "kernel_target",
+    "migration_order",
+    "inventory_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.trust-base-inventory.v1"},
+    "contract": {"$ref": "#/$defs/contract_binding"},
+    "foundation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_sha256", "manifest_path", "manifest_sha256"],
+      "properties": {
+        "bundle_sha256": {"$ref": "#/$defs/sha256"},
+        "manifest_path": {"$ref": "#/$defs/path"},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_root", "module_prefix", "source_suffix", "excluded_paths"],
+      "properties": {
+        "source_root": {"const": "src/mathhead"},
+        "module_prefix": {"const": "mathhead"},
+        "source_suffix": {"const": ".py"},
+        "excluded_paths": {
+          "type": "array",
+          "maxItems": 0,
+          "items": {"$ref": "#/$defs/path"}
+        }
+      }
+    },
+    "authority_tiers": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/authority_tier"}
+    },
+    "roles": {
+      "type": "array",
+      "minItems": 10,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/role"}
+    },
+    "entry_points": {
+      "type": "array",
+      "minItems": 7,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/entry_point"}
+    },
+    "import_roots": {
+      "type": "array",
+      "minItems": 20,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/import_root"}
+    },
+    "surfaces": {
+      "type": "array",
+      "minItems": 15,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/surface"}
+    },
+    "kernel_target": {"$ref": "#/$defs/kernel_target"},
+    "migration_order": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/migration"}
+    },
+    "inventory_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"},
+    "path": {
+      "type": "string",
+      "pattern": "^(?:docs|src|tests|tools)/[A-Za-z0-9_.@/+:-]+$"
+    },
+    "target": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*(?:\\.[a-z_][a-z0-9_]*)*:[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "nonempty_string": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "string_set": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/nonempty_string"}
+    },
+    "path_set": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/path"}
+    },
+    "id_set": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/id"}
+    },
+    "contract_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_id", "sha256", "path", "schema_sha256"],
+      "properties": {
+        "contract_id": {"const": "MH-C-TRUST-BASE-001"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "path": {"const": "docs/contracts/MH-C-TRUST-BASE-001.json"},
+        "schema_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "authority_tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tier_id", "mathematical_authority", "meaning", "requirements"],
+      "properties": {
+        "tier_id": {
+          "enum": [
+            "none",
+            "producer_report",
+            "solver_verdict",
+            "checker_attestation",
+            "external_proof_assistant"
+          ]
+        },
+        "mathematical_authority": {"type": "boolean"},
+        "meaning": {"$ref": "#/$defs/nonempty_string"},
+        "requirements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        }
+      }
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role_id", "may_grant_authority", "meaning"],
+      "properties": {
+        "role_id": {"$ref": "#/$defs/id"},
+        "may_grant_authority": {"type": "boolean"},
+        "meaning": {"$ref": "#/$defs/nonempty_string"}
+      }
+    },
+    "entry_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_id", "kind", "target", "surface_ids"],
+      "properties": {
+        "entry_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["console_script", "public_checker", "proof_kernel"]},
+        "target": {"$ref": "#/$defs/target"},
+        "surface_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      }
+    },
+    "import_root": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "kind", "surface_id", "policy", "reason"],
+      "properties": {
+        "root": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+        "kind": {"enum": ["language", "stdlib", "third_party"]},
+        "surface_id": {"$ref": "#/$defs/id"},
+        "policy": {"enum": ["required", "producer_only", "effect_only"]},
+        "reason": {"$ref": "#/$defs/nonempty_string"}
+      }
+    },
+    "migration_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "action", "target_owner", "target_state"],
+      "properties": {
+        "task_id": {"type": "string", "pattern": "^MH-[0-9]{3}$"},
+        "action": {"$ref": "#/$defs/nonempty_string"},
+        "target_owner": {"$ref": "#/$defs/nonempty_string"},
+        "target_state": {"enum": ["remain", "narrow", "replace", "exclude"]}
+      }
+    },
+    "trusted_byte": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "reason"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "reason": {"$ref": "#/$defs/nonempty_string"}
+      }
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_id",
+        "category",
+        "owner",
+        "role_id",
+        "current_authority",
+        "target_authority",
+        "state",
+        "required",
+        "source_paths",
+        "import_roots",
+        "trusted_primitives",
+        "trusted_bytes",
+        "attack_modes",
+        "failure_modes",
+        "controls",
+        "migration"
+      ],
+      "properties": {
+        "surface_id": {"$ref": "#/$defs/id"},
+        "category": {
+          "enum": [
+            "parser",
+            "serialization",
+            "hashing",
+            "arithmetic",
+            "checker",
+            "solver",
+            "runtime",
+            "transport",
+            "process",
+            "proof_assistant"
+          ]
+        },
+        "owner": {"$ref": "#/$defs/nonempty_string"},
+        "role_id": {"$ref": "#/$defs/id"},
+        "current_authority": {
+          "enum": [
+            "none",
+            "producer_report",
+            "solver_verdict",
+            "checker_attestation",
+            "external_proof_assistant"
+          ]
+        },
+        "target_authority": {
+          "enum": [
+            "none",
+            "producer_report",
+            "solver_verdict",
+            "checker_attestation",
+            "external_proof_assistant"
+          ]
+        },
+        "state": {"enum": ["current_required", "current_legacy", "future"]},
+        "required": {"type": "boolean"},
+        "source_paths": {"$ref": "#/$defs/path_set"},
+        "import_roots": {"$ref": "#/$defs/string_set"},
+        "trusted_primitives": {"$ref": "#/$defs/string_set"},
+        "trusted_bytes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/trusted_byte"}
+        },
+        "attack_modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "failure_modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "controls": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "migration": {"$ref": "#/$defs/migration_binding"}
+      }
+    },
+    "source_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_modules",
+        "max_transitive_internal_modules",
+        "max_stdlib_roots",
+        "max_third_party_roots",
+        "max_dynamic_imports",
+        "max_effect_roots"
+      ],
+      "properties": {
+        "max_modules": {"type": "integer", "minimum": 1, "maximum": 64},
+        "max_transitive_internal_modules": {"type": "integer", "minimum": 1, "maximum": 64},
+        "max_stdlib_roots": {"type": "integer", "minimum": 1, "maximum": 32},
+        "max_third_party_roots": {"const": 0},
+        "max_dynamic_imports": {"const": 0},
+        "max_effect_roots": {"const": 0}
+      }
+    },
+    "kernel_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "task_id",
+        "authority",
+        "source_budget",
+        "allow_import_roots",
+        "deny_import_roots",
+        "allowed_primitives",
+        "forbidden_capabilities",
+        "replay_requirement"
+      ],
+      "properties": {
+        "owner": {"const": "mathhead.kernel"},
+        "task_id": {"const": "MH-032"},
+        "authority": {"const": "checker_attestation"},
+        "source_budget": {"$ref": "#/$defs/source_budget"},
+        "allow_import_roots": {"$ref": "#/$defs/string_set"},
+        "deny_import_roots": {
+          "type": "array",
+          "minItems": 8,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "allowed_primitives": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "forbidden_capabilities": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonempty_string"}
+        },
+        "replay_requirement": {"$ref": "#/$defs/nonempty_string"}
+      }
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "depends_on", "closes"],
+      "properties": {
+        "task_id": {"type": "string", "pattern": "^MH-03[1-7]$"},
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^MH-03[0-7]$"}
+        },
+        "closes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      }
+    }
+  }
+}

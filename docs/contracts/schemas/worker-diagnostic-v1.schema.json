@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/worker-diagnostic-v1.schema.json",
+  "title": "MathHead Worker Diagnostic v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "code", "message", "diagnostic_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.worker-diagnostic.v1"},
+    "code": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Z][A-Z0-9_]*$"},
+    "message": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "diagnostic_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

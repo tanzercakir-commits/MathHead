@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/planning-prerequisite-v1.schema.json",
+  "title": "MathHead Planning Prerequisite v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "kind", "object_sha256", "contract_id", "artifact_schema", "prerequisite_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.planning-prerequisite.v1"},
+    "kind": {"enum": ["route", "session_head", "context", "normalization", "obligation", "contract", "descriptor_dependency"]},
+    "object_sha256": {"$ref": "#/$defs/sha256"},
+    "contract_id": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/contract_id"}]},
+    "artifact_schema": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/namespaced"}]},
+    "prerequisite_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "contract_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$"},
+    "namespaced": {"type": "string", "minLength": 3, "maxLength": 255, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"}
+  }
+}

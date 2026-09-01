@@ -31,6 +31,8 @@ from typing import Any
 
 import z3
 
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
+
 _BOOL_FUNCS = {"implies", "iff", "xor"}
 _QUANTIFIERS = {"forall", "exists"}
 
@@ -53,9 +55,9 @@ class ParseError(ValueError):
 
 def parse(expression: str) -> ast.Expression:
     try:
-        return ast.parse(expression, mode="eval")
-    except SyntaxError as exc:
-        raise ParseError(f"syntax error: {exc.msg}") from exc
+        return parse_expression(expression)
+    except ExpressionSyntaxError as exc:
+        raise ParseError(f"syntax error: {exc}") from exc
 
 
 def _has_float(tree: ast.AST) -> bool:

@@ -23,6 +23,7 @@ from typing import Any
 import sympy
 
 from mathhead.cache import memoize
+from mathhead.parsing import ExpressionSyntaxError, parse_expression
 
 MAX_EXPRESSION_CHARS: int = 4_000
 
@@ -116,9 +117,9 @@ def _parse(expression: str, syms: dict[str, Any]) -> Any:
     if len(expression) > MAX_EXPRESSION_CHARS:
         raise ComputeError(f"expression too long (>{MAX_EXPRESSION_CHARS} characters)")
     try:
-        tree = ast.parse(expression, mode="eval")
-    except SyntaxError as exc:
-        raise ComputeError(f"syntax error: {exc.msg}") from exc
+        tree = parse_expression(expression)
+    except ExpressionSyntaxError as exc:
+        raise ComputeError(f"syntax error: {exc}") from exc
     body = tree.body
     if isinstance(body, ast.Compare):  # equation: a == b
         if len(body.ops) == 1 and isinstance(body.ops[0], ast.Eq):
@@ -810,7 +811,7 @@ def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
         src = str(recurrence).strip()
         if "=" in src and "==" not in src:      # assignment-style '=' -> '==' (for eval mode)
             src = src.replace("=", "==", 1)
-        body = ast.parse(src, mode="eval").body
+        body = parse_expression(src).body
         if isinstance(body, ast.Compare):
             if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):
                 raise ComputeError("only the '==' comparison is supported")
@@ -820,7 +821,7 @@ def solve_recurrence(recurrence: str, func: str = "y", var: str = "n",
         inits = {F(int(str(kk))): _parse(str(vv), {}) for kk, vv in initial.items()}
     except ComputeError as exc:
         return _error("solve_recurrence", str(exc), t0)
-    except (SyntaxError, ValueError) as exc:
+    except ValueError as exc:
         return _error("solve_recurrence", f"could not parse: {exc}", t0)
     try:
         sol = sympy.rsolve(expr, F(varsym), inits)
@@ -1282,8 +1283,8 @@ def _parse_diffeq(equation: str, func_names: list[str], var_names: list[str]):
     if "=" in src and "==" not in src:
         src = src.replace("=", "==", 1)
     try:
-        body = ast.parse(src, mode="eval").body
-    except (SyntaxError, ValueError) as exc:
+        body = parse_expression(src).body
+    except ExpressionSyntaxError as exc:
         raise ComputeError(f"could not parse: {exc}") from exc
     if isinstance(body, ast.Compare):
         if len(body.ops) != 1 or not isinstance(body.ops[0], ast.Eq):

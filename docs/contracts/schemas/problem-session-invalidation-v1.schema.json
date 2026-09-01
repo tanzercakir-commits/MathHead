@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/problem-session-invalidation-v1.schema.json",
+  "title": "MathHead problem-session invalidation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "mathhead.problem-session-invalidation.v1"},
+    "ordinal": {"type": "integer", "minimum": 0, "maximum": 999999},
+    "target_record_sha256": {"$ref": "#/$defs/sha256"},
+    "trigger_record_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "old_context_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "new_context_sha256": {
+      "anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "reason": {
+      "enum": [
+        "context_revised",
+        "dependency_replaced",
+        "dependency_retired",
+        "superseded",
+        "retired"
+      ]
+    },
+    "invalidation_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "required": [
+    "schema",
+    "ordinal",
+    "target_record_sha256",
+    "trigger_record_sha256",
+    "old_context_sha256",
+    "new_context_sha256",
+    "reason",
+    "invalidation_sha256",
+    "mathematical_authority"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

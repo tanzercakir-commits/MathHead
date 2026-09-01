@@ -1,0 +1,210 @@
+# Trusted computing base inventory
+
+MH-030 turns MathHead's trust claims into a checked repository artifact instead
+of leaving them distributed across module docstrings and result labels. The
+normative inventory is `trust-base-v1.json`; its closed Draft 2020-12 schema is
+`trust-base-v1.schema.json`, and `reports/trust-base-v1.json` is the frozen
+static analysis result.
+
+The inventory is governed by accepted contract `MH-C-TRUST-BASE-001` at
+SHA-256
+`2d2c23da4d3b167c5220c7548602f11403af7634031c438a8f61ac8e3e191456`.
+Its current self-identity is
+`a58253912d77a66aba4ec867b292e1fab9b9e53076737ff7ad0c9d531542ba9b`.
+
+MH-037 adds the normative transition catalogue
+`trust-transition-catalogue-v1.json` and frozen G3 report
+`reports/trust-transition-g3-v1.json`. They are governed by accepted contract
+`MH-C-TRUST-TRANSITION-001` at SHA-256
+`7b32e2db85c8aa8c98b9a9c5404d562a909f9ae2435310a79dad04b6c6ed4796`.
+See `../TRUST_TRANSITIONS_V1.md` for every permitted edge, downgrade rule,
+effect ceiling, semantic replay boundary, and regeneration command.
+
+## Current result
+
+The static boundary contains 148 Python modules, 39 non-`mathhead` import
+roots, 24 classified trust surfaces, and twelve supported entry points. Every
+source module and import edge is represented in the deterministic report. A
+new source file, import edge, import root, dynamic import call, effect owner,
+entry-point closure, or trust classification changes the report and therefore
+fails the checked repository state until it is deliberately reviewed.
+
+The important current distinctions are:
+
+| Boundary | Current authority | P3 disposition |
+|---|---|---|
+| Z3 and SymPy | legacy solver-verdict labels, capped at producer report by G3 | producer-side; independent promotion requires evidence replay |
+| PySAT and nauty | producer report | retain outside the checker and bind exact encodings or output |
+| `certificate.py` | legacy mixed exact and approximate checking; cannot issue the new immutable attestation | separate remaining numerical evidence in MH-033 |
+| `kernel/sat.py` | immutable checker attestation for canonical SAT assignments and RUP-only DRUP | one versioned boundary; DRAT/RAT is explicitly unsupported |
+| `drat.py` and `discovery/rup_check.py` | legacy result shapes only | non-authoritative adapters to `kernel/sat.py` |
+| `discovery/kernel.py` | legacy checker attestation under a Python LCF-style guard | compatibility only; its forgeable `Theorem` cannot cross the new boundary |
+| `kernel/proof_terms.py` | structural validity only, no mathematical authority | constructor-controlled closed values and canonical parsing implemented in MH-031 for MH-032 replay |
+| `kernel/checkers.py` | immutable checker attestation after exact independent replay | active MH-032 authority boundary; five internal modules and seven stdlib roots |
+| `kernel/provenance.py` | preserves a fresh checker attestation only after complete bundle replay | active MH-035 boundary; exact manifest, object graph, plugin, contract, source, config, inputs, and result bytes |
+| `provenance_store.py` | no mathematical authority | atomic immutable fan-out store; every load is rehashed and freshly replayed |
+| SHA-256 and canonical JSON | identity only | centralized into complete MH-035 content and replay bindings; a digest alone never proves truth |
+| `proof_assistant/export.py` | no authority | canonical four-rule source, request, and project bytes only |
+| `proof_assistant/lean.py` | external proof-assistant authority after fresh exact replay | pinned Lean 4.33, path-only dependency runtime, bounded shell-free process, exact output artifacts |
+| `proof_assistant/provenance.py` | preserves external authority only after MH-035 replay | byte-identical proof/checker objects followed by another fresh Lean execution |
+| `kernel/trust_transitions.py` | no mathematical authority | pure byte-bound policy audit; its result cannot substitute for a checker or Lean |
+| `problem_intake.py` | no mathematical authority | syntax-neutral exact-data canonicalizer; validates representation only and imports no parser, solver, interface, filesystem, process, or network owner |
+| `problem_readings.py` | no mathematical authority | deterministic structural reading projector; compares only accepted ProblemIR declarations and cannot infer, select, normalize, solve, or issue evidence |
+| `domain_assumptions.py` | no mathematical authority | deterministic per-reading structural inventory; exact-match rules preserve declared domains and assumptions but cannot infer, merge, simplify, solve, or promote evidence |
+| `proof_obligations.py` | no mathematical authority | deterministic per-reading typed obligation graphs; exact syntax rules preserve contexts, choices, dependencies, and symbolic witness duties but cannot plan, execute, solve, check, or promote evidence |
+| `canonical_normalization.py` | no mathematical authority | capture-safe representation and exact catalogue-authorized ordering only; source topology and reversible traces stay intact |
+| `unsupported_explanations.py` | no mathematical authority | pure exact-match support diagnostics; owner fragments and caller-confirmed steps cannot rewrite input, discover capability, execute a backend, or promote evidence |
+| `problem_sessions.py` | no mathematical authority | pure canonical event replay, dependency invalidation, and immutable current/history projection; it preserves evidence tiers but cannot produce or verify evidence |
+| `problem_session_store.py` | no mathematical authority | effect-only content-addressed atomic store; every committed load rehashes exact bytes and invokes fresh pure replay |
+| `capability_registry.py` | no mathematical authority | pure typed registration and exact structural routing; compatibility, cost, and selection never execute a plugin or imply solvability |
+| `deterministic_planner.py` | no mathematical authority | pure content-addressed strategy intent; reroutes exact inputs, binds prerequisites/resources/fallbacks, and never executes or promotes a result |
+| `isolated_worker.py` | no mathematical authority | effectful producer containment; enforces a child budget and returns bounded opaque bytes without validating mathematics |
+| `proof_search_portfolio.py` | no mathematical authority | effectful deterministic orchestration; only an exact separately checked Evidence/Certificate chain can be selected, while the portfolio envelope itself cannot attest truth |
+| `run_audit.py` | no mathematical authority | safe content-addressed execution capture and pure hostile-byte logical replay; it preserves exact checked artifacts and authority tiers as history without creating or upgrading them |
+| `run_audit_store.py` | no mathematical authority | append-only filesystem adapter with an immutable run-record commit point; every visible run is rehashed and freshly replayed before use |
+| `safe_cache.py` | no mathematical authority | pure exact-context key and reuse decision; a hit requires fresh complete audit replay and preserves the original checked tier without granting authority |
+| `safe_cache_store.py` | no mathematical authority | separate immutable entry-and-key store; every present lookup reloads the accepted audit store and reruns the pure decision without executing producers or checkers |
+| `execution_disposition.py` | no mathematical authority | closed presentation coordinator; binds one invocation and optional cancellation intent, executes one audited run, performs one additional fresh replay, and classifies only exact replayed relations without creating authority |
+| MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
+
+The report also preserves two current import cycles rather than hiding them:
+the `profiles`/`router`/MCP cycle and the discovery
+`__init__`/`formalize`/`product` cycle. Inventory validity describes these
+facts; it does not certify the Python runtime, arithmetic, solver, checker, or
+proof-assistant implementation as sound.
+
+## Minimal checker target
+
+The MH-032 target is capped at 12 modules and nine standard-library roots. The
+proof-term checker closure uses five modules and seven standard-library roots;
+the SAT replay checker uses one module and five standard-library roots; the
+whole-run provenance closure uses eight modules and eight roots. It
+permits only declared exact value, rational, digest, canonical JSON, Unicode,
+and integer-combinatorial primitives. Third-party packages, dynamic imports,
+filesystem and process effects, environment reads, network transport, clocks,
+randomness, and floating-point or solver authority are all explicitly denied.
+
+The accepted proof-term and SAT replay contracts and result schemas are bound
+into the inventory. Legacy SAT adapters import the checker but cannot construct
+its immutable result or grant authority independently. MH-031 through MH-037
+own every migration in an acyclic order.
+
+## Commands
+
+Check the frozen report and focused adversarial tests:
+
+```bash
+python tools/validate_trust_base.py
+python -m unittest discover -s tests/trust_base -v
+python tools/validate_trust_transitions.py
+python -m unittest discover -s tests/trust_transitions -v
+```
+
+After a deliberate trust-boundary review, regenerate the report and then
+re-run the same checks:
+
+```bash
+python tools/validate_trust_base.py \
+  --write-report docs/trust/reports/trust-base-v1.json
+python tools/validate_trust_base.py
+```
+
+Report generation statically parses Python source. It does not import
+`mathhead`, Z3, SymPy, PySAT, mpmath, MCP, or Lean and does not execute a
+solver, subprocess, worker, or network request. Dependency-minimal and
+full-`jsonschema` profiles produce identical report bytes, including in a
+relocated checkout.
+
+## Checked proof/search orchestration
+
+MH-053 keeps producers outside the trusted kernel and invokes both producer
+and checker only through `isolated_worker.py`. The portfolio revalidates the
+exact planned subject, descriptor components, Evidence bytes, Certificate
+replay, checker independence, seven-part trust closure, and closed checker
+decision before selection. Process completion, producer consensus, repeated
+bytes, search exhaustion, and portfolio metadata grant no authority.
+
+The selected Certificate may carry `checker_attested` or
+`external_verified`; `ProofSearchPortfolioResult` always remains explicitly
+non-authoritative. Its trust role is orchestration and evidence binding, not
+mathematical checking. Validate this boundary and its independent reconstruction
+with:
+
+```bash
+python -m unittest discover -s tests/proof_search_portfolio -v
+python tools/validate_proof_search_portfolio.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-PROOF-SEARCH-PORTFOLIO-001 --require-bound
+```
+
+## Non-authoritative run audit and replay
+
+MH-054 records the exact normalized input, plan, selected plugin components,
+declared and reconciled budgets, validated artifacts, checker decisions, and
+deterministic lifecycle order. It deliberately excludes environment values,
+credentials, paths, clocks, process identifiers, raw invalid output, and
+diagnostic prose. The audit manifest, logical report, replay result, store
+record, and store result all remain non-authoritative metadata.
+
+Logical replay reruns only pure routing, planning, parsing, identity, and
+checker-link validation over exact bytes. It never executes a producer,
+checker, solver, subprocess, network operation, or filesystem operation. The
+separate store adapter owns only private append-only filesystem effects and
+cannot promote a verdict. The selected Evidence and Certificate retain their
+upstream tier; neither replay completeness nor durable storage proves a
+mathematical claim.
+
+```bash
+python tools/validate_run_audit.py
+python tools/validate_run_audit_store.py
+python -m unittest discover -s tests/run_audit -v
+python -m unittest discover -s tests/run_audit_store -v
+```
+
+## Zero-authority safe reuse
+
+MH-055 permits reuse only as a reference to an existing checked history. The
+pure decision recomputes the complete current key, freshly replays the exact
+audited bundle, validates the selected Evidence, Certificate, checker decision,
+and compiled tier permission, and then preserves the historical tier. A cache
+miss, hit, entry, key, record, durable write, or listing never establishes a
+mathematical claim.
+
+The separate store has only filesystem authority beneath its explicit cache
+root and read authority beneath the distinct audit root. A present lookup must
+load through the accepted audit store and rerun the pure decision; it cannot
+invoke a worker, producer, checker, solver, plugin, proof assistant, or normal
+execution fallback. Invalid visible state is an explicit non-hit and is never
+repaired into authority.
+
+```bash
+python tools/validate_safe_cache.py
+python tools/validate_safe_cache_store.py
+python -m unittest discover -s tests/safe_cache -v
+python -m unittest discover -s tests/safe_cache_store -v
+```
+
+## Zero-authority execution disposition
+
+MH-056 presents one ordinary governed outcome without changing the authority
+of any upstream object. The request commits exact semantic inputs and an
+optional invocation-scoped cancellation intent. A planned call derives the
+anchored budget and portfolio request, invokes the accepted audited boundary
+once, then performs one additional hostile-byte replay. It does not consult or
+write the safe cache or either store, invoke a worker directly, retry, or infer
+truth from process completion.
+
+The returned disposition may link a freshly replayed checked Evidence,
+Certificate, checker decision, and existing tier, but it cannot create, repair,
+copy, or upgrade them. Cancellation, exhaustion, refusal, unsupported input,
+failure, and internal diagnostics remain non-mathematical execution facts.
+Every result and diagnostic has zero mathematical authority, and stale or
+cross-input evidence is an internal relation failure rather than a normalized
+success or cancellation.
+
+```bash
+python tools/validate_execution_disposition.py
+python -m unittest discover -s tests/execution_disposition -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-EXECUTION-DISPOSITION-001 --require-bound
+```

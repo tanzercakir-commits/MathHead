@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/planning-result-v1.schema.json",
+  "title": "MathHead Planning Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "contract_id", "contract_sha256", "capability_registry_contract_sha256", "resource_budget_contract_sha256", "engine_result_contract_sha256", "evidence_contract_sha256", "certificate_contract_sha256", "theory_plugin_contract_sha256", "status", "reason_code", "diagnostic", "planning_request_sha256", "route_result_sha256", "policy_sha256", "entry_strategy_sha256", "strategies", "result_sha256", "mathematical_authority"],
+  "properties": {
+    "schema": {"const": "mathhead.planning-result.v1"}, "contract_id": {"const": "MH-C-DETERMINISTIC-PLANNER-001"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"}, "capability_registry_contract_sha256": {"$ref": "#/$defs/sha256"}, "resource_budget_contract_sha256": {"$ref": "#/$defs/sha256"}, "engine_result_contract_sha256": {"$ref": "#/$defs/sha256"}, "evidence_contract_sha256": {"$ref": "#/$defs/sha256"}, "certificate_contract_sha256": {"$ref": "#/$defs/sha256"}, "theory_plugin_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"enum": ["planned", "unsupported", "ambiguous", "invalid", "exhausted"]}, "reason_code": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Z][A-Z0-9_]*$"}, "diagnostic": {"type": "string", "maxLength": 1024},
+    "planning_request_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}, "route_result_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}, "policy_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}, "entry_strategy_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "strategies": {"type": "array", "maxItems": 100000, "items": {"type": "object"}}, "result_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}, "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

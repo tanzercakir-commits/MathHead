@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/portfolio-checker-decision-v1.schema.json",
+  "title": "MathHead Portfolio Checker Decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "strategy_sha256",
+    "producer_component_id",
+    "checker_component_id",
+    "subject_sha256",
+    "claim",
+    "evidence_sha256",
+    "evidence_bytes",
+    "certificate_sha256",
+    "certificate_bytes",
+    "certificate_verdict",
+    "certificate_authority",
+    "agreement",
+    "reason_code",
+    "decision_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.portfolio-checker-decision.v1"},
+    "strategy_sha256": {"$ref": "#/$defs/sha256"},
+    "producer_component_id": {"$ref": "#/$defs/id"},
+    "checker_component_id": {"$ref": "#/$defs/id"},
+    "subject_sha256": {"$ref": "#/$defs/sha256"},
+    "claim": {"enum": ["proved", "refuted", "none"]},
+    "evidence_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "evidence_bytes": {"$ref": "#/$defs/quantity"},
+    "certificate_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "certificate_bytes": {"$ref": "#/$defs/quantity"},
+    "certificate_verdict": {"enum": ["verified", "invalid", "unsupported", "inconclusive", "cancelled", "exhausted", "truncated", "verifier_failed"]},
+    "certificate_authority": {"enum": ["checker_attested", "external_verified", "none"]},
+    "agreement": {"type": "boolean"},
+    "reason_code": {"enum": ["CHECKER_AGREED", "CHECKER_REJECTED", "CHECKER_INCONCLUSIVE", "CHECKER_DISAGREED", "CERTIFICATE_INVALID"]},
+    "decision_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "$defs": {
+    "quantity": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullable_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]*$"}
+  }
+}

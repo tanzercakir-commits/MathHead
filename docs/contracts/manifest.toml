@@ -389,3 +389,9 @@ id = "MH-C-SAFE-CACHE-STORE-002"
 path = "docs/contracts/MH-C-SAFE-CACHE-STORE-002.json"
 sha256 = "4ed580fcb08191bfc7caa8901a4f5b74456cd9fc178f17b8a2530b0599368ed2"
 state = "accepted"
+
+[[contracts]]
+id = "MH-C-EXECUTION-DISPOSITION-001"
+path = "docs/contracts/MH-C-EXECUTION-DISPOSITION-001.json"
+sha256 = "64a7950b13449ee942d003d4e56b482b104769db15cd3080a1011a2a45eb4f96"
+state = "accepted"

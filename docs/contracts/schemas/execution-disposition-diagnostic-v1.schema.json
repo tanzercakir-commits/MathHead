@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/execution-disposition-diagnostic-v1.schema.json",
+  "title": "MathHead Execution Disposition Diagnostic v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "diagnostic_id",
+    "severity",
+    "code",
+    "phase",
+    "subject_sha256",
+    "related_sha256s",
+    "diagnostic_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {"const": "mathhead.execution-disposition-diagnostic.v1"},
+    "diagnostic_id": {
+      "type": "string",
+      "pattern": "^execution_disposition\\.(request|routing|planning|cleanup|audit|replay|coordinator)\\.[a-z][a-z0-9_]{0,127}$",
+      "maxLength": 192
+    },
+    "severity": {"const": "error"},
+    "code": {
+      "enum": [
+        "REQUEST_INVALID",
+        "INTENT_EVENT_MISMATCH",
+        "RESERVED_EXTENSION_COLLISION",
+        "ROUTE_INPUT_INVALID",
+        "PLANNING_INPUT_INVALID",
+        "BINDING_INPUT_INVALID",
+        "ARTIFACT_INPUT_INVALID",
+        "EXECUTION_INPUT_INVALID",
+        "BUDGET_ANCHOR_INVALID",
+        "PORTFOLIO_REQUEST_INVALID",
+        "AUDITED_EXECUTION_INVALID",
+        "AUDIT_REPLAY_INVALID",
+        "AUDIT_REPLAY_EXHAUSTED",
+        "AUDIT_RELATION_INVALID",
+        "CLEANUP_INVARIANT",
+        "SUPERVISOR_INVARIANT",
+        "WORKER_REQUEST_INVARIANT",
+        "WORKER_PLAN_INVARIANT",
+        "WORKER_STRATEGY_INVARIANT",
+        "WORKER_BUDGET_INVARIANT",
+        "WORKER_EXECUTABLE_INVARIANT",
+        "PORTFOLIO_INPUT_INVARIANT",
+        "PORTFOLIO_EXECUTION_INVARIANT",
+        "COORDINATOR_LIMIT_EXHAUSTED"
+      ]
+    },
+    "phase": {
+      "enum": [
+        "request",
+        "routing",
+        "planning",
+        "cleanup",
+        "audit",
+        "replay",
+        "coordinator"
+      ]
+    },
+    "subject_sha256": {"type": "null"},
+    "related_sha256s": {
+      "type": "array",
+      "maxItems": 0,
+      "items": {"$ref": "#/$defs/sha256"}
+    },
+    "diagnostic_sha256": {"$ref": "#/$defs/sha256"},
+    "mathematical_authority": {"const": false}
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "code": {"const": "REQUEST_INVALID"},
+            "phase": {"const": "request"},
+            "diagnostic_id": {"const": "execution_disposition.request.request_invalid"},
+            "diagnostic_sha256": {"const": "90baabc90c85f1b0bc5fa83d1b628894c849d1a0c3f754f50d7367f6cb33c8f7"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "INTENT_EVENT_MISMATCH"},
+            "phase": {"const": "request"},
+            "diagnostic_id": {"const": "execution_disposition.request.intent_event_mismatch"},
+            "diagnostic_sha256": {"const": "bead238d307f31774064e85a9eff322dab097d9e2b0bbc5f36959a2d3bc794a4"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "RESERVED_EXTENSION_COLLISION"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.reserved_extension_collision"},
+            "diagnostic_sha256": {"const": "d30e5da9a54c2416806e1ee25aefe58604db1d78d14ca661aa1e25f79e7b1518"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "ROUTE_INPUT_INVALID"},
+            "phase": {"const": "routing"},
+            "diagnostic_id": {"const": "execution_disposition.routing.route_input_invalid"},
+            "diagnostic_sha256": {"const": "018333924d47747b41a3872aae0963c6efe1c525b0b221c4403cc97b906b1431"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "PLANNING_INPUT_INVALID"},
+            "phase": {"const": "planning"},
+            "diagnostic_id": {"const": "execution_disposition.planning.planning_input_invalid"},
+            "diagnostic_sha256": {"const": "ad8b8b1d2d1cdc698bcb54fd11d66cd63f128cf08a2cd3ebccd5b484b5777632"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "BINDING_INPUT_INVALID"},
+            "phase": {"const": "request"},
+            "diagnostic_id": {"const": "execution_disposition.request.binding_input_invalid"},
+            "diagnostic_sha256": {"const": "6999dfdeeb401a0b4041feb0ecd4901ac7c95b8ea2f78ee8a8743c4349a43811"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "BINDING_INPUT_INVALID"},
+            "phase": {"const": "planning"},
+            "diagnostic_id": {"const": "execution_disposition.planning.binding_input_invalid"},
+            "diagnostic_sha256": {"const": "fd1c81f7f09abf5c7d3ef3bb2f1419ba72710baf8efa49338a8266c77f61ac75"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "ARTIFACT_INPUT_INVALID"},
+            "phase": {"const": "request"},
+            "diagnostic_id": {"const": "execution_disposition.request.artifact_input_invalid"},
+            "diagnostic_sha256": {"const": "76c49868efad1be0418170f19e49e987f88b4ef242f1505f59dd493bbc3b4e59"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "ARTIFACT_INPUT_INVALID"},
+            "phase": {"const": "planning"},
+            "diagnostic_id": {"const": "execution_disposition.planning.artifact_input_invalid"},
+            "diagnostic_sha256": {"const": "8d8b6e1676086927ffbe27edf258cff5f9d3cefa4a439fa987c10fbae37ce672"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "EXECUTION_INPUT_INVALID"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.execution_input_invalid"},
+            "diagnostic_sha256": {"const": "72a0e363f7ef28f449c70f5ebc2eeda7f6a85abb037f1e34c7d1f58ff10bf172"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "BUDGET_ANCHOR_INVALID"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.budget_anchor_invalid"},
+            "diagnostic_sha256": {"const": "e0ff348b08ce6bd02db23d33c7d51a18d36e1476d20dc7207b4d0adcb752d8a6"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "PORTFOLIO_REQUEST_INVALID"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.portfolio_request_invalid"},
+            "diagnostic_sha256": {"const": "150ed12317099d05f752eb74f5447ff183dcbe3933efa3957266c3edb2dc61b3"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "AUDITED_EXECUTION_INVALID"},
+            "phase": {"const": "audit"},
+            "diagnostic_id": {"const": "execution_disposition.audit.audited_execution_invalid"},
+            "diagnostic_sha256": {"const": "933661b491aa031a0a89355d2bf45b0bf9926c1129b92bd50b9ca4eb8155c8b7"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "AUDIT_REPLAY_INVALID"},
+            "phase": {"const": "replay"},
+            "diagnostic_id": {"const": "execution_disposition.replay.audit_replay_invalid"},
+            "diagnostic_sha256": {"const": "2d18cb7099d44b30925e64d1578f1c6ab8b88853c6654e01a1a87e09d64f12dc"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "AUDIT_REPLAY_EXHAUSTED"},
+            "phase": {"const": "replay"},
+            "diagnostic_id": {"const": "execution_disposition.replay.audit_replay_exhausted"},
+            "diagnostic_sha256": {"const": "438aa7e8e47005009f1dd2b26cbb95a235582e16fd3494d1817f433e58ee6a52"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "AUDIT_RELATION_INVALID"},
+            "phase": {"const": "audit"},
+            "diagnostic_id": {"const": "execution_disposition.audit.audit_relation_invalid"},
+            "diagnostic_sha256": {"const": "e29e1e3c9ef0d29138c2248319cb31ec30c9eb3f4efb9e0283042b3ab750fd59"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "CLEANUP_INVARIANT"},
+            "phase": {"const": "cleanup"},
+            "diagnostic_id": {"const": "execution_disposition.cleanup.cleanup_invariant"},
+            "diagnostic_sha256": {"const": "bfe554ec543a3645b856324e069ab617b7eb2fd7111cb3f71406392f2ff71b93"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "SUPERVISOR_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.supervisor_invariant"},
+            "diagnostic_sha256": {"const": "f45cef45d22e386cbdc171b2ab90ead5adf921525513479d4d67123683173a9e"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "WORKER_REQUEST_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.worker_request_invariant"},
+            "diagnostic_sha256": {"const": "d7096f872902e66285722bc827b6a6065386680510169665d2588348723d573b"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "WORKER_PLAN_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.worker_plan_invariant"},
+            "diagnostic_sha256": {"const": "c7890d33d3137851bbe69272bcb93c37b9434915333aa32052866e62a384a791"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "WORKER_STRATEGY_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.worker_strategy_invariant"},
+            "diagnostic_sha256": {"const": "cbd7a0173331c4ac0676b86afb4135047bb4b3883495efe943102eccd30f6619"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "WORKER_BUDGET_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.worker_budget_invariant"},
+            "diagnostic_sha256": {"const": "d17a5f51c573edea3541c97a7e813ec9769718075bd1740c378261ea31ed74c3"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "WORKER_EXECUTABLE_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.worker_executable_invariant"},
+            "diagnostic_sha256": {"const": "9503b0a21b99fe18644b9d7d6ce92909ea1d6b6b682f592a9c60868a1ed5f3e4"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "PORTFOLIO_INPUT_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.portfolio_input_invariant"},
+            "diagnostic_sha256": {"const": "7732001281adb369cc5ab00d9b884ee2795b657adb36f7479d4b845c9e2ca546"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "PORTFOLIO_EXECUTION_INVARIANT"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.portfolio_execution_invariant"},
+            "diagnostic_sha256": {"const": "4f4075683e480f4f068b10c2a3f28ff36d70c0244039342ae4fd2a1b79f0e330"}
+          }
+        },
+        {
+          "properties": {
+            "code": {"const": "COORDINATOR_LIMIT_EXHAUSTED"},
+            "phase": {"const": "coordinator"},
+            "diagnostic_id": {"const": "execution_disposition.coordinator.coordinator_limit_exhausted"},
+            "diagnostic_sha256": {"const": "397b361e538321241fd17a401ebc8fb9cf8e79c9c1421fed7dc4356f5b3d2fad"}
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    }
+  }
+}

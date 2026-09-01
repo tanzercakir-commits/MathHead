@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathhead.dev/schemas/cancellation-intent-v1.schema.json",
+  "title": "MathHead Cancellation Intent v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "intent_id",
+    "origin_source",
+    "reason_code",
+    "invocation_id",
+    "invocation_sha256",
+    "base_parent_budget_sha256",
+    "policy_contract_id",
+    "policy_contract_sha256",
+    "intent_sha256",
+    "mathematical_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mathhead.cancellation-intent.v1"
+    },
+    "intent_id": {
+      "$ref": "#/$defs/id"
+    },
+    "origin_source": {
+      "enum": [
+        "user",
+        "parent",
+        "supervisor"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "requested",
+        "superseded",
+        "shutdown",
+        "policy_stop"
+      ]
+    },
+    "invocation_id": {
+      "$ref": "#/$defs/id"
+    },
+    "invocation_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "base_parent_budget_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "policy_contract_id": {
+      "const": "MH-C-EXECUTION-DISPOSITION-001"
+    },
+    "policy_contract_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "intent_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mathematical_authority": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,254}$",
+      "maxLength": 255
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    }
+  }
+}

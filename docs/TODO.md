@@ -27,8 +27,9 @@ supersede the accepted planner, worker, portfolio, audit, replay, store, cache,
 ResourceBudget, EngineResult, Evidence, Certificate, or trust-transition
 behavior.
 
-A cancellation intent is immutable canonical data that binds one unique intent
-ID, an origin source from the closed set `user`, `parent`, or `supervisor`, a
+A cancellation intent is immutable canonical data that binds one
+invocation-scoped intent ID, an origin source from the closed set `user`,
+`parent`, or `supervisor`, a
 closed reason code, the exact invocation inputs, accepted policy identity, and
 the base parent-budget identity. The disposition request and the live
 `threading.Event` are armed together or absent together. Before constructing
@@ -47,7 +48,10 @@ passes that same instance unchanged to the sole audited execution. The result
 must keep origin source and observer source separate: the current worker ledger
 records a bare observed event as `source: supervisor` with its local
 cancellation ID, while the anchored request may establish a distinct upstream
-origin and intent ID. Neither fact may overwrite the other.
+origin and intent ID. Neither fact may overwrite the other. Audit v5 omits the
+child-budget bytes, so MH-056 may derive `observer_source=supervisor` only from
+the replayed worker status plus the accepted worker contract, and must retain
+`observer_cancellation_id=null` rather than claim that local ID was replayed.
 
 Classify `user_cancellation` only when an origin=`user` intent was committed
 before launch, the same armed event was passed to the sole audited run, fresh
@@ -55,9 +59,13 @@ replay proves that the worker actually observed cancellation, child cleanup and
 parent reconciliation succeeded, and no higher-precedence internal failure
 occurred. A token supplied after execution, an unanchored old audit, a final
 event state, or a set event that the completed worker never observed cannot
-produce user cancellation. An unanchored cancelled audit remains
-`cancellation_origin_unproven` or supervisor/parent cancellation according to
-the governed evidence. This mechanism commits a claimed origin; authenticating
+produce user cancellation. `cancellation_origin_unproven` remains a closed
+historical-verifier catalogue value but is unreachable from this strict fresh
+coordinator: a stale, substituted, or unanchored audit returned across its
+accepted boundary is the higher-precedence internal-error relation. A later
+separately contracted historical-audit verifier may expose the reserved value
+without presenting that history as a new MH-056 execution. This mechanism
+commits a claimed origin; authenticating
 the physical human or remote principal requires signatures or attestation and
 is outside this task.
 
@@ -89,18 +97,85 @@ Evidence marked unsupported and checker Certificate marked unsupported remain
 producer and verifier refusals. Unsupported, ambiguity, absent strategies, and
 exhaustion never mean false, disproved, inconsistent, or impossible.
 
-Producer failure derives only from producer-phase launch, exit, protocol, or
-Evidence-construction failure. Verifier failure derives only from the bound
-checker phase, including checker launch, exit, protocol, Certificate, or
-verification-replay failure. Checker disagreement, invalid evidence, and
+For route `NO_COMPATIBLE_CAPABILITY`, classify each exact incompatibility group
+identified by descriptor and capability. Structural blockers are
+`AMBIGUITY_UNSUPPORTED`, `ARITHMETIC_MISMATCH`,
+`CAPABILITY_KIND_MISMATCH`, `CERTIFICATE_FORMAT_MISMATCH`, `DOMAIN_MISMATCH`,
+`EVIDENCE_FORMAT_MISMATCH`, `EXPRESSION_KIND_MISMATCH`, `FEATURE_FORBIDDEN`,
+`FEATURE_REQUIRED`, `LIMIT_EXCEEDED`, `OPERATION_MISMATCH`,
+`QUANTIFIER_MISMATCH`, `RELATION_KIND_MISMATCH`, and `THEORY_MISMATCH`.
+Availability blockers are `DEPENDENCY_UNAVAILABLE`, `EFFECT_FORBIDDEN`,
+`EXTENSION_UNAVAILABLE`, `LIFECYCLE_UNAVAILABLE`, `PLATFORM_UNAVAILABLE`, and
+`PYTHON_VERSION_UNAVAILABLE`. An empty descriptor inventory, or at least one
+group with no structural blocker and one or more availability blockers, is
+unsupported execution environment; otherwise it is unsupported input.
+`REPLAY_MODE_UNAVAILABLE` must be recomputed: it is structural when the mode is
+absent from the descriptor operation or plugin supported-replay set, and
+availability-only when both intrinsic sets support it but the exact
+availability set does not.
+
+Producer failure derives only from a complete replayable producer-phase
+exit, protocol, Evidence-construction failure, or the accepted exact producer
+launch-precondition relation. Verifier failure derives only from a complete
+replayable bound-checker exit, protocol, Certificate, verification failure, or
+the accepted exact checker launch-precondition relation. A final producer
+`refused/LAUNCH_FAILED` may map to `producer_failure` only when fresh complete
+replay proves outer `failed/LAUNCH_FAILED`, final outcome `producer_error`, no
+Evidence, checker not started, the matching producer worker observation,
+unchanged parent ledger for that refused worker, and a terminal failed
+transition. The checker analogue requires outer
+`verifier_failed/LAUNCH_FAILED`, a completed producer with validated Evidence,
+checker `refused/LAUNCH_FAILED`, no decision or Certificate, the matching
+checker observation, unchanged checker ledger, and a terminal verifier-failed
+transition. Both exact branches retain `portfolio_relation=exact` and
+`portfolio_outcome_kind=launch_refused`. An earlier fallback launch refusal never outranks the final
+terminal attempt. A real low-level worker `failed/LAUNCH_FAILED` that lacks
+containment and reconciliation and therefore cannot survive the accepted
+portfolio and audit graph as complete phase evidence is an internal audit
+error; a replay-complete but mismatched launch relation is an audit-relation
+internal error with `portfolio_relation=invalid`. `EXECUTABLE_INVALID` requires
+another exact discriminator: a replayed `refused` worker is component refusal
+with `executable_refused`, while a replayed `invalid` worker is internal error
+with `executable_invalid` and `WORKER_EXECUTABLE_INVARIANT`. MH-056 must not invent a component-specific claim from an
+incomplete relation. Checker disagreement, invalid evidence, and
 producer/verifier refusal remain explicit unless the accepted closed table maps
 the exact source otherwise. Supervisor, coordinator, cleanup, audit
 construction, fresh replay, cross-layer invariant, and impossible-relation
 failures are internal errors and may not be laundered into either component.
 
-Internal results carry bounded stable codes and phases without traceback,
-exception prose, raw diagnostics, argv, paths, environment values, secrets,
-host identity, or machine-specific spelling. `MemoryError`,
+Reproduce all 49 accepted `run-logical-report-v3` portfolio status/reason pairs
+in one exhaustive result table. Every pair must have one ordinary cause, one
+exact internal owner, or one named governed discriminator. In particular,
+`inconclusive/CHECKER_INCONCLUSIVE` is `verifier_refusal` only for a freshly
+replayed Certificate verdict `unsupported` with
+`certificate_unsupported`, and `inconclusive_execution` only for verdict
+`inconclusive` with `certificate_inconclusive`; a missing or mismatched
+decision/Certificate relation is `AUDIT_RELATION_INVALID`.
+
+Map exact replay-complete `failed|verifier_failed` worker-invalid reasons
+`REQUEST_INVALID`, `PLAN_INVALID`, `STRATEGY_MISMATCH`, and `BUDGET_INVALID`
+to coordinator diagnostics `WORKER_REQUEST_INVARIANT`,
+`WORKER_PLAN_INVARIANT`, `WORKER_STRATEGY_INVARIANT`, and
+`WORKER_BUDGET_INVARIANT`. Map `TREE_CLEANUP_FAILED` only to
+`cleanup/CLEANUP_INVARIANT`, `SUPERVISOR_FAILED` only to
+`coordinator/SUPERVISOR_INVARIANT`, and exact `invalid` portfolio reasons to
+`PORTFOLIO_INPUT_INVARIANT` or `PORTFOLIO_EXECUTION_INVARIANT`. A broken
+required relation instead has `portfolio_relation=invalid` and
+`audit/AUDIT_RELATION_INVALID`. Worker-origin, cleanup, and supervisor rows
+require the exact role-specific final attempt, observation, ledger, and
+transition. `PORTFOLIO_INPUT_INVALID` instead requires the accepted prelaunch
+shape with no attempts or worker observations, null portfolio ledger endpoints,
+and unchanged forensic ledger. `PORTFOLIO_EXECUTION_INVALID` preserves and
+replays the accepted zero-or-partial attempt/ledger prefix and never fabricates
+a final failure attempt.
+
+Every invalid or internal result carries exactly one static diagnostic; ordinary
+results carry none. Its ID is
+`execution_disposition.<phase>.<lowercase_code>`, subject is null, related
+identities are empty, and its self-hash is independently recomputed with only
+that hash field null. No alternative ID, arbitrary content identity, second
+diagnostic, traceback, exception prose, raw diagnostic, argv, path, environment
+value, secret, host identity, or machine-specific spelling is retained. `MemoryError`,
 `KeyboardInterrupt`, and `SystemExit` propagate according to accepted cleanup
 behavior and are never serialized as success, cancellation, refusal, producer
 failure, or verifier failure.
@@ -117,7 +192,8 @@ or refusal evidence or be presented as a new MH-056 execution.
 The canonical result must bind the complete disposition request, base and
 anchored parent-budget identities, optional intent, fresh replay result, audit
 manifest, logical report, terminal portfolio result, exact upstream status and
-reason, classification and precedence row, origin and observer where present,
+reason, `portfolio_relation`, governed `portfolio_outcome_kind`, classification
+and precedence row, origin and observer where present,
 resource dimensions where present, selected evidence/checker identities where
 present, and an explicit zero-authority ceiling. It may link an already checked
 proof or refutation but must not create new Evidence, Certificate, audit
@@ -126,6 +202,31 @@ canonical inputs and complete replayed evidence produce byte-identical result
 bytes across fresh processes, hash seeds, and supported platforms; clock,
 scheduling, arrival order, event identity, paths, PIDs, signals, exception
 text, and host state never enter the identity.
+
+The result must expose an explicit nullable `cancellation_armed` field and
+close request cancellation identity to exactly three shapes: no validated
+request gives request/invocation/armed/intent `null/null/null/null`; an
+unarmed validated request gives `SHA/SHA/false/null`; an armed validated
+request gives `SHA/SHA/true/SHA`. Every nonnull value must equal the retained
+validated request's request SHA, invocation SHA, armed flag, and independently
+recomputed embedded intent SHA. A swapped, copied, arbitrary, or repaired
+intent digest is an internal bundle-relation failure even for a
+non-cancellation result.
+
+Prelaunch evidence must follow a closed milestone matrix. Raw request failure
+retains no validated or downstream identity. Request-phase mismatches retain
+only a validated request; routing failure retains no planning or budget
+evidence and either no route pair or exact `invalid/INVALID_INPUT`; planner
+failure retains routed evidence plus exact `invalid/INVALID_INPUT`; post-plan
+binding failure retains exact `planned/PLANNED`; execution-input failure adds
+no budget; reserved-extension collision and budget-anchor failure retain only
+the validated base budget beyond the plan; portfolio-request failure may also
+retain the validated anchor but no portfolio request. `not_started` always
+omits audit, report, replay, portfolio-result, provenance, and terminal status,
+but does not erase a legitimately reached base, anchor, or portfolio-request
+milestone. Coordinator limit exhaustion occurs before validated retention or
+effect. No generic coordinator or classification-invariant result branch may
+reuse any reached milestone.
 
 This task defines the shared semantic record that later adapters must consume.
 It does not freeze Python API v2, assign CLI exit codes, choose HTTP or MCP
@@ -141,7 +242,7 @@ problem-session, execution-provenance, trust-transition,
 `MH-C-RUN-AUDIT-STORE-006`, `MH-C-SAFE-CACHE-002`, and
 `MH-C-SAFE-CACHE-STORE-002` identities. Before production implementation,
 separately propose, independently prescreen, and accept
-one new versioned execution-disposition contract for the additive outer
+the new versioned `MH-C-EXECUTION-DISPOSITION-001` contract for the additive outer
 coordinator, pre-execution request and budget anchor, exact-once audited
 execution, fresh replay, closed classification table, and immutable
 adapter-neutral result.
@@ -171,13 +272,30 @@ mutable aliases; and unbounded parsing or replay.
 
 **Validators:** exercise checked proof and refutation plus every required
 non-success class with real governed artifacts: preobserved and mid-run user
-cancellation, unbound and origin-unproven cancellation, parent and supervisor
-cancellation, every resource-exhaustion dimension, route-level unsupported
-input, unsupported isolation, producer refusal, verifier refusal, producer
-launch/exit/protocol/Evidence failure, checker launch/exit/protocol/Certificate
-failure, verifier replay failure, and injected coordinator, cleanup, audit, and
-replay invariant failure. Preserve separate ambiguity, truncation,
+cancellation, parent and supervisor cancellation, every resource-exhaustion
+dimension, route-level unsupported
+input, unsupported isolation, producer refusal, verifier refusal, replayable
+producer exit/protocol/Evidence failure, replayable checker
+exit/protocol/Certificate failure, and injected producer/checker launch,
+coordinator, cleanup, audit, and replay invariant failure. Exercise both
+replay-complete `refused/LAUNCH_FAILED` component mappings, prove that a prior
+launch-refusal fallback does not outrank a later terminal result, and exercise
+a genuine low-level `failed/LAUNCH_FAILED` to prove internal error when the
+accepted graph cannot retain complete phase evidence. Mutate the final attempt
+and worker-observation relation to prove replay-complete mismatches also fail
+closed as internal. Preserve separate ambiguity, truncation,
 inconclusive, disagreement, invalid-evidence, and invalid-request outcomes.
+Exercise the reserved origin-unproven catalogue shape independently, and inject
+genuine stale or unbound cancelled history to prove that this coordinator
+returns internal error and never retrofits user attribution.
+
+Independently reconstruct the accepted 49-pair portfolio matrix. Exercise every
+exact internal pair for both producer and checker roles where applicable, the
+refused-versus-invalid `EXECUTABLE_INVALID` discriminator, and the
+unsupported-versus-inconclusive Certificate discriminator. Mutate each pair's
+status, reason, relation, outcome kind, final attempt, worker observation,
+ledger, transition, decision, Certificate verdict, code, and phase so no pair
+can cross into another cause or a generic internal branch.
 
 Prove by call-count and identity observation that valid planned execution calls
 the audited boundary exactly once, passes the same exact Event instance,
@@ -186,9 +304,14 @@ an early outcome, never retries, and completes fresh replay before
 presentation. Cover an event already set, set during producer work, set during
 checker work, never set, and set only after successful completion; intent
 without event, event without armed intent, mismatched intent/request, reserved
-extension collision, reused or cross-run intent, substituted base or anchored
-budget, repaired hashes, and forged cancellation IDs must fail closed without
-false user attribution.
+extension collision, reuse against a changed invocation ID or semantic input,
+substituted base or anchored budget, repaired hashes, and forged cancellation
+IDs must fail closed without false user attribution. Also mutate every result
+request, invocation, armed, and intent field independently, including swapped
+valid intent digests on non-cancellation results, and reject every shape except
+the exact retained-request projection. Byte-identical reuse of
+the exact same canonical invocation is observationally the same invocation;
+this stateless boundary makes no durable global single-use claim.
 
 Mutate every request, intent, route, plan, budget anchor, portfolio request,
 manifest, object, report, event, worker observation, ledger, attempt, phase,
@@ -199,7 +322,10 @@ bool-as-int, float, duplicate-key, NUL, non-NFC, excessive-nesting, subclass,
 mutation, copy, and pickle attacks. Require an independent validator to
 reconstruct schemas, the pre-execution anchor, exact-once ordering, fresh audit
 replay, classification precedence, cause/phase mapping, resource dimensions,
-and authority ceiling without importing production disposition helpers.
+and authority ceiling without importing production disposition helpers. For
+every static diagnostic independently reconstruct its ID and own-null self-hash,
+then reject altered ID, code, phase, subject, related identities, hash, a second
+diagnostic, and repaired outer hashes.
 
 Add accepted-contract and schema checks, unit, property/adversarial, and
 fresh-process suites, frozen deterministic reports, updated documentation,

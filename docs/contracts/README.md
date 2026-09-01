@@ -120,24 +120,42 @@ before the critical implementation that they govern.
   trust-transition identities, and is accepted under the project owner's
   programme-wide authority at SHA-256
   `b59384b54d10665528540e470a3e5b6f7eae8bdcce198d6814a7459c073e0144`.
-- `MH-C-AUDITED-RUN-004.json` governs exact audited execution, safe lifecycle
-  capture, canonical semantic record order, closed worker-result preimages,
-  prelaunch-invalid ledger closure, and digest-free invalid-output handling.
-  It supersedes `003`, binds the active audit graph, and is accepted at SHA-256
-  `9079e68799fe032d982be87034ecb42cbc4b9a8486f370f01ace12a21d2ac4c4`.
-- `MH-C-RUN-AUDIT-REPLAY-004.json` governs effect-free hostile-byte logical
-  replay and independently reconstructs object order, every worker link,
-  lifecycle events, and the logical report. It supersedes `003`, binds the v4
-  replay result, and is accepted at SHA-256
-  `04f484fc85486bcf8b17519128cd74336ff1834e76ab8d5e2713022d91c02c3b`.
-- `MH-C-RUN-AUDIT-STORE-005.json` governs the pinned descriptor-relative
+- `MH-C-AUDITED-RUN-005.json` governs exact audited execution, safe lifecycle
+  capture, canonical semantic record order, complete current-session execution
+  provenance, and closed worker and budget relations. It supersedes `004`,
+  binds the active v5 audit graph, and is accepted at SHA-256
+  `42e6cfcb704bc1b40b8c0a9143c4bfdaa34b0228a85621d9464e28c8481a39a7`.
+- `MH-C-RUN-AUDIT-REPLAY-005.json` governs effect-free hostile-byte logical
+  replay and independently reconstructs the complete v5 object, provenance,
+  worker, ledger, event, portfolio, and logical-report closure. It supersedes
+  `004` and is accepted at SHA-256
+  `cc1170556ddba8bf4232fff5dc14f1bdb95d7d558540d5066fb4379b9c1c2cde`.
+- `MH-C-RUN-AUDIT-STORE-006.json` governs the pinned descriptor-relative
   append-only store, immutable run-record commit point, exact deduplication,
   durable boundaries, ancestor-replacement exclusion, relocation, and fresh
-  replay on read. It supersedes the historical intermediate `004`, binds the
-  v5 store result, and is accepted at SHA-256
-  `399bcb9d97217d249d9200697281a25052476f67f8435740fa32d6c7ed2c272b`.
-  Accepted audit/replay/store versions `001` through `003` and store `004`
-  remain immutable migration evidence and are not current success identities.
+  v5 replay on read. It supersedes `005` and is accepted at SHA-256
+  `327f5d55b86433b803f22ba019b8adf5fe3a4bf8bc0dbdf4b1472c276bedff5e`.
+  Earlier accepted audit, replay, and store versions remain immutable migration
+  evidence and are not current success identities.
+- `MH-C-SAFE-CACHE-002.json` governs the pure provenance-bound cache decision,
+  complete fresh v5 replay, exact checked selection, closed non-hit outcomes,
+  and zero execution or mathematical authority. It supersedes `001` and is
+  accepted at SHA-256
+  `35cd004a1ed91f2c3969a6b295722b8099ee9fc36f3fc15170d5d1082d2bfab4`.
+- `MH-C-SAFE-CACHE-STORE-002.json` governs the separate immutable cache entry
+  and key store, current-input key derivation, STORE-006 loading, complete
+  SAFE-CACHE-002 revalidation, and the absence of worker or fallback execution.
+  It supersedes `001` and is accepted at SHA-256
+  `4ed580fcb08191bfc7caa8901a4f5b74456cd9fc178f17b8a2530b0599368ed2`.
+- `MH-C-EXECUTION-DISPOSITION-001.json` governs the canonical invocation and
+  optional cancellation intent, request-owned budget anchor, one audited call,
+  one additional fresh replay, all 49 closed portfolio outcomes, static
+  diagnostics, exact evidence milestones, and a permanent zero-authority
+  ceiling. It binds `cancellation-intent-v1`, `execution-disposition-request-v1`,
+  `execution-disposition-classification-v1`,
+  `execution-disposition-diagnostic-v1`, and
+  `execution-disposition-result-v1`, and is accepted at SHA-256
+  `64a7950b13449ee942d003d4e56b482b104769db15cd3080a1011a2a45eb4f96`.
 - `MH-C-TRUST-BASE-001.json` governs the complete static trusted-computing-base
   inventory, authority and role separation, import and effect ownership,
   deterministic entry-point closures, P3 migration ownership, and the closed

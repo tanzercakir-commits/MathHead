@@ -449,7 +449,8 @@ class ContractBootstrapTests(unittest.TestCase):
                             )
                         )
 
-        one = lambda value: frozenset({value})
+        def one(value: str) -> frozenset[str]:
+            return frozenset({value})
         none = None
 
         def row(

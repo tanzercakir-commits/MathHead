@@ -711,3 +711,24 @@ command = "python tools/contract_artifacts.py verify --contract MH-C-SAFE-CACHE-
 profiles = ["status", "fast"]
 tasks = ["MH-055"]
 timeout_seconds = 60
+
+[[checks]]
+name = "execution-disposition-tests"
+command = "python -m unittest discover -s tests/execution_disposition -v"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 240
+
+[[checks]]
+name = "execution-disposition-validator"
+command = "python tools/validate_execution_disposition.py"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 240
+
+[[checks]]
+name = "execution-disposition-contract"
+command = "python tools/contract_artifacts.py verify --contract MH-C-EXECUTION-DISPOSITION-001 --require-bound"
+profiles = ["status", "fast"]
+tasks = ["MH-056"]
+timeout_seconds = 60

@@ -206,15 +206,15 @@ python tools/validate_run_audit.py
 python -m unittest discover -s tests/run_audit_store -v
 python tools/validate_run_audit_store.py
 python tools/contract_artifacts.py verify \
-  --contract MH-C-AUDITED-RUN-004 --require-bound
+  --contract MH-C-AUDITED-RUN-005 --require-bound
 python tools/contract_artifacts.py verify \
-  --contract MH-C-RUN-AUDIT-REPLAY-004 --require-bound
+  --contract MH-C-RUN-AUDIT-REPLAY-005 --require-bound
 python tools/contract_artifacts.py verify \
-  --contract MH-C-RUN-AUDIT-STORE-005 --require-bound
+  --contract MH-C-RUN-AUDIT-STORE-006 --require-bound
 ```
 
-The current frozen reports are `reports/run-audit-v4.json` and
-`reports/run-audit-store-v5.json`; earlier reports remain historical evidence.
+The current frozen reports are `reports/run-audit-v5.json` and
+`reports/run-audit-store-v6.json`; earlier reports remain historical evidence.
 
 ## Content-addressed safe cache
 
@@ -248,10 +248,45 @@ python tools/validate_safe_cache.py
 python -m unittest discover -s tests/safe_cache_store -v
 python tools/validate_safe_cache_store.py
 python tools/contract_artifacts.py verify \
-  --contract MH-C-SAFE-CACHE-001 --require-bound
+  --contract MH-C-SAFE-CACHE-002 --require-bound
 python tools/contract_artifacts.py verify \
-  --contract MH-C-SAFE-CACHE-STORE-001 --require-bound
+  --contract MH-C-SAFE-CACHE-STORE-002 --require-bound
 ```
 
-The frozen independent reports are `reports/safe-cache-v1.json` and
-`reports/safe-cache-store-v1.json`.
+The frozen independent reports are `reports/safe-cache-v2.json` and
+`reports/safe-cache-store-v2.json`.
+
+## Closed execution disposition
+
+MH-056 adds the zero-authority `execute_with_disposition` presentation
+boundary. One canonical request binds the exact route, plan, optional base
+budget, descriptors, plan-order bindings, ordered role/artifact inventory,
+invocation identity, and optional cancellation intent before execution. A
+planned request derives one request-anchored parent budget and one portfolio
+request, calls `execute_audited_run` exactly once, and performs exactly one
+additional `replay_run_audit` before classification. The coordinator performs
+no cache, store, persistence, direct worker, retry, or fallback effect.
+
+Classification is closed over all 49 accepted portfolio status/reason pairs.
+Checked results may link the already validated upstream Evidence, Certificate,
+checker decision, and authority tier, but the disposition itself always has
+`authority_ceiling: none` and `mathematical_authority: false`. Cancellation
+requires both a precommitted invocation-scoped intent and an exact replayed
+terminal worker observation; the live `Event` is forwarded unchanged and its
+final state is never sampled for presentation. Stale or cross-input audit
+graphs, invalid replay, malformed worker/ledger/transition relations, and
+unowned invariants fail closed as static internal diagnostics.
+
+Validate the five normative schemas, strict codecs, early and planned paths,
+exact-once effects, cancellation anchoring, hostile relation checks, and the
+independent production binding with:
+
+```bash
+python -m unittest discover -s tests/execution_disposition -v
+python tools/validate_execution_disposition.py
+python tools/contract_artifacts.py verify \
+  --contract MH-C-EXECUTION-DISPOSITION-001 --require-bound
+```
+
+The frozen independent report is
+`reports/execution-disposition-v1.json`.

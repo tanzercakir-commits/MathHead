@@ -141,6 +141,10 @@ AUTHORITY_LITERAL_COUNTS = {
         "checker_attestation": 2,
         "producer_report": 4,
     },
+    "src/mathhead/execution_disposition.py": {
+        "checker_attestation": 3,
+        "external_proof_assistant": 3,
+    },
     "src/mathhead/kernel/checkers.py": {"checker_attestation": 2},
     "src/mathhead/kernel/provenance.py": {"checker_attestation": 2},
     "src/mathhead/kernel/sat.py": {"checker_attestation": 1},

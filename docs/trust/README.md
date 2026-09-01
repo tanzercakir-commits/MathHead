@@ -22,7 +22,7 @@ effect ceiling, semantic replay boundary, and regeneration command.
 
 ## Current result
 
-The static boundary contains 147 Python modules, 39 non-`mathhead` import
+The static boundary contains 148 Python modules, 39 non-`mathhead` import
 roots, 24 classified trust surfaces, and twelve supported entry points. Every
 source module and import edge is represented in the deterministic report. A
 new source file, import edge, import root, dynamic import call, effect owner,
@@ -64,6 +64,7 @@ The important current distinctions are:
 | `run_audit_store.py` | no mathematical authority | append-only filesystem adapter with an immutable run-record commit point; every visible run is rehashed and freshly replayed before use |
 | `safe_cache.py` | no mathematical authority | pure exact-context key and reuse decision; a hit requires fresh complete audit replay and preserves the original checked tier without granting authority |
 | `safe_cache_store.py` | no mathematical authority | separate immutable entry-and-key store; every present lookup reloads the accepted audit store and reruns the pure decision without executing producers or checkers |
+| `execution_disposition.py` | no mathematical authority | closed presentation coordinator; binds one invocation and optional cancellation intent, executes one audited run, performs one additional fresh replay, and classifies only exact replayed relations without creating authority |
 | MCP, CLI, workers, filesystem, clock, random, dynamic import | none | keep outside the checker and red-team transitions in MH-037 |
 
 The report also preserves two current import cycles rather than hiding them:
@@ -181,4 +182,29 @@ python tools/validate_safe_cache.py
 python tools/validate_safe_cache_store.py
 python -m unittest discover -s tests/safe_cache -v
 python -m unittest discover -s tests/safe_cache_store -v
+```
+
+## Zero-authority execution disposition
+
+MH-056 presents one ordinary governed outcome without changing the authority
+of any upstream object. The request commits exact semantic inputs and an
+optional invocation-scoped cancellation intent. A planned call derives the
+anchored budget and portfolio request, invokes the accepted audited boundary
+once, then performs one additional hostile-byte replay. It does not consult or
+write the safe cache or either store, invoke a worker directly, retry, or infer
+truth from process completion.
+
+The returned disposition may link a freshly replayed checked Evidence,
+Certificate, checker decision, and existing tier, but it cannot create, repair,
+copy, or upgrade them. Cancellation, exhaustion, refusal, unsupported input,
+failure, and internal diagnostics remain non-mathematical execution facts.
+Every result and diagnostic has zero mathematical authority, and stale or
+cross-input evidence is an internal relation failure rather than a normalized
+success or cancellation.
+
+```bash
+python tools/validate_execution_disposition.py
+python -m unittest discover -s tests/execution_disposition -v
+python tools/contract_artifacts.py verify \
+  --contract MH-C-EXECUTION-DISPOSITION-001 --require-bound
 ```
